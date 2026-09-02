@@ -1,6 +1,6 @@
 """T2-7: a rankable unit without a complete positive finite scale is an ORGANIZER failure.
 
-Two faults, both armed and both latent because today every unit that has a scale is exactly a
+Three faults, all armed and all latent because today every unit that has a scale is exactly a
 unit that has an answer:
 
 * a partial scale (`{"tail": 1.0}`) raised an **uncaught `KeyError: 'marginal'`** out of the
@@ -8,6 +8,9 @@ unit that has an answer:
   dict is truthy;
 * `ctx.setdefault("ref_scale", None)` made a missing scale file a silent fall back to raw
   components, and the driver then averaged raw and normalized composites together.
+* the joint component does not exist on a 1-cell variogram grid, so the correct scale
+  (`joint: 0.0`) was refused as non-positive -- 60 of 104 public cards. Latent only because the
+  generator writes a placeholder `1.0`.
 
 They go live the moment the backfill runs, because `build_ref_scales.py` is a separate manual step
 after `backfill_realized.py` with nothing enforcing the pairing.
@@ -39,7 +42,7 @@ def test_positive_control_complete_scale_loads(tmp_path: pathlib.Path) -> None:
     reference = tmp_path / "reference"
     _write_scale(reference, {"marginal": 0.5, "joint": 2.0, "tail": 0.25})
     scale = load_ref_scale(reference)
-    assert scale.as_mapping() == {"marginal": 0.5, "joint": 2.0, "tail": 0.25}
+    assert scale.as_mapping(joint_weight=0.3) == {"marginal": 0.5, "joint": 2.0, "tail": 0.25}
 
 
 def test_missing_scale_is_an_organizer_fault_not_a_raw_fallback(tmp_path: pathlib.Path) -> None:
@@ -96,7 +99,7 @@ def test_positive_control_the_generator_shape_loads(tmp_path: pathlib.Path) -> N
         },
     )
     scale = load_ref_scale(reference)
-    assert scale.as_mapping() == {"marginal": 0.0533, "joint": 1.0, "tail": 0.12}
+    assert scale.as_mapping(joint_weight=0.3) == {"marginal": 0.0533, "joint": 1.0, "tail": 0.12}
 
 
 def test_non_numeric_scale_value_is_refused(tmp_path: pathlib.Path) -> None:
@@ -185,12 +188,9 @@ def test_refscale_construction_is_the_validation() -> None:
 
 
 # --------------------------------------------------------------------------- #
-# The joint component does not exist on a 1-cell grid                          #
+# The joint component does not exist on a 1-cell variogram grid                #
 # --------------------------------------------------------------------------- #
-# The variogram is a between-cells statistic, so a 1-cell baseline scores 0 and `0.0` is the
-# CORRECT scale -- which the positivity rule refused, making the correct scale unloadable for 60 of
-# 104 public cards. `load_ref_scale` raises outside the participant try/except, so that was a
-# whole-evaluation abort, not a dropped unit.
+# See normalization._OPTIONAL_COMPONENT for why, and for the blast radius.
 
 
 def test_single_cell_zero_joint_is_the_correct_value_not_a_fault(tmp_path: pathlib.Path) -> None:
@@ -203,21 +203,66 @@ def test_single_cell_zero_joint_is_the_correct_value_not_a_fault(tmp_path: pathl
 
 
 @pytest.mark.parametrize(
-    "payload", [{"marginal": 0.5, "tail": 0.12}, {"marginal": 0.5, "joint": None, "tail": 0.12}]
+    "payload",
+    [
+        {"marginal": 0.5, "tail": 0.12},  # key absent
+        {"marginal": 0.5, "joint": None, "tail": 0.12},
+        {"marginal": 0.5, "joint": 0.0, "tail": 0.12},
+        {"marginal": 0.5, "joint": -0.0, "tail": 0.12},
+        {"marginal": 0.5, "joint": 0, "tail": 0.12},  # JSON int
+        {"marginal": 0.5, "joint": 1.0, "tail": 0.12},  # what the generator writes today
+        {"marginal": 0.5, "joint": 2.5, "tail": 0.12},
+    ],
 )
-def test_single_cell_scale_may_omit_the_joint_component(
+def test_every_numeric_joint_is_dropped_on_a_single_cell_grid(
     tmp_path: pathlib.Path, payload: dict[str, object]
 ) -> None:
+    """Dropped whatever the file says. Carrying a positive one through would make `joint is None`
+    mean "the file was honest" rather than "the grid has no joint", and `as_mapping`'s guard would
+    then cover only the honest minority."""
     reference = tmp_path / "reference"
     _write_scale(reference, payload)
     assert load_ref_scale(reference, cell_count=1).joint is None
 
 
-def test_single_cell_positive_joint_is_accepted_and_unused(tmp_path: pathlib.Path) -> None:
-    """The generator writes `1.0` there today; refusing it would fail every existing scale file."""
+@pytest.mark.parametrize("joint", [-1.0, float("inf"), float("nan"), "1.0", True, [1.0]])
+@pytest.mark.parametrize("cell_count", [None, 1, 2])
+def test_a_joint_that_is_not_a_scale_is_refused_on_every_grid_shape(
+    tmp_path: pathlib.Path, cell_count: int | None, joint: object
+) -> None:
+    """The relaxation widens which VALUES are acceptable, never the type. `true` matters most:
+    `float(False) == 0.0`, so a JSON bool would read as "component absent" without the guard."""
     reference = tmp_path / "reference"
-    _write_scale(reference, {"marginal": 0.5, "joint": 1.0, "tail": 0.12})
-    assert load_ref_scale(reference, cell_count=1).joint == 1.0
+    _write_scale(reference, {"marginal": 0.5, "joint": joint, "tail": 0.12})
+    with pytest.raises(OrganizerFault):
+        load_ref_scale(reference, cell_count=cell_count)
+
+
+@pytest.mark.parametrize("dropped", ["marginal", "tail"])
+@pytest.mark.parametrize("how", ["absent", "null"])
+def test_the_single_cell_relaxation_applies_to_joint_and_nothing_else(
+    tmp_path: pathlib.Path, dropped: str, how: str
+) -> None:
+    """A 1-cell grid still HAS a marginal and a tail. Dropping one is the partial-scale KeyError,
+    not a grid property -- and `_number` would raise a bare KeyError rather than OrganizerFault."""
+    reference = tmp_path / "reference"
+    payload: dict[str, object] = {"marginal": 0.5, "joint": 0.0, "tail": 0.12}
+    if how == "null":
+        payload[dropped] = None
+    else:
+        del payload[dropped]
+    _write_scale(reference, payload)
+    with pytest.raises(OrganizerFault, match=dropped):
+        load_ref_scale(reference, cell_count=1)
+
+
+def test_a_single_cell_energy_card_keeps_the_strict_rule(tmp_path: pathlib.Path) -> None:
+    """The relaxation is a property of the STATISTIC, not the grid: `energy_score` on one cell
+    equals the marginal CRPS, so its scale genuinely exists and `0.0` is still a defect."""
+    reference = tmp_path / "reference"
+    _write_scale(reference, {"marginal": 0.5, "joint": 0.0, "tail": 0.12})
+    with pytest.raises(OrganizerFault, match="not positive"):
+        load_ref_scale(reference, cell_count=1, joint_statistic="energy")
 
 
 @pytest.mark.parametrize("joint", [0.0, -1.0])
@@ -247,18 +292,42 @@ def test_an_absent_joint_cannot_be_handed_to_a_live_joint_weight() -> None:
     assert "0.3" in str(exc.value)
 
 
-def test_a_single_cell_unit_scores_under_ref_scale_mode(tmp_path: pathlib.Path) -> None:
-    """End to end: the shape that used to abort the evaluation now produces a composite."""
+def test_a_none_joint_cannot_reach_a_live_weight_through_the_scorer(
+    tmp_path: pathlib.Path,
+) -> None:
+    """The direct test above proves the guard exists; this proves it is WIRED. `official.py`
+    preloads `ctx["ref_scale"]`, so `hydrate_ctx` never gets a second chance to fix a bad shape."""
     import tomllib
 
     from qfbench2_track_forecasting.scoring import build_verifier
 
-    unit = build_unit(
-        tmp_path / "unit",
-        assets=["SYN-A"],
-        horizons=[1],
-        ref_scale={"marginal": 0.5, "tail": 0.12},
-    )
+    unit = build_unit(tmp_path / "unit")  # 2 assets x 2 horizons = 4 cells
+    out = build_submission(tmp_path / "out")
+    ctx = {
+        "card": tomllib.loads((unit / "card.toml").read_text(encoding="utf-8")),
+        "unit_dir": unit,
+        "output_dir": out,
+        "normalization_mode": NormalizationMode.REF_SCALE,
+        "ref_scale": RefScale(marginal=1.0, joint=None, tail=1.0),
+    }
+    with pytest.raises(OrganizerFault, match="does not exist for this unit"):
+        build_verifier(ctx).run(ctx)
+
+
+_SINGLE_CELL_SCALES = [
+    {"marginal": 0.5, "joint": 0.0, "tail": 0.12},  # the reported bug
+    {"marginal": 0.5, "joint": None, "tail": 0.12},
+    {"marginal": 0.5, "tail": 0.12},
+    {"marginal": 0.5, "joint": 1.0, "tail": 0.12},  # what the generator writes today
+]
+
+
+def _score_single_cell(tmp_path: pathlib.Path, scale: dict[str, object]) -> object:
+    import tomllib
+
+    from qfbench2_track_forecasting.scoring import build_verifier
+
+    unit = build_unit(tmp_path / "unit", assets=["SYN-A"], horizons=[1], ref_scale=scale)
     out = build_submission(tmp_path / "out", assets=["SYN-A"], horizons=[1])
     ctx = {
         "card": tomllib.loads((unit / "card.toml").read_text(encoding="utf-8")),
@@ -266,12 +335,35 @@ def test_a_single_cell_unit_scores_under_ref_scale_mode(tmp_path: pathlib.Path) 
         "output_dir": out,
         "normalization_mode": NormalizationMode.REF_SCALE,
     }
-    verdict = build_verifier(ctx).run(ctx)
+    return build_verifier(ctx).run(ctx), ctx
+
+
+@pytest.mark.parametrize("scale", _SINGLE_CELL_SCALES)
+def test_a_single_cell_unit_scores_under_ref_scale_mode(
+    tmp_path: pathlib.Path, scale: dict[str, object]
+) -> None:
+    """End to end: the shape that used to abort the evaluation now produces a composite."""
+    verdict, ctx = _score_single_cell(tmp_path, scale)
     assert verdict.admissible, verdict.labels
     assert ctx["ref_scale"].joint is None
     assert verdict.detail["cell_count"] == 1
     assert verdict.detail["joint"] == 0.0
-    assert verdict.detail["weights_effective"] == [0.5 / 0.7, 0.0, 0.2 / 0.7]
+    weights = verdict.detail["weights_effective"]
+    assert weights[1] == 0.0
+    assert sum(weights) == pytest.approx(1.0)
     assert verdict.score == pytest.approx(
-        (0.5 / 0.7) * verdict.detail["marginal"] / 0.5 + (0.2 / 0.7) * verdict.detail["tail"] / 0.12
+        weights[0] * verdict.detail["marginal"] / 0.5 + weights[2] * verdict.detail["tail"] / 0.12
     )
+
+
+def test_the_on_disk_joint_encoding_cannot_move_a_single_cell_score(
+    tmp_path: pathlib.Path,
+) -> None:
+    """The safety property, and the reason the generator can switch from `1.0` to `0.0` mid
+    competition without moving anybody's score: on a 1-cell grid the joint slot is not a scale,
+    so what the file put there must be immaterial."""
+    scores = {
+        i: _score_single_cell(tmp_path / str(i), scale)[0].score
+        for i, scale in enumerate(_SINGLE_CELL_SCALES)
+    }
+    assert len(set(scores.values())) == 1, scores

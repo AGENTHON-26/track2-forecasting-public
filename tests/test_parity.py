@@ -68,7 +68,11 @@ def test_the_in_process_verifier_and_the_official_entrypoint_agree(
         "expected_grid": grid_from_plan_entry(entry),
         "grid_source": "plan",
         "normalization_mode": NormalizationMode.REF_SCALE,
-        "ref_scale": load_ref_scale(reference_root),
+        # Mirrors official.py's call. Hand-copied production wiring is how the two "paths" this
+        # test claims to compare drift apart while it stays green.
+        "ref_scale": load_ref_scale(
+            reference_root, cell_count=grid_from_plan_entry(entry).cell_count
+        ),
     }
     verdict = build_verifier(ctx).run(ctx)
     assert verdict.admissible
