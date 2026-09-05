@@ -172,7 +172,8 @@ def build_prompt(
         f"As-of date: {asof}. Nothing after this date is known to you.",
         f"Target type: {target_type}. Horizons (business days): {horizons}.",
         "",
-        "Per asset: the level at the as-of date, and the statistical standard deviation of the",
+        "Per asset: the forecast anchor (zero for cumulative log returns), and the",
+        "standard deviation of the",
         f"forecast at the longest horizon ({max(horizons)} business days):",
     ]
     lines += [f"  {a}: level {last[a]:.6f}, horizon sd {sd_h[a]:.6f}" for a in assets]
@@ -181,9 +182,14 @@ def build_prompt(
         lines += [f"--- {d['doc_id']} ({d['timestamp']}, {d['doc_type']}) ---", d["text"], ""]
     lines += [
         "For EACH asset, give two numbers:",
-        "  drift_bp  : expected directional shift over the longest horizon, in basis points of",
-        "              the MAGNITUDE of the current level. Positive means up regardless of the",
-        "              sign of that level. Use 0 if the documents say nothing. The resulting",
+        "  drift_bp  : expected directional shift over the longest horizon.",
+        (
+            "              For log_return, 1 bp adds 0.0001 to the cumulative log return."
+            if target_type == "log_return"
+            else "              Basis points of the MAGNITUDE of the current level; "
+            "positive means up."
+        ),
+        "              Use 0 if the documents say nothing. The resulting",
         f"              shift is clamped to +-{_DRIFT_SD_CLAMP:.0f} horizon standard deviations.",
         "  vol_scale : multiplier on the statistical standard deviation, in [0.5, 2.0].",
         "              >1 if the documents imply more uncertainty than usual, <1 if less.",
@@ -277,6 +283,8 @@ def apply_adjustment(
     last: dict[str, float],
     sd_h: dict[str, float],
     parsed: dict[str, Any],
+    *,
+    target_type: str = "level",
 ) -> tuple[np.ndarray, dict[str, dict[str, Any]], int]:
     """Shift the mean and scale the spread, per asset. Clamped, and reported.
 
@@ -326,7 +334,9 @@ def apply_adjustment(
         vol = min(max(vol, _VOL_CLAMP[0]), _VOL_CLAMP[1])
         # Magnitude, not the signed level: see the docstring. Then clamp on the one scale that is
         # comparable across panels -- the width of the forecast this drift is moving.
-        shift = abs(last[a]) * drift_bp / 10_000.0
+        # A log-return anchor is zero; its basis points are absolute return units.
+        scale = 1.0 if target_type == "log_return" else abs(last[a])
+        shift = scale * drift_bp / 10_000.0
         ceiling = _DRIFT_SD_CLAMP * sd_h[a]
         if abs(shift) > ceiling:
             note = f"drift clamped from {shift:+.6g} to {ceiling:+.6g} ({_DRIFT_SD_CLAMP} sd)"
@@ -371,7 +381,9 @@ def main(argv: list[str] | None = None) -> int:
     n_draws = max(a.n_draws, _MIN_DRAWS)
     if n_draws != a.n_draws:
         print(f"note: --n-draws {a.n_draws} raised to the contract floor {_MIN_DRAWS}")
-    samples, draw_meta = _draw(panels, assets, horizons, a.asof, n_draws, a.seed)
+    samples, draw_meta = _draw(
+        panels, assets, horizons, a.asof, n_draws, a.seed, target_type=t["target_type"]
+    )
     last = {x: float(draw_meta["last"][x]) for x in assets}
     # sd of the forecast at the LONGEST horizon: sqrt(h) x the daily sd the statistical half fit.
     # This is the scale the drift is stated against and clamped on, and it goes in the prompt.
@@ -390,7 +402,9 @@ def main(argv: list[str] | None = None) -> int:
     if parsed is None:
         reasoning_applied = False
     else:
-        adjusted, applied, matched = apply_adjustment(samples, assets, last, sd_h, parsed)
+        adjusted, applied, matched = apply_adjustment(
+            samples, assets, last, sd_h, parsed, target_type=t["target_type"]
+        )
         if matched == 0:
             keys = sorted(parsed)[:8] if isinstance(parsed, dict) else []
             applied, reasoning_applied = {}, False
@@ -454,7 +468,13 @@ def main(argv: list[str] | None = None) -> int:
                 "## Statistical half",
                 "",
                 "Joint Gaussian random walk from `qfbench2_track_forecasting.cli._draw`:",
-                "innovations are drawn from the empirical correlation of daily changes, so curve",
+                (
+                    "Zero anchor, mean daily log-return drift, and correlated "
+                    "log(1 + panel value) innovations;"
+                    if t["target_type"] == "log_return"
+                    else "innovations are drawn from the empirical correlation of daily changes, "
+                    "so curve"
+                ),
                 "shape is preserved rather than assembled from independent marginals.",
                 "",
                 "## Reasoning half",

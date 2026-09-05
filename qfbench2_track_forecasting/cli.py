@@ -32,6 +32,7 @@ import numpy as np
 import pandas as pd
 
 from .limits import ParseLimits
+from .targets import log_return_steps
 
 DEFAULT_DRAWS = 500
 _RATIONALE_NAME = "forecast_rationale.md"
@@ -119,7 +120,7 @@ def _draw(
     *,
     target_type: str = "level",
 ) -> tuple[np.ndarray, dict[str, Any]]:
-    """Joint Gaussian walk, using level changes or the panel's daily returns as steps.
+    """Joint Gaussian walk, using level changes or daily log returns as steps.
 
     Drawing each asset independently would score badly on purpose: the composite puts 0.3 on the
     joint variogram term precisely to catch marginals that were stapled together. So the shared
@@ -128,10 +129,12 @@ def _draw(
     rng = np.random.default_rng(seed)
     hist = {a: _series(panels, a, asof) for a in assets}
     returns_target = target_type == "log_return"
-    # Return panels already contain each day's step. Differencing those rows again changes
-    # their covariance and anchoring at the last row adds a past return to every forecast.
+    # Factor panels contain decimal simple returns. A cumulative log-return target sums
+    # log(1+r) steps; differencing the rows or adding the last past return is incorrect.
     steps = pd.DataFrame(
-        hist if returns_target else {a: _diff_without_gaps(s) for a, s in hist.items()}
+        {a: pd.Series(log_return_steps(s), index=s.index) for a, s in hist.items()}
+        if returns_target
+        else {a: _diff_without_gaps(s) for a, s in hist.items()}
     ).dropna()
     if len(steps) < 30:
         raise SystemExit(f"not enough history to estimate covariance ({len(steps)} rows)")
@@ -178,21 +181,23 @@ def _rationale(
     n_docs = len(list(text_dir.glob("*.txt"))) if text_dir.is_dir() else 0
     returns_target = stats.get("target_type") == "log_return"
     anchor = (
-        "Zero for every asset: the target is the cumulative future return over the horizon. "
+        "Zero for every asset: the target sums log(1 + daily simple return) over the horizon. "
         "The last observed daily return belongs to the history, not to that future total."
         if returns_target
         else "The last observed value of each series at the as-of, taken from the shipped panels"
     )
     adjustments = (
-        "The historical mean daily return, multiplied by the horizon. This statistical drift "
+        "The historical mean daily log return, multiplied by the horizon. This statistical drift "
         "uses only the supplied history at or before the as-of. No text adjustment is made."
         if returns_target
         else "**None.** This is a driftless random walk: the centre is the anchor, unadjusted. "
         "Every\n"
         "adjustment is zero and is listed as such rather than omitted, so the ledger below sums."
     )
-    step_description = "daily returns" if returns_target else "first differences"
-    correlation_description = "daily returns" if returns_target else "daily changes"
+    step_description = (
+        "daily log returns, log(1 + panel value)" if returns_target else "first differences"
+    )
+    correlation_description = "daily log returns" if returns_target else "daily changes"
     ladder = "\n".join(
         f"| {a} | {stats['last'][a]:.4f} | {stats['daily_sd'][a]:.4f} | "
         f"{stats['daily_sd'][a] * np.sqrt(h):.4f} | {h} |"
@@ -216,7 +221,7 @@ def _rationale(
             for a in assets
             for h in horizons
         )
-        centre_description = "Centre = 0 + historical mean daily return × horizon."
+        centre_description = "Centre = 0 + historical mean daily log return × horizon."
     return f"""# Forecast rationale — {unit_id}
 
 As of **{asof}**, joint distribution over {", ".join(assets)} at horizon(s)

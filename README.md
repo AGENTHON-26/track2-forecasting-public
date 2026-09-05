@@ -282,10 +282,11 @@ every unit before reading any input. The full contract is [`SUBMISSION_CLI.md`](
 The agent may use any combination of LLM reasoning over text and time-series forecasting component (statistical or neural). The agent's reasoning is internal — only the forecast output file is scored.
 
 The reference CLI reads `[targets].target_type` from the card. For `level`, it keeps the last
-observed level as the forecast centre. For `log_return`, panel rows are daily returns and the
-target is a cumulative future return: the walk starts at zero, its centre is the historical mean
-daily return multiplied by the horizon, and its spread uses the daily returns directly, scaled
-by the square root of the horizon. It retains the estimated dependence across assets. The generated
+observed level as the forecast centre. For `log_return`, panel rows are decimal daily simple returns
+`r`, and the target is the cumulative future log return, `sum(log(1 + r))`, over the horizon.
+The walk starts at zero, its centre is the historical mean of `log(1 + r)` multiplied by the horizon,
+and its spread uses those log-return steps, scaled by the square root of the horizon. It retains
+the estimated dependence across assets. The generated
 rationale records the anchor, drift and spread. Earlier CLI revisions applied the level rule to
 both target types; regenerate reference outputs for return cards when updating from those revisions.
 
