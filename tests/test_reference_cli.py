@@ -65,7 +65,10 @@ def test_return_forecast_keeps_cross_asset_dependence_and_asof_cutoff() -> None:
     second = first.assign(asset="B", value=-first["value"])
     clean = {"synthetic": pd.concat([first, second], ignore_index=True)}
     future_date = (dt.date.fromisoformat(asof) + dt.timedelta(days=1)).isoformat()
-    future = pd.DataFrame({"date": [future_date], "asset": ["A"], "value": [999.0]})
+    # Contaminate both assets so joint alignment cannot hide a missing cutoff.
+    future = pd.DataFrame(
+        {"date": [future_date, future_date], "asset": ["A", "B"], "value": [999.0, -999.0]}
+    )
     contaminated = {"synthetic": pd.concat([clean["synthetic"], future], ignore_index=True)}
     samples, _ = cli._draw(clean, ["A", "B"], [21], asof, 500, 17, target_type="log_return")
     cutoff_samples, _ = cli._draw(
