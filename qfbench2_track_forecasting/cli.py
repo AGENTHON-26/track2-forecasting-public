@@ -116,22 +116,34 @@ def _draw(
     asof: str,
     n_draws: int,
     seed: int,
+    *,
+    target_type: str = "level",
 ) -> tuple[np.ndarray, dict[str, Any]]:
-    """Joint Gaussian random walk, correlated ACROSS ASSETS via their historical daily changes.
+    """Joint Gaussian walk, using level changes or the panel's daily returns as steps.
 
     Drawing each asset independently would score badly on purpose: the composite puts 0.3 on the
     joint variogram term precisely to catch marginals that were stapled together. So the shared
-    innovation is drawn from the empirical correlation of daily changes and scaled by sqrt(h).
+    innovation is drawn from the empirical correlation of historical steps and scaled by sqrt(h).
     """
     rng = np.random.default_rng(seed)
     hist = {a: _series(panels, a, asof) for a in assets}
-    diffs = pd.DataFrame({a: _diff_without_gaps(s) for a, s in hist.items()}).dropna()
-    if len(diffs) < 30:
-        raise SystemExit(f"not enough history to estimate covariance ({len(diffs)} rows)")
+    returns_target = target_type == "log_return"
+    # Return panels already contain each day's step. Differencing those rows again changes
+    # their covariance and anchoring at the last row adds a past return to every forecast.
+    steps = pd.DataFrame(
+        hist if returns_target else {a: _diff_without_gaps(s) for a, s in hist.items()}
+    ).dropna()
+    if len(steps) < 30:
+        raise SystemExit(f"not enough history to estimate covariance ({len(steps)} rows)")
 
-    last = np.array([hist[a].iloc[-1] for a in assets], dtype=float)
-    sd = diffs.std().to_numpy(dtype=float)
-    corr = diffs.corr().to_numpy(dtype=float)
+    last = (
+        np.zeros(len(assets), dtype=float)
+        if returns_target
+        else np.array([hist[a].iloc[-1] for a in assets], dtype=float)
+    )
+    drift = steps.mean().to_numpy(dtype=float) if returns_target else np.zeros(len(assets))
+    sd = steps.std().to_numpy(dtype=float)
+    corr = steps.corr().to_numpy(dtype=float)
     corr = np.nan_to_num(corr, nan=0.0)
     np.fill_diagonal(corr, 1.0)
     # Nearest-PSD nudge: an empirical correlation can be indefinite after nan_to_num.
@@ -142,11 +154,14 @@ def _draw(
     out = np.empty((n_draws, len(assets), len(horizons)), dtype=float)
     for hi, h in enumerate(horizons):
         z = rng.standard_normal((n_draws, len(assets))) @ chol.T
-        out[:, :, hi] = last + z * (sd * np.sqrt(h))
+        centre = drift * h if returns_target else last
+        out[:, :, hi] = centre + z * (sd * np.sqrt(h))
     meta = {
         "last": {a: float(last[i]) for i, a in enumerate(assets)},
         "daily_sd": {a: float(sd[i]) for i, a in enumerate(assets)},
-        "n_history_rows": int(len(diffs)),
+        "n_history_rows": int(len(steps)),
+        "target_type": target_type,
+        "daily_drift": {a: float(drift[i]) for i, a in enumerate(assets)},
     }
     return out, meta
 
@@ -161,12 +176,47 @@ def _rationale(
     text_dir: pathlib.Path,
 ) -> str:
     n_docs = len(list(text_dir.glob("*.txt"))) if text_dir.is_dir() else 0
+    returns_target = stats.get("target_type") == "log_return"
+    anchor = (
+        "Zero for every asset: the target is the cumulative future return over the horizon. "
+        "The last observed daily return belongs to the history, not to that future total."
+        if returns_target
+        else "The last observed value of each series at the as-of, taken from the shipped panels"
+    )
+    adjustments = (
+        "The historical mean daily return, multiplied by the horizon. This statistical drift "
+        "uses only the supplied history at or before the as-of. No text adjustment is made."
+        if returns_target
+        else "**None.** This is a driftless random walk: the centre is the anchor, unadjusted. "
+        "Every\n"
+        "adjustment is zero and is listed as such rather than omitted, so the ledger below sums."
+    )
+    step_description = "daily returns" if returns_target else "first differences"
+    correlation_description = "daily returns" if returns_target else "daily changes"
     ladder = "\n".join(
         f"| {a} | {stats['last'][a]:.4f} | {stats['daily_sd'][a]:.4f} | "
         f"{stats['daily_sd'][a] * np.sqrt(h):.4f} | {h} |"
         for a in assets
         for h in horizons
     )
+    ledger_header = (
+        "| asset | anchor | daily sd | sd at horizon | horizon (BD) |\n" "|---|---|---|---|---|"
+    )
+    centre_description = "Centre = anchor + 0 for every asset and horizon."
+    if returns_target:
+        ledger_header = (
+            "| asset | anchor | daily drift | centre at horizon | daily sd | "
+            "sd at horizon | horizon (BD) |\n"
+            "|---|---|---|---|---|---|---|"
+        )
+        ladder = "\n".join(
+            f"| {a} | 0.0000 | {stats['daily_drift'][a]:.4f} | "
+            f"{stats['daily_drift'][a] * h:.4f} | {stats['daily_sd'][a]:.4f} | "
+            f"{stats['daily_sd'][a] * np.sqrt(h):.4f} | {h} |"
+            for a in assets
+            for h in horizons
+        )
+        centre_description = "Centre = 0 + historical mean daily return × horizon."
     return f"""# Forecast rationale — {unit_id}
 
 As of **{asof}**, joint distribution over {", ".join(assets)} at horizon(s)
@@ -174,30 +224,28 @@ As of **{asof}**, joint distribution over {", ".join(assets)} at horizon(s)
 
 ## Anchor
 
-The last observed value of each series at the as-of, taken from the shipped panels
+{anchor}
 ({stats["n_history_rows"]} rows of overlapping daily history used for the covariance).
 
 ## Adjustments
 
-**None.** This is a driftless random walk: the centre is the anchor, unadjusted. Every
-adjustment is zero and is listed as such rather than omitted, so the ledger below sums.
+{adjustments}
 
 ## Scale and shape
 
-Per-asset daily standard deviation of first differences, scaled by sqrt(horizon). Gaussian
+Per-asset daily standard deviation of {step_description}, scaled by sqrt(horizon). Gaussian
 shape — deliberately not fat-tailed, since nothing here justifies a tail view.
 
 The draws are **joint**: a single innovation vector is drawn per draw from the empirical
-correlation of daily changes across assets, so cross-asset structure is preserved rather than
-assembled from independent marginals. The composite's variogram term scores exactly that.
+correlation of {correlation_description} across assets, so cross-asset structure is preserved
+rather than independent marginals. The composite's variogram term scores that structure.
 
 ## Adjustment ledger
 
-| asset | anchor | daily sd | sd at horizon | horizon (BD) |
-|---|---|---|---|---|
+{ledger_header}
 {ladder}
 
-Centre = anchor + 0 for every asset and horizon.
+{centre_description}
 
 ## What the text corpus contributed
 
@@ -272,7 +320,15 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     panels = _read_panels(a.panels)
-    samples, stats = _draw(panels, assets, horizons, a.asof, n_draws, a.seed)
+    samples, stats = _draw(
+        panels,
+        assets,
+        horizons,
+        a.asof,
+        n_draws,
+        a.seed,
+        target_type=tgt.get("target_type", "level"),
+    )
 
     out_dir = a.out.parent
     out_dir.mkdir(parents=True, exist_ok=True)
