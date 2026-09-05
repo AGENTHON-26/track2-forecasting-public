@@ -86,7 +86,7 @@ def test_return_forecast_keeps_cross_asset_dependence_and_asof_cutoff() -> None:
 
 
 def test_cli_uses_the_card_target_type_for_the_written_forecast(tmp_path: Path) -> None:
-    panels, asof = _panels(np.tile([0.1, -0.1], 40))
+    panels, asof = _panels(np.tile([0.2, -0.2], 40))
     unit = tmp_path / "unit"
     unit.mkdir()
     panels["synthetic"].to_parquet(unit / "synthetic.parquet", index=False)
@@ -115,8 +115,9 @@ def test_cli_uses_the_card_target_type_for_the_written_forecast(tmp_path: Path) 
         == 0
     )
     draws = pd.read_parquet(output)
-    # Simple returns cancel, but wealth shrinks: log(1.1 * 0.9) / 2 per day.
-    assert abs(draws["value"].mean() - 21 * np.log(0.99) / 2) < 0.015
+    # Simple returns cancel, but wealth shrinks: log(1.2 * 0.8) / 2 per day.
+    # The expected -0.429 total is also far from the old last-level anchor of -0.2.
+    assert abs(draws["value"].mean() - 21 * np.log(0.96) / 2) < 0.03
     metadata = json.loads((output.parent / "forecast_meta.json").read_text())
     assert metadata["target"] == "log_return"
     assert metadata["n_draws"] == len(draws)
