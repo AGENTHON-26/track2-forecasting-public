@@ -211,12 +211,13 @@ scoring detail.
 - `api` entries are verified statistically (bootstrap-CI overlap on rerun); BYO entries
   bit-reproducibly.
 
-### Model-API budget (FINAL, ruled 2026-08-28)
+### House API allocation
 
-A uniform per-unit model-API budget applies to every submission. The figure is
-**1,000,000 input + 100,000 output tokens per unit**, enforced via proxy logs and spot audit.
-Whether API keys are sponsor-provisioned or team-provided is TBD pending sponsorship — the
-mechanics are identical either way, and both modes are supported.
+See the [model-API rules](SUBMISSION_CLI.md#rules-for-model-api-use-restricted-mode) for the
+selected House allowance and pending input/failure/retry details. These House limits do not
+define a BYO request limit. Model calls use the organizer-supplied endpoint; participant vendor
+API keys are not supported. Platform availability and deployed enforcement will be announced
+separately.
 
 ---
 
