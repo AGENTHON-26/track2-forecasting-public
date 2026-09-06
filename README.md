@@ -387,7 +387,7 @@ value of text within your own system.
 
 ```bash
 # 1. The shared toolkit, pinned.
-pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.3.1#subdirectory=common"
+pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.1#subdirectory=common"
 
 # 2. This track's package, from the repository root. Without it neither the reference CLI nor
 #    the smoke scorer can import `qfbench2_track_forecasting`, and both stop at an ImportError
@@ -530,7 +530,7 @@ Install the `qfbench2-common` package (schemas, scoring, leakage guard) from the
 repository that publishes it, `Agenthon-2026/Agenthon2026-public`:
 
 ```bash
-pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.3.1#subdirectory=common"
+pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.1#subdirectory=common"
 ```
 
 The toolkit is half of what you need. Running the scorer or the exemplar also requires this
@@ -675,7 +675,7 @@ component of Track 2 measures hardware ([docs/NVIDIA-STACK.md](docs/NVIDIA-STACK
    dependencies (pandas among them) come from `pip install .`, and without it step 3 fails with
    `ModuleNotFoundError: No module named 'pandas'`:
    ```bash
-   pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.3.1#subdirectory=common"
+   pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.1#subdirectory=common"
    pip install .
    ```
 1. Read `docs/CONCEPTS.md` — understand CRPS, variogram, tail penalty, text uplift, and leakage.
