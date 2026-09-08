@@ -28,6 +28,11 @@ env/
 /out/
 # run_example.sh writes a per-unit output/ dir (forecast.parquet + meta)
 units/*/output/
+# Ad-hoc local test/scratch output -- forecast.parquet + sidecars from manual gate/sweep runs,
+# never source, never worth committing.
+/out_*/
+/output/
+/output_docker/
 
 # Safety: never commit the proprietary, local-only folder (it lives outside repos anyway)
 proprietary-DO-NOT-PUSH/
