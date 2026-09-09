@@ -10,7 +10,10 @@ We score your output against sealed realized market outcomes using a **CRPS comp
 
 **S = 0.5 × marginal CRPS + 0.3 × joint variogram + 0.2 × tail penalty (lower is better)**
 
-The headline scientific question is the **information uplift**: does adding text make a forecaster better than one that ignores text entirely? Baselines are text-blind time-series foundation models (Chronos, TimesFM, Lag-Llama, MOIRAI, Theta/AutoARIMA). Beat them with reasoning.
+The headline scientific question is whether adding text improves a forecast. The five named
+adapters in `baselines/` are Gaussian-random-walk scaffolds, not working implementations of
+Chronos, TimesFM, Lag-Llama, MOIRAI, or Theta/AutoARIMA. The published scorer reports the composite
+and its components; it does not compute a separate information-uplift or text-ablation score.
 
 **Track 2 vs. Track 4:** Track 2 = time-series data (panels indexed by time) → forecast the future. Track 4 = general tabular data (a table of entities) → predict a label or value. Both tracks add text and LLM reasoning, and both run in Docker with **no open internet**: the only network egress is model-API calls through the organizer's audited proxy. See "Network contract and submission categories" below.
 
@@ -124,7 +127,9 @@ The baseline your score is normalized against is a different thing: it runs orga
 not any of these files, and you never see it directly — you see it only through the normalization,
 described next.
 
-**Their scores are not published per unit, and this is not an oversight.** A card's score is normalized by the same baseline's components, so a published per-unit baseline score plus a reproducible baseline forecast inverts to the sealed value — most sharply on single-asset cards, which are the majority here. What you get instead is the normalization itself: on every card, **1.0 means "no better than the text-blind baseline"**, so your own leaderboard number already reads as a ratio against them, with no separate table needed.
+**The organizer baseline's per-unit normalization values are not public.** The reference level
+is **1.0**; lower normalized scores are better. This comparison is against the organizer baseline,
+not the five named scaffolds, and it does not isolate how much of an improvement came from text.
 
 ---
 
@@ -135,9 +140,9 @@ described next.
 Track 2 units declare `network = "restricted"` in `card.toml [environment]`. There are two
 modes you will encounter:
 
-1. **Local development (smoke runs).** Run your container with `--network=none`. Everything
-   in this repo — the example card, the scorer, the five text-blind baselines — works fully
-   offline. If your agent needs a model API, local runs without network will fail those calls;
+1. **Local development (smoke runs).** Run your container with `--network=none`. The reference
+   forecast CLI, local scorer, and five adapter scaffolds work offline. If your agent needs
+   a model API, local runs without network will fail those calls;
    that is expected and fine for structural smoke tests.
 2. **Official scoring (`restricted`).** Your container runs on an internal eval network with
    **no open internet**. The only permitted egress is through the organizer's audited proxy to:
@@ -372,17 +377,18 @@ Mean pinball loss at the 1st, 5th, 95th, and 99th percentiles. A model that miss
 shock or macro surprise will pay a massive tail penalty. Lower is better. Most important
 for F4 (tail/shock-from-text) cards.
 
-### Text uplift (scientific diagnostic, not the ranking)
+### Text ablation (a separate experiment, not scorer output)
 
-We also report the **information uplift**: the best text-blind baseline's composite score
-minus your composite score on the same cards (lower composite is better). Positive uplift
-means your agent extracted useful signal from the text corpus. This is a scientific diagnostic,
-not a leaderboard dimension — the ranking uses composite scores only, aggregated as described
-above.
+A **text ablation** compares your agent with and without its text input, keeping the numerical
+method and evaluation conditions the same. On a labeled development dataset you are permitted
+to use, compare both forecasts against the same known outcomes. A lower composite for the full
+agent is evidence that text helped on that dataset; beating a different numeric baseline alone
+does not isolate the contribution of text.
 
-We encourage teams to also submit a **text-ablated forecast** (your agent with the text
-corpus replaced by an empty corpus). Comparing ablated vs. full scores shows the marginal
-value of text within your own system.
+The published scorer does not emit `information_uplift` or `text_ablation_delta`, and the
+submission interface has no separate ablated-forecast slot. Treat ablation as an experiment you
+run and report separately. The public practice units do not provide realized references: on
+those inputs, local checks can establish admissibility and changes in predictions, not accuracy.
 
 ### Running the scorer locally
 

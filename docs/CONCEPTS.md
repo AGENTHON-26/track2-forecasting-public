@@ -32,9 +32,9 @@ Temporal sequence does not drive Track 4.
 
 Both tracks add text and LLM reasoning, and both run in Docker with no open internet
 (model-API calls through the organizer's audited proxy are the only permitted egress).
-The distinction matters because the right models differ: Track 2 calls for
-**time-series foundation models** (Chronos, TimesFM, Lag-Llama, MOIRAI) combined with
-text reasoning; Track 4 calls for **tabular foundation models** combined with text reasoning.
+The distinction changes the forecasting problem: Track 2 models an ordered history and its
+continuation, while Track 4 models relationships in tabular data. The names of the scaffold
+files do not prescribe a particular forecasting model.
 
 ---
 
@@ -125,24 +125,23 @@ random walk, whatever model they are named after. See [`baselines/README.md`](..
 
 ## 5 — Information uplift and text ablation
 
-**Information uplift** is the improvement your agent achieves over the best text-blind
-baseline on the same cards. If your composite score is 0.120 and the best baseline scores
-0.145 on the same cards, your uplift is 0.025 (lower scores are better, so positive uplift
-means you beat the baseline).
+**Information uplift** is a research question: does adding text improve forecasting? The
+published scorer does not calculate `information_uplift` or `text_ablation_delta`. It reports
+the composite and its components. Beating a different text-blind baseline does not by itself
+show that text caused the improvement; the numerical methods may differ too.
 
-The uplift is the headline scientific result of the competition: it answers "does reading
-text actually help forecast time series?" The ranking uses composite scores (aggregated on
-one board — see "How the leaderboard is built" below); the uplift is a diagnostic reported
-alongside.
+**Text ablation** compares your full agent with the same agent given an empty text corpus.
+Keep the numerical method, seeds and evaluation conditions the same. For example, on an
+independently labeled dataset you are permitted to use, a full-agent composite of 0.120 versus
+an ablated composite of 0.145 gives a difference of 0.025 in favor of the full agent. That is a
+synthetic illustration, not a competition result. Repeat the comparison to assess whether the
+difference is reliable before attributing it to text.
 
-**Text ablation** is running your agent with an empty text corpus (or a corpus of blank
-documents) and comparing the score to your full agent. This isolates the marginal value
-of text within your system. We encourage teams to submit both a full and an ablated forecast
-for at least one validation card and report the difference.
-
-If your ablated score is nearly the same as your full score, the LLM is not effectively
-using the text. Improve your retrieval strategy, prompting, or how the LLM output is
-connected to the forecasting component.
+Run and report this experiment separately; the submission interface does not provide another
+slot for an ablated forecast. Public practice units have no realized references, so a local
+run on them can show output validity or a change in predictions, but cannot measure accuracy.
+Similar full and ablated scores show little measured benefit on the tested data, not proof
+that the model never used the text.
 
 ---
 
@@ -152,18 +151,12 @@ A **time-series foundation model** is a neural network pre-trained on a large co
 diverse time-series datasets, designed to generalize to new time series at inference time
 without task-specific retraining. Think of it as the "GPT" equivalent for time-series data.
 
-Examples in the baselines:
-
-| Model | Pre-training | Key strength |
-|-------|-------------|--------------|
-| Chronos (Amazon) | Millions of TS from diverse domains | Good zero-shot probabilistic forecasting |
-| TimesFM (Google) | Large-scale TS corpus | Strong marginal calibration |
-| Lag-Llama (Meta) | Open financial and general TS | Designed for heavy tails |
-| MOIRAI (Salesforce) | Diverse frequency TS | Multi-frequency aware |
-| Theta/AutoARIMA | Classical statistical | Fast, interpretable, solid baseline |
-
-These models are text-blind: they see only the numeric panel. Your task is to build a
-reasoning agent that combines one (or more) of these with LLM text reasoning.
+The repository has scaffold files named `chronos`, `timesfm`, `lag_llama`, and `moirai`, but
+none loads or runs the corresponding model. The `theta_arima` scaffold likewise does not run
+Theta or AutoARIMA; those names refer to classical statistical methods, not foundation models.
+All five return Gaussian-random-walk samples and disclose `gaussian-rw-placeholder` in their
+metadata. Their different fixed seeds do not constitute a comparison of forecasting methods.
+See the exact interface and limitations in [`baselines/README.md`](../baselines/README.md).
 
 ---
 
@@ -452,8 +445,6 @@ Your entry reports the number of cards scored alongside the total, so coverage i
 | `n_draws` | Number of Monte Carlo samples you submitted. |
 | `pit_50` | Fraction of realized outcomes inside the 50 % prediction interval (should be ~0.50). |
 | `pit_90` | Fraction of realized outcomes inside the 90 % prediction interval (should be ~0.90). |
-| `information_uplift` | The best text-blind baseline's composite score minus your composite score on the same cards. Lower composite is better, so positive uplift means text helped. (Diagnostic, not ranking.) |
-| `text_ablation_delta` | Your text-ablated score minus your full-agent score. Lower composite is better, so positive means text is contributing. |
 | `T2_UNCALIBRATED_MARGINAL` | Gate g3 flag: marginal distribution is degenerate (std ~= 0) or has non-finite values. |
 | `T2_BAD_DEPENDENCE` | Gate g3 flag: cross-asset or cross-horizon dependence is inconsistent with the joint task. |
 | `T2_TAIL_MISCALIBRATION` | Gate g3 flag: 1%/5%/95%/99% coverage is outside tolerance. |
@@ -494,7 +485,6 @@ A strong Track 2 submission does all of the following:
 7. **Can be ablated.** The text component should be cleanly separable so you can measure
    its marginal contribution by running the agent without text.
 
-The baselines (Theta, AutoARIMA, Chronos, TimesFM, Lag-Llama, MOIRAI) are text-blind
-time-series foundation models. Beating them requires either better multivariate joint
-modeling (for F3), better tail coverage from text signals (for F4), or better regime
-detection from text (for F2) — or all three.
+The five named adapters demonstrate the interface, not the performance of the methods in
+their names. Judge improvements using an appropriate labeled evaluation and the composite;
+use a controlled text ablation when asking whether text contributes to the improvement.
