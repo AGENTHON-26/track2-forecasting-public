@@ -31,7 +31,7 @@ server. See "Bring your own model: adapter-only, rank ≤ 64" in
 
 | Tool | Fit for T2 | How to use it | Caveat |
 |---|---|---|---|
-| **Nemotron behind `$MODEL_ENDPOINT`** | **Core — the one NVIDIA component in your loop** | An OpenAI-compatible chat endpoint; the pinned house-model id is published and arrives as `$MODEL_NAME`. Use it as your **text-reader**: extract stance, dates, revisions and surprises from the corpus, then let them adjust a statistical prior ([CONCEPTS.md](CONCEPTS.md) on information uplift) | If the pin is a reasoning variant, thinking toggles via the system prompt (`detailed thinking on\|off`) and responses may omit the opening `<think>` tag — parse tolerantly. And do not build a strategy on the model's *memory* of famous market episodes: the organizers will publish closed-book recall baselines (the house model queried with no panel and no corpus) alongside the text-blind baselines, so recall of an outcome earns no credit |
+| **Nemotron behind `$MODEL_ENDPOINT`** | **Core — the one NVIDIA component in your loop** | An OpenAI-compatible chat endpoint; the pinned house-model id is published and arrives as `$MODEL_NAME`. Use it as your **text-reader**: extract stance, dates, revisions and surprises from the corpus, then let them adjust a statistical prior ([CONCEPTS.md](CONCEPTS.md) on text ablation) | If the pin is a reasoning variant, thinking toggles via the system prompt (`detailed thinking on\|off`) and responses may omit the opening `<think>` tag — parse tolerantly. The published scorer does not run a closed-book recall comparison; a score alone does not establish whether the agent used text or recalled an outcome. Follow the as-of and no-answer-lookup rules in the [README](../README.md#leakage-rules). |
 | **NeMo (customization / fine-tuning)** | **Off-cluster only — and this is the BYO path** | PEFT/LoRA adapter training against the house base model for macro-text conditioning, before you submit. Rank ≤ 64; ship the adapter, not the merged weights | No tuning or training path can execute in the T2 sandbox, and the NeMo customization stack ships in no T2 image |
 | **Megatron-LM** | **No fit** | — | It is a full-weight training stack, and full fine-tuning is not a permitted BYO submission: BYO ships one LoRA adapter. GPU-mandatory with a multi-GB dependency closure and no time-series or forecasting code; it is never part of a T2 image |
 | **CUDA / RAPIDS / cuDF** | **No fit** | — | T2's scored pipeline has no GPU surface: solving is file I/O + endpoint calls + sampling, and scoring is CPU CRPS arithmetic. That holds for BYO too — your code calls `$MODEL_ENDPOINT` like an `api` submission does — so vendoring GPU libraries only bloats your image |
@@ -46,11 +46,11 @@ server. See "Bring your own model: adapter-only, rank ≤ 64" in
 - **To rank well:** lower the composite — 50 % marginal CRPS + 30 % joint variogram + 20 % tail
   penalty, lower is better ([CONCEPTS.md](CONCEPTS.md)). The house endpoint is your only lever
   beyond your own statistics: better elicitation of the corpus, better-calibrated spread.
-- **What is actually measured:** **information uplift** — your composite against the best
-  text-blind baseline on the same cards ([CONCEPTS.md](CONCEPTS.md)). A separate integrity
-  measurement keeps memory from masquerading as skill: the planned closed-book recall baselines
-  make "the model simply remembered the episode" visible. Design your agent to beat the
-  baselines, not to out-recall them.
+- **What is actually measured:** the composite and its components. The five named baseline
+  adapters are Gaussian-random-walk scaffolds, not measured implementations of the named models.
+  The scorer does not emit information-uplift or text-ablation metrics, or a recall-specific
+  score. To study the contribution of text, run a separate controlled ablation on labeled data
+  you are permitted to use; see [CONCEPTS.md](CONCEPTS.md).
 
 ## Where the tooling lives
 
