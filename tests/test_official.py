@@ -71,6 +71,7 @@ def build_evaluation(
     broken: dict[str, str] | None = None,
     grids: dict[str, tuple[Sequence[str], Sequence[int]]] | None = None,
     ref_scale: dict[str, float] | None = None,
+    joint: str = "variogram",
 ) -> tuple[pathlib.Path, pathlib.Path, EvaluationPlan]:
     """Lay out `input/ref` and `input/res` exactly as the frozen topology specifies."""
     broken = broken or {}
@@ -94,6 +95,7 @@ def build_evaluation(
             assets=assets,
             horizons=horizons,
             ref_scale=ref_scale,
+            joint=joint,
         )
         fault = broken.get(handle)
         if fault == "no_reference":
@@ -303,3 +305,24 @@ def test_a_single_cell_roster_unit_scores_on_the_official_path(tmp_path: pathlib
     assert result.aggregate.n_expected == 1
     assert result.aggregate.n_scored == 1
     assert result.rows[0].state is ResultState.PARTICIPANT_SUCCESS
+
+
+def test_the_official_path_passes_the_joint_statistic_to_the_loader(
+    tmp_path: pathlib.Path,
+) -> None:
+    """`official.py` must forward it, not just `cell_count`.
+
+    `energy_score` on one cell equals the marginal CRPS, so `joint: 0.0` is a corrupt scale there.
+    Without the argument the loader drops it as "absent" and the unit scores on a fabricated
+    denominator. Every other test here builds a variogram card, so nothing else catches it.
+    """
+    handle = HANDLES[0]
+    ref_root, res_root, plan = build_evaluation(
+        tmp_path,
+        handles=[handle],
+        grids={handle: (["SYN-A"], [1])},
+        ref_scale={"marginal": 0.5, "joint": 0.0, "tail": 0.12},
+        joint="energy",
+    )
+    with pytest.raises(OrganizerFault, match="not positive"):
+        score_roster(plan, ref_root, res_root)

@@ -27,8 +27,10 @@ from qfbench2_common.contracts import OrganizerFault
 
 from qfbench2_track_forecasting.normalization import (
     REF_SCALE_COMPONENTS,
+    VARIOGRAM,
     NormalizationMode,
     RefScale,
+    joint_is_structurally_zero,
     load_ref_scale,
 )
 
@@ -367,3 +369,57 @@ def test_the_on_disk_joint_encoding_cannot_move_a_single_cell_score(
         for i, scale in enumerate(_SINGLE_CELL_SCALES)
     }
     assert len(set(scores.values())) == 1, scores
+
+
+def _energy_ctx(tmp_path: pathlib.Path) -> dict[str, object]:
+    """A 1-cell unit whose card asks for the energy score, with a variogram-shaped scale."""
+    import tomllib
+
+    unit = build_unit(
+        tmp_path / "unit",
+        assets=["SYN-A"],
+        horizons=[1],
+        joint="energy",
+        ref_scale={"marginal": 0.5, "joint": 0.0, "tail": 0.12},
+    )
+    out = build_submission(tmp_path / "out", assets=["SYN-A"], horizons=[1])
+    return {
+        "card": tomllib.loads((unit / "card.toml").read_text(encoding="utf-8")),
+        "unit_dir": unit,
+        "output_dir": out,
+        "normalization_mode": NormalizationMode.REF_SCALE,
+    }
+
+
+def test_hydrate_passes_the_joint_statistic_to_the_loader(tmp_path: pathlib.Path) -> None:
+    """`hydrate_ctx` must forward it, or a 1-cell energy card silently loads a dropped joint.
+
+    `energy_score` on one cell equals the marginal CRPS, so `joint: 0.0` is a corrupt scale there,
+    not an absent component.
+    """
+    from qfbench2_track_forecasting.scoring import hydrate_ctx
+
+    with pytest.raises(OrganizerFault, match="not positive"):
+        hydrate_ctx(_energy_ctx(tmp_path))
+
+
+def test_score_refuses_a_single_cell_grid_that_is_not_a_variogram(
+    tmp_path: pathlib.Path,
+) -> None:
+    """The weight renormalization zeroes the joint term; that is only justified for the variogram.
+
+    Reached with a scale the loader accepts, so the refusal under test is `_score`'s own.
+    """
+    from qfbench2_track_forecasting.scoring import build_verifier
+
+    ctx = _energy_ctx(tmp_path)
+    ctx["ref_scale"] = RefScale(marginal=0.5, joint=1.0, tail=0.12)
+    with pytest.raises(OrganizerFault, match="joint statistic"):
+        build_verifier(ctx).run(ctx)
+
+
+def test_the_two_call_sites_agree_on_when_the_joint_exists() -> None:
+    """`normalization` and `scoring` branch on the same predicate, so they cannot drift apart."""
+    assert joint_is_structurally_zero(1, VARIOGRAM)
+    for cells, stat in ((1, "energy"), (2, VARIOGRAM), (None, VARIOGRAM)):
+        assert not joint_is_structurally_zero(cells, stat)

@@ -37,7 +37,7 @@ from qfbench2_common.contracts import ContractError, EvaluationPlan
 from qfbench2_track_forecasting.grid import grid_from_plan_entry
 from qfbench2_track_forecasting.normalization import NormalizationMode, load_ref_scale
 from qfbench2_track_forecasting.official import score_roster
-from qfbench2_track_forecasting.scoring import build_verifier
+from qfbench2_track_forecasting.scoring import build_verifier, card_joint_statistic
 
 HANDLE = "u-7e7e7e7e"
 
@@ -58,8 +58,9 @@ def test_the_in_process_verifier_and_the_official_entrypoint_agree(
     entry = plan.expected_units[0]
     unit_ref = ref_root / HANDLE
     reference_root = unit_ref / "reference"
+    card = tomllib.loads((unit_ref / "card.toml").read_text(encoding="utf-8"))
     ctx: dict[str, Any] = {
-        "card": tomllib.loads((unit_ref / "card.toml").read_text(encoding="utf-8")),
+        "card": card,
         "unit_dir": unit_ref,
         "reference_root": reference_root,
         "output_dir": res_root / HANDLE,
@@ -68,10 +69,13 @@ def test_the_in_process_verifier_and_the_official_entrypoint_agree(
         "expected_grid": grid_from_plan_entry(entry),
         "grid_source": "plan",
         "normalization_mode": NormalizationMode.REF_SCALE,
-        # Mirrors official.py's call. Hand-copied production wiring is how the two "paths" this
-        # test claims to compare drift apart while it stays green.
+        # Must mirror official.py's call argument for argument. Hand-copied production wiring is
+        # how the two "paths" this test compares drift apart while it stays green -- and it did:
+        # this copy tracked cell_count and missed joint_statistic for one commit.
         "ref_scale": load_ref_scale(
-            reference_root, cell_count=grid_from_plan_entry(entry).cell_count
+            reference_root,
+            cell_count=grid_from_plan_entry(entry).cell_count,
+            joint_statistic=card_joint_statistic(card),
         ),
     }
     verdict = build_verifier(ctx).run(ctx)

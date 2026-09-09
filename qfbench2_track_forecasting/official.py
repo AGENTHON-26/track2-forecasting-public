@@ -55,7 +55,7 @@ from .failures import T2Refusal, organizer_fault
 from .grid import REALIZED_COLUMNS, flatten_realized, grid_from_plan_entry
 from .limits import DEFAULT_LIMITS, ParseLimits, inspect_parquet
 from .normalization import NormalizationMode, load_ref_scale
-from .scoring import _joint_statistic, build_verifier
+from .scoring import build_verifier, card_joint_statistic
 
 __all__ = [
     "CONTROL_DIR",
@@ -210,7 +210,7 @@ def score_roster(
         ref_scale = load_ref_scale(
             reference_root,
             cell_count=spec.cell_count,
-            joint_statistic=_joint_statistic(card),
+            joint_statistic=card_joint_statistic(card),
             limits=limits,
         )
         realized = _reference_vector(reference_root, entry, limits)

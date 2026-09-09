@@ -71,7 +71,13 @@ from .limits import (
     read_json_bounded,
     stat_regular_file,
 )
-from .normalization import NormalizationMode, RefScale, load_ref_scale
+from .normalization import (
+    VARIOGRAM,
+    NormalizationMode,
+    RefScale,
+    joint_is_structurally_zero,
+    load_ref_scale,
+)
 from .tail import DEFAULT_TAIL_METRIC, TAIL_METRICS
 
 __all__ = [
@@ -80,6 +86,7 @@ __all__ = [
     "LEADERBOARD_SORT",
     "UNSCORED_NO_REFERENCE",
     "build_verifier",
+    "card_joint_statistic",
     "hydrate_ctx",
     "resolve_expected_grid",
 ]
@@ -142,14 +149,9 @@ def resolve_expected_grid(ctx: dict[str, Any]) -> tuple[GridSpec, str]:
     return grid_from_card(card), "card"
 
 
-def _joint_statistic(card: dict[str, Any]) -> str:
-    """The card's joint statistic, which decides whether a 1-cell grid HAS a joint component.
-
-    The variogram is 0 there by construction; `energy_score` equals the marginal CRPS. Both the
-    scale loader and the weight renormalization below depend on the difference.
-    """
-    stat = card.get("scoring", {}).get("params", {}).get("joint", "variogram")
-    return str(stat)
+def card_joint_statistic(card: dict[str, Any]) -> str:
+    """The card's joint statistic. Decides whether a 1-cell grid HAS a joint component."""
+    return str(card.get("scoring", {}).get("params", {}).get("joint", VARIOGRAM))
 
 
 def hydrate_ctx(ctx: dict[str, Any]) -> None:
@@ -220,7 +222,7 @@ def hydrate_ctx(ctx: dict[str, Any]) -> None:
         ctx["ref_scale"] = load_ref_scale(
             reference_root,
             cell_count=ctx["expected_grid"].cell_count,
-            joint_statistic=_joint_statistic(ctx["card"]),
+            joint_statistic=card_joint_statistic(ctx["card"]),
             limits=ctx["limits"],
         )
     ctx.setdefault("ref_scale", None)
@@ -527,9 +529,9 @@ def _score(ctx: dict[str, Any]) -> dict[str, Any]:
     # The rule is justified BY THE VARIOGRAM being 0, not by the cell count: `energy_score` on a
     # 1-cell grid equals the marginal CRPS, so zeroing its weight would silently discard a defined
     # component of the composite (measured: a 1.27x error). Refuse rather than discard.
-    joint_statistic = _joint_statistic(ctx["card"])
+    joint_statistic = card_joint_statistic(ctx["card"])
     if spec.cell_count == 1:
-        if joint_statistic != "variogram":
+        if not joint_is_structurally_zero(spec.cell_count, joint_statistic):
             raise organizer_fault(
                 f"[{ctx['unit_handle']}] single-cell grid with joint statistic "
                 f"{joint_statistic!r}. Zeroing the joint weight below is justified only for the "
