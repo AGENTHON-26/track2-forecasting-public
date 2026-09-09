@@ -1,5 +1,11 @@
 """A minimal REASONING agent: the mechanism the track is named for, and nothing more.
 
+## Executive summary (read this first)
+
+Read dated text, ask the supplied model for bounded adjustments, and label any fallback.
+House requests use MODEL_TOKEN and the explicit authenticated proxy. Local endpoints may
+continue using MODEL_API_KEY. This example makes one request and never retries it.
+
 ## Why this file exists
 
 `baselines/` holds five text-blind adapters. Every one of them reports
@@ -79,6 +85,8 @@ Reads only `/input`, writes only `/output`, and calls nothing but `MODEL_ENDPOIN
 from __future__ import annotations
 
 import argparse
+import base64
+import http.client
 import json
 import math
 import os
@@ -87,6 +95,7 @@ import sys
 import urllib.error
 import urllib.request
 from typing import Any
+from urllib.parse import unquote, urlsplit
 
 import numpy as np
 import pandas as pd
@@ -104,6 +113,8 @@ _DRIFT_SD_CLAMP = 3.0
 #: below it, and `cli.py` already floors on it -- an example that quietly emits an inadmissible
 #: parquet when a participant passes a smaller `--n-draws` teaches the wrong lesson.
 _MIN_DRAWS = 200
+_HOUSE_OUTPUT_TOKENS = 4000
+_RESPONSE_BYTES = 1024 * 1024
 
 
 # --------------------------------------------------------------------------- corpus
@@ -203,6 +214,54 @@ def build_prompt(
     return "\n".join(lines)
 
 
+def _house_reply(endpoint: str, token: str, body: bytes) -> Any:
+    """Use the supplied receipt proxy, without direct fallback, bypasses or redirects."""
+    target = urlsplit(endpoint)
+    proxy = urlsplit(os.environ.get("http_proxy", ""))
+    if (
+        target.scheme != "http"
+        or not target.hostname
+        or target.username is not None
+        or target.password is not None
+        or target.path.rstrip("/") not in ("", "/v1")
+        or target.query
+        or target.fragment
+        or proxy.scheme != "http"
+        or not proxy.hostname
+        or not proxy.port
+        or proxy.path not in ("", "/")
+        or proxy.query
+        or proxy.fragment
+        or not proxy.username
+        or not proxy.password
+        or not token
+        or any(ord(c) < 33 or ord(c) > 126 for c in token)
+    ):
+        raise ValueError("invalid House model or proxy configuration")
+    credentials = unquote(proxy.username) + ":" + unquote(proxy.password)
+    if any(ord(c) < 32 or ord(c) > 126 for c in credentials):
+        raise ValueError("invalid House proxy credentials")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token,
+        "Proxy-Authorization": "Basic " + base64.b64encode(credentials.encode()).decode(),
+    }
+    connection = http.client.HTTPConnection(proxy.hostname, proxy.port, timeout=_TIMEOUT_SEC)
+    try:
+        connection.request(
+            "POST", target.scheme + "://" + target.netloc + "/v1/chat/completions", body, headers
+        )
+        response = connection.getresponse()
+        if response.status != 200:
+            raise ValueError("House model request was refused")
+        raw = response.read(_RESPONSE_BYTES + 1)
+        if len(raw) > _RESPONSE_BYTES:
+            raise ValueError("House model response was too large")
+        return json.loads(raw)
+    finally:
+        connection.close()
+
+
 def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
     """(parsed, reason_if_skipped, reasoning_trace). The ONLY network call this module makes."""
     endpoint = os.environ.get("MODEL_ENDPOINT", "").strip()
@@ -223,6 +282,11 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
         max_tokens = max(1, int(os.environ.get("MODEL_MAX_TOKENS", "3000")))
     except ValueError:
         return None, "MODEL_MAX_TOKENS is not an integer", ""
+    # Presence selects the organizer route even if the value is invalid. Never downgrade a
+    # malformed grant to a legacy API key or a direct connection.
+    house = "MODEL_TOKEN" in os.environ
+    if house:
+        max_tokens = min(max_tokens, _HOUSE_OUTPUT_TOKENS)
 
     body = json.dumps(
         {
@@ -233,20 +297,31 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
             "chat_template_kwargs": {"enable_thinking": thinking},
         }
     ).encode("utf-8")
-    req = urllib.request.Request(
-        endpoint.rstrip("/") + "/chat/completions",
-        data=body,
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    token = os.environ.get("MODEL_API_KEY", "").strip()
-    if token:
-        req.add_header("Authorization", f"Bearer {token}")
     try:
-        with urllib.request.urlopen(req, timeout=_TIMEOUT_SEC) as resp:
-            payload = json.loads(resp.read().decode("utf-8"))
-    except (urllib.error.URLError, TimeoutError, ValueError, OSError) as exc:
-        return None, f"{type(exc).__name__}: {exc}", ""
+        if house:
+            payload = _house_reply(endpoint, os.environ["MODEL_TOKEN"], body)
+        else:
+            # Keep the documented local API-key route and any custom local API base path.
+            req = urllib.request.Request(
+                endpoint.rstrip("/") + "/chat/completions",
+                data=body,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            token = os.environ.get("MODEL_API_KEY", "").strip()
+            if token:
+                req.add_header("Authorization", f"Bearer {token}")
+            with urllib.request.urlopen(req, timeout=_TIMEOUT_SEC) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+    except (
+        urllib.error.URLError,
+        TimeoutError,
+        ValueError,
+        OSError,
+        http.client.HTTPException,
+    ) as exc:
+        # Exception text can contain endpoint/proxy credentials; sidecars are participant output.
+        return None, f"model request failed ({type(exc).__name__})", ""
 
     try:
         choice = payload["choices"][0]
@@ -265,8 +340,8 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
             return (
                 None,
                 (
-                    f"reply hit max_tokens={max_tokens} before emitting JSON -- raise "
-                    "MODEL_MAX_TOKENS or set MODEL_THINKING=off"
+                    f"reply hit max_tokens={max_tokens} before emitting JSON -- set "
+                    "MODEL_THINKING=off or adjust MODEL_MAX_TOKENS within the allowed cap"
                 ),
                 trace,
             )
