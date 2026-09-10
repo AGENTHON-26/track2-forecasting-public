@@ -176,11 +176,16 @@ are not.
 
 | Category | What you bundle | Model access |
 |----------|-----------------|--------------|
-| `api` | Prompts, harness, system prompts, agent code | The house endpoint only, via the proxy |
-| `byo-large` / `byo-small` | One LoRA adapter (`adapter_model.safetensors` + `adapter_config.json`) — not weights, and not a model server | The house endpoint only, via the proxy; on a BYO run `MODEL_NAME` names *your adapter* |
+| `api` | Prompts, harness, agent code and permitted local numerical artifacts | The house endpoint only, via the proxy |
+| `byo-large` / `byo-small` | One LoRA adapter (`adapter_model.safetensors` + `adapter_config.json`) plus permitted local numerical artifacts; no full language-model weights or model server | The house endpoint only, via the proxy; on a BYO run `MODEL_NAME` names *your adapter* |
 
-**Bring-your-own is adapter-only.** You ship one LoRA adapter, rank ≤ 64 (enforced by the server
-at load), and the organizer starts a server on the house base model with your adapter loaded, then
+The [Track 2 artifact policy](docs/ARTIFACT-POLICY.md) specifies which fitted non-neural
+models, calibration parameters and static retrieval assets are allowed in both categories,
+with cutoff and provenance requirements. Additional pretrained neural checkpoints need separate
+approval. These permissions do not change the task resource limits.
+
+**Bring-your-own language-model serving is adapter-only.** You ship one LoRA adapter,
+rank ≤ 64 (enforced by the server at load), and the organizer starts a server on the house base model with your adapter loaded, then
 tears it down when your run ends. Full fine-tuning is not permitted, and **there is no
 small-weights tier** — `byo-large` and `byo-small` are legacy enum names the descriptor schema
 still accepts, and both select this same contract. The full rules, including the local
@@ -665,7 +670,8 @@ you will be cut off partway through the set with the remaining units unscored.
 **The clock starts at `docker create`, so it covers pulling your image**, not just process
 start-up. On this fleet a cold pull has measured 90–187 s against roughly 15 s warm, and it is
 billed to the same per-unit budget as your solve. Keep your image small: under the adapter-only
-BYO rule it carries a LoRA adapter, not model weights, so there is no reason for it to be large.
+BYO rule it carries an adapter rather than full language-model weights. Permitted numerical
+artifacts still share the task's disk and memory limits.
 
 **On the GPU.** Every card declares `gpu = true`, but your own code has no use for it in either
 category: an `api` submission does not touch it, and on a BYO run the worker's GPU is what serves

@@ -23,8 +23,9 @@ submissions is **elicitation and calibration skill** — how much verifiable pre
 extract from the corpus, and how honestly you spread your uncertainty. Bring-your-own is **adapter-only**: a BYO team
 trains one LoRA adapter (rank ≤ 64) **off-cluster, before submission** against the house base
 model, ships `adapter_model.safetensors` + `adapter_config.json` in its image, and the organizer
-serves the adapter on that base — the image never carries model weights and never runs a model
-server. See "Bring your own model: adapter-only, rank ≤ 64" in
+serves the adapter on that base — the image never carries full language-model weights or runs
+a model server. Permitted local numerical artifacts are covered by the
+[artifact policy](ARTIFACT-POLICY.md). See "Bring your own model: adapter-only, rank ≤ 64" in
 [SUBMISSION_CLI.md](../SUBMISSION_CLI.md).
 
 ## Per-tool fit
@@ -32,7 +33,7 @@ server. See "Bring your own model: adapter-only, rank ≤ 64" in
 | Tool | Fit for T2 | How to use it | Caveat |
 |---|---|---|---|
 | **Nemotron behind `$MODEL_ENDPOINT`** | **Core — the one NVIDIA component in your loop** | An OpenAI-compatible chat endpoint; the pinned house-model id is published and arrives as `$MODEL_NAME`. Use it as your **text-reader**: extract stance, dates, revisions and surprises from the corpus, then let them adjust a statistical prior ([CONCEPTS.md](CONCEPTS.md) on text ablation) | If the pin is a reasoning variant, thinking toggles via the system prompt (`detailed thinking on\|off`) and responses may omit the opening `<think>` tag — parse tolerantly. The published scorer does not run a closed-book recall comparison; a score alone does not establish whether the agent used text or recalled an outcome. Follow the as-of and no-answer-lookup rules in the [README](../README.md#leakage-rules). |
-| **NeMo (customization / fine-tuning)** | **Off-cluster only — and this is the BYO path** | PEFT/LoRA adapter training against the house base model for macro-text conditioning, before you submit. Rank ≤ 64; ship the adapter, not the merged weights | No tuning or training path can execute in the T2 sandbox, and the NeMo customization stack ships in no T2 image |
+| **NeMo (customization / fine-tuning)** | **Off-cluster only — and this is the BYO path** | PEFT/LoRA adapter training against the house base model for macro-text conditioning, before you submit. Rank ≤ 64; ship the adapter, not the merged weights | NeMo/LoRA training is off-cluster; permitted numerical fitting is distinct from language-model adaptation, and the NeMo customization stack ships in no T2 image |
 | **Megatron-LM** | **No fit** | — | It is a full-weight training stack, and full fine-tuning is not a permitted BYO submission: BYO ships one LoRA adapter. GPU-mandatory with a multi-GB dependency closure and no time-series or forecasting code; it is never part of a T2 image |
 | **CUDA / RAPIDS / cuDF** | **No fit** | — | T2's scored pipeline has no GPU surface: solving is file I/O + endpoint calls + sampling, and scoring is CPU CRPS arithmetic. That holds for BYO too — your code calls `$MODEL_ENDPOINT` like an `api` submission does — so vendoring GPU libraries only bloats your image |
 | **Nsight / DCGM** | **No fit** | — | T2 has no throughput or efficiency component — nothing to profile, nothing to meter (these are Track 3 concerns) |
