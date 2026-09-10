@@ -50,8 +50,8 @@ internet** in official scoring.
 >
 > 1. **House endpoint** — call `MODEL_ENDPOINT` with `MODEL_NAME`. Free, metered per run.
 > 2. **Bring your own adapter** — ship a LoRA adapter; the organizer serves it on the house base
->    model and you still call `MODEL_ENDPOINT`. Nothing is fetched at run time. Bringing your own
->    *weights* is not a supported option — see "Bring your own model" below.
+>    model and you still call `MODEL_ENDPOINT`. Nothing is fetched at run time. Full
+>    language-model weights are not supported — see "Bring your own model" below.
 >
 > **No participant API keys exist.** The harness injects none and there is no mechanism for a
 > submission to supply one, so a vendor key would have nothing to reach even if you had one.
@@ -66,18 +66,22 @@ stays `none`. For the agent tracks, every submission declares one category in `s
 
 | Category | What you bundle | Model access | Compute tier |
 |---|---|---|---|
-| `api` | prompts / harness / system-prompts / agents (your contribution is the scaffolding) | the **house endpoint only**, via the proxy | CPU |
-| `byo-large` / `byo-small` | one LoRA adapter: `adapter_model.safetensors` + `adapter_config.json`. **Not model weights, and not a model server.** | the **house endpoint only**, via the proxy — on a BYO run `MODEL_NAME` names *your adapter* | CPU for your code; the worker's GPU serves the base model |
+| `api` | prompts / harness / agents and permitted local numerical artifacts | the **house endpoint only**, via the proxy | CPU |
+| `byo-large` / `byo-small` | one LoRA adapter: `adapter_model.safetensors` + `adapter_config.json`. **Not full language-model weights or a model server.** Permitted local numerical artifacts may accompany it. | the **house endpoint only**, via the proxy — on a BYO run `MODEL_NAME` names *your adapter* | CPU for your code; the worker's GPU serves the base model |
 
 **`byo-large` and `byo-small` mean the same thing.** They are legacy enum names from before the
 adapter rule. The `submission.json` schema still accepts both and will not reject either, so the
 descriptor stays valid whichever you write — but **there is no small-weights tier**, and both
 select the same contract: one adapter, rank ≤ 64, served on the organizer's base.
 
+The [Track 2 artifact policy](docs/ARTIFACT-POLICY.md) defines the permitted numerical models,
+static retrieval assets, cutoff rules and disclosure requirements in either category.
+
 ### Bring your own model: adapter-only, rank ≤ 64
 
-**The shape.** Your submission ships **only a LoRA adapter** — never model weights, and never a
-model server. The organizer runs the base for you: when your submission is evaluated, a dedicated
+**The language-model shape.** Ship **one LoRA adapter**, without full language-model weights
+or a model server. The permitted local numerical artifacts are separate from this serving
+path. The organizer runs the base for you: when your submission is evaluated, a dedicated
 server is started *for that submission*, on the same base model that sits behind `MODEL_ENDPOINT`,
 with your adapter loaded at launch, and it is destroyed when your submission finishes.
 
@@ -143,7 +147,9 @@ model, high enough for real domain adaptation.
    inherits the pinned base and adds its own adapter, which must be a fixed artifact in the image.
 3. **Disclose training cutoffs.** The training cutoff of every model used MUST be declared in
    submission metadata (`models[].training_cutoff` in `submission.json`). For a BYO submission
-   that is the base model's cutoff; declare your adapter's training data separately.
+   that includes the base model's cutoff; record your adapter's training data separately.
+   See the [artifact policy](docs/ARTIFACT-POLICY.md) for local learned models, provenance and
+   the narrow approved-base exception. Disclosure alone does not establish eligibility.
 4. **Pin temperature/seed** where the API supports it. `api`-category entries are verified
    *statistically* (bootstrap-CI overlap on organizer rerun for T2/T3/T4; for T1, the single-pass
    per-unit verdicts must agree exactly); BYO entries bit-reproducibly.
