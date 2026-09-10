@@ -71,7 +71,13 @@ from .limits import (
     read_json_bounded,
     stat_regular_file,
 )
-from .normalization import NormalizationMode, RefScale, load_ref_scale
+from .normalization import (
+    VARIOGRAM,
+    NormalizationMode,
+    RefScale,
+    joint_is_structurally_zero,
+    load_ref_scale,
+)
 from .tail import DEFAULT_TAIL_METRIC, TAIL_METRICS
 
 __all__ = [
@@ -80,6 +86,7 @@ __all__ = [
     "LEADERBOARD_SORT",
     "UNSCORED_NO_REFERENCE",
     "build_verifier",
+    "card_joint_statistic",
     "hydrate_ctx",
     "resolve_expected_grid",
 ]
@@ -140,6 +147,11 @@ def resolve_expected_grid(ctx: dict[str, Any]) -> tuple[GridSpec, str]:
             "against. An absent grid is an error, never an unconstrained one."
         )
     return grid_from_card(card), "card"
+
+
+def card_joint_statistic(card: dict[str, Any]) -> str:
+    """The card's joint statistic. Decides whether a 1-cell grid HAS a joint component."""
+    return str(card.get("scoring", {}).get("params", {}).get("joint", VARIOGRAM))
 
 
 def hydrate_ctx(ctx: dict[str, Any]) -> None:
@@ -210,6 +222,7 @@ def hydrate_ctx(ctx: dict[str, Any]) -> None:
         ctx["ref_scale"] = load_ref_scale(
             reference_root,
             cell_count=ctx["expected_grid"].cell_count,
+            joint_statistic=card_joint_statistic(ctx["card"]),
             limits=ctx["limits"],
         )
     ctx.setdefault("ref_scale", None)
@@ -512,7 +525,18 @@ def _score(ctx: dict[str, Any]) -> dict[str, Any]:
     # one board fair: it puts the text-blind baseline at 1.0 on both card shapes, so a single
     # average is averaging one quantity. Ruling and measurements: the private repo's
     # docs/SCORING-AGGREGATION.md.
+    #
+    # The rule is justified BY THE VARIOGRAM being 0, not by the cell count: `energy_score` on a
+    # 1-cell grid equals the marginal CRPS, so zeroing its weight would silently discard a defined
+    # component of the composite (measured: a 1.27x error). Refuse rather than discard.
+    joint_statistic = card_joint_statistic(ctx["card"])
     if spec.cell_count == 1:
+        if not joint_is_structurally_zero(spec.cell_count, joint_statistic):
+            raise organizer_fault(
+                f"[{ctx['unit_handle']}] single-cell grid with joint statistic "
+                f"{joint_statistic!r}. Zeroing the joint weight below is justified only for the "
+                "variogram, which is 0 on one cell by construction; the energy score is not."
+            )
         live = weight_tuple[0] + weight_tuple[2]
         if live <= 0.0:
             raise organizer_fault(
@@ -533,7 +557,7 @@ def _score(ctx: dict[str, Any]) -> dict[str, Any]:
         y,
         weights=weight_tuple,
         tail_levels=tuple(params.get("tail_levels", (0.01, 0.05, 0.95, 0.99))),
-        joint=params.get("joint", "variogram"),
+        joint=joint_statistic,
         tail_metric=tail_metric,
         ref_scale=(
             ref_scale.as_mapping(joint_weight=weight_tuple[1]) if ref_scale is not None else None

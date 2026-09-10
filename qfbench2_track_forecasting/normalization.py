@@ -11,22 +11,22 @@ baseline's value for that unit, which puts every unit on one scale where **the b
 construction**. That is what makes `W = 4.0` mean something ("four times worse than a text-blind
 random walk") and what makes clipping at 4.0 a real bound rather than an arbitrary one.
 
-Two faults are closed here, both armed and not yet live:
+Three faults are closed here, all armed and not yet live:
 
-* `scoring.py:413-419` built the scale from **whichever keys were present**, and
-  `crps.crps_composite` then indexed `ref_scale["marginal"]` unconditionally whenever the dict was
-  truthy — so `{"tail": 1.0}` raised an uncaught `KeyError` out of the scorer.
-* `scoring.py:420` was `ctx.setdefault("ref_scale", None)`, so a **missing scale file silently
+* `hydrate_ctx` built the scale from **whichever keys were present**, and `crps.crps_composite`
+  then indexed `ref_scale["marginal"]` unconditionally whenever the dict was truthy — so
+  `{"tail": 1.0}` raised an uncaught `KeyError` out of the scorer.
+* `hydrate_ctx` ended with `ctx.setdefault("ref_scale", None)`, so a **missing scale file silently
   produced a raw composite**, and the driver then averaged raw and normalized units together with
   nothing refusing the mix.
+* "complete" meant all three components positive, but the joint component does not exist on a
+  1-cell variogram grid, so the correct scale (`joint: 0.0`) was unloadable — 60 of 104 public
+  cards. Latent only because the generator writes a placeholder `1.0` there; it arms the moment
+  the scales are regenerated honestly. `load_ref_scale` now takes the grid shape and the joint
+  statistic. See `_OPTIONAL_COMPONENT`.
 
-Both are now impossible by construction: `load_ref_scale` returns a complete scale or raises, and
-`NormalizationMode` has no third value that means "whatever we found on disk".
-
-A third fault, this one live rather than armed: "complete" used to mean all three components
-positive, but the joint component does not exist on a 1-cell grid, so the correct scale for 60 of
-104 public cards could not be loaded at all. `load_ref_scale` now takes `cell_count` and treats a
-missing/zero joint as `None` exactly there. See `REF_SCALE_ALWAYS_REQUIRED`.
+All three are now impossible by construction: `load_ref_scale` returns a complete scale or raises,
+and `NormalizationMode` has no third value that means "whatever we found on disk".
 
 ### The firewall note that matters more than the arithmetic
 
@@ -56,24 +56,40 @@ __all__ = [
     "REF_SCALE_PROVENANCE_KEYS",
     "NormalizationMode",
     "RefScale",
+    "VARIOGRAM",
     "assert_reference_only",
+    "joint_is_structurally_zero",
     "load_ref_scale",
 ]
 
 #: Every component the composite weights.
 REF_SCALE_COMPONENTS: tuple[str, ...] = ("marginal", "joint", "tail")
 
-#: Required on every grid shape. `joint` is excluded: the variogram is a between-cells statistic, so
-#: on a 1-cell grid it is 0 by construction, making `0.0` the CORRECT scale — which the positivity
-#: rule below refuses. That made the correct scale unloadable for 60 of 104 public cards, and
-#: `load_ref_scale` raises outside the participant try/except,
-#: aborting the whole evaluation. See `load_ref_scale`.
-REF_SCALE_ALWAYS_REQUIRED: tuple[str, ...] = ("marginal", "tail")
+#: The only component that can be structurally absent, and the only statistic that makes it so.
+#: See `joint_is_structurally_zero`.
+_OPTIONAL_COMPONENT = "joint"
+VARIOGRAM = "variogram"
 
-#: Placeholder for the `joint` slot when the component does not exist. Emitted only when the joint
-#: WEIGHT is zero, so the composite computes `0.0 * (0.0/1.0) = 0.0` and it cannot reach the score.
-#: Needed because upstream `crps.py:157` indexes `ref_scale["joint"]` unconditionally.
-_JOINT_PLACEHOLDER = 1.0
+#: Required on every grid shape. Derived, so it cannot drift out of `REF_SCALE_COMPONENTS`.
+REF_SCALE_ALWAYS_REQUIRED: tuple[str, ...] = tuple(
+    c for c in REF_SCALE_COMPONENTS if c != _OPTIONAL_COMPONENT
+)
+
+#: Stand-in for a `joint` slot that does not exist, because `crps_composite` indexes
+#: `ref_scale["joint"]` unconditionally. Safe only because the joint WEIGHT is a literal `0.0`
+#: there — the numerator is not necessarily zero — so `as_mapping` refuses to emit it otherwise.
+_JOINT_PLACEHOLDER: float = 1.0
+
+
+def joint_is_structurally_zero(cell_count: int | None, joint_statistic: str) -> bool:
+    """Does this grid's joint term have no value to normalize by?
+
+    True only for the variogram on one cell, where it is 0 by construction. `energy_score` on one
+    cell equals the marginal CRPS, so its scale genuinely exists. Both the scale loader and the
+    weight renormalization in `scoring.py` branch on this, and they must agree.
+    """
+    return cell_count == 1 and joint_statistic == VARIOGRAM
+
 
 #: Keys the generator writes for provenance and the metric never reads. Named as a CLOSED set
 #: rather than tolerated by a wildcard: every scale file the generator has written carries all
@@ -100,9 +116,15 @@ class NormalizationMode(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class RefScale:
-    """A positive, finite normalization scale. Constructing one is the validation.
+    """A finite, positive normalization scale for every component the grid HAS.
 
-    `joint` is `None` exactly when the grid has one cell and the component does not exist.
+    `joint` is `None` exactly when the component does not exist — see `_OPTIONAL_COMPONENT`.
+
+    Constructing one validates every component that is present. It does NOT validate that an
+    absent `joint` is legitimate: that pairs the scale with the composite's joint weight, which is
+    card material and not in scope here. `as_mapping` settles it, as an `OrganizerFault` that
+    `official.py` does not catch and that therefore aborts the evaluation rather than being charged
+    to a participant.
     """
 
     marginal: float
@@ -112,7 +134,7 @@ class RefScale:
     def __post_init__(self) -> None:
         for name in REF_SCALE_COMPONENTS:
             value = getattr(self, name)
-            if value is None and name not in REF_SCALE_ALWAYS_REQUIRED:
+            if value is None and name == _OPTIONAL_COMPONENT:
                 continue
             if not isinstance(value, float):  # pragma: no cover - constructor coerces
                 raise organizer_fault(f"ref_scale.{name} must be a float")
@@ -128,7 +150,7 @@ class RefScale:
                     "forecast rank better."
                 )
 
-    def as_mapping(self, *, joint_weight: float = 1.0) -> dict[str, float]:
+    def as_mapping(self, *, joint_weight: float) -> dict[str, float]:
         """The `ref_scale` argument `crps.crps_composite` expects: all three keys, always.
 
         `joint_weight` is the composite's live weight on the joint term. A `None` joint is only
@@ -170,21 +192,19 @@ def load_ref_scale(
     reference_root: pathlib.Path,
     *,
     cell_count: int | None = None,
+    joint_statistic: str = VARIOGRAM,
     limits: ParseLimits = DEFAULT_LIMITS,
 ) -> RefScale:
-    """Load and validate the unit's frozen scale. Anything short of complete is an organizer fault.
+    """Load and validate the unit's frozen scale. Any defect is an organizer fault.
 
-    There is no `None` return and no partial dict. The pre-freeze loader built the scale from the
-    keys it happened to find; this one requires every component the grid HAS, refuses an unknown
-    key, and refuses a non-positive or non-finite value. Every one of those refusals is an
-    `OrganizerFault`, because a scale is organizer material and a participant cannot cause, detect
-    or repair a missing one.
+    There is no `None` return and no partial dict: this requires every component the grid HAS,
+    refuses an unknown key, and refuses a non-positive or non-finite value. A scale is organizer
+    material, so every refusal is an `OrganizerFault`.
 
-    `cell_count` is the grid's cell count. When it is 1 the joint component does not exist, so the
-    key may be absent, `null`, or `0.0` — all load as `None`. A positive joint on a 1-cell grid is
-    accepted and ignored: the generator writes `1.0` there today (see `tests/test_normalization.py`)
-    and refusing it would fail every scale file currently in the private tree. Any other
-    `cell_count`, including `None` (caller did not say), requires a positive joint as before.
+    Where `joint_is_structurally_zero`, the joint is dropped whatever the file says — including
+    the `1.0` the generator writes — so `joint is None` means "the grid has no joint" rather than
+    "the file was honest". The emitted mapping is unchanged either way. Every other shape keeps
+    the strict rule, including `cell_count=None`, meaning the caller did not say.
     """
     path = reference_root / REF_SCALE_FILENAME
     assert_reference_only(path, reference_root)
@@ -212,9 +232,9 @@ def load_ref_scale(
             f"{list(REF_SCALE_COMPONENTS)} plus the provenance keys "
             f"{list(REF_SCALE_PROVENANCE_KEYS)}, and nothing else"
         )
-    single_cell = cell_count == 1
-    required = REF_SCALE_ALWAYS_REQUIRED if single_cell else REF_SCALE_COMPONENTS
-    missing = [k for k in required if k not in raw or raw[k] is None]
+    no_joint = joint_is_structurally_zero(cell_count, joint_statistic)
+    required = REF_SCALE_ALWAYS_REQUIRED if no_joint else REF_SCALE_COMPONENTS
+    missing = [k for k in required if k not in raw]
     if missing:
         raise organizer_fault(
             f"reference/{REF_SCALE_FILENAME} is missing {missing}. The composite weights every "
@@ -230,20 +250,19 @@ def load_ref_scale(
             )
         return float(value)
 
-    joint_raw = raw.get("joint")
-    # `0.0` and `null` are the honest values for a component a 1-cell grid does not have. Carry
-    # None so `as_mapping` can refuse to hand it to a live joint weight. A non-numeric joint still
-    # falls through to `_number` and is refused rather than silently dropped.
-    joint_absent = single_cell and (
-        joint_raw is None
-        or (
-            isinstance(joint_raw, int | float)
-            and not isinstance(joint_raw, bool)
-            and float(joint_raw) == 0.0
-        )
-    )
-    return RefScale(
-        marginal=_number("marginal"),
-        joint=None if joint_absent else _number("joint"),
-        tail=_number("tail"),
-    )
+    joint: float | None
+    if no_joint:
+        # Dropped, but validated first: a negative or non-finite joint is a corrupt file whatever
+        # the grid, and dropping it silently would lose that detector. Absent, `0.0` and any
+        # finite positive are all tolerated.
+        if raw.get("joint") is not None:
+            probe = _number("joint")
+            if probe != probe or probe in (float("inf"), float("-inf")) or probe < 0.0:
+                raise organizer_fault(
+                    f"reference/{REF_SCALE_FILENAME}.joint={probe} is not a scale. A negative or "
+                    "non-finite value is a corrupt file, not a grid property."
+                )
+        joint = None
+    else:
+        joint = _number("joint")
+    return RefScale(marginal=_number("marginal"), joint=joint, tail=_number("tail"))
