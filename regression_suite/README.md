@@ -12,10 +12,11 @@ submission against a known unit.
 |---|---|
 | `units/reg-t2-daily` | 2-asset daily unit, 21-BD horizon — composite **0.225323241** to 1e-9 |
 | `units/reg-t2-monthly` | monthly unit, horizon in **months** — composite **0.470657943**. Keeps the monthly path under test forever: the first 2026H2-B build shipped 15 macro cards whose business-day targets landed on no observation |
+| `units/reg-t2-logreturn` | 2-factor daily unit whose panel rows are decimal **simple returns** and whose target is the 21-BD **cumulative log return** — composite **0.007077530**. Check 13 also runs the CLI and the shared baseline fallback on it and measures both: centre `h × mean(log1p r)` anchored at 0, spread `sd(log1p r) × sqrt(h)`, and the two agree. The last panel row is forced to +0.05 so a producer that anchors at the last row (the reference CLI before staging PR #14, public #2) lands visibly off-centre, and one that differences the rows inflates the spread by ~sqrt(2) — both measured on the unfixed CLI: centre 0.050 vs 0.016, spread ratio 1.38–1.41 |
 | driver seam | both are scored through the **minimal ctx `{unit_dir, output_dir}`** — exactly what `score.py` passes — so the hydration path cannot silently regress |
 | failure taxonomy | missing/empty rationale → g1 naming the file · missing meta → g0 · post-as-of doc → g2 · thin draws → g3 |
 | public smoke | no `reference/` → admissible, score `None` |
-| the CLI | fresh run on both units passes the gates (values deliberately not pinned) |
+| the CLI | fresh run on all three units passes the gates (values deliberately not pinned) |
 
 Everything is **synthetic** — generated random walks, invented answers — so the fixtures carry no
 market data and no leakage surface, and the pinned composite is a property of the scoring code
