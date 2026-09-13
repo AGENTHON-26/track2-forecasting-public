@@ -378,7 +378,11 @@ value of text within your own system.
 
 ```bash
 # 1. The shared toolkit, pinned.
-pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.3.1#subdirectory=common"
+# Pin the tag, and pin this one: v2.3.1 rejects a descriptor the evaluation verifier accepts
+# (it requires at least one `models` entry; the current contract allows `"models": []`).
+# `pip show qfbench2-common` reports 2.3.1 from this tag -- the metadata lags the tag. That is
+# cosmetic and expected; the code is the v2.4.0 code.
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.0#subdirectory=common"
 
 # 2. This track's package, from the repository root. Without it neither the reference CLI nor
 #    the smoke scorer can import `qfbench2_track_forecasting`, and both stop at an ImportError
@@ -521,18 +525,19 @@ Install the `qfbench2-common` package (schemas, scoring, leakage guard) from the
 repository that publishes it, `Agenthon-2026/Agenthon2026-public`:
 
 ```bash
-pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.3.1#subdirectory=common"
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.0#subdirectory=common"
 ```
 
 The toolkit is half of what you need. Running the scorer or the exemplar also requires this
 repository itself — `pip install .` from the repository root — which is what brings in pandas and
 the rest. See the Quick-start checklist, step 0.
 
-**Pin the tag, and pin this one.** `v2.3.1` is the first toolkit release that carries
-`qfbench2_common.contracts`, which `qfbench2_track_forecasting.scoring` imports at module scope —
-earlier tags predate it, so a submission built against one of those dies before it runs a single
-gate. It is also the tag `.github/workflows/ci.yml` installs, so what you verify locally is what
-CI verifies.
+**Pin the tag, and pin this one.** `v2.4.0` is the tag whose descriptor contract matches what the
+evaluation verifier accepts. `v2.3.1` carries `qfbench2_common.contracts` — earlier tags predate it
+entirely — but it **refuses a descriptor the verifier accepts**: it demands at least one `models`
+entry, while the current contract allows `"models": []`. Building against it means your own tools
+reject work that would have scored. It is also the tag `.github/workflows/ci.yml` installs, so what
+you verify locally is what CI verifies.
 
 Do not install from a branch. An unpinned toolkit is how a local result and a scored result come
 to disagree without either side noticing.
@@ -666,7 +671,7 @@ component of Track 2 measures hardware ([docs/NVIDIA-STACK.md](docs/NVIDIA-STACK
    dependencies (pandas among them) come from `pip install .`, and without it step 3 fails with
    `ModuleNotFoundError: No module named 'pandas'`:
    ```bash
-   pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.3.1#subdirectory=common"
+   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.0#subdirectory=common"
    pip install .
    ```
 1. Read `docs/CONCEPTS.md` — understand CRPS, variogram, tail penalty, text uplift, and leakage.
