@@ -1,7 +1,7 @@
 # Forecast rationale — reg-t2-logreturn
 
 As of **2026-05-29**, joint distribution over SYN_MOM, SYN_HML at horizon(s)
-21 business days. 500 draws.
+21, 127 business days. 500 draws.
 
 ## Anchor
 
@@ -26,7 +26,9 @@ rather than independent marginals. The composite's variogram term scores that st
 | asset | anchor | daily drift | centre at horizon | daily sd | sd at horizon | horizon (BD) |
 |---|---|---|---|---|---|---|
 | SYN_MOM | 0.0000 | 0.0007 | 0.0157 | 0.0111 | 0.0509 | 21 |
+| SYN_MOM | 0.0000 | 0.0007 | 0.0947 | 0.0111 | 0.1252 | 127 |
 | SYN_HML | 0.0000 | 0.0007 | 0.0147 | 0.0072 | 0.0328 | 21 |
+| SYN_HML | 0.0000 | 0.0007 | 0.0887 | 0.0072 | 0.0806 | 127 |
 
 Centre = 0 + historical mean daily log return × horizon.
 
