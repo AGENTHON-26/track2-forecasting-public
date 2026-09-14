@@ -443,8 +443,6 @@ Your entry reports the number of cards scored alongside the total, so coverage i
 | `joint_variogram` | Variogram score measuring cross-asset dependence. Measures whether the model got relationships right. |
 | `tail_penalty` | Mean pinball loss at 1%/5%/95%/99% quantiles. Measures tail calibration. |
 | `n_draws` | Number of Monte Carlo samples you submitted. |
-| `pit_50` | Fraction of realized outcomes inside the 50 % prediction interval (should be ~0.50). |
-| `pit_90` | Fraction of realized outcomes inside the 90 % prediction interval (should be ~0.90). |
 | `T2_UNCALIBRATED_MARGINAL` | Gate g3 flag: marginal distribution is degenerate (std ~= 0) or has non-finite values. |
 | `T2_BAD_DEPENDENCE` | Gate g3 flag: cross-asset or cross-horizon dependence is inconsistent with the joint task. |
 | `T2_TAIL_MISCALIBRATION` | Gate g3 flag: 1%/5%/95%/99% coverage is outside tolerance. |

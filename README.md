@@ -557,7 +557,7 @@ the rest. See the Quick-start checklist, step 0.
 evaluation verifier accepts. `v2.3.1` carries `qfbench2_common.contracts` — earlier tags predate it
 entirely — but it **refuses a descriptor the verifier accepts**: it demands at least one `models`
 entry, while the current contract allows `"models": []`. Building against it means your own tools
-reject work that would have scored. It is also the tag `.github/workflows/ci.yml` installs, so what
+reject work that would have scored. `v2.4.0` is also the tag `.github/workflows/ci.yml` installs, so what
 you verify locally is what CI verifies.
 
 Do not install from a branch. An unpinned toolkit is how a local result and a scored result come
@@ -696,7 +696,7 @@ component of Track 2 measures hardware ([docs/NVIDIA-STACK.md](docs/NVIDIA-STACK
    pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.0#subdirectory=common"
    pip install .
    ```
-1. Read `docs/CONCEPTS.md` — understand CRPS, variogram, tail penalty, text uplift, and leakage.
+1. Read `docs/CONCEPTS.md` — understand CRPS, variogram, tail penalty, text ablation, and leakage.
 2. Read `docs/CATEGORIES.md` — understand what each card family (F1–F4) tests and the role of text in each.
 3. Run the exemplar end-to-end:
    ```bash
