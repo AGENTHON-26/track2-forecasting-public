@@ -298,8 +298,9 @@ should be **uniformly distributed** between 0 and 1 across many forecasts. If PI
 cluster near 0 or 1, your distribution is too narrow. If they cluster in the middle, your
 distribution is too wide.
 
-The harness computes PIT for 50 % and 90 % coverage intervals and reports them as diagnostics.
-They do not directly affect the score but help you diagnose calibration problems.
+The scorer does not emit PIT or interval-coverage diagnostics. You can compute these on
+labeled data you are permitted to use to diagnose calibration; they are not additional score
+components.
 
 ### Coverage
 
