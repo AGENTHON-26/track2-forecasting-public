@@ -1,7 +1,7 @@
 {
- "numpy_at_regen": "2.5.3",
  "units": {
   "reg-t2-daily": {
+   "numpy_at_regen": "2.0.2",
    "admissible": true,
    "gates": {
     "g0_integrity": true,
@@ -19,6 +19,7 @@
    }
   },
   "reg-t2-monthly": {
+   "numpy_at_regen": "2.0.2",
    "admissible": true,
    "gates": {
     "g0_integrity": true,
@@ -36,6 +37,7 @@
    }
   },
   "reg-t2-logreturn": {
+   "numpy_at_regen": "2.5.3",
    "admissible": true,
    "gates": {
     "g0_integrity": true,
@@ -43,15 +45,15 @@
     "g2_cutoff_resource": true,
     "g3_domain_semantics": true
    },
-   "composite": 0.007077530006730838,
+   "composite": 0.04562182856361,
    "detail": {
-    "score": 0.007077530006730838,
-    "cell_count": 2,
+    "score": 0.04562182856361,
+    "cell_count": 4,
     "n_draws": 500,
-    "marginal": 0.012440603514847524,
-    "joint": 0.0014903640061211334,
-    "tail": 0.0020505952373536802,
-    "composite": 0.007077530006730838
+    "marginal": 0.032775683906872716,
+    "joint": 0.0949438772696933,
+    "tail": 0.0037541171463282806,
+    "composite": 0.04562182856361
    }
   }
  }
