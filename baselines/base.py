@@ -391,7 +391,7 @@ class BaselineForecaster(abc.ABC):
 
         # Layout 2: a single long/tidy frame with an asset column. Both spellings are
         # accepted: the exemplar unit uses `asset_id`, while the pilot and prospective batches
-        # use `asset` (the same split cli.py:53-55 records). Requiring `asset_id` meant this
+        # use `asset` (the same split `cli._ASSET_COLS` records). Requiring `asset_id` meant this
         # returned empty for all 238 authored panels -- the caller then fell back to a
         # unit-scale walk from 0, i.e. forecasting ~0 for an FX rate of 6.21. The only
         # ForecastRequest ever built from a real panel drives the exemplar, so the `asset`
