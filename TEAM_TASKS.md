@@ -3,6 +3,25 @@
 **Goal:** build a Docker agent that forecasts markets by combining a stochastic model (numbers)
 with an LLM reading text. Score below **1.0** (the text-blind baseline) on average across cards.
 
+**Team repo:** https://github.com/AGENTHON-26/track2-team (private)
+
+## Setup (everyone, once)
+
+```bash
+git clone https://github.com/AGENTHON-26/track2-team
+cd track2-team
+pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.3.1#subdirectory=common"
+pip install .
+pip install numpy pyarrow
+
+# make your branch:
+git checkout -b feat/timeseries   # Dew   (feat/llm = Nish, feat/eval = Pun)
+
+# confirm the skeleton runs:
+python3 forecast_agent.py --panels units/t2-EXAMPLE-ust-curve-1m \
+  --text units/t2-EXAMPLE-ust-curve-1m/text --asof 2024-06-28 --out out/forecast.parquet
+```
+
 ---
 
 ## The integration contract (agree on this FIRST)
