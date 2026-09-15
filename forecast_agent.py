@@ -38,26 +38,20 @@ def read_text_signal(text_dir: pathlib.Path, assets: list[str]) -> dict[str, dic
     """Return {asset: {"shift", "widen", "skew"}}.  shift moves the center,
     widen multiplies the spread (>1 = more uncertain), skew tilts the tail.
 
-    STUB: returns neutral (no text used) so the baseline runs. Fill this in.
+    Thin delegate: the implementation lives in `text_signal.py` so this branch's diff against
+    the shared skeleton stays three lines and cannot collide with feat/timeseries or feat/eval.
+    That module reads `text/corpus_index.json` (cutoff-filtered), calls the house endpoint at
+    MODEL_ENDPOINT/MODEL_NAME, and degrades to a deterministic offline keyword floor and then to
+    exact neutral rather than ever raising -- a card that errors scores 4.0, ignoring the text
+    scores 1.0.  Run `python3 text_signal.py --text units/<id>/text` to see what it produced.
     """
-    neutral = {a: {"shift": 0.0, "widen": 1.0, "skew": 0.0} for a in assets}
+    try:
+        from text_signal import read_text_signal as _impl
+    except Exception as exc:  # module missing/broken -> the text-blind baseline, not a crash
+        print(f"[text_signal] unavailable ({exc}); neutral", file=sys.stderr)
+        return {a: {"shift": 0.0, "widen": 1.0, "skew": 0.0} for a in assets}
+    return _impl(text_dir, assets)
 
-    # --- TODO NISH: read docs, call the model, parse {shift, widen, skew} ---
-    # import os
-    # from openai import OpenAI
-    # client = OpenAI(
-    #     base_url=os.environ.get("MODEL_ENDPOINT", "https://integrate.api.nvidia.com/v1"),
-    #     api_key=os.environ.get("MODEL_API_KEY", "nvapi-..."),   # dev only
-    # )
-    # docs = "\n\n".join(p.read_text() for p in sorted(text_dir.glob("*.txt")))
-    # prompt = f"...Given these Fed docs, per asset return JSON shift/widen/skew...\n{docs}"
-    # reply = client.chat.completions.create(
-    #     model=os.environ.get("MODEL_NAME", "nvidia/llama-3.3-nemotron-super-49b-v1"),
-    #     messages=[{"role": "system", "content": "detailed thinking off"},
-    #               {"role": "user", "content": prompt}],
-    # )
-    # parse reply into the {asset: {...}} shape and merge onto `neutral`
-    return neutral
 
 
 # ============================================================================
