@@ -28,7 +28,7 @@ asset_panel      = "TEMPLATE_PANEL"
 horizons         = [21]              # business days; must match [targets].horizons
 n_assets         = 4
 target_type      = "level"          # level | log_return | yield
-target_frequency = "monthly"
+target_frequency = "daily"          # cadence of target observations, not forecast lead time
 
 [provenance]
 license             = "TEMPLATE_LICENSE"    # rights DETERMINATION, not boilerplate. One of:
@@ -94,5 +94,5 @@ notes           = "TEMPLATE_TEXT_NOTES"      # describe what text signals are pr
 asset_ids        = ["TEMPLATE_ASSET_1", "TEMPLATE_ASSET_2"]
 horizons         = [21]
 target_type      = "level"
-target_frequency = "monthly"
+target_frequency = "daily"          # cadence of target observations, not forecast lead time
 leakage_checked  = false                     # set to true after running cutoff_ok()

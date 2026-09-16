@@ -12,6 +12,8 @@ and [competition data rules](https://www.agenthon.net/rules/).
 
 ## What you may package
 
+A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"` for this non-adapter path; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
+
 For example, an agent may combine the unchanged House model with a fitted linear forecast and
 a covariance estimate. That remains an `api` submission. An agent using the approved LoRA
 adapter plus those same numerical artifacts uses a BYO category.

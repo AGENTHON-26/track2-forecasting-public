@@ -46,8 +46,8 @@ n_documents    = 2
 
 [targets]
 asset_ids        = ["SYN_MOM", "SYN_HML"]
-horizons         = [21]
+horizons         = [21, 127]
 target_type      = "log_return"
 target_frequency = "daily"
-target_dates     = ["2026-06-29"]
+target_dates     = ["2026-06-29", "2026-11-24"]
 value_unit       = "cumulative_log_return"
