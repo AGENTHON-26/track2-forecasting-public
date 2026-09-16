@@ -579,14 +579,38 @@ def build_prompt(
         "              <1 only when they REMOVE uncertainty (an explicit commitment or a peg).",
         "  skew      : tail tilt in [-1, 1]. Positive = the upside tail is the fatter one.",
         "",
-        "Be conservative. The statistical forecast is already reasonable; you are nudging it.",
-        "Most assets on most cards deserve a small drift. All three must be finite numbers —",
-        "NaN and Infinity are rejected and that asset's adjustment is dropped.",
+        "First decide `tone`, then map it to the numbers. `tone` is one of:",
+        "  hawkish  the documents point to tighter policy / higher rates than the path implied",
+        "  dovish   they point to easier policy / lower rates than the path implied",
+        "  neutral  ONLY when the documents contain no forward guidance at all. Central bank",
+        "           language is always hedged -- hedged is not the same as neutral, and a",
+        "           document that hedges in one direction is not neutral.",
         "",
-        "Reply with JSON only, no prose, no markdown fence:",
+        "How big is big, in sigma. Use this scale, it is not symmetric around 0 by accident:",
+        "  0.0 - 0.1   a routine meeting, guidance unchanged from the previous one",
+        "  0.2 - 0.5   the guidance language CHANGED -- a phrase added, dropped or qualified",
+        "  0.6 - 1.0   a clear shift: new conditions on the next move, a changed projection,",
+        "              a dissent, or a committee visibly split",
+        "  1.0 - 1.5   a genuine surprise the market cannot have priced",
+        "",
+        "The statistical forecast ALREADY assumes the documents say nothing. Answering all",
+        "zeros is identical to not reading them. Do not hedge toward 0 for safety -- the",
+        "ranges above already bound you, and a small committed number beats a confident zero.",
+        "",
+        "Remember the decision itself is already in the level printed above. A cut that was",
+        "delivered is priced; what is NOT priced is what the documents say about the path from",
+        "here -- the vote split, the projections, the conditions attached to the next move.",
+        "",
+        "All three must be finite numbers. NaN and Infinity are rejected and that asset's",
+        "adjustment is dropped.",
+        "",
+        "Reply with JSON only, no prose, no markdown fence. The three numbers come FIRST and",
+        "`evidence` LAST -- a doc_id and at most 15 words. Keep evidence short; if the reply is",
+        "cut off the numbers must already be complete.",
         '{"assets": {'
         + ", ".join(
-            f'"{a}": {{"drift_sd": 0.0, "vol_scale": 1.0, "skew": 0.0, "because": "<one sentence citing a doc_id>"}}'
+            f'"{a}": {{"tone": "hawkish|dovish|neutral", "drift_sd": 0.0, "vol_scale": 1.0, '
+            '"skew": 0.0, "evidence": "<doc_id>: <=15 words"}'
             for a in assets[:2]
         )
         + "}}",
@@ -690,16 +714,15 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
     if not isinstance(content, str):
         return None, "choices[0].message.content was not a string", trace
 
-    start, end = content.find("{"), content.rfind("}")
-    if start < 0 or end <= start:
+    start = content.find("{")
+    if start < 0:
         if choice.get("finish_reason") == "length":
             # Not "the model ignored the schema" — we did not give it room to answer.
             return None, f"hit max_tokens={max_tokens} before any JSON; raise MODEL_MAX_TOKENS", trace
         return None, "reply contained no JSON object", trace
-    try:
-        out = json.loads(content[start : end + 1])
-    except ValueError as exc:
-        return None, f"reply JSON did not parse: {exc}", trace
+    out = _parse_json_object(content[start:])
+    if out is None:
+        return None, f"reply JSON did not parse: {content[start:][:200]!r}", trace
     if cache_file is not None:
         try:
             cache_file.parent.mkdir(parents=True, exist_ok=True)
@@ -707,6 +730,67 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
         except Exception:
             pass
     return out, "", trace
+
+
+def _parse_json_object(blob: str) -> dict[str, Any] | None:
+    """Parse the first JSON object in `blob`, repairing an unbalanced tail if needed.
+
+    Measured against nvidia/nemotron-3.5-lightning-30b-a3b on t2-F1-ai-mom-2024: the model
+    returned
+
+        {"assets": {"MOM": {"drift_sd": 0.0, "vol_scale": 1.0, "skew": 0.0, "because": "..."}}
+
+    -- three braces open, two closed, and `finish_reason` was "stop", not "length". It is not a
+    truncation we caused by under-budgeting tokens; the model simply dropped the last brace. A
+    strict `rfind("}")` parse fails, the adjustment is discarded, and a perfectly good reading of
+    the documents is thrown away on a typo.
+
+    Tries longest-prefix first so a well-formed object is never altered, then closes unterminated
+    strings and appends the missing brackets. Only ever ADDS closers -- it cannot invent a value.
+
+    This repair is why `build_prompt` puts the three numbers BEFORE `evidence` in the response
+    schema. An evidence-first schema had the model quoting a long passage and running out of
+    completion budget inside that string, so the truncated reply carried no numbers at all and
+    there was nothing to recover. Numbers first means a cut-off reply still yields a usable
+    adjustment and loses only the citation.
+    """
+    blob = blob.strip()
+    for end in range(len(blob), 0, -1):
+        if blob[end - 1] != "}":
+            continue
+        try:
+            out = json.loads(blob[:end])
+        except ValueError:
+            continue
+        return out if isinstance(out, dict) else None
+
+    # Nothing parsed as-is. Walk the text tracking string state and bracket depth, then close it.
+    depth: list[str] = []
+    in_str = False
+    escaped = False
+    for ch in blob:
+        if in_str:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == '"':
+                in_str = False
+            continue
+        if ch == '"':
+            in_str = True
+        elif ch in "{[":
+            depth.append("}" if ch == "{" else "]")
+        elif ch in "}]" and depth:
+            depth.pop()
+    if not depth:
+        return None
+    repaired = blob + ('"' if in_str else "") + "".join(reversed(depth))
+    try:
+        out = json.loads(repaired)
+    except ValueError:
+        return None
+    return out if isinstance(out, dict) else None
 
 
 # ----------------------------------------------------------------------------- normalise + clamp
@@ -767,7 +851,7 @@ def to_adjustments(
             "drift_sd": clamped_drift,
             "sigma": sigma,
             "level": ctx["level"].get(a),
-            "because": str(spec.get("because", ""))[:300],
+            "because": str(spec.get("evidence") or spec.get("because") or "")[:300],
             "note": note,
         }
     return adjustments, ledger
