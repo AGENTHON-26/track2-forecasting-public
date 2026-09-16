@@ -39,9 +39,9 @@ def _unit(tmp: pathlib.Path, docs: list[tuple[str, str, str, str]], asof: str = 
         )
     (text / "corpus_index.json").write_text(json.dumps(index))
     (tmp / "card.toml").write_text(
-        "[task]\nid='t2-TEST'\n\n[text]\ncutoff='%s'\n\n"
+        f"[task]\nid='t2-TEST'\n\n[text]\ncutoff='{asof}'\n\n"
         "[targets]\nasset_ids=['UST_2Y']\nhorizons=[21]\nvalue_unit='percent_per_annum'\n"
-        "target_type='level'\n" % asof
+        "target_type='level'\n"
     )
     return text
 
@@ -109,7 +109,7 @@ class Cutoff(unittest.TestCase):
 
 class PromptBudget(unittest.TestCase):
     def test_excerpt_never_exceeds_its_cap(self):
-        body = ("The Committee judges that the risks to inflation are elevated. " * 4000)
+        body = "The Committee judges that the risks to inflation are elevated. " * 4000
         for cap in (600, 5_000, 14_000):
             self.assertLessEqual(len(ts.salient_excerpt(body, cap)), cap)
 
@@ -232,7 +232,9 @@ class Heuristic(unittest.TestCase):
             "projection shows fewer cuts than previously indicated."
         )
         with tempfile.TemporaryDirectory() as d:
-            text = _unit(pathlib.Path(d), [("s", "2024-12-18", "fomc_statement", cut_with_hawkish_path)])
+            text = _unit(
+                pathlib.Path(d), [("s", "2024-12-18", "fomc_statement", cut_with_hawkish_path)]
+            )
             ts.read_text_signal(text, ["UST_2Y"])
         # Asserted on drift_sd, not shift: this synthetic unit ships no panel, so there is no
         # sigma to scale by and the guard above correctly forces `shift` to 0. The lexicon's
@@ -245,7 +247,9 @@ class Heuristic(unittest.TestCase):
         os.environ["TEXT_SIGNAL_MODE"] = "off"
         try:
             with tempfile.TemporaryDirectory() as d:
-                text = _unit(pathlib.Path(d), [("s", "2024-12-18", "fomc_statement", "hawkish " * 50)])
+                text = _unit(
+                    pathlib.Path(d), [("s", "2024-12-18", "fomc_statement", "hawkish " * 50)]
+                )
                 adj = ts.read_text_signal(text, ["UST_2Y"])
             # The glue's `used_text` check compares against this dict by equality.
             self.assertEqual(adj["UST_2Y"], {"shift": 0.0, "widen": 1.0, "skew": 0.0})

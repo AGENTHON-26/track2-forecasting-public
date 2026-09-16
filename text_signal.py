@@ -43,6 +43,7 @@ Dev run:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import math
@@ -192,7 +193,7 @@ def load_context(text_dir: pathlib.Path, assets: list[str]) -> dict[str, Any]:
     }
     card_path = next((p for p in (unit / "card.toml", text_dir / "card.toml") if p.is_file()), None)
     if card_path is not None:
-        try:
+        with contextlib.suppress(Exception):
             card = tomllib.loads(card_path.read_text(encoding="utf-8"))
             tgt = card.get("targets", {})
             ctx["horizons"] = [int(h) for h in tgt.get("horizons", ctx["horizons"])]
@@ -205,14 +206,10 @@ def load_context(text_dir: pathlib.Path, assets: list[str]) -> dict[str, Any]:
             )[:10]
             ctx["title"] = str(card.get("task", {}).get("title", ""))
             ctx["note"] = str(card.get("text", {}).get("notes", ""))
-        except Exception:
-            pass
     idx = text_dir / "corpus_index.json"
     if ctx["asof"] == "9999-12-31" and idx.is_file():
-        try:
+        with contextlib.suppress(Exception):
             ctx["asof"] = str(json.loads(idx.read_text(encoding="utf-8")).get("asof", ""))[:10]
-        except Exception:
-            pass
 
     level, sd_daily = _panel_stats(unit, assets, ctx["asof"])
     ctx["level"], ctx["sd_daily"] = level, sd_daily
@@ -253,7 +250,7 @@ def _panel_stats(
                 continue
             rows = sorted(
                 (str(dt)[:10], float(v))
-                for dt, aa, v in zip(d["date"], d[acol], d["value"])
+                for dt, aa, v in zip(d["date"], d[acol], d["value"], strict=False)
                 if str(aa) == a and str(dt)[:10] <= asof and v is not None
             )
             if len(rows) < 31:
@@ -416,7 +413,8 @@ _HAWKISH = {
 }
 _DOVISH = {
     # --- the action taken: already priced, near-zero weight ---
-    r"lower(?:ed|ing)? the target range|reduce the target range|cut the (?:target range|policy rate)": 0.4,
+    r"lower(?:ed|ing)? the target range|reduce the target range": 0.4,
+    r"cut the (?:target range|policy rate)": 0.4,
     # --- the path from here ---
     r"additional (?:rate )?cuts|further easing|further reductions": 2.5,
     r"more cuts than|deeper(?: cut| easing)? path": 3.0,
@@ -533,10 +531,10 @@ def build_prompt(
     h = ctx["horizons"]
     lines = [
         "You are a macro forecaster adjusting a statistical forecast using dated documents.",
-        f"As-of date: {ctx['asof']}. You know NOTHING after this date. Do not use outside knowledge",
-        "of what happened later; reason only from the documents below.",
+        f"As-of date: {ctx['asof']}. Nothing after this date is known to you.",
+        "Do not use knowledge of what happened later; reason only from the documents below.",
         "",
-        f"Target: {ctx['target_type']} of each asset at horizons {h} business days after the as-of.",
+        f"Target: {ctx['target_type']} of each asset, {h} business days after the as-of.",
         f"Value unit: {ctx['value_unit']}.",
     ]
     if ctx.get("title"):
@@ -696,10 +694,8 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
             payload = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         detail = ""
-        try:
+        with contextlib.suppress(Exception):
             detail = exc.read().decode("utf-8", "replace")[:300]
-        except Exception:
-            pass
         return None, f"HTTP {exc.code}: {detail}", ""
     except (urllib.error.URLError, TimeoutError, ValueError, OSError) as exc:
         return None, f"{type(exc).__name__}: {exc}", ""
@@ -718,17 +714,16 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
     if start < 0:
         if choice.get("finish_reason") == "length":
             # Not "the model ignored the schema" — we did not give it room to answer.
-            return None, f"hit max_tokens={max_tokens} before any JSON; raise MODEL_MAX_TOKENS", trace
+            why = f"hit max_tokens={max_tokens} before any JSON; raise MODEL_MAX_TOKENS"
+            return None, why, trace
         return None, "reply contained no JSON object", trace
     out = _parse_json_object(content[start:])
     if out is None:
         return None, f"reply JSON did not parse: {content[start:][:200]!r}", trace
     if cache_file is not None:
-        try:
+        with contextlib.suppress(Exception):
             cache_file.parent.mkdir(parents=True, exist_ok=True)
             cache_file.write_text(json.dumps(out, indent=2))
-        except Exception:
-            pass
     return out, "", trace
 
 
@@ -872,7 +867,8 @@ def _main(argv: list[str] | None = None) -> int:
     assets = a.assets
     if not assets:
         card = a.text.parent / "card.toml"
-        assets = list(tomllib.loads(card.read_text())["targets"]["asset_ids"]) if card.is_file() else []
+        if card.is_file():
+            assets = list(tomllib.loads(card.read_text())["targets"]["asset_ids"])
     if not assets:
         print("no assets: pass --assets", file=sys.stderr)
         return 2

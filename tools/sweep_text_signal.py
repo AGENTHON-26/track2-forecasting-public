@@ -71,7 +71,8 @@ def main(argv: list[str] | None = None) -> int:
             sys.stderr.close()
             sys.stderr = err
 
-    hdr = f"{'unit':<34}{'asset':<10}{'src':<10}{'driftSD':>8}{'shift':>11}{'widen':>7}{'docs':>5}{'drop':>5}"
+    hdr = (f"{'unit':<34}{'asset':<10}{'src':<10}{'driftSD':>8}"
+           f"{'shift':>11}{'widen':>7}{'docs':>5}{'drop':>5}")
     print(hdr)
     print("-" * len(hdr))
     for r in rows:
