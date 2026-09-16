@@ -22,7 +22,11 @@
       160
     ],
     "target_type": "level",
-    "n_assets": 1
+    "n_assets": 1,
+    "observation_periods": [
+      "2024-01",
+      "2024-02"
+    ]
   },
   "output_format": "samples",
   "n_draws_min": 200,

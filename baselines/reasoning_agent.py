@@ -26,7 +26,7 @@ and this model, not a bug in the harness.
 
 The numeric half is the joint Gaussian random walk from
 `qfbench2_track_forecasting/cli.py` -- correlated across assets from the empirical covariance of
-daily changes, because the composite puts 0.3 on the joint variogram term and independently drawn
+changes at the target panel cadence, because independently drawn
 marginals are penalised there by design. That part is imported, not reimplemented.
 
 The reasoning half asks the model for exactly two scalars per asset:
@@ -168,6 +168,8 @@ def build_prompt(
     last: dict[str, float],
     sd_h: dict[str, float],
     docs: list[dict[str, Any]],
+    *,
+    panel_steps: dict[str, dict[str, int]] | None = None,
 ) -> str:
     """The prompt states BOTH the as-of level and the horizon standard deviation.
 
@@ -187,6 +189,18 @@ def build_prompt(
         "standard deviation of the",
         f"forecast at the longest horizon ({max(horizons)} business days):",
     ]
+    if panel_steps is not None:
+        lines = [
+            "You are adjusting a statistical forecast using dated documents.",
+            f"As-of date: {asof}. Nothing after this date is known to you.",
+            f"Target type: {target_type}. Monthly observation targets at horizon keys: {horizons}.",
+            "The horizon integers are grid keys. Monthly transitions are measured from each",
+            "series' last available observation; they include the panel's publication lag.",
+            *[f"  {asset}: monthly steps by horizon key {panel_steps[asset]}" for asset in assets],
+            "",
+            "Per asset: the last available monthly level and the standard deviation",
+            "at its latest target observation period:",
+        ]
     lines += [f"  {a}: level {last[a]:.6f}, horizon sd {sd_h[a]:.6f}" for a in assets]
     lines += ["", f"Documents ({len(docs)}), newest first:"]
     for d in docs:
@@ -444,12 +458,17 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
 
     # The statistical half, imported rather than reimplemented.
-    from qfbench2_track_forecasting.cli import _draw, _read_panels
+    from qfbench2_track_forecasting.cli import _draw, _monthly_inputs, _read_panels
+    from qfbench2_track_forecasting.horizons import HorizonMetadataError
 
     card = tomllib.loads(pathlib.Path(a.card).read_text(encoding="utf-8"))
     t = card["targets"]
     assets, horizons = list(t["asset_ids"]), [int(h) for h in t["horizons"]]
     panels = _read_panels(pathlib.Path(a.panels))
+    try:
+        panel_steps = _monthly_inputs(panels, card, pathlib.Path(a.card), a.asof)
+    except HorizonMetadataError as exc:
+        raise SystemExit(str(exc)) from None
     # `_draw` returns (samples, meta); meta already carries the as-of level per asset, so the
     # drift below is expressed against the same number the statistical half used rather than a
     # second, independently derived one.
@@ -457,19 +476,40 @@ def main(argv: list[str] | None = None) -> int:
     if n_draws != a.n_draws:
         print(f"note: --n-draws {a.n_draws} raised to the contract floor {_MIN_DRAWS}")
     samples, draw_meta = _draw(
-        panels, assets, horizons, a.asof, n_draws, a.seed, target_type=t["target_type"]
+        panels,
+        assets,
+        horizons,
+        a.asof,
+        n_draws,
+        a.seed,
+        target_type=t["target_type"],
+        panel_steps=panel_steps,
     )
     last = {x: float(draw_meta["last"][x]) for x in assets}
-    # sd of the forecast at the LONGEST horizon: sqrt(h) x the daily sd the statistical half fit.
-    # This is the scale the drift is stated against and clamped on, and it goes in the prompt.
-    sd_h = {x: float(draw_meta["daily_sd"][x]) * math.sqrt(max(horizons)) for x in assets}
+    # Monthly widths come from the resolved observation periods, including publication lag.
+    # Daily forecasts retain their existing scale and random draws.
+    monthly = draw_meta.get("step_unit") == "month"
+    sd_h = (
+        {x: max(draw_meta["horizon_sd"][x].values()) for x in assets}
+        if monthly
+        else {x: float(draw_meta["daily_sd"][x]) * math.sqrt(max(horizons)) for x in assets}
+    )
 
     docs, excluded, truncated = read_corpus(pathlib.Path(a.text), a.asof)
     if not docs:
         parsed, reason, trace = None, "no corpus document is dated at or before the as-of date", ""
     else:
         parsed, reason, trace = call_model(
-            build_prompt(assets, horizons, a.asof, t["target_type"], last, sd_h, docs)
+            build_prompt(
+                assets,
+                horizons,
+                a.asof,
+                t["target_type"],
+                last,
+                sd_h,
+                docs,
+                panel_steps=draw_meta.get("panel_steps"),
+            )
         )
 
     applied: dict[str, dict[str, Any]] = {}
@@ -484,8 +524,7 @@ def main(argv: list[str] | None = None) -> int:
             keys = sorted(parsed)[:8] if isinstance(parsed, dict) else []
             applied, reasoning_applied = {}, False
             reason = (
-                f"reply named none of the requested assets {assets}; "
-                f"its top-level keys were {keys}"
+                f"reply named none of the requested assets {assets}; its top-level keys were {keys}"
             )
         else:
             samples = adjusted
@@ -547,10 +586,29 @@ def main(argv: list[str] | None = None) -> int:
                     "Zero anchor, mean daily log-return drift, and correlated "
                     "log(1 + panel value) innovations;"
                     if t["target_type"] == "log_return"
+                    else "Monthly level changes supply the innovation covariance. One cumulative "
+                    "path reuses each month's innovations at later observation periods;"
+                    if monthly
                     else "innovations are drawn from the empirical correlation of daily changes, "
                     "so curve"
                 ),
                 "shape is preserved rather than assembled from independent marginals.",
+                *(
+                    [
+                        "",
+                        "| asset | horizon key | monthly steps | monthly sd | sd at horizon |",
+                        "|---|---|---|---|---|",
+                    ]
+                    + [
+                        f"| {x} | {h} | {draw_meta['panel_steps'][x][str(h)]} | "
+                        f"{draw_meta['step_sd'][x]:.6f} | "
+                        f"{draw_meta['horizon_sd'][x][str(h)]:.6f} |"
+                        for x in assets
+                        for h in horizons
+                    ]
+                    if monthly
+                    else []
+                ),
                 "",
                 "## Reasoning half",
                 "",

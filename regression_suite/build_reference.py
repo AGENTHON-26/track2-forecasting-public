@@ -171,12 +171,15 @@ def build_units(only=None):
           "target_date": "2031-02-13"}]))
 
     # returns unit: two factor-style assets whose panel rows are decimal SIMPLE returns and whose
-    # target is the cumulative log return over 21 BD (the shape of the 16 `log_return` cards).
-    # Own RNG stream so it can be regenerated alone. The LAST row of SYN_MOM is forced to +0.05:
-    # a producer that anchors at the last panel row instead of at 0 (the reference CLI before
-    # staging PR #14, public #2) centres its 21-day draws near 0.05 where the correct centre is
-    # 21 x mean(log1p(r)) ~ 0.008, and one that differences the rows inflates the spread by
-    # ~sqrt(2). Check 13 in run_regression.py measures both, on the CLI and on the baseline.
+    # target is the cumulative log return over 21 and 127 BD. Both horizons belong to this
+    # synthetic regression fixture. Its own RNG stream lets it be regenerated alone. The LAST
+    # row of SYN_MOM is forced to +0.05: a producer that anchors at the last panel
+    # row instead of at 0 (the reference CLI before staging PR #14, public #2) centres its 21-day
+    # draws near 0.05 where the correct centre is 21 x mean(log1p(r)) ~ 0.016, and one that
+    # differences the rows inflates the spread by ~sqrt(2). The 127-BD horizon is there because
+    # a producer that skips log1p and averages the raw simple returns is off by h x var/2 --
+    # ~0.0013 at 21 BD, inside any honest tolerance, but ~0.008 at 127 BD, outside it. Check 13
+    # in run_regression.py measures all of this, on the CLI and on the baseline.
     if only in (None, "reg-t2-logreturn"):
         rr = np.random.default_rng(4242)
         corr = np.array([[1.0, -0.4], [-0.4, 1.0]])
@@ -184,11 +187,14 @@ def build_units(only=None):
         mom = 0.0004 + 0.011 * z[:, 0]
         hml = 0.0003 + 0.007 * z[:, 1]
         mom[-1] = 0.05
+        td_r = str(np.busday_offset(asof_d, 127))[:10]
         built.append(write_unit(
             "reg-t2-logreturn", "two-factor cumulative log return", "panel_factors",
-            ["SYN_MOM", "SYN_HML"], ddates, [mom, hml], asof_d, [21], [td_d], "daily",
+            ["SYN_MOM", "SYN_HML"], ddates, [mom, hml], asof_d, [21, 127], [td_d, td_r], "daily",
             [{"draw": 0, "asset": "SYN_MOM", "horizon": 21, "value": 0.021, "target_date": td_d},
-             {"draw": 0, "asset": "SYN_HML", "horizon": 21, "value": -0.013, "target_date": td_d}],
+             {"draw": 0, "asset": "SYN_HML", "horizon": 21, "value": -0.013, "target_date": td_d},
+             {"draw": 0, "asset": "SYN_MOM", "horizon": 127, "value": 0.058, "target_date": td_r},
+             {"draw": 0, "asset": "SYN_HML", "horizon": 127, "value": -0.031, "target_date": td_r}],
             target_type="log_return", value_unit="cumulative_log_return"))
     return built
 
@@ -247,7 +253,9 @@ def main():
     if not units:
         print(f"no fixture named {args.only!r}")
         return 2
-    expected = {"numpy_at_regen": np.__version__, "units": {}}
+    # numpy_at_regen is recorded PER UNIT, for the units this run actually rebuilt: a top-level
+    # value was overwritten by --only and then described fixtures it had not touched.
+    expected = {"units": {}}
     if args.only and exp_path.exists():
         expected["units"] = json.loads(exp_path.read_text())["units"]
     for d in units:
@@ -257,6 +265,7 @@ def main():
         v = score_minimal(d, gd)
         assert v.admissible, f"golden submission inadmissible on {d.name}: {v.labels}"
         expected["units"][d.name] = {
+            "numpy_at_regen": np.__version__,
             "admissible": True,
             "gates": {k: r.passed for k, r in v.gate_results.items()},
             "composite": v.score,
