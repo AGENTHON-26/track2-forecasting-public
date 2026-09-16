@@ -91,7 +91,11 @@ def build_draws(
 
     last = np.array([hist[a][-1] for a in assets], dtype=float)
     sd = D.std(axis=1)
-    corr = np.corrcoef(D)
+    # np.corrcoef on a single-row input (single-asset cards) returns a 0-d SCALAR, not a (1,1)
+    # matrix -- fill_diagonal then fails with "array must be at least 2-d". atleast_2d fixes the
+    # single-asset case (correlation of one variable with itself is trivially [[1.0]]) and is a
+    # no-op for multi-asset cards, where corrcoef already returns a proper 2-d matrix.
+    corr = np.atleast_2d(np.corrcoef(D))
     corr = np.nan_to_num(corr, nan=0.0)
     np.fill_diagonal(corr, 1.0)
     w, v = np.linalg.eigh(corr)  # nearest-PSD nudge
