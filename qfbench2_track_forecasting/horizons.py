@@ -59,7 +59,7 @@ def monthly_horizon_steps(
         or any(not isinstance(a, str) or not a for a in assets)
         or len(set(assets)) != len(assets)
         or not horizons
-        or any(type(h) is not int or h <= 0 for h in horizons)
+        or any(type(h) is not int or h <= 0 for h in horizons)  # noqa: E721 - require a built-in JSON integer, never bool
         or len(set(horizons)) != len(horizons)
     ):
         raise HorizonMetadataError("Provide unique assets and positive integer horizon keys.")
@@ -68,7 +68,7 @@ def monthly_horizon_steps(
     periods: dict[tuple[str, int], int] = {}
 
     def add(asset: Any, horizon: Any, value: Any, *, date_label: bool) -> None:
-        if not isinstance(asset, str) or type(horizon) is not int or (asset, horizon) not in grid:
+        if not isinstance(asset, str) or type(horizon) is not int or (asset, horizon) not in grid:  # noqa: E721 - require a built-in JSON integer, never bool
             raise HorizonMetadataError("Monthly metadata disagrees with the requested grid.")
         key, period = (asset, horizon), _period(value, date_label=date_label)
         if key in periods and periods[key] != period:
@@ -95,7 +95,7 @@ def monthly_horizon_steps(
                 or not isinstance(values, list)
                 or len(values) != len(declared_h)
                 or not declared_h
-                or any(type(h) is not int for h in declared_h)
+                or any(type(h) is not int for h in declared_h)  # noqa: E721 - require a built-in JSON integer, never bool
                 or len(set(declared_h)) != len(declared_h)
                 or not declared_a
                 or any(not isinstance(a, str) for a in declared_a)
@@ -117,7 +117,7 @@ def monthly_horizon_steps(
             if "observation_period" not in row and "target_date" not in row:
                 continue
             asset, horizon = row.get("asset"), row.get("horizon")
-            if not isinstance(asset, str) or type(horizon) is not int:
+            if not isinstance(asset, str) or type(horizon) is not int:  # noqa: E721 - require a built-in JSON integer, never bool
                 raise HorizonMetadataError(
                     "Each monthly question needs an asset and integer horizon key."
                 )
