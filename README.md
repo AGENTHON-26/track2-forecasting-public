@@ -10,7 +10,10 @@ We score your output against sealed realized market outcomes using a **CRPS comp
 
 **S = 0.5 × marginal CRPS + 0.3 × joint variogram + 0.2 × tail penalty (lower is better)**
 
-The headline scientific question is the **information uplift**: does adding text make a forecaster better than one that ignores text entirely? Baselines are text-blind time-series foundation models (Chronos, TimesFM, Lag-Llama, MOIRAI, Theta/AutoARIMA). Beat them with reasoning.
+The headline scientific question is whether adding text improves a forecast. The five named
+adapters in `baselines/` are Gaussian-random-walk scaffolds, not working implementations of
+Chronos, TimesFM, Lag-Llama, MOIRAI, or Theta/AutoARIMA. The published scorer reports the composite
+and its components; it does not compute a separate information-uplift or text-ablation score.
 
 **Track 2 vs. Track 4:** Track 2 = time-series data (panels indexed by time) → forecast the future. Track 4 = general tabular data (a table of entities) → predict a label or value. Both tracks add text and LLM reasoning, and both run in Docker with **no open internet**: the only network egress is model-API calls through the organizer's audited proxy. See "Network contract and submission categories" below.
 
@@ -124,7 +127,9 @@ The baseline your score is normalized against is a different thing: it runs orga
 not any of these files, and you never see it directly — you see it only through the normalization,
 described next.
 
-**Their scores are not published per unit, and this is not an oversight.** A card's score is normalized by the same baseline's components, so a published per-unit baseline score plus a reproducible baseline forecast inverts to the sealed value — most sharply on single-asset cards, which are the majority here. What you get instead is the normalization itself: on every card, **1.0 means "no better than the text-blind baseline"**, so your own leaderboard number already reads as a ratio against them, with no separate table needed.
+**The organizer baseline's per-unit normalization values are not public.** The reference level
+is **1.0**; lower normalized scores are better. This comparison is against the organizer baseline,
+not the five named scaffolds, and it does not isolate how much of an improvement came from text.
 
 ---
 
@@ -135,9 +140,9 @@ described next.
 Track 2 units declare `network = "restricted"` in `card.toml [environment]`. There are two
 modes you will encounter:
 
-1. **Local development (smoke runs).** Run your container with `--network=none`. Everything
-   in this repo — the example card, the scorer, the five text-blind baselines — works fully
-   offline. If your agent needs a model API, local runs without network will fail those calls;
+1. **Local development (smoke runs).** Run your container with `--network=none`. The reference
+   forecast CLI, local scorer, and five adapter scaffolds work offline. If your agent needs
+   a model API, local runs without network will fail those calls;
    that is expected and fine for structural smoke tests.
 2. **Official scoring (`restricted`).** Your container runs on an internal eval network with
    **no open internet**. The only permitted egress is through the organizer's audited proxy to:
@@ -171,11 +176,16 @@ are not.
 
 | Category | What you bundle | Model access |
 |----------|-----------------|--------------|
-| `api` | Prompts, harness, system prompts, agent code | The house endpoint only, via the proxy |
-| `byo-large` / `byo-small` | One LoRA adapter (`adapter_model.safetensors` + `adapter_config.json`) — not weights, and not a model server | The house endpoint only, via the proxy; on a BYO run `MODEL_NAME` names *your adapter* |
+| `api` | Prompts, harness, agent code and permitted local numerical artifacts | The house endpoint only, via the proxy |
+| `byo-large` / `byo-small` | One LoRA adapter (`adapter_model.safetensors` + `adapter_config.json`) plus permitted local numerical artifacts; no full language-model weights or model server | The house endpoint only, via the proxy; on a BYO run `MODEL_NAME` names *your adapter* |
 
-**Bring-your-own is adapter-only.** You ship one LoRA adapter, rank ≤ 64 (enforced by the server
-at load), and the organizer starts a server on the house base model with your adapter loaded, then
+The [Track 2 artifact policy](docs/ARTIFACT-POLICY.md) specifies which fitted non-neural
+models, calibration parameters and static retrieval assets are allowed in both categories,
+with cutoff and provenance requirements. Additional pretrained neural checkpoints need separate
+approval. These permissions do not change the task resource limits.
+
+**Bring-your-own language-model serving is adapter-only.** You ship one LoRA adapter,
+rank ≤ 64 (enforced by the server at load), and the organizer starts a server on the house base model with your adapter loaded, then
 tears it down when your run ends. Full fine-tuning is not permitted, and **there is no
 small-weights tier** — `byo-large` and `byo-small` are legacy enum names the descriptor schema
 still accepts, and both select this same contract. The full rules, including the local
@@ -211,12 +221,13 @@ scoring detail.
 - `api` entries are verified statistically (bootstrap-CI overlap on rerun); BYO entries
   bit-reproducibly.
 
-### Model-API budget (FINAL, ruled 2026-08-28)
+### House API allocation
 
-A uniform per-unit model-API budget applies to every submission. The figure is
-**1,000,000 input + 100,000 output tokens per unit**, enforced via proxy logs and spot audit.
-Whether API keys are sponsor-provisioned or team-provided is TBD pending sponsorship — the
-mechanics are identical either way, and both modes are supported.
+See the [model-API rules](SUBMISSION_CLI.md#rules-for-model-api-use-restricted-mode) for the
+selected House allowance and pending input/failure/retry details. These House limits do not
+define a BYO request limit. Model calls use the organizer-supplied endpoint; participant vendor
+API keys are not supported. Platform availability and deployed enforcement will be announced
+separately.
 
 ---
 
@@ -280,6 +291,15 @@ every unit before reading any input. The full contract is [`SUBMISSION_CLI.md`](
 - `--out` — output path for the forecast file
 
 The agent may use any combination of LLM reasoning over text and time-series forecasting component (statistical or neural). The agent's reasoning is internal — only the forecast output file is scored.
+
+The reference CLI reads `[targets].target_type` from the card. For `level`, it keeps the last
+observed level as the forecast centre. For `log_return`, panel rows are decimal daily simple returns
+`r`, and the target is the cumulative future log return, `sum(log(1 + r))`, over the horizon.
+The walk starts at zero, its centre is the historical mean of `log(1 + r)` multiplied by the horizon,
+and its spread uses those log-return steps, scaled by the square root of the horizon. It retains
+the estimated dependence across assets. The generated
+rationale records the anchor, drift and spread. Earlier CLI revisions applied the level rule to
+both target types; regenerate reference outputs for return cards when updating from those revisions.
 
 ### Output file: forecast.parquet
 
@@ -362,23 +382,28 @@ Mean pinball loss at the 1st, 5th, 95th, and 99th percentiles. A model that miss
 shock or macro surprise will pay a massive tail penalty. Lower is better. Most important
 for F4 (tail/shock-from-text) cards.
 
-### Text uplift (scientific diagnostic, not the ranking)
+### Text ablation (a separate experiment, not scorer output)
 
-We also report the **information uplift**: the best text-blind baseline's composite score
-minus your composite score on the same cards (lower composite is better). Positive uplift
-means your agent extracted useful signal from the text corpus. This is a scientific diagnostic,
-not a leaderboard dimension — the ranking uses composite scores only, aggregated as described
-above.
+A **text ablation** compares your agent with and without its text input, keeping the numerical
+method and evaluation conditions the same. On a labeled development dataset you are permitted
+to use, compare both forecasts against the same known outcomes. A lower composite for the full
+agent is evidence that text helped on that dataset; beating a different numeric baseline alone
+does not isolate the contribution of text.
 
-We encourage teams to also submit a **text-ablated forecast** (your agent with the text
-corpus replaced by an empty corpus). Comparing ablated vs. full scores shows the marginal
-value of text within your own system.
+The published scorer does not emit `information_uplift` or `text_ablation_delta`, and the
+submission interface has no separate ablated-forecast slot. Treat ablation as an experiment you
+run and report separately. The public practice units do not provide realized references: on
+those inputs, local checks can establish admissibility and changes in predictions, not accuracy.
 
 ### Running the scorer locally
 
 ```bash
 # 1. The shared toolkit, pinned.
-pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.3.1#subdirectory=common"
+# Pin the tag, and pin this one: v2.3.1 rejects a descriptor the evaluation verifier accepts
+# (it requires at least one `models` entry; the current contract allows `"models": []`).
+# `pip show qfbench2-common` reports 2.3.1 from this tag -- the metadata lags the tag. That is
+# cosmetic and expected; the code is the v2.4.0 code.
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.0#subdirectory=common"
 
 # 2. This track's package, from the repository root. Without it neither the reference CLI nor
 #    the smoke scorer can import `qfbench2_track_forecasting`, and both stop at an ImportError
@@ -521,18 +546,19 @@ Install the `qfbench2-common` package (schemas, scoring, leakage guard) from the
 repository that publishes it, `Agenthon-2026/Agenthon2026-public`:
 
 ```bash
-pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.3.1#subdirectory=common"
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.0#subdirectory=common"
 ```
 
 The toolkit is half of what you need. Running the scorer or the exemplar also requires this
 repository itself — `pip install .` from the repository root — which is what brings in pandas and
 the rest. See the Quick-start checklist, step 0.
 
-**Pin the tag, and pin this one.** `v2.3.1` is the first toolkit release that carries
-`qfbench2_common.contracts`, which `qfbench2_track_forecasting.scoring` imports at module scope —
-earlier tags predate it, so a submission built against one of those dies before it runs a single
-gate. It is also the tag `.github/workflows/ci.yml` installs, so what you verify locally is what
-CI verifies.
+**Pin the tag, and pin this one.** `v2.4.0` is the tag whose descriptor contract matches what the
+evaluation verifier accepts. `v2.3.1` carries `qfbench2_common.contracts` — earlier tags predate it
+entirely — but it **refuses a descriptor the verifier accepts**: it demands at least one `models`
+entry, while the current contract allows `"models": []`. Building against it means your own tools
+reject work that would have scored. It is also the tag `.github/workflows/ci.yml` installs, so what
+you verify locally is what CI verifies.
 
 Do not install from a branch. An unpinned toolkit is how a local result and a scored result come
 to disagree without either side noticing.
@@ -649,7 +675,8 @@ you will be cut off partway through the set with the remaining units unscored.
 **The clock starts at `docker create`, so it covers pulling your image**, not just process
 start-up. On this fleet a cold pull has measured 90–187 s against roughly 15 s warm, and it is
 billed to the same per-unit budget as your solve. Keep your image small: under the adapter-only
-BYO rule it carries a LoRA adapter, not model weights, so there is no reason for it to be large.
+BYO rule it carries an adapter rather than full language-model weights. Permitted numerical
+artifacts still share the task's disk and memory limits.
 
 **On the GPU.** Every card declares `gpu = true`, but your own code has no use for it in either
 category: an `api` submission does not touch it, and on a BYO run the worker's GPU is what serves
@@ -666,7 +693,7 @@ component of Track 2 measures hardware ([docs/NVIDIA-STACK.md](docs/NVIDIA-STACK
    dependencies (pandas among them) come from `pip install .`, and without it step 3 fails with
    `ModuleNotFoundError: No module named 'pandas'`:
    ```bash
-   pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.3.1#subdirectory=common"
+   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.0#subdirectory=common"
    pip install .
    ```
 1. Read `docs/CONCEPTS.md` — understand CRPS, variogram, tail penalty, text uplift, and leakage.

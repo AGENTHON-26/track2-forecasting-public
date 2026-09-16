@@ -25,6 +25,7 @@ import argparse
 import json
 import pathlib
 import sys
+import zlib
 
 try:
     import tomllib  # noqa: F401
@@ -87,10 +88,10 @@ n_documents    = 2
 [targets]
 asset_ids        = {assets}
 horizons         = {horizons}
-target_type      = "level"
+target_type      = "{ttype}"
 target_frequency = "{freq}"
 target_dates     = {tdates}
-value_unit       = "synthetic_units"
+value_unit       = "{vunit}"
 """
 
 DOC = """# source: synthetic regression fixture | date: {ts} | type: {dt}
@@ -101,7 +102,7 @@ to evolve as a random walk, and decided to keep the regression suite's expectati
 
 
 def write_unit(uid, title, panel_id, assets, dates, values, asof, horizons, tdates, freq,
-               realized_rows):
+               realized_rows, target_type="level", value_unit="synthetic_units"):
     d = HERE / "units" / uid
     (d / "text").mkdir(parents=True, exist_ok=True)
 
@@ -121,9 +122,11 @@ def write_unit(uid, title, panel_id, assets, dates, values, asof, horizons, tdat
 
     (d / "card.toml").write_text(CARD.format(
         uid=uid, title=title, panel_id=panel_id, asof=asof,
-        guid=f"00000000-0000-4000-8000-{abs(hash(uid)) % 10**12:012d}",
+        # crc32, not hash(): str hashes are salted per process, so a --regen would rewrite
+        # every canary for no reason.
+        guid=f"00000000-0000-4000-8000-{zlib.crc32(uid.encode()) % 10**12:012d}",
         assets=json.dumps(assets), horizons=json.dumps(horizons),
-        tdates=json.dumps(tdates), freq=freq))
+        tdates=json.dumps(tdates), freq=freq, ttype=target_type, vunit=value_unit))
 
     # The sealed answer lives OUTSIDE the unit tree, under a non-answer-shaped name, so the
     # published repo carries no reference/ dir or realized* file for the pre-flip sweep to trip
@@ -135,7 +138,10 @@ def write_unit(uid, title, panel_id, assets, dates, values, asof, horizons, tdat
     return d
 
 
-def build_units():
+def build_units(only=None):
+    """Build every fixture, or just `only`. Skipped units are neither generated nor rewritten,
+    so their committed panels, goldens and pins stay byte-identical."""
+    built = []
     rng = np.random.default_rng(42)
     # daily unit: 2 assets, 260 business days ending at the as-of
     ddates = [str(x)[:10] for x in np.busday_offset("2025-06-02", np.arange(260), roll="forward")]
@@ -143,25 +149,48 @@ def build_units():
     a = 100 + np.cumsum(rng.normal(0, 0.6, 260))
     b = 4.0 + np.cumsum(rng.normal(0, 0.02, 260))
     td_d = str(np.busday_offset(asof_d, 21))[:10]
-    daily = write_unit(
+    if only in (None, "reg-t2-daily"):
+      built.append(write_unit(
         "reg-t2-daily", "two-asset daily", "panel_daily", ["SYN_A", "SYN_B"],
         ddates, [a, b], asof_d, [21], [td_d], "daily",
         [{"draw": 0, "asset": "SYN_A", "horizon": 21, "value": round(float(a[-1]) + 1.1, 4),
           "target_date": td_d},
          {"draw": 0, "asset": "SYN_B", "horizon": 21, "value": round(float(b[-1]) - 0.05, 4),
-          "target_date": td_d}])
+          "target_date": td_d}]))
 
     # monthly unit: observations on the 1st, horizon counted in MONTHS
     # 41 observations: the CLI needs >=30 diffs for its covariance estimate
     mdates = [f"{y}-{m:02d}-01" for y in (2023, 2024, 2025, 2026) for m in range(1, 13)][:41]
     asof_m = "2026-06-09"
     c = 300 + np.cumsum(rng.normal(0.4, 0.5, len(mdates)))
-    monthly = write_unit(
+    if only in (None, "reg-t2-monthly"):
+      built.append(write_unit(
         "reg-t2-monthly", "monthly index", "panel_monthly", ["SYN_CPI"],
         mdates, [c], asof_m, [3], ["2031-02-13"], "monthly",
         [{"draw": 0, "asset": "SYN_CPI", "horizon": 3, "value": round(float(c[-1]) + 1.2, 4),
-          "target_date": "2031-02-13"}])
-    return daily, monthly
+          "target_date": "2031-02-13"}]))
+
+    # returns unit: two factor-style assets whose panel rows are decimal SIMPLE returns and whose
+    # target is the cumulative log return over 21 BD (the shape of the 16 `log_return` cards).
+    # Own RNG stream so it can be regenerated alone. The LAST row of SYN_MOM is forced to +0.05:
+    # a producer that anchors at the last panel row instead of at 0 (the reference CLI before
+    # staging PR #14, public #2) centres its 21-day draws near 0.05 where the correct centre is
+    # 21 x mean(log1p(r)) ~ 0.008, and one that differences the rows inflates the spread by
+    # ~sqrt(2). Check 13 in run_regression.py measures both, on the CLI and on the baseline.
+    if only in (None, "reg-t2-logreturn"):
+        rr = np.random.default_rng(4242)
+        corr = np.array([[1.0, -0.4], [-0.4, 1.0]])
+        z = rr.standard_normal((260, 2)) @ np.linalg.cholesky(corr).T
+        mom = 0.0004 + 0.011 * z[:, 0]
+        hml = 0.0003 + 0.007 * z[:, 1]
+        mom[-1] = 0.05
+        built.append(write_unit(
+            "reg-t2-logreturn", "two-factor cumulative log return", "panel_factors",
+            ["SYN_MOM", "SYN_HML"], ddates, [mom, hml], asof_d, [21], [td_d], "daily",
+            [{"draw": 0, "asset": "SYN_MOM", "horizon": 21, "value": 0.021, "target_date": td_d},
+             {"draw": 0, "asset": "SYN_HML", "horizon": 21, "value": -0.013, "target_date": td_d}],
+            target_type="log_return", value_unit="cumulative_log_return"))
+    return built
 
 
 def golden_submission(unit_dir, out_dir):
@@ -204,6 +233,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--regen", action="store_true",
                     help="rebuild fixtures and REWRITE expected.json")
+    ap.add_argument("--only", default=None, metavar="UID",
+                    help="with --regen: rebuild ONE fixture and merge its pin into expected.json, "
+                         "leaving every other fixture and pin byte-identical")
     args = ap.parse_args()
 
     exp_path = HERE / "expected.json"
@@ -211,8 +243,13 @@ def main():
         print("fixtures exist; use --regen to rebuild")
         return 0
 
-    units = build_units()
+    units = build_units(only=args.only)
+    if not units:
+        print(f"no fixture named {args.only!r}")
+        return 2
     expected = {"numpy_at_regen": np.__version__, "units": {}}
+    if args.only and exp_path.exists():
+        expected["units"] = json.loads(exp_path.read_text())["units"]
     for d in units:
         gd = d / "golden_submission"
         gd.mkdir(exist_ok=True)

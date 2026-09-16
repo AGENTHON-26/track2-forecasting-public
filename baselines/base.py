@@ -43,12 +43,14 @@ import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
 
+from qfbench2_track_forecasting.targets import log_return_steps
+
 # ---------------------------------------------------------------------------
 # Request / result dataclasses
 # ---------------------------------------------------------------------------
 
 
-# Target types whose panel rows are already per-step returns, so the row IS the step.
+# Target types whose panel rows are per-step simple returns rather than levels.
 # Measured across the shipped kit: every log-return unit is a factors_daily panel whose
 # `value` is a daily return. Anything not named here is treated as a level.
 _RETURN_TARGETS = frozenset({"log_return", "return", "simple_return", "pct_change"})
@@ -80,7 +82,7 @@ class ForecastRequest:
         the leaderboard admissibility gate g1.  Default: ``500``.
     target_type : str, optional
         The unit's ``[targets] target_type``: ``"level"`` (a price, index or
-        yield) or ``"log_return"`` (a cumulative return over the horizon).
+        yield) or ``"log_return"`` (sum of log(1 + daily simple return) over the horizon).
         It decides what a panel row *means*, and therefore how the per-step
         drift is estimated -- see :meth:`BaselineForecaster._gaussian_rw_samples`.
         Unknown values are treated as ``"level"``.  Default: ``"level"``.
@@ -240,8 +242,8 @@ class BaselineForecaster(abc.ABC):
           mask any ``date > asof`` defensively to respect the leakage guard).
         * Estimate a per-step drift ``mu`` and volatility ``sigma``.  For a
           ``level`` target that is the last *differences* of the series; for a
-          ``log_return`` target the panel row is already the step, so the series
-          is used directly and the walk starts from 0 rather than from ``last``.
+          ``log_return`` target use log(1 + panel row), because panels contain
+          decimal simple returns. The walk starts from 0 rather than from ``last``.
         * Propagate the last observed level forward by each horizon ``h`` as
           ``last + mu*h + sigma*sqrt(h)*Z`` with ``Z ~ N(0, 1)``.
 
@@ -283,10 +285,10 @@ class BaselineForecaster(abc.ABC):
                 # No history for this asset: fall back to a unit-scale walk from 0.
                 last, mu, sigma = 0.0, 0.0, 1.0
             elif returns_target:
-                # The panel already holds the per-step return, so the step IS the row: do not
-                # difference it a second time. Differencing returns telescopes the drift away
-                # (mean(diff(s)) = (s[-1]-s[0])/(n-1), noise) and inflates the spread by ~sqrt(2),
-                # and `last` -- a single day's return -- is not where a cumulative return starts.
+                # Convert simple returns to additive log steps only for the log target.
+                # Existing non-log return aliases retain their raw-step interpretation.
+                if request.target_type.strip().lower() == "log_return":
+                    series = log_return_steps(series)
                 last = 0.0
                 mu = float(np.mean(series))
                 sigma = float(np.std(series))

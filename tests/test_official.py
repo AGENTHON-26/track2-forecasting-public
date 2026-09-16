@@ -12,10 +12,18 @@ from __future__ import annotations
 import copy
 import json
 import pathlib
+from collections.abc import Sequence
 from typing import Any
 
 import pytest
-from conftest import build_submission, build_unit, forecast_rows, make_plan
+from conftest import (
+    ASSETS,
+    HORIZONS,
+    build_submission,
+    build_unit,
+    forecast_rows,
+    make_plan,
+)
 from qfbench2_common.contracts import (
     EvaluationPlan,
     FailureCode,
@@ -61,22 +69,34 @@ def build_evaluation(
     *,
     handles: list[str] = HANDLES,
     broken: dict[str, str] | None = None,
+    grids: dict[str, tuple[Sequence[str], Sequence[int]]] | None = None,
+    ref_scale: dict[str, float] | None = None,
+    joint: str = "variogram",
 ) -> tuple[pathlib.Path, pathlib.Path, EvaluationPlan]:
     """Lay out `input/ref` and `input/res` exactly as the frozen topology specifies."""
     broken = broken or {}
+    grids = grids or {}
     ref_root = root / "input" / "ref"
     res_root = root / "input" / "res"
     ref_root.mkdir(parents=True)
     res_root.mkdir(parents=True)
 
-    plan_body = make_plan(handles)
+    plan_body = make_plan(handles, grids=grids)
     (ref_root / "evaluation_plan.json").write_text(json.dumps(plan_body, indent=2), "utf-8")
     plan = EvaluationPlan.from_mapping(plan_body)
 
     control = res_root / CONTROL_DIR / "run_records"
     control.mkdir(parents=True)
     for index, handle in enumerate(handles):
-        unit = build_unit(ref_root / handle, unit_id=f"t2-SYN-{index:04d}")
+        assets, horizons = grids.get(handle, (ASSETS, HORIZONS))
+        unit = build_unit(
+            ref_root / handle,
+            unit_id=f"t2-SYN-{index:04d}",
+            assets=assets,
+            horizons=horizons,
+            ref_scale=ref_scale,
+            joint=joint,
+        )
         fault = broken.get(handle)
         if fault == "no_reference":
             (unit / "reference" / "realized.parquet").unlink()
@@ -95,7 +115,13 @@ def build_evaluation(
             rows["horizon"][3] = 1
             build_submission(out, unit_id=f"t2-SYN-{index:04d}", rows=rows)
         else:
-            build_submission(out, unit_id=f"t2-SYN-{index:04d}", centre=1.0 + 0.1 * index)
+            build_submission(
+                out,
+                unit_id=f"t2-SYN-{index:04d}",
+                assets=assets,
+                horizons=horizons,
+                centre=1.0 + 0.1 * index,
+            )
 
         (control / f"{handle}.json").write_text(
             json.dumps(
@@ -258,3 +284,45 @@ def test_scores_json_never_contains_a_target_date_or_a_realized_value(
         assert date not in blob
     # No per-unit component vector either: a per-unit private diagnostic on a sealed unit.
     assert "marginal" not in blob and "variogram" not in blob
+
+
+def test_a_single_cell_roster_unit_scores_on_the_official_path(tmp_path: pathlib.Path) -> None:
+    """`official.py` must pass the grid shape to `load_ref_scale`.
+
+    60 of 104 public cards are 1-cell, and `load_ref_scale` runs OUTSIDE the participant
+    try/except -- so a miss here is not a dropped unit, it is a whole-evaluation abort with no
+    leaderboard published. Every other test in this file builds 2 assets x 2 horizons, so without
+    this one the argument can be deleted and the suite stays green.
+    """
+    handle = HANDLES[0]
+    ref_root, res_root, plan = build_evaluation(
+        tmp_path,
+        handles=[handle],
+        grids={handle: (["SYN-A"], [1])},
+        ref_scale={"marginal": 0.5, "joint": 0.0, "tail": 0.12},
+    )
+    result = score_roster(plan, ref_root, res_root)
+    assert result.aggregate.n_expected == 1
+    assert result.aggregate.n_scored == 1
+    assert result.rows[0].state is ResultState.PARTICIPANT_SUCCESS
+
+
+def test_the_official_path_passes_the_joint_statistic_to_the_loader(
+    tmp_path: pathlib.Path,
+) -> None:
+    """`official.py` must forward it, not just `cell_count`.
+
+    `energy_score` on one cell equals the marginal CRPS, so `joint: 0.0` is a corrupt scale there.
+    Without the argument the loader drops it as "absent" and the unit scores on a fabricated
+    denominator. Every other test here builds a variogram card, so nothing else catches it.
+    """
+    handle = HANDLES[0]
+    ref_root, res_root, plan = build_evaluation(
+        tmp_path,
+        handles=[handle],
+        grids={handle: (["SYN-A"], [1])},
+        ref_scale={"marginal": 0.5, "joint": 0.0, "tail": 0.12},
+        joint="energy",
+    )
+    with pytest.raises(OrganizerFault, match="not positive"):
+        score_roster(plan, ref_root, res_root)

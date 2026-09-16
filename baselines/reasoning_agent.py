@@ -1,5 +1,11 @@
 """A minimal REASONING agent: the mechanism the track is named for, and nothing more.
 
+## Executive summary (read this first)
+
+Read dated text, ask the supplied model for bounded adjustments, and label any fallback.
+House requests use MODEL_TOKEN and the explicit authenticated proxy. Local endpoints may
+continue using MODEL_API_KEY. This example makes one request and never retries it.
+
 ## Why this file exists
 
 `baselines/` holds five text-blind adapters. Every one of them reports
@@ -79,6 +85,8 @@ Reads only `/input`, writes only `/output`, and calls nothing but `MODEL_ENDPOIN
 from __future__ import annotations
 
 import argparse
+import base64
+import http.client
 import json
 import math
 import os
@@ -87,6 +95,7 @@ import sys
 import urllib.error
 import urllib.request
 from typing import Any
+from urllib.parse import unquote, urlsplit
 
 import numpy as np
 import pandas as pd
@@ -104,6 +113,8 @@ _DRIFT_SD_CLAMP = 3.0
 #: below it, and `cli.py` already floors on it -- an example that quietly emits an inadmissible
 #: parquet when a participant passes a smaller `--n-draws` teaches the wrong lesson.
 _MIN_DRAWS = 200
+_HOUSE_OUTPUT_TOKENS = 4000
+_RESPONSE_BYTES = 1024 * 1024
 
 
 # --------------------------------------------------------------------------- corpus
@@ -172,7 +183,8 @@ def build_prompt(
         f"As-of date: {asof}. Nothing after this date is known to you.",
         f"Target type: {target_type}. Horizons (business days): {horizons}.",
         "",
-        "Per asset: the level at the as-of date, and the statistical standard deviation of the",
+        "Per asset: the forecast anchor (zero for cumulative log returns), and the",
+        "standard deviation of the",
         f"forecast at the longest horizon ({max(horizons)} business days):",
     ]
     lines += [f"  {a}: level {last[a]:.6f}, horizon sd {sd_h[a]:.6f}" for a in assets]
@@ -181,9 +193,14 @@ def build_prompt(
         lines += [f"--- {d['doc_id']} ({d['timestamp']}, {d['doc_type']}) ---", d["text"], ""]
     lines += [
         "For EACH asset, give two numbers:",
-        "  drift_bp  : expected directional shift over the longest horizon, in basis points of",
-        "              the MAGNITUDE of the current level. Positive means up regardless of the",
-        "              sign of that level. Use 0 if the documents say nothing. The resulting",
+        "  drift_bp  : expected directional shift over the longest horizon.",
+        (
+            "              For log_return, 1 bp adds 0.0001 to the cumulative log return."
+            if target_type == "log_return"
+            else "              Basis points of the MAGNITUDE of the current level; "
+            "positive means up."
+        ),
+        "              Use 0 if the documents say nothing. The resulting",
         f"              shift is clamped to +-{_DRIFT_SD_CLAMP:.0f} horizon standard deviations.",
         "  vol_scale : multiplier on the statistical standard deviation, in [0.5, 2.0].",
         "              >1 if the documents imply more uncertainty than usual, <1 if less.",
@@ -195,6 +212,54 @@ def build_prompt(
         '  "because": "<one sentence citing a doc_id>"}}}',
     ]
     return "\n".join(lines)
+
+
+def _house_reply(endpoint: str, token: str, body: bytes) -> Any:
+    """Use the supplied receipt proxy, without direct fallback, bypasses or redirects."""
+    target = urlsplit(endpoint)
+    proxy = urlsplit(os.environ.get("http_proxy", ""))
+    if (
+        target.scheme != "http"
+        or not target.hostname
+        or target.username is not None
+        or target.password is not None
+        or target.path.rstrip("/") not in ("", "/v1")
+        or target.query
+        or target.fragment
+        or proxy.scheme != "http"
+        or not proxy.hostname
+        or not proxy.port
+        or proxy.path not in ("", "/")
+        or proxy.query
+        or proxy.fragment
+        or not proxy.username
+        or not proxy.password
+        or not token
+        or any(ord(c) < 33 or ord(c) > 126 for c in token)
+    ):
+        raise ValueError("invalid House model or proxy configuration")
+    credentials = unquote(proxy.username) + ":" + unquote(proxy.password)
+    if any(ord(c) < 32 or ord(c) > 126 for c in credentials):
+        raise ValueError("invalid House proxy credentials")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token,
+        "Proxy-Authorization": "Basic " + base64.b64encode(credentials.encode()).decode(),
+    }
+    connection = http.client.HTTPConnection(proxy.hostname, proxy.port, timeout=_TIMEOUT_SEC)
+    try:
+        connection.request(
+            "POST", target.scheme + "://" + target.netloc + "/v1/chat/completions", body, headers
+        )
+        response = connection.getresponse()
+        if response.status != 200:
+            raise ValueError("House model request was refused")
+        raw = response.read(_RESPONSE_BYTES + 1)
+        if len(raw) > _RESPONSE_BYTES:
+            raise ValueError("House model response was too large")
+        return json.loads(raw)
+    finally:
+        connection.close()
 
 
 def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
@@ -217,6 +282,11 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
         max_tokens = max(1, int(os.environ.get("MODEL_MAX_TOKENS", "3000")))
     except ValueError:
         return None, "MODEL_MAX_TOKENS is not an integer", ""
+    # Presence selects the organizer route even if the value is invalid. Never downgrade a
+    # malformed grant to a legacy API key or a direct connection.
+    house = "MODEL_TOKEN" in os.environ
+    if house:
+        max_tokens = min(max_tokens, _HOUSE_OUTPUT_TOKENS)
 
     body = json.dumps(
         {
@@ -227,20 +297,31 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
             "chat_template_kwargs": {"enable_thinking": thinking},
         }
     ).encode("utf-8")
-    req = urllib.request.Request(
-        endpoint.rstrip("/") + "/chat/completions",
-        data=body,
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    token = os.environ.get("MODEL_API_KEY", "").strip()
-    if token:
-        req.add_header("Authorization", f"Bearer {token}")
     try:
-        with urllib.request.urlopen(req, timeout=_TIMEOUT_SEC) as resp:
-            payload = json.loads(resp.read().decode("utf-8"))
-    except (urllib.error.URLError, TimeoutError, ValueError, OSError) as exc:
-        return None, f"{type(exc).__name__}: {exc}", ""
+        if house:
+            payload = _house_reply(endpoint, os.environ["MODEL_TOKEN"], body)
+        else:
+            # Keep the documented local API-key route and any custom local API base path.
+            req = urllib.request.Request(
+                endpoint.rstrip("/") + "/chat/completions",
+                data=body,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            token = os.environ.get("MODEL_API_KEY", "").strip()
+            if token:
+                req.add_header("Authorization", f"Bearer {token}")
+            with urllib.request.urlopen(req, timeout=_TIMEOUT_SEC) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+    except (
+        urllib.error.URLError,
+        TimeoutError,
+        ValueError,
+        OSError,
+        http.client.HTTPException,
+    ) as exc:
+        # Exception text can contain endpoint/proxy credentials; sidecars are participant output.
+        return None, f"model request failed ({type(exc).__name__})", ""
 
     try:
         choice = payload["choices"][0]
@@ -259,8 +340,8 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
             return (
                 None,
                 (
-                    f"reply hit max_tokens={max_tokens} before emitting JSON -- raise "
-                    "MODEL_MAX_TOKENS or set MODEL_THINKING=off"
+                    f"reply hit max_tokens={max_tokens} before emitting JSON -- set "
+                    "MODEL_THINKING=off or adjust MODEL_MAX_TOKENS within the allowed cap"
                 ),
                 trace,
             )
@@ -277,6 +358,8 @@ def apply_adjustment(
     last: dict[str, float],
     sd_h: dict[str, float],
     parsed: dict[str, Any],
+    *,
+    target_type: str = "level",
 ) -> tuple[np.ndarray, dict[str, dict[str, Any]], int]:
     """Shift the mean and scale the spread, per asset. Clamped, and reported.
 
@@ -326,7 +409,9 @@ def apply_adjustment(
         vol = min(max(vol, _VOL_CLAMP[0]), _VOL_CLAMP[1])
         # Magnitude, not the signed level: see the docstring. Then clamp on the one scale that is
         # comparable across panels -- the width of the forecast this drift is moving.
-        shift = abs(last[a]) * drift_bp / 10_000.0
+        # A log-return anchor is zero; its basis points are absolute return units.
+        scale = 1.0 if target_type == "log_return" else abs(last[a])
+        shift = scale * drift_bp / 10_000.0
         ceiling = _DRIFT_SD_CLAMP * sd_h[a]
         if abs(shift) > ceiling:
             note = f"drift clamped from {shift:+.6g} to {ceiling:+.6g} ({_DRIFT_SD_CLAMP} sd)"
@@ -371,7 +456,9 @@ def main(argv: list[str] | None = None) -> int:
     n_draws = max(a.n_draws, _MIN_DRAWS)
     if n_draws != a.n_draws:
         print(f"note: --n-draws {a.n_draws} raised to the contract floor {_MIN_DRAWS}")
-    samples, draw_meta = _draw(panels, assets, horizons, a.asof, n_draws, a.seed)
+    samples, draw_meta = _draw(
+        panels, assets, horizons, a.asof, n_draws, a.seed, target_type=t["target_type"]
+    )
     last = {x: float(draw_meta["last"][x]) for x in assets}
     # sd of the forecast at the LONGEST horizon: sqrt(h) x the daily sd the statistical half fit.
     # This is the scale the drift is stated against and clamped on, and it goes in the prompt.
@@ -390,7 +477,9 @@ def main(argv: list[str] | None = None) -> int:
     if parsed is None:
         reasoning_applied = False
     else:
-        adjusted, applied, matched = apply_adjustment(samples, assets, last, sd_h, parsed)
+        adjusted, applied, matched = apply_adjustment(
+            samples, assets, last, sd_h, parsed, target_type=t["target_type"]
+        )
         if matched == 0:
             keys = sorted(parsed)[:8] if isinstance(parsed, dict) else []
             applied, reasoning_applied = {}, False
@@ -454,7 +543,13 @@ def main(argv: list[str] | None = None) -> int:
                 "## Statistical half",
                 "",
                 "Joint Gaussian random walk from `qfbench2_track_forecasting.cli._draw`:",
-                "innovations are drawn from the empirical correlation of daily changes, so curve",
+                (
+                    "Zero anchor, mean daily log-return drift, and correlated "
+                    "log(1 + panel value) innovations;"
+                    if t["target_type"] == "log_return"
+                    else "innovations are drawn from the empirical correlation of daily changes, "
+                    "so curve"
+                ),
                 "shape is preserved rather than assembled from independent marginals.",
                 "",
                 "## Reasoning half",
