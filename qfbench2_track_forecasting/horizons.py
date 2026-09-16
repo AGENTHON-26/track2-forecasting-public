@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping, Sequence
 from datetime import date
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 
@@ -137,7 +137,7 @@ def monthly_horizon_steps(
     for ai, asset in enumerate(assets):
         anchor = last_observations.get(asset)
         start = _period(anchor, date_label=True)
-        if anchor > asof:
+        if cast(str, anchor) > asof:
             raise HorizonMetadataError("Apply the task cutoff before selecting the panel anchor.")
         for hi, horizon in enumerate(horizons):
             steps = periods[(asset, horizon)] - start

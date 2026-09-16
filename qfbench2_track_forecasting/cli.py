@@ -27,7 +27,7 @@ import json
 import pathlib
 import sys
 import warnings
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
@@ -286,6 +286,7 @@ def _draw(
     chol = np.linalg.cholesky(corr)
 
     if monthly:
+        panel_steps = cast(np.ndarray, panel_steps)
         out = _monthly_walk(rng, hist, horizons, panel_steps, last, sd, chol, n_draws)
         return out, {
             "last": {a: float(last[i]) for i, a in enumerate(assets)},
