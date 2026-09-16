@@ -92,7 +92,7 @@ signature is unchanged, per the integration contract.
 
 ---
 
-## 3. Modes — this runs today with no API key
+## 3. Modes, and the live API
 
 `TEXT_SIGNAL_MODE`:
 
@@ -111,14 +111,35 @@ python3 tools/sweep_text_signal.py --quiet --csv out/sweep.csv             # all
 python3 -m unittest tests.test_text_signal -v                              # 19 tests
 ```
 
-When the key arrives, nothing changes but the environment:
+### The API is live
+
+The key lives in `out/.env`, which is `chmod 600` and under `/out/` — already excluded by
+`.gitignore`, confirmed with `git check-ignore`. Never commit it. Load it and go:
 
 ```bash
+source out/.env
+python3 text_signal.py --text units/t2-F1-hawkish-cut-2024/text   # look for source=llm
+```
+
+```bash
+# out/.env
 export MODEL_ENDPOINT=https://integrate.api.nvidia.com/v1
-export MODEL_NAME=nvidia/llama-3.3-nemotron-super-49b-v1
-export MODEL_API_KEY=nvapi-...          # local dev only; there is NO participant key at scoring
+export MODEL_NAME=nvidia/nemotron-3.5-lightning-30b-a3b
+export MODEL_API_KEY=nvapi-...            # LOCAL DEV ONLY — no participant key exists at scoring
 export TEXT_SIGNAL_CACHE=out/model-cache  # replies cached by prompt hash; out/ is gitignored
 ```
+
+**`llama-3.3-nemotron-super-49b-v1` — the ID in the repo's stub comment — is dead.** It reached
+end of life on 2026-08-26 and returns HTTP 410. Current Nemotron IDs come from
+`GET $MODEL_ENDPOINT/models`; we run `nvidia/nemotron-3.5-lightning-30b-a3b`, which is what
+`baselines/reasoning_agent.py` was measured against and is the closest stand-in for the kind of
+fast model the house endpoint is likely to serve. `nvidia/nemotron-3-super-120b-a12b` also works
+and scores better here (§4a) — but it is not what we will be given, so tuning against it risks
+overfitting to capacity we will not have.
+
+Model IDs get renamed and retired. If a call 410s or 404s, list `/models` and update
+`MODEL_NAME`; the code reports the HTTP error in the ledger and drops to the keyword floor
+rather than guessing a replacement.
 
 The call is **stdlib `urllib`, not the `openai` package**, on purpose: the scoring image installs
 `numpy/pandas/pyarrow/jsonschema` and nothing else, and an `ImportError` inside the agent costs
@@ -167,6 +188,91 @@ keyword count cannot tell those apart. The prompt states the convention and lets
 
 ---
 
+## 4a. What first contact with the real model changed
+
+Everything in §4 is about the offline floor. The live endpoint broke three separate things a
+stub server could never have shown, all fixed in `c04b593`:
+
+**The model drops the final closing brace.** On `t2-F1-ai-mom-2024` it returned
+`{"assets": {"MOM": {…, "because": "…"}}` — three braces open, two closed — with
+`finish_reason: "stop"`, so not a truncation we caused by under-budgeting tokens. A strict
+`rfind("}")` parse threw a perfectly good reading away over a typo. `_parse_json_object` now
+tries longest-prefix first (a well-formed reply is never touched), then closes unterminated
+strings and appends missing brackets. It only ever ADDS closers; it cannot invent a value.
+
+**The response schema had `evidence` first, and that was wrong.** The model spent its completion
+budget quoting a long passage and ran out *inside that string*, so the truncated reply carried no
+numbers at all and there was nothing to recover. Numbers first, evidence last and capped at 15
+words: a cut-off reply still yields a usable adjustment and loses only the citation. Parse rate
+over five probe cards went 3/5 → 5/5.
+
+**The model had no idea what a drift of 0.3 meant, so it answered 0.** The prompt now asks for a
+discrete `tone` first — with `neutral` explicitly reserved for documents containing no forward
+guidance, because central bank language is *always* hedged and hedged is not neutral — and gives
+a magnitude scale in sigma: 0.0–0.1 routine, 0.2–0.5 the guidance language changed, 0.6–1.0 a
+clear shift, 1.0–1.5 a surprise.
+
+### The model/thinking matrix
+
+Five probe cards, same prompt, `temperature=0`:
+
+| config | parsed | committed | mean \|drift\| | sec/card | hawkish-cut-2024 |
+|---|---:|---:|---:|---:|---|
+| lightning-30b, thinking off | 4/5 | 2/5 | 0.100 | 19.2 | drift +0.00 |
+| lightning-30b, thinking **on** | **0/5** | — | — | 83.4 | never emitted JSON |
+| super-120b, thinking off | 5/5 | 5/5 | 0.560 | 2.8 | +0.60, widen 1.20 |
+| super-120b, thinking on | 4/5 | 4/5 | 0.360 | 21.5 | +0.00 |
+
+**Thinking mode is strictly worse on every axis.** On the 30B it burns 83 s/card and never
+reaches the JSON — the failure `baselines/reasoning_agent.py` documents. Leave `MODEL_THINKING`
+unset (it defaults to off).
+
+Capacity does matter at this prompt, which an earlier comparison missed because it used the
+pre-anchor prompt. We stay on the 30B anyway: at scoring `MODEL_NAME` is whatever the organizers
+serve, so a result that only holds on a 120B is not a result we can bank.
+
+### The failure mode to design around: sign flips
+
+Six **identical** runs at `temperature=0`, `t2-F1-hawkish-cut-2024`, on the 120B:
+
+```
++0.60   +0.60   -0.30   +0.60   +0.70   +0.70
+```
+
+Five hawkish, one sign flip. `widen` was 1.20 on all six; `skew` wobbled 0.00/0.10. Temperature
+is zero, so this is server-side non-determinism, not sampling. A wrong-signed drift is the worst
+error available to us — it is how you score *above* 1.0 rather than below. Any A/B that reads a
+single call per card is measuring this noise as much as the signal.
+
+### Where the prompt is still pointed at the wrong question
+
+Classifying all 104 cards by what their own `[text] notes` say the test *is*:
+
+| what the card says it tests | F1 | F2 | F3 | F4 | total |
+|---|---:|---:|---:|---:|---:|
+| tail / shock sizing | 3 | 0 | 2 | **28** | **33** |
+| cross-asset co-movement | 0 | 2 | **23** | 4 | **29** |
+| width / calibration | **13** | 5 | 1 | 3 | **22** |
+| two-sided / offsetting forces | 4 | 4 | 3 | 7 | 18 |
+| direction | 4 | 3 | 0 | 0 | **7** |
+
+**Seven of 104 cards are about direction** — and the prompt spends nearly all its instruction
+budget on `drift_sd`. `vol_scale` and `skew` get one line each, and `vol_scale` came back at
+exactly 1.20 on all six runs above, which reads like it is being picked off that one line rather
+than reasoned about.
+
+`t2-F4-covid-mkt-2020` is the clean example. Its notes say *"the tail must be sized from the
+documents rather than the panel's calm, and both the shock branch and the contained branch carry
+weight"*. As-of an equity high, one day after a bellwether pulled guidance. The right answer is
+drift ≈ 0, `widen` high, `skew` negative — and the prompt never tells the model that two of those
+three are what the card is scored on.
+
+This is analysis, not a change: no prompt work has been done on it. It relies on
+`metadata.category`, which is present on all 104 units here but should degrade to a generic
+prompt if a sealed card omits it.
+
+---
+
 ## 5. Failure handling — why there is so much of it
 
 Per the README: a card that is inadmissible, errors, or is never attempted takes a pre-committed
@@ -192,13 +298,37 @@ Specifically guarded, each with a test:
 
 ## 6. Open items
 
-- **Blocker, not mine:** `build_draws` crashes on every single-asset card
-  (`np.corrcoef` of a `(1, m)` array is 0-d → `np.fill_diagonal` raises). That is **77 of the 104
-  units**. Verified one-line fix for `feat/timeseries`: `corr = np.atleast_2d(np.corrcoef(D))`.
-- Related: `_series` raises `SystemExit` when an asset is in no panel. On a sealed F2 transfer
-  card where the target is absent by design, that is a 4.0. Worth a fallback on Dew's branch.
-- `skew` is returned but `build_draws` ignores it. It is the natural lever for F4 (31 units, tail
-  penalty is the primary component) — worth wiring up.
-- The floor is **untested against realized outcomes**. Whether any of this beats 1.0 is Pun's
-  harness to answer; `TEXT_SIGNAL_MODE=off` is the A/B control, and `out/sweep_heuristic.csv` is
-  the per-card record to diff against.
+**Blocker, not mine:** `build_draws` crashes on every single-asset card
+(`np.corrcoef` of a `(1, m)` array is 0-d → `np.fill_diagonal` raises). That is **77 of the 104
+units**. Verified one-line fix for `feat/timeseries`: `corr = np.atleast_2d(np.corrcoef(D))`.
+
+**Also Dew's:** `_series` raises `SystemExit` when an asset is in no panel. On a sealed F2
+transfer card where the target is absent by design, that is a 4.0. Needs a fallback.
+
+**Contract gap, needs a conversation with Dew:** F3 is 23 cards where the joint variogram is the
+primary score component, and all 23 are cross-asset. `read_text_signal` returns per-asset
+independent numbers — there is no way to say *"EUR and JPY should move together under this
+text."* No prompt change reaches this; it is the shape of the interface.
+
+**`skew` is emitted and ignored.** `build_draws` does not read it. It is the natural lever for
+F4 — 31 units where the tail penalty is the primary component.
+
+**Prompt work identified but NOT done** (§4a, in priority order set by the measurements):
+
+1. Self-consistency — k calls, take the **median** drift. The only cheap fix for the sign flip,
+   and the budget is there: 1 call uses ~10.6k of the 1,000,000 input tokens allowed per unit,
+   so ~94 calls per card are affordable and ~400 s/unit is the binding constraint, not tokens.
+2. Magnitude anchors for `vol_scale` and `skew`, the same fix that worked for `drift_sd`.
+3. Inject `metadata.category` so the model knows whether the card is scored on width, tail or
+   co-movement.
+4. Two-branch framing (shock / contained) for the 18 offsetting-forces cards, deriving `widen`
+   and `skew` from the gap rather than asking for them directly.
+
+**Nothing is tested against realized outcomes.** Whether any of this beats 1.0 is Pun's harness
+to answer. `TEXT_SIGNAL_MODE=off` is the control, `heuristic` is the offline floor, and
+`out/sweep_heuristic.csv` is the per-card record to diff against. Given the sign-flip
+measurement, an A/B that reads one model call per card is measuring noise as much as signal —
+either fix (1) first or average several runs.
+
+**Housekeeping:** the API key was pasted into a chat transcript. Rotate it at build.nvidia.com
+before submission.
