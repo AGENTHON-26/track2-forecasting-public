@@ -124,18 +124,21 @@ python3 text_signal.py --text units/t2-F1-hawkish-cut-2024/text   # look for sou
 ```bash
 # out/.env
 export MODEL_ENDPOINT=https://integrate.api.nvidia.com/v1
-export MODEL_NAME=nvidia/nemotron-3.5-lightning-30b-a3b
+export MODEL_NAME=nvidia/nemotron-3-super-120b-a12b   # the House pin's family (public #14)
 export MODEL_API_KEY=nvapi-...            # LOCAL DEV ONLY — no participant key exists at scoring
 export TEXT_SIGNAL_CACHE=out/model-cache  # replies cached by prompt hash; out/ is gitignored
 ```
 
 **`llama-3.3-nemotron-super-49b-v1` — the ID in the repo's stub comment — is dead.** It reached
 end of life on 2026-08-26 and returns HTTP 410. Current Nemotron IDs come from
-`GET $MODEL_ENDPOINT/models`; we run `nvidia/nemotron-3.5-lightning-30b-a3b`, which is what
-`baselines/reasoning_agent.py` was measured against and is the closest stand-in for the kind of
-fast model the house endpoint is likely to serve. `nvidia/nemotron-3-super-120b-a12b` also works
-and scores better here (§4a) — but it is not what we will be given, so tuning against it risks
-overfitting to capacity we will not have.
+`GET $MODEL_ENDPOINT/models`.
+
+**The house pin is now published: NVIDIA Nemotron 3 Super 120B-A12B, FP8, behind the House API
+alias `house`** (organizers, public issue #14, answering our own question). The Lightning 30B is
+explicitly *not* it. So local dev runs `nvidia/nemotron-3-super-120b-a12b` — the build.nvidia.com
+id for that same checkpoint family — and §4a's 120B numbers are now the numbers that count, not a
+capacity we were borrowing. A different serving stack is still not a promise of identical
+outputs; it is the right family and format, which is as close as local testing gets.
 
 Model IDs get renamed and retired. If a call 410s or 404s, list `/models` and update
 `MODEL_NAME`; the code reports the HTTP error in the ledger and drops to the keyword floor
@@ -228,8 +231,17 @@ reaches the JSON — the failure `baselines/reasoning_agent.py` documents. Leave
 unset (it defaults to off).
 
 Capacity does matter at this prompt, which an earlier comparison missed because it used the
-pre-anchor prompt. We stay on the 30B anyway: at scoring `MODEL_NAME` is whatever the organizers
-serve, so a result that only holds on a 120B is not a result we can bank.
+pre-anchor prompt. That used to be a reason for caution — a result holding only on a 120B was not
+bankable. It is bankable now: the published pin *is* the 120B Super, so the top two rows are the
+stand-in and the bottom two are the real thing.
+
+One correction to how we turn thinking off. The House renderer has **thinking on by default** —
+the organizers verified that a request carrying no thinking option renders identically to
+`enable_thinking=True`. The switch is the API field, `chat_template_kwargs.enable_thinking`, at
+the top level of the raw JSON body (what the OpenAI client calls `extra_body`), which we already
+send on every request. The `detailed thinking off` system prompt from the old NVIDIA-STACK.md is
+superseded and has been dropped from the body — it no longer buys anything, and it was spending
+prompt tokens to say what the API field already says.
 
 ### The failure mode to design around: sign flips
 

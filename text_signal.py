@@ -645,9 +645,15 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
     Local dev  : MODEL_ENDPOINT=https://integrate.api.nvidia.com/v1 MODEL_API_KEY=nvapi-...
     At scoring : MODEL_ENDPOINT/MODEL_NAME are injected, there is no participant key, and egress
                  is the audited proxy only — HTTP(S)_PROXY is honoured by urllib automatically.
+                 House access arrives as MODEL_TOKEN plus an authenticated http_proxy;
+                 MODEL_API_KEY is the local-dev route only (baselines/README.md:150).
     """
     endpoint = os.environ.get("MODEL_ENDPOINT", "").strip()
-    model = os.environ.get("MODEL_NAME", "").strip() or "nvidia/llama-3.3-nemotron-super-49b-v1"
+    # Only a local-dev fallback: at scoring MODEL_NAME is injected and names the House pin,
+    # NVIDIA Nemotron 3 Super 120B-A12B FP8 behind the `house` alias (organizers, public #14).
+    # This is the build.nvidia.com id for that same checkpoint family, so local runs exercise the
+    # capacity we will actually be served. The old llama-3.3 stub id is dead (HTTP 410).
+    model = os.environ.get("MODEL_NAME", "").strip() or "nvidia/nemotron-3-super-120b-a12b"
     if not endpoint:
         return None, "MODEL_ENDPOINT is unset (offline: using the keyword floor)", ""
 
@@ -660,6 +666,10 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
         except Exception:
             pass
 
+    # The House renderer has thinking ON by default -- a request that omits the option renders
+    # identically to enable_thinking=True (organizers, public #14). So send the flag on every
+    # request rather than relying on a server default. Off is measured strictly better here: the
+    # 30B burned 83 s/card and never reached the JSON, the 120B halved its committed adjustments.
     thinking = os.environ.get("MODEL_THINKING", "off").strip().lower() in ("1", "on", "true")
     try:
         max_tokens = max(1, int(os.environ.get("MODEL_MAX_TOKENS", "3000")))
@@ -669,14 +679,12 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
     body = json.dumps(
         {
             "model": model,
-            "messages": [
-                # Nemotron reads this as the thinking switch; harmless on other servers.
-                {"role": "system", "content": "detailed thinking off"},
-                {"role": "user", "content": prompt},
-            ],
+            "messages": [{"role": "user", "content": prompt}],
             "temperature": 0,
             "top_p": 1,
             "max_tokens": max_tokens,
+            # Top level, not extra_body: that is the OpenAI-client wrapper for the same field,
+            # and the House request normalizer preserves it on the raw JSON path.
             "chat_template_kwargs": {"enable_thinking": thinking},
         }
     ).encode("utf-8")
@@ -686,7 +694,10 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
         headers={"Content-Type": "application/json", "Accept": "application/json"},
         method="POST",
     )
-    token = os.environ.get("MODEL_API_KEY", "").strip()
+    # MODEL_TOKEN is the House grant; MODEL_API_KEY is the local key. Never the other way round.
+    token = (
+        os.environ.get("MODEL_TOKEN", "").strip() or os.environ.get("MODEL_API_KEY", "").strip()
+    )
     if token:
         req.add_header("Authorization", f"Bearer {token}")
     try:
