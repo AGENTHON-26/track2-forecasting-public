@@ -26,11 +26,13 @@ import argparse
 import json
 import pathlib
 import sys
-from typing import Any
+import warnings
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
 
+from .horizons import HorizonMetadataError, monthly_horizon_steps
 from .limits import ParseLimits
 from .targets import log_return_steps
 
@@ -110,6 +112,116 @@ def _series(panels: dict[str, pd.DataFrame], asset: str, asof: str) -> pd.Series
     )
 
 
+def _monthly_series(s: pd.Series) -> pd.Series:
+    """Align monthly observations by period and refuse ambiguous source cadence."""
+    out = s.copy()
+    out.index = pd.to_datetime(out.index).to_period("M")
+    if out.index.has_duplicates or len(out) < 3:
+        raise HorizonMetadataError("Monthly target series need unique monthly observations.")
+    if not np.isfinite(out.to_numpy()).all():
+        raise HorizonMetadataError("Monthly target series contain non-finite observations.")
+    if np.median(np.diff(out.index.asi8)) != 1:
+        raise HorizonMetadataError("The selected target series do not have monthly cadence.")
+    return out
+
+
+def _daily_cadence(s: pd.Series) -> bool:
+    """Recognize dense daily observations, not a duplicated or damaged monthly panel."""
+    dates = pd.DatetimeIndex(pd.to_datetime(s.index))
+    if len(dates) < 30 or dates.has_duplicates:
+        return False
+    gaps = np.diff(dates.to_numpy()).astype("timedelta64[D]").astype(float)
+    per_month = pd.Series(1, index=dates.to_period("M")).groupby(level=0).sum()
+    return bool(0 < np.median(gaps) <= 3 and per_month.median() >= 8)
+
+
+def _explicit_monthly_periods(source: dict[str, Any]) -> bool:
+    targets = source.get("targets", {})
+    questions = source.get("questions", [])
+    return (isinstance(targets, dict) and "observation_periods" in targets) or (
+        isinstance(questions, list)
+        and any(isinstance(row, dict) and "observation_period" in row for row in questions)
+    )
+
+
+def _monthly_inputs(
+    panels: dict[str, pd.DataFrame],
+    card: dict[str, Any],
+    card_path: pathlib.Path,
+    asof: str,
+) -> np.ndarray | None:
+    """Use explicit monthly task metadata; context-panel frequency never selects this path."""
+    targets = card["targets"]
+    frequency = targets.get("target_frequency", card.get("metadata", {}).get("target_frequency"))
+    if frequency != "monthly":
+        return None
+    histories = {asset: _series(panels, asset, asof) for asset in targets["asset_ids"]}
+    path = card_path.parent / "forecast_spec.json"
+    spec = None
+    if path.exists():
+        try:
+            spec = json.loads(path.read_text())
+        except (ValueError, OSError):
+            raise HorizonMetadataError(
+                "Read a valid forecast_spec.json beside card.toml."
+            ) from None
+        if not isinstance(spec, dict):
+            raise HorizonMetadataError("The forecast spec must be an object.")
+    # Older month-ahead examples also call daily target observations "monthly".
+    # Recover only when every selected series has dense daily observations and no
+    # explicit monthly-period instructions; a damaged monthly series must still refuse.
+    if all(_daily_cadence(history) for history in histories.values()):
+        if _explicit_monthly_periods(card) or _explicit_monthly_periods(spec or {}):
+            raise HorizonMetadataError(
+                "Monthly observation-period metadata conflicts with daily target observations. "
+                "Correct the task inputs."
+            )
+        warnings.warn(
+            "The monthly frequency declaration conflicts with daily target observations; "
+            "using daily sampling. Correct the task's target_frequency metadata.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return None
+    if targets.get("target_type", "level") != "level":
+        raise HorizonMetadataError("The monthly reference sampler requires level targets.")
+    last = {}
+    for asset, history in histories.items():
+        _monthly_series(history)
+        last[asset] = str(history.index[-1])[:10]
+    return monthly_horizon_steps(
+        targets["asset_ids"],
+        targets["horizons"],
+        last,
+        asof=asof,
+        card=card,
+        forecast_spec=spec,
+    )
+
+
+def _monthly_walk(
+    rng: np.random.Generator,
+    hist: dict[str, pd.Series],
+    horizons: list[int],
+    panel_steps: np.ndarray,
+    last: np.ndarray,
+    sd: np.ndarray,
+    chol: np.ndarray,
+    n_draws: int,
+) -> np.ndarray:
+    """Share each calendar month's correlated innovation across all requested horizons."""
+    anchors = np.array([pd.Period(s.index[-1], freq="M").ordinal for s in hist.values()])
+    endpoints = anchors[:, None] + panel_steps.astype(np.int64)
+    path = np.zeros((n_draws, len(hist)))
+    out = np.empty((n_draws, len(hist), len(horizons)))
+    for month in range(int(anchors.min()) + 1, int(endpoints.max()) + 1):
+        z = rng.standard_normal((n_draws, len(hist))) @ chol.T
+        path += z * sd * (month > anchors)
+        for ai, hi in np.argwhere(endpoints == month):
+            out[:, ai, hi] = last[ai] + path[:, ai]
+    return out
+
+
 def _draw(
     panels: dict[str, pd.DataFrame],
     assets: list[str],
@@ -119,21 +231,40 @@ def _draw(
     seed: int,
     *,
     target_type: str = "level",
+    panel_steps: np.ndarray | None = None,
 ) -> tuple[np.ndarray, dict[str, Any]]:
     """Joint Gaussian walk, using level changes or daily log returns as steps.
 
     Drawing each asset independently would score badly on purpose: the composite puts 0.3 on the
     joint variogram term precisely to catch marginals that were stapled together. So the shared
-    innovation is drawn from the empirical correlation of historical steps and scaled by sqrt(h).
+    innovation is drawn from the empirical correlation of historical steps. Daily calls retain
+    their existing sqrt(h) scaling. An explicit monthly step matrix selects cumulative paths
+    in calendar months, including the panel publication lag.
     """
     rng = np.random.default_rng(seed)
     hist = {a: _series(panels, a, asof) for a in assets}
     returns_target = target_type == "log_return"
+    monthly = panel_steps is not None
+    if monthly:
+        panel_steps = np.asarray(panel_steps, dtype=float)
+        if (
+            target_type != "level"
+            or panel_steps.shape != (len(assets), len(horizons))
+            or not np.isfinite(panel_steps).all()
+            or np.any(panel_steps <= 0)
+            or np.any(panel_steps != np.floor(panel_steps))
+        ):
+            raise HorizonMetadataError(
+                "Provide one positive integer monthly step count per grid cell."
+            )
+        hist = {a: _monthly_series(s) for a, s in hist.items()}
     # Factor panels contain decimal simple returns. A cumulative log-return target sums
     # log(1+r) steps; differencing the rows or adding the last past return is incorrect.
     steps = pd.DataFrame(
         {a: pd.Series(log_return_steps(s), index=s.index) for a, s in hist.items()}
         if returns_target
+        else {a: s.diff().where(np.r_[False, np.diff(s.index.asi8) == 1]) for a, s in hist.items()}
+        if monthly
         else {a: _diff_without_gaps(s) for a, s in hist.items()}
     ).dropna()
     if len(steps) < 30:
@@ -154,6 +285,27 @@ def _draw(
     corr = v @ np.diag(np.clip(w, 1e-8, None)) @ v.T
     chol = np.linalg.cholesky(corr)
 
+    if monthly:
+        panel_steps = cast(np.ndarray, panel_steps)
+        out = _monthly_walk(rng, hist, horizons, panel_steps, last, sd, chol, n_draws)
+        return out, {
+            "last": {a: float(last[i]) for i, a in enumerate(assets)},
+            "step_unit": "month",
+            "step_sd": {a: float(sd[i]) for i, a in enumerate(assets)},
+            "n_history_rows": int(len(steps)),
+            "target_type": target_type,
+            "panel_steps": {
+                a: {str(h): int(panel_steps[i, j]) for j, h in enumerate(horizons)}
+                for i, a in enumerate(assets)
+            },
+            "horizon_sd": {
+                a: {
+                    str(h): float(sd[i] * np.sqrt(panel_steps[i, j]))
+                    for j, h in enumerate(horizons)
+                }
+                for i, a in enumerate(assets)
+            },
+        }
     out = np.empty((n_draws, len(assets), len(horizons)), dtype=float)
     for hi, h in enumerate(horizons):
         z = rng.standard_normal((n_draws, len(assets))) @ chol.T
@@ -179,6 +331,36 @@ def _rationale(
     text_dir: pathlib.Path,
 ) -> str:
     n_docs = len(list(text_dir.glob("*.txt"))) if text_dir.is_dir() else 0
+    if stats.get("step_unit") == "month":
+        rows = "\n".join(
+            f"| {a} | {h} | {stats['last'][a]:.4f} | {stats['panel_steps'][a][str(h)]} | "
+            f"{stats['step_sd'][a]:.4f} | {stats['horizon_sd'][a][str(h)]:.4f} |"
+            for a in assets
+            for h in horizons
+        )
+        return f"""# Forecast rationale — {unit_id}
+
+As of **{asof}**, monthly level forecasts at horizon keys {horizons}. {n_draws} joint draws.
+
+## Anchor and scale
+
+Each anchor is the last available monthly observation at or before the cutoff.
+The panel can lag the as-of. Monthly steps include that publication lag and end at
+its explicitly supplied observation period. The horizon key is unchanged.
+The monthly standard deviation is estimated from consecutive monthly changes,
+using {stats["n_history_rows"]} overlapping observations. No drift adjustment is made.
+
+| asset | horizon key | anchor | monthly steps | monthly sd | sd at horizon |
+|---|---|---|---|---|---|
+{rows}
+
+## Dependence and text
+
+Correlated innovations are drawn once per calendar month and accumulated along
+one path for each draw. Forecasts at later periods reuse the earlier innovations.
+The marginal standard deviation is monthly sd times the square root of monthly steps.
+No text adjustment is made. {n_docs} text document(s) were present and none was read.
+"""
     returns_target = stats.get("target_type") == "log_return"
     anchor = (
         "Zero for every asset: the target sums log(1 + daily simple return) over the horizon. "
@@ -205,7 +387,7 @@ def _rationale(
         for h in horizons
     )
     ledger_header = (
-        "| asset | anchor | daily sd | sd at horizon | horizon (BD) |\n" "|---|---|---|---|---|"
+        "| asset | anchor | daily sd | sd at horizon | horizon (BD) |\n|---|---|---|---|---|"
     )
     centre_description = "Centre = anchor + 0 for every asset and horizon."
     if returns_target:
@@ -325,6 +507,10 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     panels = _read_panels(a.panels)
+    try:
+        panel_steps = _monthly_inputs(panels, card, card_path, a.asof)
+    except HorizonMetadataError as exc:
+        raise SystemExit(str(exc)) from None
     samples, stats = _draw(
         panels,
         assets,
@@ -333,6 +519,7 @@ def main(argv: list[str] | None = None) -> int:
         n_draws,
         a.seed,
         target_type=tgt.get("target_type", "level"),
+        panel_steps=panel_steps,
     )
 
     out_dir = a.out.parent

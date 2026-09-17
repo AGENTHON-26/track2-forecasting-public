@@ -32,12 +32,34 @@ a model server. Permitted local numerical artifacts are covered by the
 
 | Tool | Fit for T2 | How to use it | Caveat |
 |---|---|---|---|
-| **Nemotron behind `$MODEL_ENDPOINT`** | **Core — the one NVIDIA component in your loop** | An OpenAI-compatible chat endpoint — `$MODEL_ENDPOINT` is the route origin, the API is under `/v1` (`POST $MODEL_ENDPOINT/v1/chat/completions`), and the per-unit bearer arrives as `$MODEL_TOKEN`; see [Calling the House route](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/HOUSE-MODEL.md#calling-the-house-route). The pinned house-model id is published and arrives as `$MODEL_NAME`. Use it as your **text-reader**: extract stance, dates, revisions and surprises from the corpus, then let them adjust a statistical prior ([CONCEPTS.md](CONCEPTS.md) on text ablation) | If the pin is a reasoning variant, thinking toggles via the system prompt (`detailed thinking on\|off`) and responses may omit the opening `<think>` tag — parse tolerantly. The published scorer does not run a closed-book recall comparison; a score alone does not establish whether the agent used text or recalled an outcome. Follow the as-of and no-answer-lookup rules in the [README](../README.md#leakage-rules). |
+| **Nemotron behind `$MODEL_ENDPOINT`** | **Core — the one NVIDIA component in your loop** | An OpenAI-compatible chat endpoint — `$MODEL_ENDPOINT` is the route origin, the API is under `/v1` (`POST $MODEL_ENDPOINT/v1/chat/completions`), and the per-unit bearer arrives as `$MODEL_TOKEN`; see [Calling the House route](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/HOUSE-MODEL.md#calling-the-house-route); use the supplied `$MODEL_NAME` runtime alias. The selected model and snapshot are documented in the [House model guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.2/docs/HOUSE-MODEL.md). Use it as your **text-reader**: extract stance, dates, revisions and surprises from the corpus, then let them adjust a statistical prior ([CONCEPTS.md](CONCEPTS.md) on text ablation) | Thinking is enabled by default; low-effort reasoning is off by default. Disable thinking per request with `chat_template_kwargs.enable_thinking=false`, as shown below. The published scorer does not run a closed-book recall comparison; a score alone does not establish whether the agent used text or recalled an outcome. Follow the as-of and no-answer-lookup rules in the [README](../README.md#leakage-rules). |
 | **NeMo (customization / fine-tuning)** | **Off-cluster only — and this is the BYO path** | PEFT/LoRA adapter training against the house base model for macro-text conditioning, before you submit. Rank ≤ 64; ship the adapter, not the merged weights | NeMo/LoRA training is off-cluster; permitted numerical fitting is distinct from language-model adaptation, and the NeMo customization stack ships in no T2 image |
 | **Megatron-LM** | **No fit** | — | It is a full-weight training stack, and full fine-tuning is not a permitted BYO submission: BYO ships one LoRA adapter. GPU-mandatory with a multi-GB dependency closure and no time-series or forecasting code; it is never part of a T2 image |
 | **CUDA / RAPIDS / cuDF** | **No fit** | — | T2's scored pipeline has no GPU surface: solving is file I/O + endpoint calls + sampling, and scoring is CPU CRPS arithmetic. That holds for BYO too — your code calls `$MODEL_ENDPOINT` like an `api` submission does — so vendoring GPU libraries only bloats your image |
 | **Nsight / DCGM** | **No fit** | — | T2 has no throughput or efficiency component — nothing to profile, nothing to meter (these are Track 3 concerns) |
 | **NeMo Guardrails** | **No fit** | — | A participant-side self-check rail relevant only to Track 4's citation surface; T2's admissibility gates are numeric and schema-level, and the rationale review reads your reasoning, not your I/O |
+
+## House model and thinking controls
+
+Track 2 Development uses NVIDIA Nemotron 3 Super 120B-A12B, FP8: model identity
+`nvidia/nemotron-3-super-120b-a12b`, reported model/tokenizer snapshot `rl-030326-fp8`.
+Use the injected `$MODEL_NAME` for calls; the runtime alias is `house`. The Lightning model
+mentioned in a baseline example is not the selected House model. The training cutoff remains
+unpublished, as stated in the shared [House model guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.2/docs/HOUSE-MODEL.md).
+
+Thinking is on by default and low-effort reasoning is off by default. To disable thinking for
+one request with the OpenAI Python client, pass:
+
+```python
+extra_body={"chat_template_kwargs": {"enable_thinking": False}}
+```
+
+For raw HTTP JSON, put `chat_template_kwargs` at the top level of the request body.
+Omitting this option keeps thinking enabled. Use this API option instead of the older system-prompt
+toggle. These settings were verified against the selected chat template and synthetic request
+rendering on September 16, 2026; this verification does not announce participant access or change
+request/token allowances. See the shared guide for the public checkpoint and the limits of local
+reproducibility.
 
 ## What this means concretely
 
