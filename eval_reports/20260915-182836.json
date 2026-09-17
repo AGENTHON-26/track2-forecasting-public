@@ -1,0 +1,643 @@
+{
+  "generated_at": "2026-09-15T22:28:36.654228+00:00",
+  "label": "with corrcoef fix, uncommitted",
+  "gates_only_mode": false,
+  "total_units": 103,
+  "status_counts": {
+    "gates_only": 13,
+    "scored": 90
+  },
+  "family_summary": {
+    "T2-F1": {
+      "n": 18,
+      "mean": 0.3427972483667691,
+      "min": 0.011072178383117713,
+      "max": 2.5783155617566886
+    },
+    "T2-F2": {
+      "n": 23,
+      "mean": 1.1487014518971193,
+      "min": 0.02262882216116732,
+      "max": 7.4275519926557285
+    },
+    "T2-F3": {
+      "n": 20,
+      "mean": 1.0221640221551966,
+      "min": 0.20056209917234752,
+      "max": 3.521284967146708
+    },
+    "T2-F4": {
+      "n": 29,
+      "mean": 0.45628482921303326,
+      "min": 0.005524461017625266,
+      "max": 4.059650250485449
+    }
+  },
+  "units": {
+    "t2-F1-ai-mom-2024": {
+      "unit_id": "t2-F1-ai-mom-2024",
+      "status": "gates_only",
+      "category": "T2-F1"
+    },
+    "t2-F1-aud-on-hold-2016": {
+      "unit_id": "t2-F1-aud-on-hold-2016",
+      "status": "scored",
+      "composite": 0.011117536849070268,
+      "category": "T2-F1"
+    },
+    "t2-F1-cad-boc-2017": {
+      "unit_id": "t2-F1-cad-boc-2017",
+      "status": "scored",
+      "composite": 0.028667782773624112,
+      "category": "T2-F1"
+    },
+    "t2-F1-chf-highly-valued-2021": {
+      "unit_id": "t2-F1-chf-highly-valued-2021",
+      "status": "scored",
+      "composite": 0.013852667164153532,
+      "category": "T2-F1"
+    },
+    "t2-F1-conflicting-texts-2024": {
+      "unit_id": "t2-F1-conflicting-texts-2024",
+      "status": "gates_only",
+      "category": "T2-F1"
+    },
+    "t2-F1-considerable-period-2003": {
+      "unit_id": "t2-F1-considerable-period-2003",
+      "status": "scored",
+      "composite": 0.1459293574487548,
+      "category": "T2-F1"
+    },
+    "t2-F1-conundrum-2005": {
+      "unit_id": "t2-F1-conundrum-2005",
+      "status": "scored",
+      "composite": 0.13849069185887908,
+      "category": "T2-F1"
+    },
+    "t2-F1-cpi-glidepath-2023": {
+      "unit_id": "t2-F1-cpi-glidepath-2023",
+      "status": "gates_only",
+      "category": "T2-F1"
+    },
+    "t2-F1-dkk-peg-2019": {
+      "unit_id": "t2-F1-dkk-peg-2019",
+      "status": "scored",
+      "composite": 0.10882471767154495,
+      "category": "T2-F1"
+    },
+    "t2-F1-eur-range-2017": {
+      "unit_id": "t2-F1-eur-range-2017",
+      "status": "scored",
+      "composite": 0.011072178383117713,
+      "category": "T2-F1"
+    },
+    "t2-F1-fed-put-2019": {
+      "unit_id": "t2-F1-fed-put-2019",
+      "status": "scored",
+      "composite": 0.0297115075520172,
+      "category": "T2-F1"
+    },
+    "t2-F1-greater-confidence-2024": {
+      "unit_id": "t2-F1-greater-confidence-2024",
+      "status": "scored",
+      "composite": 0.7866148492314631,
+      "category": "T2-F1"
+    },
+    "t2-F1-hawkish-cut-2024": {
+      "unit_id": "t2-F1-hawkish-cut-2024",
+      "status": "gates_only",
+      "category": "T2-F1"
+    },
+    "t2-F1-jpy-ycc-flex-2018": {
+      "unit_id": "t2-F1-jpy-ycc-flex-2018",
+      "status": "scored",
+      "composite": 2.5783155617566886,
+      "category": "T2-F1"
+    },
+    "t2-F1-liftoff-telegraph-2015": {
+      "unit_id": "t2-F1-liftoff-telegraph-2015",
+      "status": "scored",
+      "composite": 0.09554793017759323,
+      "category": "T2-F1"
+    },
+    "t2-F1-measured-pace-2004": {
+      "unit_id": "t2-F1-measured-pace-2004",
+      "status": "scored",
+      "composite": 0.2545474464870042,
+      "category": "T2-F1"
+    },
+    "t2-F1-normalization-2017": {
+      "unit_id": "t2-F1-normalization-2017",
+      "status": "scored",
+      "composite": 0.11643417247256875,
+      "category": "T2-F1"
+    },
+    "t2-F1-patient-dropped-2015": {
+      "unit_id": "t2-F1-patient-dropped-2015",
+      "status": "scored",
+      "composite": 0.07526738442730213,
+      "category": "T2-F1"
+    },
+    "t2-F1-pause-2006": {
+      "unit_id": "t2-F1-pause-2006",
+      "status": "scored",
+      "composite": 0.6082576944370731,
+      "category": "T2-F1"
+    },
+    "t2-F1-qe3-end-2014": {
+      "unit_id": "t2-F1-qe3-end-2014",
+      "status": "scored",
+      "composite": 0.1614908377351251,
+      "category": "T2-F1"
+    },
+    "t2-F1-sahm-watch-2024": {
+      "unit_id": "t2-F1-sahm-watch-2024",
+      "status": "gates_only",
+      "category": "T2-F1"
+    },
+    "t2-F1-third-cut-2019": {
+      "unit_id": "t2-F1-third-cut-2019",
+      "status": "scored",
+      "composite": 0.7188372940678281,
+      "category": "T2-F1"
+    },
+    "t2-F1-ust-positioning-2018": {
+      "unit_id": "t2-F1-ust-positioning-2018",
+      "status": "scored",
+      "composite": 0.28737086010803525,
+      "category": "T2-F1"
+    },
+    "t2-F2-abenomics-2012": {
+      "unit_id": "t2-F2-abenomics-2012",
+      "status": "scored",
+      "composite": 7.4275519926557285,
+      "category": "T2-F2"
+    },
+    "t2-F2-act-as-appropriate-2019": {
+      "unit_id": "t2-F2-act-as-appropriate-2019",
+      "status": "scored",
+      "composite": 0.05133018560471835,
+      "category": "T2-F2"
+    },
+    "t2-F2-aud-taper-2013": {
+      "unit_id": "t2-F2-aud-taper-2013",
+      "status": "scored",
+      "composite": 0.02965816546753888,
+      "category": "T2-F2"
+    },
+    "t2-F2-boj-thin-signal-2014": {
+      "unit_id": "t2-F2-boj-thin-signal-2014",
+      "status": "scored",
+      "composite": 6.622483577514242,
+      "category": "T2-F2"
+    },
+    "t2-F2-cnh-stress-2015": {
+      "unit_id": "t2-F2-cnh-stress-2015",
+      "status": "gates_only",
+      "category": "T2-F2"
+    },
+    "t2-F2-cnh-tradewar-2018": {
+      "unit_id": "t2-F2-cnh-tradewar-2018",
+      "status": "gates_only",
+      "category": "T2-F2"
+    },
+    "t2-F2-considerable-removal-2004": {
+      "unit_id": "t2-F2-considerable-removal-2004",
+      "status": "scored",
+      "composite": 0.21269871852536706,
+      "category": "T2-F2"
+    },
+    "t2-F2-credit-crunch-2007": {
+      "unit_id": "t2-F2-credit-crunch-2007",
+      "status": "scored",
+      "composite": 0.5902426653261523,
+      "category": "T2-F2"
+    },
+    "t2-F2-cut-sizing-2024": {
+      "unit_id": "t2-F2-cut-sizing-2024",
+      "status": "scored",
+      "composite": 0.18355610953545287,
+      "category": "T2-F2"
+    },
+    "t2-F2-draghi-precommit-2014": {
+      "unit_id": "t2-F2-draghi-precommit-2014",
+      "status": "scored",
+      "composite": 0.02262882216116732,
+      "category": "T2-F2"
+    },
+    "t2-F2-ecb-qe-telegraph-2014": {
+      "unit_id": "t2-F2-ecb-qe-telegraph-2014",
+      "status": "scored",
+      "composite": 0.09172307538896879,
+      "category": "T2-F2"
+    },
+    "t2-F2-eur-parity-2022": {
+      "unit_id": "t2-F2-eur-parity-2022",
+      "status": "scored",
+      "composite": 0.03452012383230083,
+      "category": "T2-F2"
+    },
+    "t2-F2-fragile-five-brl-2013": {
+      "unit_id": "t2-F2-fragile-five-brl-2013",
+      "status": "gates_only",
+      "category": "T2-F2"
+    },
+    "t2-F2-fragile-five-inr-2013": {
+      "unit_id": "t2-F2-fragile-five-inr-2013",
+      "status": "gates_only",
+      "category": "T2-F2"
+    },
+    "t2-F2-higher-for-longer-2023": {
+      "unit_id": "t2-F2-higher-for-longer-2023",
+      "status": "scored",
+      "composite": 0.20726385908580822,
+      "category": "T2-F2"
+    },
+    "t2-F2-nirp-paradox-2016": {
+      "unit_id": "t2-F2-nirp-paradox-2016",
+      "status": "scored",
+      "composite": 4.982687166279264,
+      "category": "T2-F2"
+    },
+    "t2-F2-opec-cad-2014": {
+      "unit_id": "t2-F2-opec-cad-2014",
+      "status": "scored",
+      "composite": 0.06569571726983288,
+      "category": "T2-F2"
+    },
+    "t2-F2-powell-pivot-2019": {
+      "unit_id": "t2-F2-powell-pivot-2019",
+      "status": "scored",
+      "composite": 0.32499222030971836,
+      "category": "T2-F2"
+    },
+    "t2-F2-qe2-jackson-hole-2010": {
+      "unit_id": "t2-F2-qe2-jackson-hole-2010",
+      "status": "scored",
+      "composite": 0.24868080956277108,
+      "category": "T2-F2"
+    },
+    "t2-F2-shunto-nirp-exit-2024": {
+      "unit_id": "t2-F2-shunto-nirp-exit-2024",
+      "status": "scored",
+      "composite": 4.067543377675156,
+      "category": "T2-F2"
+    },
+    "t2-F2-some-pain-2022": {
+      "unit_id": "t2-F2-some-pain-2022",
+      "status": "scored",
+      "composite": 0.3396814835482174,
+      "category": "T2-F2"
+    },
+    "t2-F2-taper-begins-2013": {
+      "unit_id": "t2-F2-taper-begins-2013",
+      "status": "scored",
+      "composite": 0.12596379619451553,
+      "category": "T2-F2"
+    },
+    "t2-F2-taper-testimony-2013": {
+      "unit_id": "t2-F2-taper-testimony-2013",
+      "status": "scored",
+      "composite": 0.45746400676615984,
+      "category": "T2-F2"
+    },
+    "t2-F2-time-has-come-2024": {
+      "unit_id": "t2-F2-time-has-come-2024",
+      "status": "scored",
+      "composite": 0.15301989084712708,
+      "category": "T2-F2"
+    },
+    "t2-F2-trade-war-escalation-2019": {
+      "unit_id": "t2-F2-trade-war-escalation-2019",
+      "status": "scored",
+      "composite": 0.056151712141620666,
+      "category": "T2-F2"
+    },
+    "t2-F2-trichet-alertness-2008": {
+      "unit_id": "t2-F2-trichet-alertness-2008",
+      "status": "scored",
+      "composite": 0.09990235638083217,
+      "category": "T2-F2"
+    },
+    "t2-F2-whatever-it-takes-2012": {
+      "unit_id": "t2-F2-whatever-it-takes-2012",
+      "status": "scored",
+      "composite": 0.024693561561086676,
+      "category": "T2-F2"
+    },
+    "t2-F3-bear-flattener-2022": {
+      "unit_id": "t2-F3-bear-flattener-2022",
+      "status": "scored",
+      "composite": 1.64764346230346,
+      "category": "T2-F3"
+    },
+    "t2-F3-boj-ust-channel-2023": {
+      "unit_id": "t2-F3-boj-ust-channel-2023",
+      "status": "scored",
+      "composite": 1.5946223769106807,
+      "category": "T2-F3"
+    },
+    "t2-F3-brexit-joint-2016": {
+      "unit_id": "t2-F3-brexit-joint-2016",
+      "status": "scored",
+      "composite": 0.3677662984523112,
+      "category": "T2-F3"
+    },
+    "t2-F3-conundrum-joint-2005": {
+      "unit_id": "t2-F3-conundrum-joint-2005",
+      "status": "scored",
+      "composite": 1.9604447734606134,
+      "category": "T2-F3"
+    },
+    "t2-F3-covid-curve-2020": {
+      "unit_id": "t2-F3-covid-curve-2020",
+      "status": "scored",
+      "composite": 1.3220546412882705,
+      "category": "T2-F3"
+    },
+    "t2-F3-cpi-shock-cross-2022": {
+      "unit_id": "t2-F3-cpi-shock-cross-2022",
+      "status": "scored",
+      "composite": 0.2605345250224157,
+      "category": "T2-F3"
+    },
+    "t2-F3-divergence-2014": {
+      "unit_id": "t2-F3-divergence-2014",
+      "status": "scored",
+      "composite": 3.521284967146708,
+      "category": "T2-F3"
+    },
+    "t2-F3-dollar-squeeze-2020": {
+      "unit_id": "t2-F3-dollar-squeeze-2020",
+      "status": "scored",
+      "composite": 0.8659363852929254,
+      "category": "T2-F3"
+    },
+    "t2-F3-dollar-vortex-2022": {
+      "unit_id": "t2-F3-dollar-vortex-2022",
+      "status": "scored",
+      "composite": 1.104110736715776,
+      "category": "T2-F3"
+    },
+    "t2-F3-dots-vs-oil-2014": {
+      "unit_id": "t2-F3-dots-vs-oil-2014",
+      "status": "scored",
+      "composite": 0.3641957117599574,
+      "category": "T2-F3"
+    },
+    "t2-F3-election-2024-joint": {
+      "unit_id": "t2-F3-election-2024-joint",
+      "status": "gates_only",
+      "category": "T2-F3"
+    },
+    "t2-F3-fragile-five-joint-2013": {
+      "unit_id": "t2-F3-fragile-five-joint-2013",
+      "status": "gates_only",
+      "category": "T2-F3"
+    },
+    "t2-F3-funding-flip-2024": {
+      "unit_id": "t2-F3-funding-flip-2024",
+      "status": "scored",
+      "composite": 1.2530717117972163,
+      "category": "T2-F3"
+    },
+    "t2-F3-hiking-year-curve-2018": {
+      "unit_id": "t2-F3-hiking-year-curve-2018",
+      "status": "scored",
+      "composite": 0.8723945967165055,
+      "category": "T2-F3"
+    },
+    "t2-F3-inversion-persistence-2019": {
+      "unit_id": "t2-F3-inversion-persistence-2019",
+      "status": "scored",
+      "composite": 0.20056209917234752,
+      "category": "T2-F3"
+    },
+    "t2-F3-oil-fx-split-2022": {
+      "unit_id": "t2-F3-oil-fx-split-2022",
+      "status": "scored",
+      "composite": 0.38989010346274394,
+      "category": "T2-F3"
+    },
+    "t2-F3-rates-into-factors-2022": {
+      "unit_id": "t2-F3-rates-into-factors-2022",
+      "status": "scored",
+      "composite": 0.35325038767311234,
+      "category": "T2-F3"
+    },
+    "t2-F3-safe-haven-paradox-2011": {
+      "unit_id": "t2-F3-safe-haven-paradox-2011",
+      "status": "scored",
+      "composite": 1.1677497871797786,
+      "category": "T2-F3"
+    },
+    "t2-F3-scandies-stress-2022": {
+      "unit_id": "t2-F3-scandies-stress-2022",
+      "status": "scored",
+      "composite": 0.3946678908810272,
+      "category": "T2-F3"
+    },
+    "t2-F3-taper-steepener-2013": {
+      "unit_id": "t2-F3-taper-steepener-2013",
+      "status": "scored",
+      "composite": 0.8946155704840155,
+      "category": "T2-F3"
+    },
+    "t2-F3-term-premium-steepener-2023": {
+      "unit_id": "t2-F3-term-premium-steepener-2023",
+      "status": "scored",
+      "composite": 1.1836909915524567,
+      "category": "T2-F3"
+    },
+    "t2-F3-vaccine-rotation-2020": {
+      "unit_id": "t2-F3-vaccine-rotation-2020",
+      "status": "scored",
+      "composite": 0.7247934258316123,
+      "category": "T2-F3"
+    },
+    "t2-F4-aud-gfc-2008": {
+      "unit_id": "t2-F4-aud-gfc-2008",
+      "status": "scored",
+      "composite": 0.07225727469186548,
+      "category": "T2-F4"
+    },
+    "t2-F4-chf-floor-strain-2015": {
+      "unit_id": "t2-F4-chf-floor-strain-2015",
+      "status": "scored",
+      "composite": 0.07962895151136158,
+      "category": "T2-F4"
+    },
+    "t2-F4-china-panic-2016": {
+      "unit_id": "t2-F4-china-panic-2016",
+      "status": "scored",
+      "composite": 0.011347161365740155,
+      "category": "T2-F4"
+    },
+    "t2-F4-china-stress-mkt-2015": {
+      "unit_id": "t2-F4-china-stress-mkt-2015",
+      "status": "scored",
+      "composite": 0.009417523994176981,
+      "category": "T2-F4"
+    },
+    "t2-F4-covid-mkt-2020": {
+      "unit_id": "t2-F4-covid-mkt-2020",
+      "status": "scored",
+      "composite": 0.01000140245870179,
+      "category": "T2-F4"
+    },
+    "t2-F4-covid-nfp-2020": {
+      "unit_id": "t2-F4-covid-nfp-2020",
+      "status": "gates_only",
+      "category": "T2-F4"
+    },
+    "t2-F4-covid-rates-2020": {
+      "unit_id": "t2-F4-covid-rates-2020",
+      "status": "scored",
+      "composite": 0.3530224363899136,
+      "category": "T2-F4"
+    },
+    "t2-F4-cpi-friday-2022": {
+      "unit_id": "t2-F4-cpi-friday-2022",
+      "status": "scored",
+      "composite": 0.19972144351047486,
+      "category": "T2-F4"
+    },
+    "t2-F4-cpi-vintage-2022": {
+      "unit_id": "t2-F4-cpi-vintage-2022",
+      "status": "gates_only",
+      "category": "T2-F4"
+    },
+    "t2-F4-eur-warnings-2022": {
+      "unit_id": "t2-F4-eur-warnings-2022",
+      "status": "scored",
+      "composite": 0.014727792460289026,
+      "category": "T2-F4"
+    },
+    "t2-F4-factor-stress-2008": {
+      "unit_id": "t2-F4-factor-stress-2008",
+      "status": "scored",
+      "composite": 0.026247213306472582,
+      "category": "T2-F4"
+    },
+    "t2-F4-funding-stress-10y-2008": {
+      "unit_id": "t2-F4-funding-stress-10y-2008",
+      "status": "scored",
+      "composite": 0.15439017585241857,
+      "category": "T2-F4"
+    },
+    "t2-F4-funding-stress-2y-2008": {
+      "unit_id": "t2-F4-funding-stress-2y-2008",
+      "status": "scored",
+      "composite": 0.7995153936898821,
+      "category": "T2-F4"
+    },
+    "t2-F4-gbp-brexit-2016": {
+      "unit_id": "t2-F4-gbp-brexit-2016",
+      "status": "scored",
+      "composite": 0.06105742653330739,
+      "category": "T2-F4"
+    },
+    "t2-F4-gbp-conference-2016": {
+      "unit_id": "t2-F4-gbp-conference-2016",
+      "status": "scored",
+      "composite": 0.03711326826644138,
+      "category": "T2-F4"
+    },
+    "t2-F4-hike-cycle-2021Q4b": {
+      "unit_id": "t2-F4-hike-cycle-2021Q4b",
+      "status": "scored",
+      "composite": 1.6263498817501734,
+      "category": "T2-F4"
+    },
+    "t2-F4-hml-covid-2020": {
+      "unit_id": "t2-F4-hml-covid-2020",
+      "status": "scored",
+      "composite": 0.006833822187690188,
+      "category": "T2-F4"
+    },
+    "t2-F4-jpy-carry-2007": {
+      "unit_id": "t2-F4-jpy-carry-2007",
+      "status": "scored",
+      "composite": 4.059650250485449,
+      "category": "T2-F4"
+    },
+    "t2-F4-jpy-crowding-2024": {
+      "unit_id": "t2-F4-jpy-crowding-2024",
+      "status": "scored",
+      "composite": 2.4639099857955484,
+      "category": "T2-F4"
+    },
+    "t2-F4-mkt-selloff-2011": {
+      "unit_id": "t2-F4-mkt-selloff-2011",
+      "status": "scored",
+      "composite": 0.011108169882361442,
+      "category": "T2-F4"
+    },
+    "t2-F4-momentum-reversal-2009": {
+      "unit_id": "t2-F4-momentum-reversal-2009",
+      "status": "scored",
+      "composite": 0.03918765940506559,
+      "category": "T2-F4"
+    },
+    "t2-F4-nok-covid-2020": {
+      "unit_id": "t2-F4-nok-covid-2020",
+      "status": "scored",
+      "composite": 0.8759764209210629,
+      "category": "T2-F4"
+    },
+    "t2-F4-powell-december-2018": {
+      "unit_id": "t2-F4-powell-december-2018",
+      "status": "scored",
+      "composite": 0.01519327559538149,
+      "category": "T2-F4"
+    },
+    "t2-F4-qe1-expansion-2009": {
+      "unit_id": "t2-F4-qe1-expansion-2009",
+      "status": "scored",
+      "composite": 0.18333554607386535,
+      "category": "T2-F4"
+    },
+    "t2-F4-quant-crowding-2007": {
+      "unit_id": "t2-F4-quant-crowding-2007",
+      "status": "scored",
+      "composite": 0.005524461017625266,
+      "category": "T2-F4"
+    },
+    "t2-F4-short-vol-2018": {
+      "unit_id": "t2-F4-short-vol-2018",
+      "status": "scored",
+      "composite": 0.010035687270219903,
+      "category": "T2-F4"
+    },
+    "t2-F4-svb-whiplash-2023": {
+      "unit_id": "t2-F4-svb-whiplash-2023",
+      "status": "scored",
+      "composite": 0.7978253792545212,
+      "category": "T2-F4"
+    },
+    "t2-F4-taper-warning-2013": {
+      "unit_id": "t2-F4-taper-warning-2013",
+      "status": "scored",
+      "composite": 0.5952237674035217,
+      "category": "T2-F4"
+    },
+    "t2-F4-ust-downgrade-watch-2011": {
+      "unit_id": "t2-F4-ust-downgrade-watch-2011",
+      "status": "scored",
+      "composite": 0.5604973420081063,
+      "category": "T2-F4"
+    },
+    "t2-F4-ust10y-supply-2023": {
+      "unit_id": "t2-F4-ust10y-supply-2023",
+      "status": "scored",
+      "composite": 0.13206227907857213,
+      "category": "T2-F4"
+    },
+    "t2-F4-vaccine-timeline-2020": {
+      "unit_id": "t2-F4-vaccine-timeline-2020",
+      "status": "scored",
+      "composite": 0.0210986550177559,
+      "category": "T2-F4"
+    }
+  }
+}

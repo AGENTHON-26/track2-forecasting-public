@@ -4,7 +4,8 @@ The sidecar the participant writes and the report the scorer prints are two diff
 with two different identity keys, and the README shows both within forty lines of each other:
 
 * `forecast_meta.json` declares **`unit_id`** -- that is `tests/test_readme_sidecar_contract.py`;
-* the scorer's own output declares **`card_id`** -- `scoring.py:569,583` builds both payloads with
+* the scorer's own output declares **`card_id`** -- `_verdict_payload` and `_main` in
+  `scoring.py` build both payloads with
   `"card_id": card.get("task", {}).get("id")`, and that is what this file pins.
 
 The distinction is easy to lose. A proposed fix for the sidecar defect renamed the key in *both*

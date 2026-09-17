@@ -32,6 +32,12 @@ Checks, in order:
                     (compared against the panel's own pre-as-of series, per asset)
  12  gap-guard      _diffs_without_gaps drops exactly the hole-spanning difference;
                     post-as-of rows are excluded; _extract_dates aligns with the series
+ 13  log-return     on reg-t2-logreturn (panel rows are decimal simple returns, target is the
+                    cumulative log return) the CLI and the shipped baseline both centre at
+                    h x mean(log1p(r)) -- not at the last panel row -- with spread
+                    sd(log1p(r)) x sqrt(h), and agree with each other. Pins the fix for
+                    public #2 (staging PR #14): before it, the CLI anchored every card at the
+                    last observed row and differenced an already-differenced series.
 
 ### Why checks 3, 4 and 6 changed shape at the 2026-08-22 freeze
 
@@ -173,6 +179,91 @@ def _negative_controls(unit):
     v = run(unit, sub)
     check(f"9d compression bomb refused on the footer ({size} B on disk)",
           not v.admissible, str(v.detail))
+
+
+def _log_return_anchoring():
+    """The 16 `log_return` cards: panel rows are decimal simple returns, the scored target is
+    sum(log1p(r)) over the horizon, anchored at 0. Measured against the fixture's own panel so
+    the assertion cannot be satisfied by a producer that merely returns something admissible.
+
+    The fixture's last SYN_MOM row is +0.05 on purpose. The two historical defects:
+      - anchoring at the last panel row  -> centre lands near 0.05 instead of ~0.008
+      - differencing the rows            -> spread inflated by ~sqrt(2)
+    Both are refused here, for the CLI and for the baseline fallback every adapter shares.
+    """
+    import numpy as _np
+    import pandas as _pd
+
+    from baselines.base import BaselineForecaster, ForecastRequest, ForecastResult
+    from qfbench2_track_forecasting import cli
+
+    unit = HERE / "units" / "reg-t2-logreturn"
+    card = tomllib.loads((unit / "card.toml").read_text())
+    asof = card["provenance"]["data_cutoff"]
+    assets = list(card["targets"]["asset_ids"])
+    h = int(card["targets"]["horizons"][0])
+    check("fixture declares the log_return target",
+          card["targets"]["target_type"] == "log_return"
+          and card["targets"]["value_unit"] == "cumulative_log_return")
+
+    panel_raw = _pd.read_parquet(unit / "panel_factors.parquet")
+    panel = panel_raw[_pd.to_datetime(panel_raw["date"]) <= _pd.Timestamp(asof)]
+    steps = {a: _np.log1p(panel[panel["asset"] == a].sort_values("date")["value"].to_numpy())
+             for a in assets}
+    want_centre = {a: h * float(s.mean()) for a, s in steps.items()}
+    want_sd = {a: float(s.std(ddof=1)) * _np.sqrt(h) for a, s in steps.items()}
+    last_row = {a: float(panel[panel["asset"] == a].sort_values("date")["value"].iloc[-1])
+                for a in assets}
+    check("the last SYN_MOM row is far from the drift centre (the trap is armed)",
+          abs(last_row["SYN_MOM"] - want_centre["SYN_MOM"]) > 0.03,
+          f"last {last_row['SYN_MOM']:.4f} centre {want_centre['SYN_MOM']:.4f}")
+
+    n = 20000  # SE of the mean ~ 0.05/sqrt(20000) = 0.0004; tolerance below is 10x that
+    out = pathlib.Path(tempfile.mkdtemp())
+    cli.main(["--panels", str(unit), "--text", str(unit / "text"), "--asof", asof,
+              "--out", str(out / "forecast.parquet"), "--n-draws", str(n), "--seed", "3"])
+    draws = _pd.read_parquet(out / "forecast.parquet")
+    meta = json.loads((out / "forecast_meta.json").read_text())
+    check("CLI meta records the log_return target", meta.get("target") == "log_return",
+          str(meta.get("target")))
+    cli_centre, cli_sd = {}, {}
+    for a in assets:
+        v = draws[(draws["asset"] == a) & (draws["horizon"] == h)]["value"].to_numpy()
+        cli_centre[a], cli_sd[a] = float(v.mean()), float(v.std(ddof=1))
+        check(f"CLI {a}: centre is h x mean(log1p(r))",
+              abs(cli_centre[a] - want_centre[a]) < 0.004,
+              f"got {cli_centre[a]:.4f} want {want_centre[a]:.4f}")
+        check(f"CLI {a}: spread is sd(log1p(r)) x sqrt(h)",
+              abs(cli_sd[a] / want_sd[a] - 1.0) < 0.10,
+              f"got {cli_sd[a]:.4f} want {want_sd[a]:.4f}")
+    check("CLI SYN_MOM: NOT anchored at the last panel row",
+          abs(cli_centre["SYN_MOM"] - last_row["SYN_MOM"]) > 0.02,
+          f"centre {cli_centre['SYN_MOM']:.4f} last row {last_row['SYN_MOM']:.4f}")
+
+    class _Fallback(BaselineForecaster):
+        """The offline fallback every shipped adapter uses when its weights are absent."""
+
+        @property
+        def model_name(self):
+            return "gaussian_rw_fallback"
+
+        def forecast(self, request):
+            return ForecastResult(samples=self._gaussian_rw_samples(request, seed=3),
+                                  asset_ids=request.asset_ids, horizons=request.horizons,
+                                  model_name=self.model_name)
+
+    req = ForecastRequest(panels={"panel_factors": panel_raw}, asof=asof, asset_ids=assets,
+                          horizons=[h], n_draws=n, target_type="log_return")
+    res = _Fallback().forecast(req)
+    for ai, a in enumerate(assets):
+        v = res.samples[:, ai, 0]
+        bc, bs = float(v.mean()), float(v.std(ddof=1))
+        check(f"baseline {a}: centre is h x mean(log1p(r))", abs(bc - want_centre[a]) < 0.004,
+              f"got {bc:.4f} want {want_centre[a]:.4f}")
+        check(f"baseline {a}: spread is sd(log1p(r)) x sqrt(h)", abs(bs / want_sd[a] - 1.0) < 0.10,
+              f"got {bs:.4f} want {want_sd[a]:.4f}")
+        check(f"baseline and CLI agree on {a}", abs(bc - cli_centre[a]) < 0.004,
+              f"baseline {bc:.4f} cli {cli_centre[a]:.4f}")
 
 
 def _redaction_control(unit):
@@ -401,6 +492,9 @@ def main():
     nodates = BaselineForecaster._diffs_without_gaps(vals, None)
     check("no dates available: falls back to raw diffs unchanged", nodates.size == 7,
           f"kept {nodates.size}")
+
+    print("13. log-return anchoring: CLI and baseline centre at 0 + drift x h, and agree")
+    _log_return_anchoring()
 
     print()
     if FAILURES:

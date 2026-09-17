@@ -1,0 +1,18 @@
+{
+  "unit_id": "reg-t2-logreturn",
+  "asof": "2026-05-29",
+  "representation": "samples",
+  "asset_ids": [
+    "SYN_MOM",
+    "SYN_HML"
+  ],
+  "horizons": [
+    21
+  ],
+  "n_draws": 500,
+  "target": "log_return",
+  "rationale": {
+    "file": "forecast_rationale.md",
+    "method": "joint gaussian random walk, no text"
+  }
+}

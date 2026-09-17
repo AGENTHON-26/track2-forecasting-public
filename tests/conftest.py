@@ -136,7 +136,7 @@ metric   = "crps_composite"
 
 [scoring.params]
 tail_levels = [0.01, 0.05, 0.95, 0.99]
-joint       = "variogram"
+joint       = "{joint}"
 
 [scoring.params.weights]
 marginal = 0.5
@@ -171,6 +171,7 @@ def write_card(
     horizons: Sequence[int] = HORIZONS,
     target_dates: Sequence[str] = TARGET_DATES,
     canary: str = "00000000-0000-4000-8000-000000000001",
+    joint: str = "variogram",
 ) -> pathlib.Path:
     unit_dir.mkdir(parents=True, exist_ok=True)
     path = unit_dir / "card.toml"
@@ -183,6 +184,7 @@ def write_card(
             assets=json.dumps(list(assets)),
             horizons=json.dumps([int(h) for h in horizons]),
             target_dates=json.dumps(list(target_dates)),
+            joint=joint,
         ),
         encoding="utf-8",
     )
@@ -254,10 +256,11 @@ def build_unit(
     realized_value: float = 1.0,
     ref_scale: dict[str, float] | None = None,
     with_reference: bool = True,
+    joint: str = "variogram",
 ) -> pathlib.Path:
     """A complete organizer-side unit: card, panels, text corpus, reference."""
     root.mkdir(parents=True, exist_ok=True)
-    write_card(root, unit_id=unit_id, assets=assets, horizons=horizons)
+    write_card(root, unit_id=unit_id, assets=assets, horizons=horizons, joint=joint)
     write_panels(root)
     write_text_corpus(root)
     if with_reference:

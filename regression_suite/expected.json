@@ -1,5 +1,5 @@
 {
- "numpy_at_regen": "2.0.2",
+ "numpy_at_regen": "2.5.3",
  "units": {
   "reg-t2-daily": {
    "admissible": true,
@@ -33,6 +33,25 @@
     "joint": 0.0,
     "tail": 0.04122276275639351,
     "composite": 0.6498607072684922
+   }
+  },
+  "reg-t2-logreturn": {
+   "admissible": true,
+   "gates": {
+    "g0_integrity": true,
+    "g1_schema": true,
+    "g2_cutoff_resource": true,
+    "g3_domain_semantics": true
+   },
+   "composite": 0.007077530006730838,
+   "detail": {
+    "score": 0.007077530006730838,
+    "cell_count": 2,
+    "n_draws": 500,
+    "marginal": 0.012440603514847524,
+    "joint": 0.0014903640061211334,
+    "tail": 0.0020505952373536802,
+    "composite": 0.007077530006730838
    }
   }
  }

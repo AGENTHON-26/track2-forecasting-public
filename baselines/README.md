@@ -143,10 +143,20 @@ disagree with them.
 
 **It runs without a model endpoint.** With `MODEL_ENDPOINT` unset, or unreachable, or returning
 something that will not parse, it emits the unadjusted statistical floor and records
-`adjustment applied: False` with the reason. That matters today: the proxy that serves
-`MODEL_ENDPOINT` on the platform is not built yet, so the no-endpoint path is the only one a
-participant can exercise right now. Measured on all 104 shipped units with no endpoint: every
-unit runs and every output is admissible under g0-g3.
+`reasoning_applied: false` and `reasoning_skipped_reason` in `forecast_meta.json`, as well as a
+human-readable explanation in `forecast_rationale.md`.
+
+**With organizer-provided House access**, the agent uses `MODEL_ENDPOINT`, `MODEL_NAME`,
+`MODEL_TOKEN`, and the authenticated `http_proxy`. It accepts an endpoint root or a `/v1` base
+and sends one request through that explicit proxy. It ignores proxy bypass settings, follows no
+redirects, and does not retry or fall back to a direct connection. Missing or invalid House
+configuration produces the labelled statistical fallback above. The organizer controls access;
+this example does not create credentials.
+
+For local model experiments, `MODEL_API_KEY` remains available when `MODEL_TOKEN` is absent.
+`MODEL_MAX_TOKENS` defaults to 3000 and is capped at 4000 for House calls. `MODEL_THINKING=off`
+is the default; reduce thinking if the completion runs out of room before returning JSON.
+These settings do not change the organizer's request allowance or other enforced limits.
 
 **A floor, not a ceiling.** Whether two scalars from one prompt beat the text-blind floor is
 unmeasured and needs a real endpoint. Read the file for the loop — dated retrieval, a bounded
