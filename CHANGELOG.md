@@ -9,13 +9,18 @@ not yet been published. Release timing follows the organizer announcement in pub
 
 ## Unreleased
 
-**Scoring output: unchanged.** These changes update the reference image, documentation and
-synthetic regression tests. They do not change the scorer or any shipped evaluation card.
+**Track scorer code and evaluation cards: unchanged.** These changes update toolkit install
+pins, the reference image, documentation and synthetic regression tests. They do not update
+the deployed scorer. The local toolkit correction inherited by the new pin is noted below.
 
-- **Reference Docker image:** align its toolkit pin with the track README and CI at `v2.4.0`;
-  the image previously installed `v2.3.1`, which refuses an empty `models` array even when the
-  evaluation verifier accepts it. This is the track's scorer dependency pin; the separately
-  published toolkit `v2.4.1` supplies the current submission-packaging command.
+- **Toolkit installation:** align the reference Docker image, README and CI at `v2.4.2`,
+  including the current submission-packaging command and corrected model-free simulation
+  fixture. The image previously installed `v2.3.1`, which refuses an empty `models` array even
+  when the evaluation verifier accepts it. The new pin becomes available with the next toolkit
+  release; existing toolkit tags remain unchanged. The pin also includes the local CRPS
+  correction already released in toolkit `v2.4.1`: a component with zero weight and exactly
+  zero reference scale contributes zero instead of poisoning the composite with `NaN`.
+  See the toolkit starter-pack changelog; this patch adds no scoring implementation.
 - **Diagnostic documentation:** remove remaining claims that the scorer reports information
   uplift, text-ablation results, PIT or interval coverage. The scorer reports the composite
   and its components; participants can run separate diagnostics on labeled data they may use.

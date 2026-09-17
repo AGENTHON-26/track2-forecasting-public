@@ -155,7 +155,7 @@ modes you will encounter:
    the organizer serves it for you. See "Submission categories" below.
 
    Every connection is logged (domain, bytes, timestamps). These logs are the audit artifact
-   for the verification phase. **Vendor-side tools — web search, code execution, retrieval —
+   for verification within the joint Final + Verification phase. **Vendor-side tools — web search, code execution, retrieval —
    must be disabled in all API calls.** This is enforced by rule and by audit.
 
 At scoring time your container receives this environment:
@@ -174,9 +174,13 @@ are not.
 
 ### Submission categories
 
+A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"` for this non-adapter path; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
+
+**Development availability.** The initial Development opening is planned for House/API submissions, including permitted Track 2 forecasters that make no House calls. BYO adapter serving is planned for a later opening, with a separate availability announcement. The published BYO adapter eligibility and descriptor categories remain valid. This page is not an opening announcement.
+
 | Category | What you bundle | Model access |
 |----------|-----------------|--------------|
-| `api` | Prompts, harness, agent code and permitted local numerical artifacts | The house endpoint only, via the proxy |
+| `api` | Prompts, harness, agent code and permitted local numerical artifacts | Optional House calls, via the proxy |
 | `byo-large` / `byo-small` | One LoRA adapter (`adapter_model.safetensors` + `adapter_config.json`) plus permitted local numerical artifacts; no full language-model weights or model server | The house endpoint only, via the proxy; on a BYO run `MODEL_NAME` names *your adapter* |
 
 The [Track 2 artifact policy](docs/ARTIFACT-POLICY.md) specifies which fitted non-neural
@@ -224,8 +228,8 @@ scoring detail.
 ### House API allocation
 
 See the [model-API rules](SUBMISSION_CLI.md#rules-for-model-api-use-restricted-mode) for the
-selected House allowance and pending input/failure/retry details. These House limits do not
-define a BYO request limit. Model calls use the organizer-supplied endpoint; participant vendor
+allowance of 1,000,000 input tokens per unit, the selected House request limits, and accounting
+for failed or retried requests. These House limits do not define a BYO request limit. Model calls use the organizer-supplied endpoint; participant vendor
 API keys are not supported. Platform availability and deployed enforcement will be announced
 separately.
 
@@ -307,8 +311,12 @@ both target types; regenerate reference outputs for return cards when updating f
 |--------|------|-------------|
 | `draw` | int32 | Sample index, 0-indexed |
 | `asset` | string | Asset ID exactly matching `card.toml [targets] asset_ids` |
-| `horizon` | int32 | Horizon in business days (e.g., 21) |
+| `horizon` | int32 | Authored horizon key, unchanged (e.g., 21); see monthly periods below |
 | `value` | float64 | Forecasted value in stated unit (e.g., % per annum for yields) |
+
+**Monthly targets:** use the task's explicit observation period to determine monthly steps,
+including the gap from the last available panel observation. Preserve the output horizon key.
+See [Monthly target periods](docs/MONTHLY-HORIZONS.md) for the mapping and synthetic example.
 
 Minimum `n_draws` is **200**. Recommend 500+. For F4 (tail-from-text) cards: recommend 1,000+
 for reliable tail quantile estimates.
@@ -399,11 +407,9 @@ those inputs, local checks can establish admissibility and changes in prediction
 
 ```bash
 # 1. The shared toolkit, pinned.
-# Pin the tag, and pin this one: v2.3.1 rejects a descriptor the evaluation verifier accepts
-# (it requires at least one `models` entry; the current contract allows `"models": []`).
-# `pip show qfbench2-common` reports 2.3.1 from this tag -- the metadata lags the tag. That is
-# cosmetic and expected; the code is the v2.4.0 code.
-pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.0#subdirectory=common"
+# Pin toolkit v2.4.2 for the current submission commands and model-free fixture.
+# The installed package reports version 2.4.2.
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.2#subdirectory=common"
 
 # 2. This track's package, from the repository root. Without it neither the reference CLI nor
 #    the smoke scorer can import `qfbench2_track_forecasting`, and both stop at an ImportError
@@ -546,18 +552,18 @@ Install the `qfbench2-common` package (schemas, scoring, leakage guard) from the
 repository that publishes it, `Agenthon-2026/Agenthon2026-public`:
 
 ```bash
-pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.0#subdirectory=common"
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.2#subdirectory=common"
 ```
 
 The toolkit is half of what you need. Running the scorer or the exemplar also requires this
 repository itself — `pip install .` from the repository root — which is what brings in pandas and
 the rest. See the Quick-start checklist, step 0.
 
-**Pin the tag, and pin this one.** `v2.4.0` is the tag whose descriptor contract matches what the
+**Pin the tag, and pin this one.** `v2.4.2` is the tag whose descriptor contract matches what the
 evaluation verifier accepts. `v2.3.1` carries `qfbench2_common.contracts` — earlier tags predate it
 entirely — but it **refuses a descriptor the verifier accepts**: it demands at least one `models`
 entry, while the current contract allows `"models": []`. Building against it means your own tools
-reject work that would have scored. `v2.4.0` is also the tag `.github/workflows/ci.yml` installs, so what
+reject work that would have scored. `v2.4.2` is also the tag `.github/workflows/ci.yml` installs, so what
 you verify locally is what CI verifies.
 
 Do not install from a branch. An unpinned toolkit is how a local result and a scored result come
@@ -643,47 +649,47 @@ future and cannot be checked until they do. The re-run before the Final bundle i
 covers them, and it is the run that matters. So a lookup table built from the
 practice data is worth exactly zero on it, and the Final phase gives you one submission to discover
 that.
-The Verification phase reruns the top of the Final board on fresh seeds and resamples with
-reproducibility and disclosure checks.
+Within the joint Final + Verification phase, organizers rerun the top of the Final board on
+fresh seeds and resamples with reproducibility and disclosure checks. This does not require
+a separate participant Verification submission.
 
 ---
 
 ## Resource limits
 
-Caps are per unit and come from each card's `[environment]` block, which the harness
-enforces. Cards are organizer-authored, so there is no tier to request — but since the
-2026-08 caps change **every Track 2 card grants the same sandbox**, and there is no
-separate "typical" case:
+Development applies each card's CPU, memory, GPU and network settings. The cards supply no
+per-unit timeout, so the launcher uses its 1,800-second fallback.
 
-| Resource | Every Track 2 card grants |
-|----------|---------------------------|
-| CPUs | 16 |
-| Memory | 128 GB (`memory = "128G"`) |
-| GPU | `gpu = true` (see below) |
-| Wall time | 1800 s per unit — but see the phase budget below |
-| Network | `restricted` — the audited model-API proxy only, never data fetching |
+| Resource | Development setting per unit |
+|----------|-------------------------------|
+| CPU quota | 16 CPUs; not exclusive cores |
+| Memory | 128 GiB (`memory = "128G"`); swap disabled |
+| GPU | `gpu = true`, available for permitted local code |
+| Container clock | 1,800 seconds, including creation and an image pull when needed |
+| Network | `restricted` — the organizer's model route only, never data fetching |
 
-Exceeding wall time or memory causes DNF.
+The platform gives the ingestion stage **43,200 seconds (12 hours)** to run the units
+sequentially; scoring has its own stage clock. The per-unit clock, platform clock or House
+window can end a run first. The planned House timing release activates each unit once when the organizer begins that unit's execution setup. Queue waiting and earlier units do not spend its own
+window; setup/provisioning and container creation/execution after activation can. Its fixed end
+is capped by the card/fallback unit ceiling and the remaining actual ingestion-stage time.
+Restarting or retrying under the same allocation resets neither that window nor request counters.
+Deployment and verification remain required before opening. No compute allowance grows, and
+these Development settings do not certify Final resources or promise every unit its full ceiling.
 
-**1800 s is a per-unit ceiling, not a budget you can spend.** Units run strictly one after
-another inside a single submission, and the *phase* has its own clock that binds first: the
-Development phase allows **43 200 s (12 h) for the whole submission**, Final and Verification
-86 400 s (24 h). Over ~100 units that averages a little over **400 s per unit** on Development
-— design against the phase budget divided by the unit count, not against 1800 s per card, or
-you will be cut off partway through the set with the remaining units unscored.
+The `api` category denotes House model access; it does not remove the card's GPU grant for
+permitted local code. A GPU grant does not authorize an additional model server or change the
+adapter-only BYO rules. Service availability is announced separately.
 
-**The clock starts at `docker create`, so it covers pulling your image**, not just process
-start-up. On this fleet a cold pull has measured 90–187 s against roughly 15 s warm, and it is
-billed to the same per-unit budget as your solve. Keep your image small: under the adapter-only
-BYO rule it carries an adapter rather than full language-model weights. Permitted numerical
-artifacts still share the task's disk and memory limits.
-
-**On the GPU.** Every card declares `gpu = true`, but your own code has no use for it in either
-category: an `api` submission does not touch it, and on a BYO run the worker's GPU is what serves
-the base model your adapter is loaded onto — your code still calls `MODEL_ENDPOINT` over the
-proxy. Whether a physical device is attached is a property of the worker your submission lands on,
-not of the card, so **make sure your image still starts when no device is present**. No scored
-component of Track 2 measures hardware ([docs/NVIDIA-STACK.md](docs/NVIDIA-STACK.md)).
+Include dependencies and permitted artifacts in the image before submission. Cold image pulls
+consume the unit clock; previously reported pull timings are historical observations, not a
+current startup guarantee. See the
+[Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.2/docs/DEVELOPMENT-RUNTIME.md)
+for process, temporary-space and output limits, and the
+[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.2/docs/IMAGE-SUBMISSIONS.md)
+for anonymous public pulls and organizer-confirmed private mirrors. The writable image layer,
+temporary filesystem and output mount are separate; do not infer an image-size quota or a
+writable workspace allowance from a card's memory or disk field.
 
 ---
 
@@ -693,7 +699,7 @@ component of Track 2 measures hardware ([docs/NVIDIA-STACK.md](docs/NVIDIA-STACK
    dependencies (pandas among them) come from `pip install .`, and without it step 3 fails with
    `ModuleNotFoundError: No module named 'pandas'`:
    ```bash
-   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.0#subdirectory=common"
+   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.2#subdirectory=common"
    pip install .
    ```
 1. Read `docs/CONCEPTS.md` — understand CRPS, variogram, tail penalty, text ablation, and leakage.
@@ -708,3 +714,15 @@ component of Track 2 measures hardware ([docs/NVIDIA-STACK.md](docs/NVIDIA-STACK
 6. Score your model against the validation cards in `units/`.
 7. Optionally run the text-ablated variant and compare scores.
 8. Submit your image digest to the leaderboard portal.
+
+## Competition schedule and submission limits
+
+Development runs through **October 12, 2026**. The joint **Final + Verification phase runs
+October 13–25, 2026**. Each team makes **one final submission per track**; organizers perform
+verification within that same phase, with no separate participant Verification submission.
+Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates and task/data cutoffs are unchanged.
+
+At the participant Development opening, Track 2 allows **5 uploads per team per day**
+and **20 total uploads per team for this track during Development**. Use your team's single
+designated CodaBench account. Local validation and packaging use no attempts; held or cancelled
+uploads still count. See [submission limits](SUBMISSION_CLI.md#development-submission-limits).

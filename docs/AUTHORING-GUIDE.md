@@ -223,7 +223,7 @@ target dates, or the corpus contents.
 asset_ids        = ["UST_2Y", "UST_10Y"]        # exact IDs; must match panel asset_ids
 horizons         = [21, 63]                      # in BUSINESS DAYS, not calendar days
 target_type      = "level"                       # "level", "log_return", or "spread"
-target_frequency = "monthly"                     # "daily" or "monthly"
+target_frequency = "daily"                       # cadence of target observations: "daily" or "monthly"
 target_dates     = ["2024-01-03", "2024-04-03"]  # the actual calendar dates being measured
 value_unit       = "percent_per_annum"           # document units for the realized-outcome author
 leakage_checked  = true                          # set after running cutoff_ok
