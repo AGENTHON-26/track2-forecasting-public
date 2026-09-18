@@ -151,8 +151,8 @@ modes you will encounter:
 
    Vendor model APIs (`api.anthropic.com`, `api.openai.com`,
    `generativelanguage.googleapis.com`, any other) are **refused by the proxy** (policy
-   2026-08-04). If you need a different model, adapt the house model: ship a LoRA adapter and
-   the organizer serves it for you. See "Submission categories" below.
+   2026-08-04). There is no other language model: bring-your-own models and adapters are not
+   part of this competition (ruling of 2026-09-18). See "Submission categories" below.
 
    Every connection is logged (domain, bytes, timestamps). These logs are the audit artifact
    for verification within the joint Final + Verification phase. **Vendor-side tools — web search, code execution, retrieval —
@@ -176,28 +176,22 @@ are not.
 
 A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"` for this non-adapter path; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
 
-**Development availability.** The initial Development opening is planned for House/API submissions, including permitted Track 2 forecasters that make no House calls. BYO adapter serving is planned for a later opening, with a separate availability announcement. The published BYO adapter eligibility and descriptor categories remain valid. This page is not an opening announcement.
-
 | Category | What you bundle | Model access |
 |----------|-----------------|--------------|
 | `api` | Prompts, harness, agent code and permitted local numerical artifacts | Optional House calls, via the proxy |
-| `byo-large` / `byo-small` | One LoRA adapter (`adapter_model.safetensors` + `adapter_config.json`) plus permitted local numerical artifacts; no full language-model weights or model server | The house endpoint only, via the proxy; on a BYO run `MODEL_NAME` names *your adapter* |
+
+`api` is the only category on this track. **Bring-your-own models and adapters are not part of
+this competition** (ruling of 2026-09-18): the former `byo-large` / `byo-small` values are
+invalid since toolkit 2.4.3, `qfbench2 submission pack` refuses them, and an upload that still
+carries one is held by the organizer's intake and never run.
 
 The [Track 2 artifact policy](docs/ARTIFACT-POLICY.md) specifies which fitted non-neural
-models, calibration parameters and static retrieval assets are allowed in both categories,
-with cutoff and provenance requirements. Additional pretrained neural checkpoints need separate
-approval. These permissions do not change the task resource limits.
-
-**Bring-your-own language-model serving is adapter-only.** You ship one LoRA adapter,
-rank ≤ 64 (enforced by the server at load), and the organizer starts a server on the house base model with your adapter loaded, then
-tears it down when your run ends. Full fine-tuning is not permitted, and **there is no
-small-weights tier** — `byo-large` and `byo-small` are legacy enum names the descriptor schema
-still accepts, and both select this same contract. The full rules, including the local
-`vllm serve` recipe for testing your adapter, are under "Bring your own model: adapter-only,
-rank <= 64" in [`SUBMISSION_CLI.md`](SUBMISSION_CLI.md).
+models, calibration parameters and static retrieval assets are allowed, with cutoff and
+provenance requirements. Additional pretrained neural checkpoints need separate approval. These
+permissions do not change the task resource limits.
 
 Every entry is tagged with its category, the models it used (pinned versions), and their
-training cutoffs. All categories compete together — there is no separate board per category.
+training cutoffs.
 
 **There is one ranking: the equal-weight mean of your normalized scores across every card,
 lower is better.** Each card counts the same regardless of its shape. That is fair because of
@@ -222,14 +216,13 @@ scoring detail.
 - Model versions MUST be pinned (dated snapshots).
 - The training cutoff of every model MUST be disclosed in your submission metadata.
 - Temperature and seed MUST be pinned where the API supports it.
-- `api` entries are verified statistically (bootstrap-CI overlap on rerun); BYO entries
-  bit-reproducibly.
+- Entries are verified statistically (bootstrap-CI overlap on rerun).
 
 ### House API allocation
 
 See the [model-API rules](SUBMISSION_CLI.md#rules-for-model-api-use-restricted-mode) for the
 allowance of 1,000,000 input tokens per unit, the selected House request limits, and accounting
-for failed or retried requests. These House limits do not define a BYO request limit. Model calls use the organizer-supplied endpoint; participant vendor
+for failed or retried requests. Model calls use the organizer-supplied endpoint; participant vendor
 API keys are not supported. Platform availability and deployed enforcement will be announced
 separately.
 
@@ -409,7 +402,7 @@ those inputs, local checks can establish admissibility and changes in prediction
 # 1. The shared toolkit, pinned.
 # Pin toolkit v2.4.2 for the current submission commands and model-free fixture.
 # The installed package reports version 2.4.2.
-pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.2#subdirectory=common"
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.3#subdirectory=common"
 
 # 2. This track's package, from the repository root. Without it neither the reference CLI nor
 #    the smoke scorer can import `qfbench2_track_forecasting`, and both stop at an ImportError
@@ -552,7 +545,7 @@ Install the `qfbench2-common` package (schemas, scoring, leakage guard) from the
 repository that publishes it, `Agenthon-2026/Agenthon2026-public`:
 
 ```bash
-pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.2#subdirectory=common"
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.3#subdirectory=common"
 ```
 
 The toolkit is half of what you need. Running the scorer or the exemplar also requires this
@@ -678,15 +671,15 @@ Deployment and verification remain required before opening. No compute allowance
 these Development settings do not certify Final resources or promise every unit its full ceiling.
 
 The `api` category denotes House model access; it does not remove the card's GPU grant for
-permitted local code. A GPU grant does not authorize an additional model server or change the
-adapter-only BYO rules. Service availability is announced separately.
+permitted local code. A GPU grant does not authorize an additional model server. Service
+availability is announced separately.
 
 Include dependencies and permitted artifacts in the image before submission. Cold image pulls
 consume the unit clock; previously reported pull timings are historical observations, not a
 current startup guarantee. See the
-[Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.2/docs/DEVELOPMENT-RUNTIME.md)
+[Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.3/docs/DEVELOPMENT-RUNTIME.md)
 for process, temporary-space and output limits, and the
-[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.2/docs/IMAGE-SUBMISSIONS.md)
+[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.3/docs/IMAGE-SUBMISSIONS.md)
 for anonymous public pulls and organizer-confirmed private mirrors. The writable image layer,
 temporary filesystem and output mount are separate; do not infer an image-size quota or a
 writable workspace allowance from a card's memory or disk field.
@@ -699,7 +692,7 @@ writable workspace allowance from a card's memory or disk field.
    dependencies (pandas among them) come from `pip install .`, and without it step 3 fails with
    `ModuleNotFoundError: No module named 'pandas'`:
    ```bash
-   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.2#subdirectory=common"
+   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.3#subdirectory=common"
    pip install .
    ```
 1. Read `docs/CONCEPTS.md` — understand CRPS, variogram, tail penalty, text ablation, and leakage.

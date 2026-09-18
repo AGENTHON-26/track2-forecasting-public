@@ -37,11 +37,11 @@ window; setup/provisioning and container creation/execution after activation can
 retrying under the same allocation resets neither the window nor request counters. Credentials
 last at most 7,200 seconds from issue and never beyond that fixed end. Deployment and verification
 remain required before opening; this changes no compute allowance.
-See the [Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.2/docs/DEVELOPMENT-RUNTIME.md)
+See the [Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.3/docs/DEVELOPMENT-RUNTIME.md)
 for applied limits and pending access status. Development settings do not certify Final resources.
 
 Build a `linux/amd64` image identified by its immutable digest. Follow the
-[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.2/docs/IMAGE-SUBMISSIONS.md)
+[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.3/docs/IMAGE-SUBMISSIONS.md)
 for anonymous public pulls and the organizer confirmation required before using a private mirror.
 A descriptor category or image-access field does not itself make a service available.
 
@@ -57,7 +57,7 @@ Development runs through **October 12, 2026**. The joint **Final + Verification 
 October 13–25, 2026**. Each team makes **one final submission per track**; organizers perform
 verification within that same phase, with no separate participant Verification submission.
 Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates and task/data cutoffs are unchanged.
-See the [Development submission limits](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.2/docs/DEVELOPMENT-RUNTIME.md#submission-limits-at-the-development-opening).
+See the [Development submission limits](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.3/docs/DEVELOPMENT-RUNTIME.md#submission-limits-at-the-development-opening).
 
 ## Network modes (per unit card, `[environment].network`)
 
@@ -78,13 +78,11 @@ internet** in official scoring.
 > API **will be refused by the proxy**, and there is no route around it: the eval network is
 > `--internal`, so the proxy is the only path off the host.
 >
-> The two model-access categories are described below. Their deployment availability is
-> announced separately; descriptor acceptance alone does not establish an available service:
->
-> 1. **House endpoint** — call `MODEL_ENDPOINT` with `MODEL_NAME`. Free, metered per run.
-> 2. **Bring your own adapter** — ship a LoRA adapter; the organizer serves it on the house base
->    model and you still call `MODEL_ENDPOINT`. Nothing is fetched at run time. Full
->    language-model weights are not supported — see "Bring your own model" below.
+> There is one model access: the **House endpoint** — call `$MODEL_ENDPOINT/v1/chat/completions`
+> with `MODEL_NAME` and the `MODEL_TOKEN` bearer (see the environment contract below). Free,
+> metered per run, and optional on this track. **Bring-your-own models and adapters are not part
+> of this competition** (ruling of 2026-09-18): no LoRA adapter path, no in-image language-model
+> weights path, nothing fetched at run time.
 >
 > **No participant API keys exist.** The harness injects none and there is no mechanism for a
 > submission to supply one, so a vendor key would have nothing to reach even if you had one.
@@ -96,7 +94,7 @@ in both modes — network access is for **model calls only**, never for fetching
 
 A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"` for this non-adapter path; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
 
-**Development availability.** The initial Development opening is planned for House/API submissions, including permitted Track 2 forecasters that make no House calls. BYO adapter serving is planned for a later opening, with a separate availability announcement. The published BYO adapter eligibility and descriptor categories remain valid. This page is not an opening announcement.
+**Bring-your-own models and adapters are not part of this competition.** Every submission runs against the House model (or calls none); the former `byo-small` / `byo-large` categories are invalid since toolkit 2.4.3, `qfbench2 submission pack` refuses them, and an upload that still carries one is held by the organizer's intake and never run.
 
 Track 3 (simulation) sits outside these categories: submissions are simulators and the network
 stays `none`. For the agent tracks, every submission declares one category in `submission.json`:
@@ -104,71 +102,21 @@ stays `none`. For the agent tracks, every submission declares one category in `s
 | Category | What you bundle | Model access | Compute tier |
 |---|---|---|---|
 | `api` | prompts / harness / agents and permitted local numerical artifacts | optional House calls, via the proxy | the task card's CPU and GPU grant |
-| `byo-large` / `byo-small` | one LoRA adapter: `adapter_model.safetensors` + `adapter_config.json`. **Not full language-model weights or a model server.** Permitted local numerical artifacts may accompany it. | the **house endpoint only**, via the proxy — on a BYO run `MODEL_NAME` names *your adapter* | the task card's resource limits; organizer-managed model serving |
 
-**`byo-large` and `byo-small` mean the same thing.** They are legacy enum names from before the
-adapter rule. The `submission.json` schema still accepts both and will not reject either, so the
-descriptor stays valid whichever you write — but **there is no small-weights tier**, and both
-select the same contract: one adapter, rank ≤ 64, served on the organizer's base.
+`api` is the only category on this track. The [Track 2 artifact policy](docs/ARTIFACT-POLICY.md)
+defines the permitted numerical models, static retrieval assets, cutoff rules and disclosure
+requirements.
 
-The [Track 2 artifact policy](docs/ARTIFACT-POLICY.md) defines the permitted numerical models,
-static retrieval assets, cutoff rules and disclosure requirements in either category.
+### Bring your own model
 
-### Bring your own model: adapter-only, rank ≤ 64
-
-**The language-model shape.** Ship **one LoRA adapter**, without full language-model weights
-or a model server. The permitted local numerical artifacts are separate from this serving
-path. The organizer runs the base for you: when your submission is evaluated, a dedicated
-server is started *for that submission*, on the same base model that sits behind `MODEL_ENDPOINT`,
-with your adapter loaded at launch, and it is destroyed when your submission finishes.
-
-1. **Ship the adapter as `adapter_model.safetensors` + `adapter_config.json`** in your image.
-   **Exactly one adapter per submission.** Keep the two files together in one directory you can
-   relocate with a single line; the directory the pair must sit in arrives with the submission
-   instructions. Your image never runs a model server, and gets much smaller for it.
-2. **Extraction is static.** The adapter is copied out of your image without executing any of your
-   code, and the server starts with it already loaded. Before any unit runs, the server must list
-   your adapter as a served model — an adapter that fails to load fails the submission right
-   there, cheaply and with a named reason. An over-cap adapter is refused at load:
-   `LoRA rank 128 is greater than max_lora_rank 64`.
-3. **At run time your code sees the same contract as an `api` submission:** call `MODEL_ENDPOINT`
-   (OpenAI-compatible) with `MODEL_NAME`, which on a BYO run names *your adapter*, so every call
-   routes through it. There is nothing for you to start, configure, or connect to; no server
-   lifecycle is yours.
-4. **Teardown is automatic.** The server and the extracted adapter are destroyed with your
-   submission's run. Nothing persists between submissions.
-
-**Build rules:**
-
-- **Rank ≤ 64.** Enforced by the server at load, not penalised later.
-- **Declare `target_modules` accurately** in `adapter_config.json`; it is read.
-- **Full fine-tuning is not permitted.** A full fine-tune cannot be verified as derived from the
-  base model by any available means, so the choice is between a rule that is enforceable and one
-  that is decorative.
-- **There is no small-weights tier.** `byo-small` / `byo-large` are legacy descriptor enum names;
-  BYO means bring your own **adapter**.
-- **Participant compute follows the task card.** A `gpu = true` grant permits eligible local
-  code to use the device. It does not authorize a participant model server; model serving follows
-  the organizer-managed BYO contract and its separately announced availability.
-
-**Testing your adapter locally** — this is the one place you run a server yourself:
-
-```
-vllm serve <base> --enable-lora --max-lora-rank 64 --lora-modules mine=<adapter-dir>
-```
-
-vLLM 0.28.0 accepts exactly `(1, 8, 16, 32, 64, 128, 256, 320, 512)` for `--max-lora-rank`, and
-the **default is 16** — without the flag you will hit a much tighter cap and may conclude your
-adapter is broken when it is not.
-
-**Why rank is the number that matters:** it sets how much an adapter can change the base. On a
-4096-wide layer, rank 64 carries about 3 % as many parameters as the matrix it adapts, against
-100 % for a full fine-tune — low enough that the model underneath is unambiguously the house base
-model, high enough for real domain adaptation.
+Withdrawn. This section described a LoRA-adapter option; by the ruling of 2026-09-18 bring-your-own
+models and adapters are not part of this competition, and the descriptor no longer accepts the
+`byo-*` categories. Every submission runs against the House model or calls none; the permitted
+local numerical artifacts are unchanged (see the artifact policy).
 
 `gpu = true` on a task card grants a device for permitted local code. The `api` category denotes
 House access and does not remove that GPU grant. This does not authorize an additional model
-server or change the adapter eligibility rules above.
+server.
 
 ### Container environment contract (`restricted` mode, set by the harness)
 
@@ -186,16 +134,14 @@ server or change the adapter eligibility rules above.
 1. **Vendor-side tools OFF.** Web search, code execution, retrieval, and any other vendor-side
    tool MUST be disabled in every API call. Enforced by rule + audit of the proxy logs.
 2. **Pin model versions.** The house endpoint serves a pinned model id (`MODEL_NAME`). Floating
-   aliases (`*-latest`) are not reproducible and are rejected at verification. A BYO submission
-   inherits the pinned base and adds its own adapter, which must be a fixed artifact in the image.
+   aliases (`*-latest`) are not reproducible and are rejected at verification.
 3. **Disclose training cutoffs.** The training cutoff of every model used MUST be declared in
-   submission metadata (`models[].training_cutoff` in `submission.json`). For a BYO submission
-   that includes the base model's cutoff; record your adapter's training data separately.
+   submission metadata (`models[].training_cutoff` in `submission.json`).
    See the [artifact policy](docs/ARTIFACT-POLICY.md) for local learned models, provenance and
    the narrow approved-base exception. Disclosure alone does not establish eligibility.
-4. **Pin temperature/seed** where the API supports it. `api`-category entries are verified
-   *statistically* (bootstrap-CI overlap on organizer rerun for T2/T3/T4; for T1, the single-pass
-   per-unit verdicts must agree exactly); BYO entries bit-reproducibly.
+4. **Pin temperature/seed** where the API supports it. Entries are verified *statistically*
+   (bootstrap-CI overlap on organizer rerun for T2/T3/T4; for T1, the single-pass per-unit
+   verdicts must agree exactly).
 5. **House API allocation.** The input allowance is **1,000,000 input tokens per unit**.
    The selected House allowance is **25 admitted requests per unit**, with **at most 4,000
    output tokens per call**. Omitted output limits use 4,000; larger limits are reduced to
@@ -203,8 +149,7 @@ server or change the adapter eligibility rules above.
    An admitted request is charged before forwarding: upstream failures or a lost response do
    not refund it. An admitted participant or SDK retry can consume another slot, even with the
    same content. Invalid requests refused before admission do not consume a slot. Keep track
-   of input use and budget automatic retries. These House request limits do not define a BYO
-   request limit or change artifact eligibility. Platform availability and deployment status
+   of input use and budget automatic retries. Platform availability and deployment status
    will be announced separately.
 
 **One leaderboard.** All categories rank on a single board; every entry is tagged with its
