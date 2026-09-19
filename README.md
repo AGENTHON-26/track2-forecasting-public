@@ -573,12 +573,24 @@ The following are NOT available to participants during the competition:
 
 - **Realized outcomes for the held-out evaluation window (H2 2025 – Q2 2026).** Scores are
   computed server-side. Results are released after the competition closes.
+- **The official baseline's per-card normalization scales** (`reference/ref_scale.json`, the
+  denominators that make 1.0 mean "no better than the text-blind baseline"). Each one is that
+  baseline's error measured against the sealed outcome, so a published scale plus a reproducible
+  baseline inverts to the answer — which makes these files answer-equivalent, not configuration.
+  No card released to participants carries one, and the scorer refuses to read a scale from
+  anywhere but a card's `reference/` directory. The **method** that produces them is published in
+  full: see [docs/M0-BASELINE.md](docs/M0-BASELINE.md).
 - **The exact card IDs, as-of dates, and asset combinations for the sealed evaluation set.**
   You know the four families and the four panels, but not which specific cards appear.
 - **The EM FX panel** used for F2 (Text-cued regime shift with transfer) cards. G10 FX is in
   training; EM FX is the transfer target and is absent from all input panels.
 - **Regime event labels for F4 cards.** The harness knows which cards are tail/shock cards,
   but specific event dates are not pre-announced.
+
+Sealed means the *values*, not the *procedure*. Everything about how the baseline is built — the
+window, the differencing, the gap and alignment rules, the horizon conversion, the covariance
+structure, the draw count and the per-card seed — is specified in
+[docs/M0-BASELINE.md](docs/M0-BASELINE.md), so the denominator of your score is not a black box.
 
 ---
 
