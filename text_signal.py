@@ -688,8 +688,16 @@ def call_model(prompt: str) -> tuple[dict[str, Any] | None, str, str]:
             "chat_template_kwargs": {"enable_thinking": thinking},
         }
     ).encode("utf-8")
+    # MODEL_ENDPOINT is injected as an ORIGIN with no path (e.g. http://model:8443) and the
+    # OpenAI-compatible API is served under /v1: POST $MODEL_ENDPOINT/v1/chat/completions. Only
+    # that one path and method is admitted -- /chat/completions without the /v1 is refused 403,
+    # on every call (Agenthon2026-public docs/HOUSE-MODEL.md, "Calling the House route"). Local
+    # dev sets an endpoint that already ends in /v1, so accept both spellings.
+    base = endpoint.rstrip("/")
+    if not base.endswith("/v1"):
+        base += "/v1"
     req = urllib.request.Request(
-        endpoint.rstrip("/") + "/chat/completions",
+        base + "/chat/completions",
         data=body,
         headers={"Content-Type": "application/json", "Accept": "application/json"},
         method="POST",
