@@ -24,7 +24,7 @@ Checks, in order:
   5  g0-missing     forecast_meta.json deleted           -> inadmissible at g0
   6  cutoff         corpus doc dated after the as-of     -> the STAGING scan refuses it
   7  g3-thin        draws truncated below n_draws        -> inadmissible at g3
-  8  cli-smoke      fresh CLI run on both units          -> gates pass (values not pinned)
+  8  cli-smoke      fresh CLI run on every pinned unit   -> gates pass (values not pinned)
   9  negative       the four measured exploits are refused: repeated asset, duplicate primary
                     key, extra grid cell, compression bomb
  10  redaction      no gate detail carries anything but an enum code and integer counts
@@ -33,11 +33,14 @@ Checks, in order:
  12  gap-guard      _diffs_without_gaps drops exactly the hole-spanning difference;
                     post-as-of rows are excluded; _extract_dates aligns with the series
  13  log-return     on reg-t2-logreturn (panel rows are decimal simple returns, target is the
-                    cumulative log return) the CLI and the shipped baseline both centre at
-                    h x mean(log1p(r)) -- not at the last panel row -- with spread
-                    sd(log1p(r)) x sqrt(h), and agree with each other. Pins the fix for
-                    public #2 (staging PR #14): before it, the CLI anchored every card at the
-                    last observed row and differenced an already-differenced series.
+                    cumulative log return at 21 and 127 BD) the CLI and the shipped baseline
+                    both centre at h x mean(log1p(r)) -- anchored at exactly 0, not at the
+                    last panel row -- with spread sd(log1p(r)) x sqrt(h), and agree with each
+                    other; the CLI's history window is pinned to the 260 pre-as-of rows.
+                    Pins the fix for public #2 (staging PR #14): before it, the CLI anchored
+                    every card at the last observed row and differenced an already-differenced
+                    series. The 127-BD horizon separates log1p from raw simple returns
+                    (h x var/2 ~ 0.008 there vs ~0.0013 at 21 BD).
 
 ### Why checks 3, 4 and 6 changed shape at the 2026-08-22 freeze
 
@@ -187,9 +190,12 @@ def _log_return_anchoring():
     the assertion cannot be satisfied by a producer that merely returns something admissible.
 
     The fixture's last SYN_MOM row is +0.05 on purpose. The two historical defects:
-      - anchoring at the last panel row  -> centre lands near 0.05 instead of ~0.008
+      - anchoring at the last panel row  -> centre lands near 0.05 instead of ~0.016 (21 BD)
       - differencing the rows            -> spread inflated by ~sqrt(2)
-    Both are refused here, for the CLI and for the baseline fallback every adapter shares.
+    Both are refused here, for the CLI and for the baseline fallback every adapter shares. A
+    third, skipping log1p and averaging raw simple returns, is invisible at 21 BD (h x var/2 is
+    ~0.0013, inside the tolerance) and caught at 127 BD (~0.008). The zero anchor and the
+    history window are pinned exactly through cli._draw's stats, not statistically.
     """
     import numpy as _np
     import pandas as _pd
@@ -201,24 +207,42 @@ def _log_return_anchoring():
     card = tomllib.loads((unit / "card.toml").read_text())
     asof = card["provenance"]["data_cutoff"]
     assets = list(card["targets"]["asset_ids"])
-    h = int(card["targets"]["horizons"][0])
-    check("fixture declares the log_return target",
+    horizons = [int(h) for h in card["targets"]["horizons"]]
+    check("fixture declares the log_return target at two horizons",
           card["targets"]["target_type"] == "log_return"
-          and card["targets"]["value_unit"] == "cumulative_log_return")
+          and card["targets"]["value_unit"] == "cumulative_log_return"
+          and horizons == [21, 127], str(horizons))
 
     panel_raw = _pd.read_parquet(unit / "panel_factors.parquet")
     panel = panel_raw[_pd.to_datetime(panel_raw["date"]) <= _pd.Timestamp(asof)]
     steps = {a: _np.log1p(panel[panel["asset"] == a].sort_values("date")["value"].to_numpy())
              for a in assets}
-    want_centre = {a: h * float(s.mean()) for a, s in steps.items()}
-    want_sd = {a: float(s.std(ddof=1)) * _np.sqrt(h) for a, s in steps.items()}
+    want_centre = {(a, h): h * float(s.mean()) for a, s in steps.items() for h in horizons}
+    want_sd = {(a, h): float(s.std(ddof=1)) * _np.sqrt(h) for a, s in steps.items()
+               for h in horizons}
     last_row = {a: float(panel[panel["asset"] == a].sort_values("date")["value"].iloc[-1])
                 for a in assets}
-    check("the last SYN_MOM row is far from the drift centre (the trap is armed)",
-          abs(last_row["SYN_MOM"] - want_centre["SYN_MOM"]) > 0.03,
-          f"last {last_row['SYN_MOM']:.4f} centre {want_centre['SYN_MOM']:.4f}")
+    check("the last SYN_MOM row is far from the 21-BD drift centre (the trap is armed)",
+          abs(last_row["SYN_MOM"] - want_centre["SYN_MOM", 21]) > 0.03,
+          f"last {last_row['SYN_MOM']:.4f} centre {want_centre['SYN_MOM', 21]:.4f}")
 
-    n = 20000  # SE of the mean ~ 0.05/sqrt(20000) = 0.0004; tolerance below is 10x that
+    # Exact pins first: the anchor is 0.0 and the history window is the 260 pre-as-of rows.
+    # These are properties of the producer, not of a sample, so they are asserted exactly.
+    try:
+        _, stats = cli._draw({"panel_factors": panel_raw}, assets, horizons, asof, 500, 3,
+                             target_type="log_return")
+    except TypeError as exc:  # a producer that cannot be told the target type cannot anchor it
+        stats = {"last": None, "n_history_rows": None}
+        check("CLI accepts target_type", False, str(exc))
+    check("CLI anchors every asset at exactly 0.0",
+          stats["last"] == {a: 0.0 for a in assets}, str(stats["last"]))
+    check("CLI history window is the 260 pre-as-of rows",
+          stats["n_history_rows"] == 260, str(stats["n_history_rows"]))
+
+    # Statistical pins at the contract ceiling of 20,000 draws. SE of a centre at h=127 is
+    # ~0.124/sqrt(20000) = 0.0009, so the 0.004 tolerance is ~4.5 SE for the correct producer
+    # and about half the raw-simple-return error there (~0.008): both sides have >4 SE of room.
+    n = 20000
     out = pathlib.Path(tempfile.mkdtemp())
     cli.main(["--panels", str(unit), "--text", str(unit / "text"), "--asof", asof,
               "--out", str(out / "forecast.parquet"), "--n-draws", str(n), "--seed", "3"])
@@ -228,17 +252,23 @@ def _log_return_anchoring():
           str(meta.get("target")))
     cli_centre, cli_sd = {}, {}
     for a in assets:
-        v = draws[(draws["asset"] == a) & (draws["horizon"] == h)]["value"].to_numpy()
-        cli_centre[a], cli_sd[a] = float(v.mean()), float(v.std(ddof=1))
-        check(f"CLI {a}: centre is h x mean(log1p(r))",
-              abs(cli_centre[a] - want_centre[a]) < 0.004,
-              f"got {cli_centre[a]:.4f} want {want_centre[a]:.4f}")
-        check(f"CLI {a}: spread is sd(log1p(r)) x sqrt(h)",
-              abs(cli_sd[a] / want_sd[a] - 1.0) < 0.10,
-              f"got {cli_sd[a]:.4f} want {want_sd[a]:.4f}")
-    check("CLI SYN_MOM: NOT anchored at the last panel row",
-          abs(cli_centre["SYN_MOM"] - last_row["SYN_MOM"]) > 0.02,
-          f"centre {cli_centre['SYN_MOM']:.4f} last row {last_row['SYN_MOM']:.4f}")
+        for h in horizons:
+            v = draws[(draws["asset"] == a) & (draws["horizon"] == h)]["value"].to_numpy()
+            cli_centre[a, h], cli_sd[a, h] = float(v.mean()), float(v.std(ddof=1))
+            check(f"CLI {a} h={h}: centre is h x mean(log1p(r))",
+                  abs(cli_centre[a, h] - want_centre[a, h]) < 0.004,
+                  f"got {cli_centre[a, h]:.4f} want {want_centre[a, h]:.4f}")
+            check(f"CLI {a} h={h}: spread is sd(log1p(r)) x sqrt(h)",
+                  abs(cli_sd[a, h] / want_sd[a, h] - 1.0) < 0.10,
+                  f"got {cli_sd[a, h]:.4f} want {want_sd[a, h]:.4f}")
+    # Scale-free: the centre must sit at least halfway from the last row to the true centre,
+    # whatever the horizon (a fixed 0.02 gap held at 21 BD only by coincidence of drift x h).
+    for h in horizons:
+        gap_true = abs(want_centre["SYN_MOM", h] - last_row["SYN_MOM"])
+        gap_cli = abs(cli_centre["SYN_MOM", h] - last_row["SYN_MOM"])
+        check(f"CLI SYN_MOM h={h}: NOT anchored at the last panel row",
+              gap_cli > 0.5 * gap_true,
+              f"centre {cli_centre['SYN_MOM', h]:.4f} last row {last_row['SYN_MOM']:.4f}")
 
     class _Fallback(BaselineForecaster):
         """The offline fallback every shipped adapter uses when its weights are absent."""
@@ -253,17 +283,18 @@ def _log_return_anchoring():
                                   model_name=self.model_name)
 
     req = ForecastRequest(panels={"panel_factors": panel_raw}, asof=asof, asset_ids=assets,
-                          horizons=[h], n_draws=n, target_type="log_return")
+                          horizons=horizons, n_draws=n, target_type="log_return")
     res = _Fallback().forecast(req)
     for ai, a in enumerate(assets):
-        v = res.samples[:, ai, 0]
-        bc, bs = float(v.mean()), float(v.std(ddof=1))
-        check(f"baseline {a}: centre is h x mean(log1p(r))", abs(bc - want_centre[a]) < 0.004,
-              f"got {bc:.4f} want {want_centre[a]:.4f}")
-        check(f"baseline {a}: spread is sd(log1p(r)) x sqrt(h)", abs(bs / want_sd[a] - 1.0) < 0.10,
-              f"got {bs:.4f} want {want_sd[a]:.4f}")
-        check(f"baseline and CLI agree on {a}", abs(bc - cli_centre[a]) < 0.004,
-              f"baseline {bc:.4f} cli {cli_centre[a]:.4f}")
+        for hi, h in enumerate(horizons):
+            v = res.samples[:, ai, hi]
+            bc, bs = float(v.mean()), float(v.std(ddof=1))
+            check(f"baseline {a} h={h}: centre is h x mean(log1p(r))",
+                  abs(bc - want_centre[a, h]) < 0.004, f"got {bc:.4f} want {want_centre[a, h]:.4f}")
+            check(f"baseline {a} h={h}: spread is sd(log1p(r)) x sqrt(h)",
+                  abs(bs / want_sd[a, h] - 1.0) < 0.10, f"got {bs:.4f} want {want_sd[a, h]:.4f}")
+            check(f"baseline and CLI agree on {a} h={h}", abs(bc - cli_centre[a, h]) < 0.004,
+                  f"baseline {bc:.4f} cli {cli_centre[a, h]:.4f}")
 
 
 def _redaction_control(unit):
