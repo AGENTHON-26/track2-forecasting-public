@@ -137,14 +137,21 @@ jobs:
           if [[ "$GITHUB_REPOSITORY" == *-staging ]]; then
             test "$(git -C .ci-toolkit rev-parse HEAD)" = "$QFBENCH2_CANDIDATE_COMMON_REF"
             pip install ./.ci-toolkit/common
-            python -c "from qfbench2_common.contracts import forecast_protocol; print(forecast_protocol.__name__)"
           else
             pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@${{ env.TOOLKIT_TAG }}#subdirectory=common"
           fi
           pip install -e ".[test]"
+          # Proven AFTER the last install that could replace the toolkit: the package's own
+          # `qfbench2-common>=2.3.1,<3` is satisfied by the candidate today, but a spec change
+          # would let pip pull the released tag back in above, and the assertion must see the
+          # final environment, not the intermediate one.
+          if [[ "$GITHUB_REPOSITORY" == *-staging ]]; then
+            python -c "from qfbench2_common.contracts import forecast_protocol; print(forecast_protocol.__name__)"
+          fi
       - name: Confirm the toolkit is importable
-        # The job used to gate on a private token. It no longer needs one -- the toolkit
-        # installs from its public repository -- but the discipline the old guard encoded
+        # In the public repository this job needs no token -- the toolkit installs from its
+        # public repository; in `-staging` the candidate checkout above needs the read token
+        # and fails closed without it. Either way the discipline the old guard encoded
         # is worth keeping: a job that cannot get its dependency must FAIL, never skip to
         # green. This now checks the thing that actually matters.
         run: |
