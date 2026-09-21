@@ -539,8 +539,8 @@ def test_committed_input_mutation_during_gate_scan_is_not_an_accepted_baseline(
     c = _case()
     scan = subject.scan_panel_cutoff
 
-    def mutated(root: Path, asof: str) -> Any:
-        result = scan(root, asof)
+    def mutated(root: Path, asof: str, **kwargs: Any) -> Any:
+        result = scan(root, asof, **kwargs)
         path = root / "synthetic.parquet"
         path.chmod(0o600)
         path.write_bytes(_parquet({"date": ["2026-09-30"], "value": [99.0]}))
@@ -557,3 +557,44 @@ def test_uncommitted_imported_namespace_member_is_refused(monkeypatch: pytest.Mo
     monkeypatch.setitem(sys.modules, module.__name__, module)
     with pytest.raises(OrganizerFault, match="outside its complete source commitment"):
         subject.score_forecast_resolution(**c)
+
+
+@pytest.mark.parametrize("kind", ["text", "panel"])
+@pytest.mark.parametrize("timestamp", ["2026-10-01T03:00:00Z", "2026-10-01"])
+def test_authentic_input_must_precede_precise_cutoff(kind: str, timestamp: str) -> None:
+    c = _case()
+    members = next(iter(c["input_snapshots"].values()))
+    if kind == "text":
+        index = json.loads(members["text/corpus_index.json"])
+        index["documents"][0]["timestamp"] = timestamp
+        members["text/corpus_index.json"] = _encoded(index)
+    else:
+        members["panels/synthetic.parquet"] = _parquet({"date": [timestamp], "value": [1.0]})
+    _refresh(c)
+    with pytest.raises(OrganizerFault, match="signed information cutoff"):
+        subject.score_forecast_resolution(**c)
+
+
+@pytest.mark.parametrize("extra", ["text/unindexed-synthetic.md", "text/nested/corpus_index.json"])
+def test_authentic_pathless_index_cannot_hide_unindexed_files(extra: str) -> None:
+    c = _case()
+    members = next(iter(c["input_snapshots"].values()))
+    index = json.loads(members["text/corpus_index.json"])
+    index["documents"][0].pop("path")
+    members["text/corpus_index.json"] = _encoded(index)
+    members[extra] = b"Synthetic extra document with no indexed timestamp.\n"
+    _refresh(c)
+    with pytest.raises(OrganizerFault, match="do not cover each other exactly"):
+        subject.score_forecast_resolution(**c)
+
+
+def test_authentic_inline_only_corpus_remains_usable() -> None:
+    c = _case()
+    members = next(iter(c["input_snapshots"].values()))
+    index = json.loads(members["text/corpus_index.json"])
+    index["documents"][0].pop("path")
+    index["documents"][0]["text"] = members.pop("text/synthetic.md").decode()
+    members["text/corpus_index.json"] = _encoded(index)
+    _refresh(c)
+    result = subject.score_forecast_resolution(**c)
+    assert result.rankable is False and not result.diagnostic.operator_reasons

@@ -188,10 +188,13 @@ def _card(root: pathlib.Path, protocol: dict[str, Any], entry: Any) -> dict[str,
     )
     check_declared_cutoff(card, unit_handle=entry.unit_handle)
     # These are the canonical input scans, over exactly the trees committed before outcomes.
-    scan_panel_cutoff(root / "panels", asof)
+    information_cutoff = protocol["schedule"]["information_cutoff"]
+    scan_panel_cutoff(root / "panels", asof, information_cutoff=information_cutoff)
     text_path = card.get("text", {}).get("path", "text/")
     _require(text_path == "text/", "candidate input profile requires the canonical text directory")
-    scan_text_corpus_cutoff(root / "text", asof)
+    scan_text_corpus_cutoff(
+        root / "text", asof, information_cutoff=information_cutoff, strict_coverage=True
+    )
     return card
 
 

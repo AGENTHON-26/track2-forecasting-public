@@ -53,6 +53,25 @@ and text cutoff scanners run on the committed inputs. This first adapter profile
 existing `panels/` and `text/` topology. All staged bytes are compared with the original verified
 values before and after the canonical `score_roster` call; no retained file is rewritten.
 
+Only this candidate adapter selects the scanners' optional strict input policy. A precise
+input timestamp must be calendar-valid and timezone-aware, with `Z` or a known numeric
+offset. Its UTC instant must be no later than the full signed information cutoff and remain
+inside the card's UTC as-of day or earlier. Comparisons retain up to nine fractional digits,
+including real Arrow nanosecond timestamp cells. Naive times, unknown `-00:00` offsets,
+malformed dates and unsupported precision are refused. A date-only string or Arrow date
+cell proves no time within its day: the conservative upper bound is the following UTC
+midnight, which must be no later than the information cutoff. Thus `2026-10-01` cannot clear
+a `2026-10-01T00:00:00Z` cutoff; `2026-09-30` can. These are checks of declared timestamps,
+not independent proof of their source or publication time.
+
+Candidate corpus coverage checks every external file against a canonical `path` or `file`
+in the root index. Two aliases must agree, duplicate file mappings are refused, and coverage
+is checked even when the indexed path set is empty. Only the root `corpus_index.json` is
+exempt; a nested file of that name needs its own dated entry. Documents contained in the
+index may omit both path fields and retain their timestamp checks, but cover no external
+file. The existing bounded JSON/Parquet reads remain in force. Ordinary scanner callers
+retain their date-level/default policy; no live entrypoint selects these new options.
+
 The later C1 supplies the ordered grid and numeric scale commitment; original C2 records keep
 their protocol digest. The result retains each original signed C2 digest and C3 root, plus the
 verified chain. It is a `CandidateResolutionScore`, whose `diagnostic` is for organizer review;
