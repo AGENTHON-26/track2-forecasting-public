@@ -38,7 +38,7 @@ env:
   # the evaluation verifier accepts (it demands a non-empty `models`), so testing against it made
   # a green build mean nothing. Keep this a TAG, never a branch -- a floating ref lets a local
   # result and a scored result diverge with no diff.
-  TOOLKIT_TAG: v2.4.2
+  TOOLKIT_TAG: v2.4.4
   # Private staging tests the scorer against the PUBLICATION candidate of the toolkit --
   # `Agenthon2026-public-staging` main, the exact tree the next public tag is cut from --
   # because `qfbench2_track_forecasting.resolution` needs `contracts.forecast_protocol`,
