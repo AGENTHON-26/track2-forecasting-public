@@ -401,7 +401,7 @@ those inputs, local checks can establish admissibility and changes in prediction
 ```bash
 # 1. The shared toolkit, pinned.
 # Pin toolkit v2.4.4 for the current submission commands and model-free fixture.
-# The installed package reports version 2.4.2.
+# The installed package reports version 2.4.4.
 pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.4#subdirectory=common"
 
 # 2. This track's package, from the repository root. Without it neither the reference CLI nor
