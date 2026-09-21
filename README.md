@@ -718,7 +718,9 @@ writable workspace allowance from a card's memory or disk field.
 5. Run the smoke scorer against the exemplar card.
 6. Score your model against the validation cards in `units/`.
 7. Optionally run the text-ablated variant and compare scores.
-8. Submit your image digest to the leaderboard portal.
+8. Pack and upload: `qfbench2 submission pack --descriptor submission.json --team-number <N> --out submission.zip`,
+   then upload `submission.zip` on the track's CodaBench competition page (see
+   ["How an upload is made"](SUBMISSION_CLI.md#how-an-upload-is-made)).
 
 ## Competition schedule and submission limits
 
