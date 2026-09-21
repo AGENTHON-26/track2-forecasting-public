@@ -39,6 +39,14 @@ env:
   # a green build mean nothing. Keep this a TAG, never a branch -- a floating ref lets a local
   # result and a scored result diverge with no diff.
   TOOLKIT_TAG: v2.4.2
+  # Private staging tests the scorer against the PUBLICATION candidate of the toolkit --
+  # `Agenthon2026-public-staging` main, the exact tree the next public tag is cut from --
+  # because `qfbench2_track_forecasting.resolution` needs `contracts.forecast_protocol`,
+  # which no released tag carries yet. Only the `test` job uses it, only when this
+  # workflow runs in a `-staging` repository, and it needs the read token that private
+  # checkouts need. The public repository keeps the anonymous tag install above. Public
+  # publication must move TOOLKIT_TAG to the released tag that carries this commit.
+  QFBENCH2_CANDIDATE_COMMON_REF: 53464fbd8f40f3f829985711dd6f679b3f386ce3
 
 jobs:
   # Runs FIRST and installs nothing at all, so it still runs when the toolkit install breaks.
@@ -108,10 +116,31 @@ jobs:
       - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
         with:
           python-version: "3.13"
+      - name: Require private candidate toolkit access in staging
+        if: endsWith(github.repository, '-staging')
+        env:
+          TOOLKIT_TOKEN: ${{ secrets.AGENTHON_TOOLKIT_TOKEN }}
+        run: test -n "$TOOLKIT_TOKEN"
+      - name: Check out the exact publication-candidate toolkit in staging
+        if: endsWith(github.repository, '-staging')
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          repository: Agenthon-2026/Agenthon2026-public-staging
+          ref: ${{ env.QFBENCH2_CANDIDATE_COMMON_REF }}
+          token: ${{ secrets.AGENTHON_TOOLKIT_TOKEN }}
+          path: .ci-toolkit
+          persist-credentials: false
+          lfs: false
       - name: Install pinned dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@${{ env.TOOLKIT_TAG }}#subdirectory=common"
+          if [[ "$GITHUB_REPOSITORY" == *-staging ]]; then
+            test "$(git -C .ci-toolkit rev-parse HEAD)" = "$QFBENCH2_CANDIDATE_COMMON_REF"
+            pip install ./.ci-toolkit/common
+            python -c "from qfbench2_common.contracts import forecast_protocol; print(forecast_protocol.__name__)"
+          else
+            pip install "qfbench2-common @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@${{ env.TOOLKIT_TAG }}#subdirectory=common"
+          fi
           pip install -e ".[test]"
       - name: Confirm the toolkit is importable
         # The job used to gate on a private token. It no longer needs one -- the toolkit
