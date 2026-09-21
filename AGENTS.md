@@ -54,8 +54,11 @@ This file only adds Track 2 specifics.
    `[contamination] canary_guid`. Never reuse an existing GUID and never copy the exemplar
    GUID `f3a1c2e8-4b7d-4e9f-a2c1-8d3e7b5f9a0c`.
 
-5. **Horizons in business days.** All horizon values in `[targets] horizons` and in the
-   output `forecast.parquet` column `horizon` are in business days. Never calendar days.
+5. **Preserve horizon keys.** Copy the authored `[targets] horizons` unchanged into the
+   output `forecast.parquet` column `horizon`. Daily targets use business-day horizons.
+   Monthly level targets use explicit observation periods to determine monthly sampling steps;
+   the integer key alone is not a month count or a universal date offset. See
+   [MONTHLY-HORIZONS.md](docs/MONTHLY-HORIZONS.md).
 
 6. **n_draws minimum is 200.** No card spec or example output should use fewer than 200
    draws. For F3 and F4 guidance, recommend >= 500 and >= 1000 respectively.
