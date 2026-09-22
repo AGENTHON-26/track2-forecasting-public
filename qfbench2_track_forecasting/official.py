@@ -12,7 +12,7 @@ returns a complete, aggregated, provenance-stamped result.
     input/res/    the ingestion output root: <unit_handle>/ sanitized participant bytes,
                   plus _control/ (run_records/, observations/, logs/)
 
-Three properties make this the *official* path rather than merely a convenient one.
+Four properties make this the *official* path rather than merely a convenient one.
 
 1. **The roster is the plan's, not the filesystem's.** The loop is over `plan.expected_handles`.
    A directory present under `input/res/` that the plan does not commit to is an organizer fault;
@@ -27,6 +27,9 @@ Three properties make this the *official* path rather than merely a convenient o
    `qfbench2_common.failure_labels.report(..., sink="public")`, whose default projection is enum
    code plus integer counts. The operator log is a separate sink at a separate path and the caller
    owns where that path points.
+4. **Normalization uses committed bytes.** Before any participant gate runs, the entire scale
+   roster is read once and its commitment checked against the plan. Each unit parses those
+   immutable bytes. A later file replacement cannot change a verified denominator.
 """
 
 from __future__ import annotations
@@ -54,7 +57,7 @@ from .aggregate import ScoredUnit, aggregate_submission, failure_row, success_ro
 from .failures import T2Refusal, organizer_fault
 from .grid import REALIZED_COLUMNS, flatten_realized, grid_from_plan_entry
 from .limits import DEFAULT_LIMITS, ParseLimits, inspect_parquet
-from .normalization import NormalizationMode, load_ref_scale
+from .normalization import NormalizationMode, load_verified_ref_scales
 from .scoring import build_verifier, card_joint_statistic
 
 __all__ = [
@@ -169,6 +172,8 @@ def score_roster(
     if plan.track != "forecasting":
         raise organizer_fault(f"this is the forecasting entrypoint; the plan is {plan.track!r}")
 
+    verified_scales = load_verified_ref_scales(plan, ref_root, limits=limits)
+
     observed = (
         sorted(p.name for p in res_root.iterdir() if p.is_dir() and p.name != CONTROL_DIR)
         if res_root.is_dir()
@@ -207,11 +212,12 @@ def score_roster(
         # Organizer material is resolved FIRST and outside the participant try/except, so a defect
         # in it can never be recorded as a participant failure.
         spec = grid_from_plan_entry(entry)
-        ref_scale = load_ref_scale(
+        ref_scale = verified_scales.load_scale(
+            plan,
+            entry,
             reference_root,
             cell_count=spec.cell_count,
             joint_statistic=card_joint_statistic(card),
-            limits=limits,
         )
         realized = _reference_vector(reference_root, entry, limits)
 
@@ -223,6 +229,8 @@ def score_roster(
             "output_dir": output_dir,
             "unit_handle": handle,
             "plan_entry": entry,
+            "plan": plan,
+            "verified_ref_scales": verified_scales,
             "expected_grid": spec,
             "grid_source": "plan",
             "normalization_mode": NormalizationMode.REF_SCALE,

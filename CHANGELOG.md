@@ -58,10 +58,14 @@ below does not change their scoring output.
 
 ### Rules and documentation
 
-- **House API allowance:** 25 requests per unit, at most 4,000 output tokens per call.
-  Participant vendor API keys are not supported. The earlier "1,000,000 input + 100,000
-  output tokens per unit" wording is withdrawn. Operational input limits and failed-request
-  or retry handling are separate from this kit changelog; this entry makes no change to them.
+- **House API allowance:** 25 admitted requests per unit, at most 4,000 output tokens per call,
+  both counted by the House route. Participant vendor API keys are not supported. The earlier
+  "1,000,000 input + 100,000 output tokens per unit" wording is withdrawn and **nothing replaces
+  it**: the model budget is requests per unit, and there is no per-unit token allowance. An
+  admitted request is charged before forwarding, so an upstream failure, a lost response or a
+  retry can spend a slot.
+- **Ties in the ranking score:** if two Final submissions finish this track with the same
+  ranking score, the one uploaded earlier is ranked ahead.
 - **Artifact policy** (`docs/ARTIFACT-POLICY.md`, revision 2026-09-10.1): fitted non-neural
   models, calibration parameters and static retrieval assets may ship under the information
   cutoff, provenance and disclosure rules stated there; additional pretrained neural

@@ -44,9 +44,15 @@ import pathlib
 import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import UTC, date, datetime, time, timedelta
 from typing import Any
 
-from qfbench2_common.contracts import FailureCode
+from qfbench2_common.contracts import (
+    ContractError,
+    FailureCode,
+    normalize_tree_path,
+    parse_rfc3339,
+)
 from qfbench2_common.leakage import cutoff_ok
 
 from .failures import T2Refusal, organizer_fault
@@ -68,6 +74,80 @@ __all__ = [
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 _CORPUS_INDEX = "corpus_index.json"
+_PRECISE_TIME = re.compile(
+    r"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2})"
+    r"(?:\.([0-9]{1,9}))?(Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])"
+)
+
+
+def _day_end(value: str) -> datetime:
+    """Conservative upper bound for an unspecified time on a valid UTC calendar date."""
+    if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+        raise ValueError("exact ISO calendar date required")
+    return datetime.combine(date.fromisoformat(value) + timedelta(days=1), time(), UTC)
+
+
+def _instant(value: str) -> tuple[datetime, int]:
+    """Parse a calendar-valid aware timestamp without losing Arrow nanoseconds."""
+    match = _PRECISE_TIME.fullmatch(value)
+    if match is None or match[3] == "-00:00":
+        raise ValueError("known RFC3339 timezone required")
+    if match[3] == "Z":
+        second = parse_rfc3339(match[1] + "Z", field="input timestamp")
+    else:
+        second = datetime.fromisoformat(match[1] + match[3]).astimezone(UTC)
+    return second, int((match[2] or "0").ljust(9, "0"))
+
+
+def _strict_bounds(asof: str, cutoff: str) -> tuple[datetime, tuple[datetime, int]]:
+    try:
+        # The signed protocol uses the shared canonical UTC grammar; input timestamps may
+        # additionally carry known numeric offsets, which are compared as UTC instants.
+        parse_rfc3339(cutoff, field="information cutoff")
+        return _day_end(asof), _instant(cutoff)
+    except (ContractError, ValueError, OverflowError, TypeError):
+        raise organizer_fault(
+            "candidate cutoff requires valid calendar dates and UTC time"
+        ) from None
+
+
+def _strict_late(raw: Any, bounds: tuple[datetime, tuple[datetime, int]]) -> bool:
+    try:
+        if isinstance(raw, date):
+            value = raw.isoformat()
+        elif isinstance(raw, str):
+            value = raw
+        else:
+            raise ValueError("date or timestamp required")
+        asof_end, cutoff = bounds
+        if re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+            # A bare date proves no time within its day. Require the entire UTC day to
+            # end by the signed cutoff, rather than inventing a midnight observation.
+            upper = _day_end(value)
+            return upper > asof_end or (upper, 0) > cutoff
+        moment = _instant(value)
+        return moment >= (asof_end, 0) or moment > cutoff
+    except (ContractError, ValueError, OverflowError, TypeError):
+        raise organizer_fault(
+            "candidate input needs a valid calendar date or an unambiguous timezone-aware "
+            "timestamp with at most nine fractional digits"
+        ) from None
+
+
+def _indexed_path(entry: Mapping[str, Any]) -> str | None:
+    """Strict coverage: inline records cover no file; declared paths must be canonical."""
+    declared = [entry[key] for key in ("path", "file") if key in entry]
+    if not declared:
+        return None
+    try:
+        path = normalize_tree_path(declared[0])
+        if any(value != path for value in declared) or path == _CORPUS_INDEX:
+            raise ValueError("ambiguous or noncanonical path")
+        return path
+    except (ContractError, ValueError):
+        raise organizer_fault(
+            "candidate corpus index requires unambiguous canonical paths"
+        ) from None
 
 
 def trusted_asof(card: Mapping[str, Any]) -> str:
@@ -185,6 +265,7 @@ def scan_panel_cutoff(
     *,
     limits: ParseLimits = DEFAULT_LIMITS,
     date_column: str = "date",
+    information_cutoff: str | None = None,
 ) -> PanelVerdict:
     """Read every staged panel and count rows dated after `asof`. Organizer-side, fail closed.
 
@@ -197,9 +278,14 @@ def scan_panel_cutoff(
     A panel missing its date column, or carrying a malformed date, is a **hard failure**. "Skip
     what you cannot parse" is the fail-open branch found at three separate places in the
     staging scanner.
+
+    Supplying ``information_cutoff`` opts into the candidate's additional precise UTC bound.
+    Date-only cells must have their entire UTC day before that bound. Default callers retain
+    the existing date-level policy.
     """
     if not ISO_DATE_RE.match(asof):
         raise organizer_fault(f"as-of {asof!r} is not an ISO YYYY-MM-DD date")
+    bounds = _strict_bounds(asof, information_cutoff) if information_cutoff is not None else None
     if not panel_root.is_dir():
         raise organizer_fault(
             f"the unit declares no readable panel directory at {panel_root.name}/; a forecasting "
@@ -230,6 +316,9 @@ def scan_panel_cutoff(
         scanned += len(values)
         panel_late = 0
         for raw in values:
+            if bounds is not None:
+                panel_late += _strict_late(raw, bounds)
+                continue
             text = _as_iso_date(raw)
             if text is None:
                 raise organizer_fault(
@@ -242,6 +331,11 @@ def scan_panel_cutoff(
             late += panel_late
             late_panels += 1
     if late:
+        if bounds is not None:
+            raise organizer_fault(
+                f"{late} panel row(s) across {late_panels} panel(s) exceed the card's UTC "
+                "as-of day or the signed information cutoff. This is an organizer input fault."
+            )
         raise organizer_fault(
             f"{late} panel row(s) across {late_panels} panel(s) post-date the unit's as-of. The "
             "staged panels hand the agent data from after the cutoff, which invalidates the unit."
@@ -271,7 +365,12 @@ class CorpusVerdict:
 
 
 def scan_text_corpus_cutoff(
-    corpus_root: pathlib.Path, asof: str, *, limits: ParseLimits = DEFAULT_LIMITS
+    corpus_root: pathlib.Path,
+    asof: str,
+    *,
+    limits: ParseLimits = DEFAULT_LIMITS,
+    information_cutoff: str | None = None,
+    strict_coverage: bool = False,
 ) -> CorpusVerdict:
     """Require an index, require it to match the directory **both ways**, require every date.
 
@@ -286,9 +385,16 @@ def scan_text_corpus_cutoff(
 
     Organizer-side throughout: the corpus is material the organizers publish, so a post-as-of
     document is an organizer fault that aborts, not a participant failure.
+
+    ``information_cutoff`` adds a precise UTC bound, with whole-day bounds for date-only
+    values. ``strict_coverage`` requires canonical paths and exact file coverage even when
+    no paths are indexed. Pathless in-index documents remain allowed and dated, but cover
+    no external file. Only the root index is exempt. Both options leave default callers
+    under the existing date-level policy.
     """
     if not ISO_DATE_RE.match(asof):
         raise organizer_fault(f"as-of {asof!r} is not an ISO YYYY-MM-DD date")
+    bounds = _strict_bounds(asof, information_cutoff) if information_cutoff is not None else None
     if not corpus_root.is_dir():
         raise organizer_fault(
             "the unit declares a text corpus that is not a readable directory; the corpus is an "
@@ -308,7 +414,7 @@ def scan_text_corpus_cutoff(
     on_disk = {
         p.relative_to(corpus_root).as_posix()
         for p in sorted(corpus_root.rglob("*"))
-        if p.is_file() and p.name != _CORPUS_INDEX
+        if p.is_file() and (p != index_path if strict_coverage else p.name != _CORPUS_INDEX)
     }
     indexed: set[str] = set()
     late = 0
@@ -316,13 +422,18 @@ def scan_text_corpus_cutoff(
     for entry in documents:
         if not isinstance(entry, Mapping):
             raise organizer_fault(f"{_CORPUS_INDEX}.documents holds a non-object entry")
-        path = entry.get("path") or entry.get("file")
+        path = _indexed_path(entry) if strict_coverage else entry.get("path") or entry.get("file")
         doc_id = entry.get("doc_id")
         if not isinstance(doc_id, str) or not doc_id:
             raise organizer_fault(f"{_CORPUS_INDEX} holds a document with no doc_id")
         if isinstance(path, str) and path:
-            indexed.add(path.lstrip("./"))
+            if strict_coverage and path in indexed:
+                raise organizer_fault("candidate corpus index repeats a file path")
+            indexed.add(path if strict_coverage else path.lstrip("./"))
         timestamp = entry.get("timestamp")
+        if bounds is not None:
+            late += _strict_late(timestamp, bounds)
+            continue
         if not isinstance(timestamp, str) or not ISO_DATE_RE.match(timestamp[:10]):
             undated += 1
             continue
@@ -334,11 +445,16 @@ def scan_text_corpus_cutoff(
             "be established. An undated document is refused, not assumed to be in range."
         )
     if late:
+        if bounds is not None:
+            raise organizer_fault(
+                f"{late} corpus document(s) exceed the card's UTC as-of day or the signed "
+                "information cutoff. This is an organizer input fault."
+            )
         raise organizer_fault(
             f"{late} corpus document(s) are timestamped after the unit's as-of. This is "
             "look-ahead leakage in organizer material and the unit must not be published."
         )
-    if indexed:
+    if indexed or strict_coverage:
         unindexed = sorted(on_disk - indexed)
         missing_files = sorted(indexed - on_disk)
         if unindexed or missing_files:

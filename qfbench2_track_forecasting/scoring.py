@@ -47,7 +47,7 @@ from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
-from qfbench2_common.contracts import FailureCode, OrganizerFault, RosterEntry
+from qfbench2_common.contracts import EvaluationPlan, FailureCode, OrganizerFault, RosterEntry
 from qfbench2_common.scoring import crps
 from qfbench2_common.taskcard import schema_path
 from qfbench2_common.verifier import GateResult, HierarchicalVerifier
@@ -75,8 +75,10 @@ from .normalization import (
     VARIOGRAM,
     NormalizationMode,
     RefScale,
+    VerifiedRefScales,
     joint_is_structurally_zero,
     load_ref_scale,
+    load_verified_ref_scales,
 )
 from .tail import DEFAULT_TAIL_METRIC, TAIL_METRICS
 
@@ -102,6 +104,7 @@ __all__ = [
     "build_verifier",
     "card_joint_statistic",
     "hydrate_ctx",
+    "load_verified_ref_scales",
     "resolve_expected_grid",
 ]
 
@@ -171,7 +174,8 @@ def card_joint_statistic(card: dict[str, Any]) -> str:
 def hydrate_ctx(ctx: dict[str, Any]) -> None:
     """Fill the ctx keys this verifier documents, stamping the provenance of each one.
 
-    Every value an explicit caller supplied wins. What this adds is the *smoke* path: the shared
+    Ranked normalization always comes from the verified roster bytes. Other explicit caller
+    values win. What this adds is the *smoke* path: the shared
     runner passes only `{unit_dir, output_dir}` and the gates need a card, a grid, a reference
     root and a normalization decision. Before the freeze this ended with
     `ctx.setdefault("ref_scale", None)`, which turned "no scale on disk" into "score it raw" — the
@@ -218,6 +222,32 @@ def hydrate_ctx(ctx: dict[str, Any]) -> None:
         )
     mode = NormalizationMode(ctx["normalization_mode"])
     ctx["normalization_mode"] = mode
+
+    if source == "plan" or ctx.get("plan") is not None:
+        plan = ctx.get("plan")
+        verified = ctx.get("verified_ref_scales")
+        entry = ctx.get("plan_entry")
+        if (
+            mode is not NormalizationMode.REF_SCALE
+            or not isinstance(plan, EvaluationPlan)
+            or not isinstance(entry, RosterEntry)
+            or not isinstance(verified, VerifiedRefScales)
+            or ctx.get("reference_root") is None
+            or ctx["unit_handle"] != entry.unit_handle
+            or ctx["expected_grid"] != grid_from_plan_entry(entry)
+        ):
+            raise organizer_fault(
+                "ranked forecasting requires a matching plan and verified normalization bundle; "
+                "verify all roster scales once before constructing unit verifiers"
+            )
+        # A caller-supplied RefScale cannot bypass the exact bytes named by the plan.
+        ctx["ref_scale"] = verified.load_scale(
+            plan,
+            entry,
+            ctx["reference_root"],
+            cell_count=ctx["expected_grid"].cell_count,
+            joint_statistic=card_joint_statistic(ctx["card"]),
+        )
 
     if "realized" not in ctx:
         # The smoke/CLI path: load the reference vector if the mounted unit carries one, using the
