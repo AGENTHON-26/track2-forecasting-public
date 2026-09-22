@@ -34,6 +34,7 @@ Dev run:
 from __future__ import annotations
 
 import argparse
+import collections
 import contextlib
 import json
 import math
@@ -41,6 +42,7 @@ import os
 import pathlib
 import re
 import sys
+import threading
 import time
 import tomllib
 import urllib.error
@@ -56,9 +58,11 @@ _WORKERS = 8
 #: A ceiling, not a target: a normal reply is ~400 tokens. Set well above that so a reply that runs
 #: long comes back complete rather than cut off mid-sentence.
 _MAX_TOKENS = 4_000
+#: EXPERIMENTAL 2026-09-22 (Pun): forced ON to test against Nish's 2026-09-20 measurement below,
+#: which found the opposite. Her finding, unchanged, kept for when this reverts:
 #: Off: measured 4-5x slower on (23-30 s vs 6 s per doc) and it leaked its reasoning into the
 #: reply once in 16 calls, looping until the cap. The small quality gain was not worth either.
-_THINKING = False
+_THINKING = True
 #: Doc types that get thinking ON anyway. Landmarks mix two formats (policy decisions and speeches)
 #: under one label, so the model has to work out which one it is reading. The reasoning is billed
 #: against the same token cap, so these calls get a larger one.
@@ -70,6 +74,31 @@ _TIMEOUT_SEC = 300.0
 #: Seconds to wait before each retry of an overloaded (429 / 5xx) reply.
 _RETRY_WAITS = (2.0, 5.0, 10.0)
 
+#: The House endpoint's shared quota, measured 2026-09-22: 40 requests/minute. Kept a margin
+#: under it rather than 40 itself -- Stage 1's own worker pool can burst several requests within
+#: the same second, and a 429 that exhausts _RETRY_WAITS degrades the whole card to NEUTRAL with
+#: no visible failure (see PUN_TEXT_NOTES.md, "silent rate-limit fallback"). Local eval sweeps
+#: should keep --concurrency at 1 for now -- this only coordinates calls within one process, not
+#: across the separate subprocesses run_eval.py spawns per unit.
+_RATE_LIMIT_RPM = 36
+_rate_lock = threading.Lock()
+_request_times: collections.deque[float] = collections.deque()
+
+
+def _throttle() -> None:
+    """Block until issuing another request keeps this process under _RATE_LIMIT_RPM in any
+    trailing 60s window. One shared budget for every call_model() call in this process -- Stage
+    1's worker pool and Stage 2's own call all draw from it, so they can't jointly overrun it."""
+    with _rate_lock:
+        while True:
+            now = time.monotonic()
+            while _request_times and now - _request_times[0] >= 60.0:
+                _request_times.popleft()
+            if len(_request_times) < _RATE_LIMIT_RPM:
+                _request_times.append(now)
+                return
+            time.sleep(_request_times[0] + 60.0 - now)
+
 #: Stage-2 clamps, carried forward from the removed single-shot pipeline (git history before
 #: "feat(text): stage 1" -- the clamps were never the reason it measured net negative; the
 #: budget-truncated single-shot excerpts were the likely cause, and stage 1 already replaces
@@ -77,6 +106,12 @@ _RETRY_WAITS = (2.0, 5.0, 10.0)
 _DRIFT_SD_CLAMP = 1.5
 _WIDEN_CLAMP = (0.60, 2.00)
 _SKEW_CLAMP = (-1.0, 1.0)
+
+#: EXPERIMENTAL 2026-09-22 (Pun): forced ON to test directly, rather than carry forward the
+#: removed pipeline's un-re-measured finding for its equivalent call: thinking ON made the 120B
+#: halve its committed adjustments -- more hedging, not better reasoning. Revert to False if this
+#: measures the same way here.
+_STAGE2_THINKING = True
 
 
 # ----------------------------------------------------------------------------- the entry point
@@ -87,18 +122,19 @@ def read_text_signal(
     text_dir = pathlib.Path(text_dir)
     neutral = {a: dict(NEUTRAL) for a in assets}
     try:
-        summaries = [s for s in summarize_corpus(text_dir) if s.get("summary")]
+        raw_docs = summarize_corpus(text_dir)
+        for d in raw_docs:
+            if not d.get("summary") and d.get("error"):
+                print(f"[text_signal] doc {d.get('doc_id', '?')} ({d.get('doc_type', '?')}) "
+                      f"failed: {d['error']}", file=sys.stderr)
+        summaries = [s for s in raw_docs if s.get("summary")]
         if not summaries:
             print("[text_signal] no usable summaries; neutral", file=sys.stderr)
             return neutral
 
         ctx = load_context(text_dir, assets)
         system, user = build_adjustment_prompt(summaries, assets, ctx)
-        content, err = call_model(system, user, thinking=False)
-        # Thinking OFF here too, for the same reason as the removed pipeline's equivalent call
-        # (git history): measured there that thinking ON made the 120B halve its committed
-        # adjustments -- more hedging, not better reasoning, for exactly the kind of "commit to a
-        # number" task this call is. Not re-measured against this new prompt; worth rechecking.
+        content, err = call_model(system, user, thinking=_STAGE2_THINKING)
         if content is None:
             print(f"[text_signal] adjustment call failed: {err}; neutral", file=sys.stderr)
             return neutral
@@ -402,6 +438,7 @@ def call_model(system: str, user: str, thinking: bool = False) -> tuple[str | No
         req.add_header("Authorization", f"Bearer {token}")
     payload = None
     for wait in (*_RETRY_WAITS, None):
+        _throttle()
         try:
             with urllib.request.urlopen(req, timeout=_TIMEOUT_SEC) as resp:
                 payload = json.loads(resp.read().decode("utf-8"))

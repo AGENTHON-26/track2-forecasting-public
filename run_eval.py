@@ -31,6 +31,7 @@ import subprocess
 import sys
 import tempfile
 import tomllib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import defaultdict
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent
@@ -41,6 +42,18 @@ AGENT_SCRIPT = REPO_ROOT / "forecast_agent.py"
 
 #: Same exclusion as build_realized.py -- not one of the counted practice units.
 _EXCLUDED_UNITS = {"t2-EXAMPLE-ust-curve-1m"}
+
+
+def _extract_text_signal_issues(stderr: str) -> list[str]:
+    """`[text_signal]` lines that mean a call failed or fell back to neutral -- every such line
+    except the plain success one (`source=llm ...`). forecast_agent.py doesn't crash on a
+    rate-limited or malformed model reply -- it degrades to NEUTRAL and exits 0 -- so without
+    this, a sweep's report can't tell a unit that silently lost its text signal from one that
+    never had a chance to be wrong. See PUN_TEXT_NOTES.md, "silent rate-limit fallback"."""
+    return [
+        line for line in stderr.splitlines()
+        if line.startswith("[text_signal]") and "source=llm" not in line
+    ]
 
 
 def _iter_unit_dirs() -> list[pathlib.Path]:
@@ -63,9 +76,11 @@ def run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
              "--asof", asof, "--out", str(out)],
             capture_output=True, text=True, cwd=REPO_ROOT,
         )
+        text_signal_issues = _extract_text_signal_issues(agent_result.stderr)
         if agent_result.returncode != 0:
             tail = "\n".join(agent_result.stderr.strip().splitlines()[-3:])
-            return {"unit_id": unit_id, "status": "agent_crashed", "detail": tail}
+            return {"unit_id": unit_id, "status": "agent_crashed", "detail": tail,
+                    "text_signal_issues": text_signal_issues}
 
         score_args = [sys.executable, str(REPO_ROOT / "scoring" / "scoring.py"), "score",
                       "--card", str(unit_dir / "card.toml"), "--forecast", str(out)]
@@ -76,14 +91,15 @@ def run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
             payload = json.loads(score_result.stdout)
         except json.JSONDecodeError:
             return {"unit_id": unit_id, "status": "scorer_crashed",
-                    "detail": score_result.stderr.strip()[-300:]}
+                    "detail": score_result.stderr.strip()[-300:],
+                    "text_signal_issues": text_signal_issues}
 
         if not payload.get("admissible", False):
             failing_gate = next(
                 (g for g, v in payload.get("gates", {}).items() if v != "pass"), "?"
             )
             return {"unit_id": unit_id, "status": "inadmissible", "detail": failing_gate,
-                    "gates": payload.get("gates", {})}
+                    "gates": payload.get("gates", {}), "text_signal_issues": text_signal_issues}
 
         # The --realized branch of scoring.py has no "scored" key at all -- it just adds
         # composite_score directly to an admissible payload. Check for that key's presence,
@@ -95,9 +111,11 @@ def run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
                     "joint_variogram": payload.get("joint_variogram"),
                     "tail_penalty": payload.get("tail_penalty"),
                     "tail_metric": payload.get("tail_metric"),
-                    "category": card.get("metadata", {}).get("category")}
+                    "category": card.get("metadata", {}).get("category"),
+                    "text_signal_issues": text_signal_issues}
         return {"unit_id": unit_id, "status": "gates_only",
-                "category": card.get("metadata", {}).get("category")}
+                "category": card.get("metadata", {}).get("category"),
+                "text_signal_issues": text_signal_issues}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -107,6 +125,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", type=pathlib.Path, default=None,
                      help="report file path (default: eval_reports/<timestamp>.json)")
     ap.add_argument("--label", default=None, help="a short note stored in the report (e.g. a git ref/commit)")
+    ap.add_argument("--concurrency", type=int, default=1,
+                     help="run this many units' forecast_agent.py + scoring at once (default: "
+                          "1, sequential -- each unit is a separate subprocess, so raising this "
+                          "is safe from a Python-GIL perspective; the real constraint is how hard "
+                          "several units' worth of concurrent model calls hit the shared "
+                          "endpoint. Keep this modest -- e.g. 4 -- since Stage 1's own "
+                          "per-document summarization already runs 8-way in parallel WITHIN one "
+                          "unit, so --concurrency 4 means up to 32 simultaneous calls, not 4.")
     a = ap.parse_args(argv)
 
     unit_dirs = [d for d in _iter_unit_dirs() if a.unit is None or d.name == a.unit]
@@ -117,14 +143,23 @@ def main(argv: list[str] | None = None) -> int:
     by_status = defaultdict(list)
     composites_by_category = defaultdict(list)
     all_results = []
-    for unit_dir in unit_dirs:
-        result = run_one(unit_dir, a.gates_only)
+    concurrency = max(1, a.concurrency)
+    if concurrency == 1:
+        results: list[dict] = [run_one(unit_dir, a.gates_only) for unit_dir in unit_dirs]
+    else:
+        with ThreadPoolExecutor(max_workers=concurrency) as pool:
+            futures = [pool.submit(run_one, unit_dir, a.gates_only) for unit_dir in unit_dirs]
+            results = [f.result() for f in as_completed(futures)]  # completion order, not input order
+
+    for result in results:
         by_status[result["status"]].append(result)
         all_results.append(result)
         if result["status"] == "scored":
             composites_by_category[result.get("category", "?")].append(result["composite"])
         if a.unit:
             print(json.dumps(result, indent=2))
+
+    units_with_issues = [r for r in all_results if r.get("text_signal_issues")]
 
     if not a.unit:
         total = len(unit_dirs)
@@ -141,6 +176,15 @@ def main(argv: list[str] | None = None) -> int:
             print("\ninadmissible detail (first 5):")
             for r in by_status["inadmissible"][:5]:
                 print(f"  {r['unit_id']}: failed {r['detail']}")
+        if units_with_issues:
+            print(f"\ntext_signal issues in {len(units_with_issues)}/{total} unit(s) -- forecast_agent.py "
+                  f"doesn't crash on these, so they'd otherwise be invisible (full list also in the "
+                  f"report's \"units\" for units not shown here):")
+            for r in units_with_issues[:15]:
+                for line in r["text_signal_issues"]:
+                    print(f"  {r['unit_id']}: {line}")
+            if len(units_with_issues) > 15:
+                print(f"  ... and {len(units_with_issues) - 15} more unit(s); see the report file")
         if composites_by_category:
             print("\nComposite score by family (lower is better; 1.0 = text-blind baseline on the "
                   "REAL leaderboard -- this raw composite is NOT normalized the same way, so treat "
@@ -162,6 +206,7 @@ def main(argv: list[str] | None = None) -> int:
         "gates_only_mode": a.gates_only,
         "total_units": len(unit_dirs),
         "status_counts": {status: len(items) for status, items in by_status.items()},
+        "units_with_text_signal_issues": len(units_with_issues),
         "family_summary": family_summary,
         "units": {r["unit_id"]: r for r in all_results},
     }

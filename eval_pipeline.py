@@ -47,6 +47,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--remine-realized", action="store_true",
                      help="force-rebuild realized_vectors/ even though it's already committed "
                           "(only needed after units/ changes)")
+    ap.add_argument("--concurrency", type=int, default=None,
+                     help="passed straight through to run_eval.py -- run this many units at "
+                          "once instead of one at a time (default: 1, sequential)")
     a = ap.parse_args(argv)
 
     realized_dir = REPO_ROOT / "realized_vectors"
@@ -67,6 +70,8 @@ def main(argv: list[str] | None = None) -> int:
         run_eval_cmd += ["--label", a.label]
     if a.out:
         run_eval_cmd += ["--out", a.out]
+    if a.concurrency:
+        run_eval_cmd += ["--concurrency", str(a.concurrency)]
     rc = _run(run_eval_cmd, "STEP 2/2 — running forecast_agent.py + scoring on every practice unit")
     if rc != 0:
         return rc
