@@ -148,10 +148,156 @@ class TestCleanup(unittest.TestCase):
 
 
 class TestContract(unittest.TestCase):
-    def test_read_text_signal_is_exact_neutral(self):
+    def test_read_text_signal_is_neutral_with_no_corpus(self):
+        # Stage 2 no longer returns exact neutral unconditionally -- but a directory with no
+        # admissible documents at all is still one of the paths that does.
         out = ts.read_text_signal(pathlib.Path("/nonexistent/text"), ["UST_2Y", "JPY"])
         self.assertEqual(out, {a: {"shift": 0.0, "widen": 1.0, "skew": 0.0}
                                for a in ["UST_2Y", "JPY"]})
+
+
+class TestFamilyPrompts(unittest.TestCase):
+    _CTX = {"asof": "2024-01-01", "horizons": [21], "value_unit": "percent_per_annum",
+            "target_type": "level", "family": "F1", "level": {"UST_2Y": 4.5},
+            "sigma": {"UST_2Y": 0.1}, "sigma_horizon": 21}
+
+    def _system(self, family: str) -> str:
+        ctx = {**self._CTX, "family": family}
+        system, _ = ts.build_adjustment_prompt(
+            [{"doc_id": "d", "timestamp": "2024-01-01", "doc_type": "fomc_statement",
+              "summary": "- the Committee held rates steady"}],
+            ["UST_2Y"], ctx,
+        )
+        return system
+
+    def test_every_family_gets_distinct_focus(self):
+        systems = {f: self._system(f) for f in ("F1", "F2", "F3", "F4")}
+        self.assertEqual(len(set(systems.values())), 4)
+        for f, s in systems.items():
+            self.assertIn(f, s)
+
+    def test_unknown_family_gets_default_focus(self):
+        self.assertEqual(self._system("F9"), self._system("default"))
+
+    def test_user_message_carries_summaries_and_asset_context(self):
+        ctx = {**self._CTX}
+        _, user = ts.build_adjustment_prompt(
+            [{"doc_id": "fomc-2024-01-01", "timestamp": "2024-01-01", "doc_type": "fomc_statement",
+              "summary": "- held rates steady"}],
+            ["UST_2Y"], ctx,
+        )
+        self.assertIn("fomc-2024-01-01", user)
+        self.assertIn("held rates steady", user)
+        self.assertIn("level 4.500000", user)
+        self.assertIn("sigma 0.100000", user)
+
+
+class TestExtractJsonObject(unittest.TestCase):
+    def test_well_formed_object(self):
+        out = ts._extract_json_object('noise before {"assets": {"UST_2Y": {"drift_sd": 0.3}}}')
+        self.assertEqual(out, {"assets": {"UST_2Y": {"drift_sd": 0.3}}})
+
+    def test_repairs_missing_closing_brace(self):
+        # The exact defect the removed pipeline measured: three braces opened, two closed,
+        # finish_reason "stop" -- not a truncation, the model just dropped the last brace.
+        broken = '{"assets": {"MOM": {"drift_sd": 0.0, "vol_scale": 1.0, "skew": 0.0}}'
+        out = ts._extract_json_object(broken)
+        self.assertEqual(out, {"assets": {"MOM": {"drift_sd": 0.0, "vol_scale": 1.0, "skew": 0.0}}})
+
+    def test_no_json_returns_none(self):
+        self.assertIsNone(ts._extract_json_object("sorry, I cannot help with that"))
+
+    def test_never_invents_a_value(self):
+        # Only closers are appended; an unterminated string is closed, not completed with data.
+        out = ts._extract_json_object('{"assets": {"JPY": {"evidence": "unterminated')
+        self.assertEqual(out, {"assets": {"JPY": {"evidence": "unterminated"}}})
+
+
+class TestToAdjustments(unittest.TestCase):
+    _CTX = {"sigma": {"UST_2Y": 0.20, "JPY": 0.0}}
+
+    def test_converts_drift_sd_to_shift_via_sigma(self):
+        raw = {"assets": {"UST_2Y": {"drift_sd": 0.5, "vol_scale": 1.2, "skew": 0.1}}}
+        out, ledger = ts.to_adjustments(raw, ["UST_2Y"], self._CTX)
+        self.assertAlmostEqual(out["UST_2Y"]["shift"], 0.5 * 0.20)
+        self.assertAlmostEqual(out["UST_2Y"]["widen"], 1.2)
+        self.assertAlmostEqual(out["UST_2Y"]["skew"], 0.1)
+
+    def test_clamps_out_of_range_values(self):
+        raw = {"assets": {"UST_2Y": {"drift_sd": 99.0, "vol_scale": 99.0, "skew": 99.0}}}
+        out, ledger = ts.to_adjustments(raw, ["UST_2Y"], self._CTX)
+        self.assertAlmostEqual(out["UST_2Y"]["shift"], ts._DRIFT_SD_CLAMP * 0.20)
+        self.assertAlmostEqual(out["UST_2Y"]["widen"], ts._WIDEN_CLAMP[1])
+        self.assertAlmostEqual(out["UST_2Y"]["skew"], ts._SKEW_CLAMP[1])
+        self.assertIn("clamped", ledger["UST_2Y"]["note"])
+
+    def test_missing_asset_gets_neutral_others_unaffected(self):
+        raw = {"assets": {"UST_2Y": {"drift_sd": 0.4, "vol_scale": 1.0, "skew": 0.0}}}
+        out, ledger = ts.to_adjustments(raw, ["UST_2Y", "JPY"], {"sigma": {"UST_2Y": 0.2}})
+        self.assertNotEqual(out["UST_2Y"], ts.NEUTRAL)
+        self.assertEqual(out["JPY"], ts.NEUTRAL)
+
+    def test_non_finite_numbers_become_neutral_for_that_asset(self):
+        raw = {"assets": {"UST_2Y": {"drift_sd": float("nan"), "vol_scale": 1.0, "skew": 0.0}}}
+        out, ledger = ts.to_adjustments(raw, ["UST_2Y"], self._CTX)
+        self.assertEqual(out["UST_2Y"], ts.NEUTRAL)
+        self.assertIn("non-finite", ledger["UST_2Y"]["note"])
+
+    def test_no_sigma_forces_shift_to_zero_but_keeps_widen(self):
+        raw = {"assets": {"JPY": {"drift_sd": 1.0, "vol_scale": 1.3, "skew": 0.0}}}
+        out, ledger = ts.to_adjustments(raw, ["JPY"], self._CTX)  # JPY sigma is 0.0
+        self.assertEqual(out["JPY"]["shift"], 0.0)
+        self.assertAlmostEqual(out["JPY"]["widen"], 1.3)
+
+    def test_accepts_top_level_assets_without_nesting(self):
+        # Some replies key assets at the top level instead of under "assets" -- same tolerance
+        # the removed pipeline had for this exact ambiguity.
+        raw = {"UST_2Y": {"drift_sd": 0.3, "vol_scale": 1.0, "skew": 0.0}}
+        out, _ = ts.to_adjustments(raw, ["UST_2Y"], self._CTX)
+        self.assertAlmostEqual(out["UST_2Y"]["shift"], 0.3 * 0.20)
+
+
+class TestReadTextSignalStage2(unittest.TestCase):
+    def test_successful_adjustment_end_to_end(self):
+        fake_summaries = [
+            {"doc_id": "fomc-2024-01-01", "timestamp": "2024-01-01", "doc_type": "fomc_statement",
+             "summary": "- the Committee signalled further tightening ahead", "error": ""},
+        ]
+        fake_ctx = {"asof": "2024-01-01", "horizons": [21], "value_unit": "percent_per_annum",
+                    "target_type": "level", "family": "F2", "level": {"UST_2Y": 4.5},
+                    "sigma": {"UST_2Y": 0.2}, "sigma_horizon": 21}
+        reply = json.dumps({"assets": {"UST_2Y": {"drift_sd": 0.6, "vol_scale": 1.4, "skew": 0.2,
+                                                    "evidence": "further tightening ahead"}}})
+        with tempfile.TemporaryDirectory() as d:
+            text = _unit(pathlib.Path(d), [("x", "2024-01-01", "fomc_statement", "irrelevant")])
+            with mock.patch.object(ts, "summarize_corpus", return_value=fake_summaries), \
+                 mock.patch.object(ts, "load_context", return_value=fake_ctx), \
+                 mock.patch.object(ts, "call_model", return_value=(reply, "")) as call:
+                out = ts.read_text_signal(text, ["UST_2Y"])
+        self.assertAlmostEqual(out["UST_2Y"]["shift"], 0.6 * 0.2)
+        self.assertAlmostEqual(out["UST_2Y"]["widen"], 1.4)
+        self.assertAlmostEqual(out["UST_2Y"]["skew"], 0.2)
+        self.assertFalse(call.call_args.kwargs["thinking"])  # off, per the removed pipeline's finding
+
+    def test_unparseable_reply_falls_back_to_neutral(self):
+        with tempfile.TemporaryDirectory() as d:
+            text = _unit(pathlib.Path(d), [("x", "2024-01-01", "fomc_statement", "irrelevant")])
+            with mock.patch.object(ts, "summarize_corpus",
+                                    return_value=[{"doc_id": "x", "timestamp": "2024-01-01",
+                                                    "doc_type": "fomc_statement", "summary": "- ok"}]), \
+                 mock.patch.object(ts, "call_model", return_value=("not json at all", "")):
+                out = ts.read_text_signal(text, ["UST_2Y"])
+        self.assertEqual(out, {"UST_2Y": dict(ts.NEUTRAL)})
+
+    def test_adjustment_call_failure_falls_back_to_neutral(self):
+        with tempfile.TemporaryDirectory() as d:
+            text = _unit(pathlib.Path(d), [("x", "2024-01-01", "fomc_statement", "irrelevant")])
+            with mock.patch.object(ts, "summarize_corpus",
+                                    return_value=[{"doc_id": "x", "timestamp": "2024-01-01",
+                                                    "doc_type": "fomc_statement", "summary": "- ok"}]), \
+                 mock.patch.object(ts, "call_model", return_value=(None, "HTTP 500")):
+                out = ts.read_text_signal(text, ["UST_2Y"])
+        self.assertEqual(out, {"UST_2Y": dict(ts.NEUTRAL)})
 
 
 if __name__ == "__main__":
