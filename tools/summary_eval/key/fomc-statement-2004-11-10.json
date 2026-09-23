@@ -1,0 +1,201 @@
+{
+ "doc_id": "fomc-statement-2004-11-10",
+ "doc_type": "fomc_statement",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "number",
+   "match": "any",
+   "point": "FOMC raised the federal funds rate target to 2 percent",
+   "quote": "The Federal Open Market Committee decided today to raise its target for the federal funds rate by 25 basis points to 2 percent.",
+   "paraphrases": [
+    "FOMC raised the fed funds rate target to 2%.",
+    "Federal funds rate target raised to 2 percent.",
+    "Fed hiked its target rate to 2.00%."
+   ],
+   "decoys": [
+    "The Committee left the federal funds rate target unchanged at 2 percent.",
+    "The Committee raised its target for the federal funds rate to 2.25 percent."
+   ],
+   "patterns": [
+    "(rais\\w*|hik\\w*|increas\\w*).{0,80}(federal funds rate|target).{0,80}((?<!\\d)2(?!\\d)\\s?(percent|%)|(?<!\\d)2\\.00(?!\\d)?%)",
+    "(federal funds rate|target).{0,80}(rais\\w*|hik\\w*|increas\\w*).{0,80}((?<!\\d)2(?!\\d)\\s?(percent|%)|(?<!\\d)2\\.00(?!\\d)?%)"
+   ],
+   "not_patterns": [
+    "(unchanged|left unchanged|maintain\\w*|held).{0,80}(federal funds rate|target).{0,80}(?<!\\d)2(?!\\d)\\s?(percent|%)"
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "should",
+   "kind": "number",
+   "match": "any",
+   "point": "The federal funds rate increase was 25 basis points",
+   "quote": "The Federal Open Market Committee decided today to raise its target for the federal funds rate by 25 basis points to 2 percent.",
+   "paraphrases": [
+    "The increase was 25 basis points (a quarter point).",
+    "The fed funds target was raised by a quarter percentage point.",
+    "The FOMC's hike measured 25bp."
+   ],
+   "decoys": [
+    "The Committee raised its target for the federal funds rate to 2 percent.",
+    "The increase was 50 basis points (a half point)."
+   ],
+   "patterns": [
+    "(?<!\\d)25(?!\\d)\\s?(basis points?|bp)\\b",
+    "quarter\\s*(of\\s*a\\s*)?percentage\\s*point",
+    "quarter\\s*point"
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "phrase",
+   "match": "any",
+   "point": "Policy stance remains accommodative despite the rate hike",
+   "quote": "the stance of monetary policy remains accommodative",
+   "paraphrases": [
+    "Fed says policy remains accommodative even after the hike.",
+    "Despite the rate increase, monetary policy stance is still accommodative.",
+    "Policy stance stays accommodative post-hike."
+   ],
+   "decoys": [
+    "The Committee said policy has become restrictive after the hike.",
+    "The stance of fiscal policy remains accommodative."
+   ],
+   "patterns": [
+    "(remains?|stays?|continues? to be|is still|are still).{0,40}accommodative",
+    "accommodative.{0,40}(remains?|stays?|continues? to be|is still|are still)"
+   ],
+   "not_patterns": [
+    "(restrictive|tighten\\w*|no longer accommodative).{0,80}(monetary policy|stance)",
+    "fiscal policy.{0,80}accommodative",
+    "accommodative.{0,80}fiscal policy"
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "must",
+   "kind": "phrase",
+   "match": "any",
+   "point": "Committee retained the 'measured' pace language for removing policy accommodation",
+   "quote": "the Committee believes that policy accommodation can be removed at a pace that is likely to be measured",
+   "paraphrases": [
+    "Fed retained the 'measured' pace language for removing accommodation.",
+    "Statement keeps guidance that tightening will proceed at a measured pace.",
+    "Policy accommodation removal expected to be measured."
+   ],
+   "decoys": [
+    "The Committee signaled it would remove accommodation briskly, not gradually.",
+    "The Committee retained the 'considerable time' language regarding the pace of tightening."
+   ],
+   "patterns": [
+    "measured.{0,80}(pace|removed?|accommodation)",
+    "(pace|removed?|accommodation).{0,80}measured"
+   ],
+   "not_patterns": [
+    "(rapid\\w*|swift\\w*|briskly|aggressive\\w*).{0,80}(pace|removed?|accommodation)",
+    "(pace|removed?|accommodation).{0,80}(rapid\\w*|swift\\w*|briskly|aggressive\\w*)"
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Risks to growth and price stability seen as roughly equal",
+   "quote": "The Committee perceives the upside and downside risks to the attainment of both sustainable growth and price stability for the next few quarters to be roughly equal.",
+   "paraphrases": [
+    "Fed sees risks to growth and inflation as roughly balanced.",
+    "Risks to the outlook viewed as roughly equal on both sides.",
+    "Committee judges upside/downside risks to growth and price stability balanced."
+   ],
+   "decoys": [
+    "The Committee sees risks tilted to the downside for growth.",
+    "The Committee perceives the risks to growth and price stability as skewed to the upside for the next few quarters."
+   ],
+   "patterns": [
+    "risk\\w*.{0,160}(roughly equal|balanced|balance)",
+    "(roughly equal|balanced|balance).{0,160}risk\\w*"
+   ],
+   "not_patterns": [
+    "(tilt\\w*|skew\\w*|weighted).{0,80}(downside|upside)",
+    "(downside|upside).{0,80}(tilt\\w*|skew\\w*|weighted)"
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "number",
+   "match": "any",
+   "point": "Board approved an increase in the discount rate to 3 percent",
+   "quote": "In a related action, the Board of Governors unanimously approved a 25 basis point increase in the discount rate to 3 percent.",
+   "paraphrases": [
+    "Board also raised the discount rate to 3%.",
+    "Discount rate increased to 3 percent.",
+    "Fed hiked the discount rate to 3.00% in a related action."
+   ],
+   "decoys": [
+    "The Board raised the discount rate to 3.25 percent.",
+    "The Board left the discount rate unchanged at 3 percent."
+   ],
+   "patterns": [
+    "discount rate.{0,80}((?<!\\d)3(?!\\d)\\s?(percent|%)|(?<!\\d)3\\.00(?!\\d)?%)",
+    "((?<!\\d)3(?!\\d)\\s?(percent|%)|(?<!\\d)3\\.00(?!\\d)?%).{0,80}discount rate"
+   ],
+   "not_patterns": [
+    "discount rate.{0,80}(unchanged|maintain\\w*|held)",
+    "(unchanged|maintain\\w*|held).{0,80}discount rate"
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "number",
+   "match": "any",
+   "point": "The discount rate increase was 25 basis points",
+   "quote": "In a related action, the Board of Governors unanimously approved a 25 basis point increase in the discount rate to 3 percent.",
+   "paraphrases": [
+    "The discount rate increase was 25 basis points.",
+    "The Board's move on the discount rate was a quarter-point increase.",
+    "The discount rate rose by 25bp in the related action."
+   ],
+   "decoys": [
+    "Board also raised the discount rate to 3%.",
+    "The discount rate rose by 50 basis points."
+   ],
+   "patterns": [
+    "discount rate.{0,80}(?<!\\d)25(?!\\d)\\s?(basis points?|bp)",
+    "(?<!\\d)25(?!\\d)\\s?(basis points?|bp).{0,80}discount rate",
+    "discount rate.{0,80}quarter[\\s-]*point"
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "phrase",
+   "match": "any",
+   "point": "Inflation and longer-term inflation expectations remain well contained",
+   "quote": "Inflation and longer-term inflation expectations remain\nwell contained.",
+   "paraphrases": [
+    "Inflation and inflation expectations described as well-contained.",
+    "Fed says inflation expectations remain well anchored.",
+    "Price pressures and long-term inflation expectations seen as contained."
+   ],
+   "decoys": [
+    "Inflation and inflation expectations have become a growing concern.",
+    "Short-term inflation expectations remain well contained."
+   ],
+   "patterns": [
+    "(inflation|price pressures).{0,80}(well[\\s\\-]?)?(contain\\w*|anchor\\w*)",
+    "(well[\\s\\-]?)?(contain\\w*|anchor\\w*).{0,80}(inflation|price pressures)"
+   ],
+   "not_patterns": [
+    "inflation.{0,80}(concern\\w*|uncontain\\w*|unanchor\\w*|ris\\w* sharply)",
+    "short[\\s\\-]?term.{0,80}(contain\\w*|anchor\\w*)",
+    "(contain\\w*|anchor\\w*).{0,80}short[\\s\\-]?term"
+   ]
+  }
+ ]
+}

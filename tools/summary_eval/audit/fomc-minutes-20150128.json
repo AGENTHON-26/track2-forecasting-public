@@ -1,0 +1,20 @@
+{
+ "doc_id": "fomc-minutes-20150128",
+ "labels": {
+  "p1": true,
+  "p2": false,
+  "p3": false,
+  "p4": true,
+  "p5": false,
+  "p6": true,
+  "p7": true,
+  "p8": true,
+  "p9": false
+ },
+ "notes": {
+  "p2": "'patient' never appears",
+  "p3": "Lacker's dissent is on the term RRP resolutions, not foreign currency operations",
+  "p5": "no unemployment figure",
+  "p9": "balanced-risk view is attributed to the staff on unemployment, not participants"
+ }
+}

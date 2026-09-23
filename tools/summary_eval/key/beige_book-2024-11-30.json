@@ -1,0 +1,298 @@
+{
+ "doc_id": "beige_book-2024-11-30",
+ "doc_type": "beige_book",
+ "points": [
+  {
+   "id": "p1",
+   "point": "National activity rose only slightly, and unevenly, across most Districts",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(economic activity|economy).{0,60}(rose|grew|increas\\w*|edg\\w* up|tick\\w* up|expand\\w*|growth)|(rose|grew|increas\\w*|edg\\w* up|tick\\w* up|expand\\w*|growth).{0,60}(economic activity|economy)",
+    "(most|majority of).{0,20}(districts|regions|reserve districts)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(economic activity|economy).{0,60}(declin\\w*|contract\\w*|fell|weaken\\w*|slow\\w*)"
+   ],
+   "quote": "Economic activity rose slightly in most Districts.",
+   "paraphrases": [
+    "National economic activity edged up slightly in most Districts.",
+    "Growth in economic activity was modest to slight in the majority of Districts.",
+    "Most Federal Reserve Districts reported a slight increase in economic activity."
+   ],
+   "decoys": [
+    "Economic activity declined slightly in most Districts.",
+    "Consumer spending rose slightly across most Districts."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Businesses in several Districts said tariffs pose a significant upside risk to inflation",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "tariffs?.{0,90}(inflation|upside risk|prices? (rising|higher|up)|inflationary)",
+    "(inflation|upside risk|prices? (rising|higher|up)|inflationary).{0,90}tariffs?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "tariffs?.{0,90}(unlikely|little effect|no impact|not (?:expected |likely )?to|reduce|lower|ease|minimal effect|little impact)"
+   ],
+   "quote": "businesses in several Districts indicated tariffs pose a significant upside risk to inflation.",
+   "paraphrases": [
+    "Businesses in several Districts said tariffs pose a real upside risk to inflation.",
+    "Firms expect tariffs to push prices higher next year.",
+    "Contacts flagged tariffs as a source of rising inflation expectations."
+   ],
+   "decoys": [
+    "Contacts said tariffs were unlikely to affect inflation much.",
+    "Retailers built up inventory ahead of expected tariffs."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Input prices rising faster than selling prices resulted in declining profit margins nationally",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(margins?).{0,60}(declin\\w*|compress\\w*|squeez\\w*|narrow\\w*|erod\\w*|shrink\\w*|falling)",
+    "(declin\\w*|compress\\w*|squeez\\w*|narrow\\w*|erod\\w*|shrink\\w*|falling).{0,60}(margins?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(margins?).{0,60}(expand\\w*|widen\\w*|improv\\w*|rising)",
+    "(expand\\w*|widen\\w*|improv\\w*|rising).{0,60}(margins?)"
+   ],
+   "quote": "Input prices were said to be rising faster than selling prices for most businesses, resulting in declining profit margins.",
+   "paraphrases": [
+    "Rising input costs continued to outpace selling prices, squeezing profit margins.",
+    "Firms reported margin compression as costs rose faster than prices.",
+    "Profit margins narrowed for many businesses amid faster input cost growth."
+   ],
+   "decoys": [
+    "Profit margins expanded as selling prices outpaced input costs.",
+    "Wages grew faster than prices, boosting real incomes."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Input prices rose faster than selling prices for most businesses",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(input prices?|input costs?|costs?).{0,80}(faster|quicker|more (rapidly|quickly)|outpac\\w*).{0,80}(selling prices?|prices (firms|they|customers) (charged|paid)|their own.{0,20}price)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "selling prices?.{0,60}(faster|outpac\\w*|quicker).{0,60}input prices?"
+   ],
+   "quote": "Input prices were said to be rising faster than selling prices for most businesses, resulting in declining profit margins.",
+   "paraphrases": [
+    "Input prices rose faster than selling prices for most businesses.",
+    "Costs increased more quickly than the prices firms charged customers.",
+    "Most businesses saw input costs outpace their own selling price increases."
+   ],
+   "decoys": [
+    "Selling prices rose faster than input prices for most businesses.",
+    "Profit margins compressed nationally as costs rose."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Wage growth softened to a modest pace across most Districts",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(wage|pay|wages)[a-z ]{0,10}(growth|increases?|gains?).{0,60}(soften\\w*|slow\\w*|moderat\\w*|cool\\w*|eas\\w*|decelerat\\w*)",
+    "(soften\\w*|slow\\w*|moderat\\w*|cool\\w*|eas\\w*|decelerat\\w*).{0,60}(wage|pay|wages)[a-z ]{0,10}(growth|increases?|gains?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(wage|pay|wages)[a-z ]{0,10}(growth|increases?|gains?).{0,60}(accelerat\\w*|pick\\w* up|strengthen\\w*|surg\\w*|rising sharply|jump\\w*)",
+    "(accelerat\\w*|pick\\w* up|strengthen\\w*|surg\\w*|jump\\w*).{0,60}(wage|pay|wages)[a-z ]{0,10}(growth|increases?|gains?)"
+   ],
+   "quote": "Wage growth softened to a modest pace across most Districts, as did expectations for wage growth in coming months.",
+   "paraphrases": [
+    "Wage growth softened to a modest pace nationally.",
+    "Nationally, pay gains slowed across most Districts.",
+    "Wage growth moderated across the country this cycle."
+   ],
+   "decoys": [
+    "Wage growth accelerated sharply nationwide.",
+    "Employment growth softened across most Districts."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Expectations for wage growth in coming months also cooled",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(wage.{0,3}growth.{0,30}(expectations?|outlook)|(expectations?|outlook).{0,30}wage.{0,3}growth).{0,60}(cool\\w*|soften\\w*|slow\\w*|moderat\\w*|eas\\w*|decelerat\\w*)",
+    "(cool\\w*|soften\\w*|slow\\w*|moderat\\w*|eas\\w*|decelerat\\w*).{0,60}(wage.{0,3}growth.{0,30}(expectations?|outlook)|(expectations?|outlook).{0,30}wage.{0,3}growth)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "expectations?.{0,40}wage growth.{0,60}(rise|rising|increas\\w*|strengthen\\w*)"
+   ],
+   "quote": "Wage growth softened to a modest pace across most Districts, as did expectations for wage growth in coming months.",
+   "paraphrases": [
+    "Expectations for wage growth in coming months also cooled.",
+    "Firms' outlook for future wage growth softened as well.",
+    "Forward wage-growth expectations moderated alongside actual pay gains."
+   ],
+   "decoys": [
+    "Expectations for wage growth in coming months strengthened.",
+    "Wage growth softened to a modest pace across most Districts."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Employment levels were flat or up only slightly across Districts",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(employment|headcounts?|hiring|job growth|payrolls?).{0,60}(flat|little change\\w*|up (only )?slightly|rose (only )?slightly|edged? up slightly)",
+    "(flat|little change\\w*|up (only )?slightly|rose (only )?slightly|edged? up slightly).{0,60}(employment|headcounts?|hiring|job growth|payrolls?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(employment|headcounts?|hiring|job growth|payrolls?).{0,60}(surged|jumped|declined sharply|fell sharply|strong growth|robust growth|rose briskly)",
+    "(surged|jumped|declined sharply|fell sharply|strong growth|robust growth|rose briskly).{0,60}(employment|headcounts?|hiring|job growth|payrolls?)"
+   ],
+   "quote": "Employment levels were flat or up only slightly across Districts.",
+   "paraphrases": [
+    "Employment was roughly flat to slightly higher across most Districts.",
+    "Job growth was minimal, with employment little changed nationwide.",
+    "Headcounts were little changed nationally, edging up slightly in a few regions."
+   ],
+   "decoys": [
+    "Employment surged across most Districts.",
+    "Wage growth was flat to slightly higher across most Districts."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Richmond (Fifth District) cited negative impacts from Hurricane Helene and the port worker strike",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "Richmond.{0,120}Helene",
+    "Helene.{0,120}Richmond"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(no|little|minimal) (impact|effect).{0,80}Helene|Helene.{0,80}(no|little|minimal) (impact|effect)|unaffected"
+   ],
+   "quote": "Some negative impacts from Hurricane Helene and the port worker strike were reported by businesses in affected regions and segments of the economy.",
+   "paraphrases": [
+    "The Richmond Fed (Fifth District) said Hurricane Helene and the port strike weighed on some businesses.",
+    "In the Richmond District, Hurricane Helene and a worker strike at ports dented activity in affected areas.",
+    "Fifth District contacts in Richmond flagged Helene-related disruption and port strike effects."
+   ],
+   "decoys": [
+    "The Richmond District reported no impact from Hurricane Helene.",
+    "The Atlanta Fed said Hurricane Helene disrupted regional business activity."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Boston (First District) economic activity was down a bit on balance",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "Boston.{0,80}(down a bit|declin\\w*|down slightly|edged? down|fell slightly)",
+    "(down a bit|declin\\w*|down slightly|edged? down|fell slightly).{0,80}Boston"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "Boston.{0,80}(grew|rose|expand\\w*|increas\\w*)",
+    "(grew|rose|expand\\w*|increas\\w*).{0,80}Boston"
+   ],
+   "quote": "Economic activity was down a bit on balance.",
+   "paraphrases": [
+    "Boston-area (First District) activity was down a bit on balance.",
+    "The First District (Boston) saw economic activity edge down slightly.",
+    "Economic activity in the Boston Fed's district declined modestly."
+   ],
+   "decoys": [
+    "Boston-area economic activity grew slightly on balance.",
+    "New York-area economic activity was down a bit on balance."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Businesses were building up inventories ahead of expected import tariffs",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(inventor(?:y|ies)|stock(?:s|ing)?|purchases).{0,60}(increas\\w*|build\\w* up|stock\\w* up|ahead of|anticipation of|pull\\w* ahead|front-?load\\w*).{0,60}tariffs?",
+    "tariffs?.{0,60}(increas\\w*|build\\w* up|stock\\w* up|ahead of|anticipation of|pull\\w* ahead|front-?load\\w*).{0,60}(inventor(?:y|ies)|stock(?:s|ing)?|purchases)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(inventor(?:y|ies)|stock(?:s|ing)?|purchases).{0,60}(drew down|draw down|reduc\\w*|decreas\\w*|cut\\w*|lower\\w*|declin\\w*)",
+    "(drew down|draw down|reduc\\w*|decreas\\w*|cut\\w*|lower\\w*|declin\\w*).{0,60}(inventor(?:y|ies)|stock(?:s|ing)?|purchases)"
+   ],
+   "quote": "businesses were increasing inventories in anticipation of potential import tariffs.",
+   "paraphrases": [
+    "Retailers said they were building up inventories ahead of expected tariffs.",
+    "Some businesses stocked up on inventory in anticipation of import tariffs.",
+    "Firms pulled forward purchases to get ahead of potential tariff increases."
+   ],
+   "decoys": [
+    "Retailers drew down inventories despite concerns about tariffs.",
+    "The Fed's Beige Book was released on November 30, 2024."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Philadelphia firms' year-ahead inflation expectations (trimmed mean) rose to 3.3 percent in Q4 2024",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(inflation expectations?).{0,80}(?<!\\d)3\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)3\\.3(?!\\d)\\s?(percent|%).{0,80}(inflation expectations?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(inflation expectations?).{0,80}(fell|declined|dropped|decreased|edged down)"
+   ],
+   "quote": "The trimmed mean for inflation expectations was 3.3 percent for all firms in the fourth quarter of 2024—up from 3.0 percent in the third quarter.",
+   "paraphrases": [
+    "Philadelphia-area firms' inflation expectations rose to a trimmed mean of 3.3% in Q4 2024.",
+    "In the Third District, year-ahead inflation expectations climbed to 3.3 percent.",
+    "Philly Fed contacts' year-ahead inflation expectations rose to about 3.3%."
+   ],
+   "decoys": [
+    "Philadelphia firms' inflation expectations fell to 3.3 percent.",
+    "That was up from 3.0 percent in Q3 2024."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "That 3.3 percent reading was up from 3.0 percent in Q3 2024",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)3\\.0(?!\\d)\\s?(percent|%).{0,40}(third quarter|q3)|(third quarter|q3).{0,40}(?<!\\d)3\\.0(?!\\d)\\s?(percent|%)",
+    "up from.{0,20}(?<!\\d)3\\.0(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)3\\.6(?!\\d)\\s?percent.{0,20}(third quarter|q3)"
+   ],
+   "quote": "The trimmed mean for inflation expectations was 3.3 percent for all firms in the fourth quarter of 2024—up from 3.0 percent in the third quarter.",
+   "paraphrases": [
+    "That was up from 3.0 percent in the third quarter.",
+    "The reading rose from 3.0% in Q3 2024.",
+    "Inflation expectations climbed from a trimmed mean of 3.0 percent in Q3."
+   ],
+   "decoys": [
+    "That was down from 3.6 percent in the third quarter.",
+    "Philadelphia-area firms' inflation expectations rose to a trimmed mean of 3.3% in Q4 2024."
+   ]
+  }
+ ]
+}

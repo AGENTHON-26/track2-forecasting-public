@@ -1,0 +1,307 @@
+{
+ "doc_id": "cftc_cot_crude_2014",
+ "doc_type": "positioning_report",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Latest net long crude position is 253,001 contracts (week of 2014-11-25)",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(net long|net position|noncomm net|speculative long).{0,60}(?<!\\d)253,?001(?!\\d)",
+    "(?<!\\d)253,?001(?!\\d).{0,60}(net long|net position|contracts)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(net short|short position).{0,40}(?<!\\d)253,?001(?!\\d)",
+    "(?<!\\d)253,?001(?!\\d).{0,40}(net short|short position)"
+   ],
+   "quote": "2014-11-25 1386635 400621 147620 253001",
+   "paraphrases": [
+    "Net long crude positioning stood at 253,001 contracts as of Nov 25.",
+    "Speculators' net long crude position stood at 253,001 contracts in the latest report.",
+    "Non-commercial net long: 253,001 contracts (week of Nov 25)."
+   ],
+   "decoys": [
+    "Net short crude position of 253,001 contracts in the latest report.",
+    "Net long crude position of 258,001 contracts in the latest report."
+   ],
+   "source_pattern": [
+    "(?<!\\d)253,?001(?!\\d)"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "That's the lowest net long crude position of the period",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?<!\\d)253,?001(?!\\d).{0,40}(lowest|smallest)",
+    "(lowest|smallest).{0,40}(?<!\\d)253,?001(?!\\d)",
+    "(net long|net position|speculative long).{0,60}(lowest|smallest)",
+    "(lowest|smallest).{0,60}(net long|net position|speculative long)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)253,?001(?!\\d).{0,40}(highest|largest|record high)",
+    "(highest|largest|record high).{0,40}(?<!\\d)253,?001(?!\\d)"
+   ],
+   "quote": "2014-11-25 1386635 400621 147620 253001",
+   "paraphrases": [
+    "That's the lowest net long crude position of the period.",
+    "Speculative net length in crude hit its lowest point of the year at 253,001 contracts.",
+    "Net long crude positioning fell to its lowest level of the period, 253,001 contracts."
+   ],
+   "decoys": [
+    "That's the highest net long crude position of the period.",
+    "Net long crude positioning was roughly in the middle of its 2014 range at 253,001 contracts."
+   ],
+   "source_pattern": [
+    "(?<!\\d)253,?001(?!\\d)"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Net long crude positioning peaked at 458,969 contracts on 2014-06-24",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(peak|highest|high|record|largest).{0,60}(?<!\\d)458,?969(?!\\d)",
+    "(?<!\\d)458,?969(?!\\d).{0,60}(peak|highest|high|record|largest)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(low|lowest|trough|bottom).{0,60}(?<!\\d)458,?969(?!\\d)",
+    "(?<!\\d)458,?969(?!\\d).{0,60}(low|lowest|trough|bottom)"
+   ],
+   "quote": "2014-06-24 1720856 548016 89047 458969",
+   "paraphrases": [
+    "Net long crude positioning peaked at 458,969 contracts in late June.",
+    "Speculative net length hit a high of 458,969 contracts on June 24.",
+    "The period's largest net long was 458,969 contracts, on June 24."
+   ],
+   "decoys": [
+    "Net long crude positioning bottomed at 458,969 contracts in late June before recovering.",
+    "Net long crude positioning peaked at 448,969 contracts in late June before steadily unwinding."
+   ],
+   "source_pattern": [
+    "(?<!\\d)458,?969(?!\\d)"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Net long crude positioning declined steadily from the June peak to the latest week, not rising",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?<!\\d)253,?001(?!\\d).{0,80}(declin\\w*|fell|fall\\w*|dropped|drop|decreas\\w*|eas\\w*|unwound|unwind\\w*|steadily)",
+    "(declin\\w*|fell|fall\\w*|dropped|drop|decreas\\w*|eas\\w*|unwound|unwind\\w*|steadily).{0,80}(?<!\\d)253,?001(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)253,?001(?!\\d).{0,80}(rose|rising|climb\\w*|increas\\w*|grew|grow|built|rebound\\w*)",
+    "(rose|rising|climb\\w*|increas\\w*|grew|grow|built|rebound\\w*).{0,80}(?<!\\d)253,?001(?!\\d)"
+   ],
+   "quote": "2014-11-25 1386635 400621 147620 253001",
+   "paraphrases": [
+    "Net long crude positioning declined steadily from the June peak to 253,001 by late November.",
+    "Speculative net length in crude unwound steadily through H2 2014, falling to 253,001 contracts.",
+    "The net long crude position eased continuously from its June high down to 253,001 contracts."
+   ],
+   "decoys": [
+    "Net long crude positioning rose steadily from the June low to 253,001 contracts by late November.",
+    "Net long crude positioning stayed flat near 450,000 contracts through late November."
+   ],
+   "source_pattern": [
+    "(?<!\\d)458,?969(?!\\d)",
+    "(?<!\\d)253,?001(?!\\d)"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Noncommercial gross short crude positions were 165,287 contracts on 2014-11-11",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(gross short|noncomm short|\\bshorts?\\b).{0,60}(?<!\\d)165,?287(?!\\d)",
+    "(?<!\\d)165,?287(?!\\d).{0,60}(\\bshorts?\\b|contracts short)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(gross long|long position|longs).{0,40}(?<!\\d)165,?287(?!\\d)"
+   ],
+   "quote": "2014-11-11 1509371 442119 165287 276832",
+   "paraphrases": [
+    "Gross short crude positions were 165,287 contracts on Nov 11.",
+    "Speculative short crude bets stood at 165,287 contracts in mid-November.",
+    "The short side of the crude book was 165,287 contracts two weeks before the latest report."
+   ],
+   "decoys": [
+    "Gross long crude positions were 165,287 contracts on Nov 11.",
+    "Gross short crude positions were 175,287 contracts on Nov 11."
+   ],
+   "source_pattern": [
+    "(?<!\\d)165,?287(?!\\d)"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Noncommercial gross short crude positions fell to 147,620 (2014-11-25) -- a decrease, not an increase",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?<!\\d)147,?620(?!\\d).{0,80}(down|fell|fall|falling|decreas|declin|dropped|drop|reduc|small|less than|eas)",
+    "(down|fell|fall|falling|decreas|declin|dropped|drop|reduc|small|less than|eas).{0,80}(?<!\\d)147,?620(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)147,?620(?!\\d).{0,80}(rose|rise|risen|increas|climb|higher|grew|grow|up from|larger|widen)",
+    "(rose|rise|risen|increas|climb|higher|grew|grow|up from|larger|widen).{0,80}(?<!\\d)147,?620(?!\\d)"
+   ],
+   "quote": "2014-11-25 1386635 400621 147620 253001",
+   "paraphrases": [
+    "Gross short crude positions fell to 147,620 contracts by Nov 25, down from 165,287 two weeks earlier.",
+    "Speculators' short crude bets declined to 147,620 contracts, a drop from 165,287 in mid-November.",
+    "Non-commercial shorts eased to 147,620 contracts, down from 165,287 the prior reporting period."
+   ],
+   "decoys": [
+    "Gross short crude positions rose to 147,620 contracts by Nov 25, up from 165,287 two weeks earlier.",
+    "Gross short crude positions fell to 157,620 contracts by Nov 25, down from 165,287 two weeks earlier."
+   ],
+   "source_pattern": [
+    "(?<!\\d)165,?287(?!\\d)",
+    "(?<!\\d)147,?620(?!\\d)"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Open interest fell to 1,386,635 contracts in the latest week",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(open interest).{0,60}(?<!\\d)1,?386,?635(?!\\d)",
+    "(?<!\\d)1,?386,?635(?!\\d).{0,60}(open interest)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)1,?386,?635(?!\\d).{0,60}(rose|rise|risen|increas|higher|climbed)",
+    "(rose|rise|risen|increas|higher|climbed).{0,60}(?<!\\d)1,?386,?635(?!\\d)"
+   ],
+   "quote": "2014-11-25 1386635",
+   "paraphrases": [
+    "Open interest in crude fell to 1,386,635 contracts in the latest week.",
+    "Total open interest dropped to 1,386,635 contracts by Nov 25.",
+    "Crude futures open interest declined to about 1,386,635 contracts, its lowest of the period."
+   ],
+   "decoys": [
+    "Open interest rose to 1,386,635 contracts in the latest week.",
+    "Open interest fell to 1,483,635 contracts in the latest week."
+   ],
+   "source_pattern": [
+    "(?<!\\d)1,?386,?635(?!\\d)"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "That's down from a mid-2014 high near 1.76 million contracts (2014-07-01)",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(peak|high|highest|record).{0,60}((?<!\\d)1,?759,?554(?!\\d)|(?<!\\d)1\\.76(?!\\d)\\s*million)",
+    "((?<!\\d)1,?759,?554(?!\\d)|(?<!\\d)1\\.76(?!\\d)\\s*million).{0,60}(peak|high|highest|record)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(low|lowest|trough|bottom).{0,60}((?<!\\d)1,?759,?554(?!\\d)|(?<!\\d)1\\.76(?!\\d)\\s*million)",
+    "((?<!\\d)1,?759,?554(?!\\d)|(?<!\\d)1\\.76(?!\\d)\\s*million).{0,60}(low|lowest|trough|bottom)"
+   ],
+   "quote": "2014-07-01 1759554 535712 89872 445840",
+   "paraphrases": [
+    "That's down from a mid-2014 high near 1.76 million contracts.",
+    "Open interest had peaked at about 1,759,554 contracts in early July.",
+    "Total open interest hit its 2014 high of roughly 1.76 million contracts on July 1."
+   ],
+   "decoys": [
+    "That's down from a mid-2014 high near 1.5 million contracts.",
+    "Open interest bottomed at about 1,759,554 contracts in early July."
+   ],
+   "source_pattern": [
+    "(?<!\\d)1,?759,?554(?!\\d)"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Gross long crude positions fell to 400,621 contracts by 2014-11-25",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(gross long|noncomm long|\\blongs?\\b).{0,60}(?<!\\d)400,?621(?!\\d)",
+    "(?<!\\d)400,?621(?!\\d).{0,60}(\\blongs?\\b|contracts long)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(gross short|short position|shorts?\\b).{0,40}(?<!\\d)400,?621(?!\\d)"
+   ],
+   "quote": "2014-11-25 1386635 400621",
+   "paraphrases": [
+    "Gross long crude positions fell to 400,621 contracts by late November.",
+    "Speculators' long crude holdings dropped to 400,621 contracts.",
+    "The long side of the crude book totaled 400,621 contracts in the latest report."
+   ],
+   "decoys": [
+    "Gross short crude positions fell to 400,621 contracts by late November.",
+    "Gross long crude positions fell to 410,621 contracts by late November."
+   ],
+   "source_pattern": [
+    "(?<!\\d)400,?621(?!\\d)"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "That's down from over 540,000 (548,016) gross long contracts in late June",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(gross long|noncomm long|\\blongs?\\b).{0,60}(?<!\\d)548,?016(?!\\d)",
+    "(?<!\\d)548,?016(?!\\d).{0,60}(\\blongs?\\b|contracts long)",
+    "(over|more than|above|near|about|roughly|close to).{0,15}(?<!\\d)(548,?016|548,?000|540,?000)(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(gross short|short position|shorts?\\b).{0,40}(?<!\\d)548,?016(?!\\d)"
+   ],
+   "quote": "2014-06-24 1720856 548016 89047 458969",
+   "paraphrases": [
+    "That's down from over 540,000 contracts in late June.",
+    "Gross long crude positions were 548,016 contracts back on June 24.",
+    "Long crude holdings peaked near 548,000 contracts in late June before falling to 400,621."
+   ],
+   "decoys": [
+    "That's down from over 340,000 contracts in late June.",
+    "Gross long crude positions were 448,016 contracts back on June 24."
+   ],
+   "source_pattern": [
+    "(?<!\\d)548,?016(?!\\d)"
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "The steady liquidation of net long crude positioning through H2 2014 coincided with the sharp fall in crude prices, signalling eroding bullish conviction among speculators",
+   "tier": "should",
+   "kind": "judge_only",
+   "patterns": [],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "2014-11-25 1386635 400621 147620 253001",
+   "paraphrases": [
+    "Speculators steadily cut bullish crude bets through the second half of 2014 as prices fell.",
+    "The unwind in net long crude positioning tracked the broader 2014 oil price collapse.",
+    "Fading net length in crude points to weakening speculative conviction in higher prices."
+   ],
+   "decoys": [
+    "Speculators steadily added to bullish crude bets through the second half of 2014 as prices fell.",
+    "Net long crude positioning was unrelated to the move in oil prices during 2014."
+   ]
+  }
+ ]
+}

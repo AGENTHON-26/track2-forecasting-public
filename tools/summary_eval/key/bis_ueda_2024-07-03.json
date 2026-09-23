@@ -1,0 +1,156 @@
+{
+ "doc_id": "bis_ueda_2024-07-03",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Total value of new BOJ notes issued to the public on launch day is 1.6 trillion yen",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "¥\\s?(?<!\\d)1\\.6(?!\\d)\\s*(?:trillion|trn|tn)|(?<!\\d)1\\.6(?!\\d)\\s*(?:trillion|trn|tn).{0,60}(?:yen|notes|banknotes)|(?:yen|notes|banknotes).{0,60}(?<!\\d)1\\.6(?!\\d)\\s*(?:trillion|trn|tn)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Bank is planning to send off the new series of Bank of Japan notes with a total value of 1.6 trillion yen to the public",
+   "paraphrases": [
+    "BOJ to release 1.6trn yen of new banknotes to the public",
+    "New Japanese banknote series carries a total value of ¥1.6 trillion",
+    "Japan's central bank is distributing ¥1.6tn in new notes to the public"
+   ],
+   "decoys": [
+    "BOJ to release 16 trillion yen of new banknotes to the public",
+    "BOJ scales back cash issuance amid a digital-currency push"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "New series covers three denominations: 10,000 yen, 5,000 yen, and 1,000 yen notes",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "¥\\s?(?<!\\d)10,?000(?!\\d)|(?<!\\d)10,?000(?!\\d)[- ]?yen",
+    "¥\\s?(?<!\\d)5,?000(?!\\d)|(?<!\\d)5,?000(?!\\d)[- ]?yen",
+    "(?:¥\\s?(?<!\\d)1,?000(?!\\d)|(?<!\\d)1,?000(?!\\d)[- ]?yen)(?!\\d)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "The three denominations (10,000 yen, 5,000 yen, and 1,000 yen notes)",
+   "paraphrases": [
+    "New series covers three denominations: ¥10,000, ¥5,000 and ¥1,000 notes",
+    "BOJ redesigns the 10,000-yen, 5,000-yen, and 1,000-yen notes",
+    "New note series spans 10,000 yen, 5,000 yen, and 1,000 yen denominations"
+   ],
+   "decoys": [
+    "New series covers four denominations including a 2,000 yen note",
+    "BOJ redesigns only the 10,000 yen note this cycle"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "The redesign was first announced in April 2019",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "April\\s*(?<!\\d)2019(?!\\d).{0,80}(?:announce|introduc|unveil)",
+    "(?:announce|introduc|unveil).{0,80}April\\s*(?<!\\d)2019(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "since the announcement to introduce a new series of Bank of Japan notes was made in April 2019",
+   "paraphrases": [
+    "BOJ first announced the new note series back in April 2019",
+    "The redesign was originally announced in April 2019",
+    "BOJ unveiled plans for the new note series in April 2019"
+   ],
+   "decoys": [
+    "BOJ announced the new notes in April 2020",
+    "New notes were announced just months before launch"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "New notes were issued more than five years after that April 2019 announcement",
+   "tier": "should",
+   "kind": "judge_only",
+   "patterns": [],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "since the announcement to introduce a new series of Bank of Japan notes was made in April 2019",
+   "paraphrases": [
+    "New banknotes launch more than five years after their April 2019 unveiling",
+    "The redesign was originally announced in April 2019, issued in July 2024",
+    "It took over five years from the 2019 announcement to today's launch"
+   ],
+   "decoys": [
+    "The new notes launched less than a year after the redesign was announced",
+    "BOJ introduced the new notes the same month they were announced"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Ueda frames cash as continuing to play a significant role despite the trend toward cashless payment",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "cash.{0,80}(?:continue|significant role|secure|important role)",
+    "(?:continue|significant role|secure|important role).{0,80}cash"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "cash.{0,80}(?:declin|fad(?:e|ing)|phase.?out|disappear|obsolete)",
+    "(?:declin|fad(?:e|ing)|phase.?out|disappear|obsolete).{0,80}cash"
+   ],
+   "quote": "Despite the trend toward cashless payment, cash is a secure means of payment that can be used by anyone, anywhere, and at any time, and it will continue to play a significant role.",
+   "paraphrases": [
+    "Ueda says cash will keep playing a significant role despite the shift to cashless payments",
+    "BOJ governor stresses cash remains a secure, universal payment method even as cashless use grows",
+    "Despite cashless trends, the BOJ sees continued importance for physical cash"
+   ],
+   "decoys": [
+    "Ueda says cash use is fading fast as cashless payments take over",
+    "BOJ plans to phase out low-denomination notes"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "New notes add security upgrades including 3-D holograms",
+   "tier": "should",
+   "kind": "phrase",
+   "patterns": [
+    "(?<!\\d)3(?!\\d)-?d.{0,20}holo"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "These notes come with the latest security features, including 3-D holograms.",
+   "paraphrases": [
+    "New notes include advanced anti-counterfeiting features such as 3-D holograms",
+    "Security upgrades include 3D holographic elements on the new banknotes",
+    "BOJ's redesigned notes add 3-D hologram security features"
+   ],
+   "decoys": [
+    "New notes drop holograms in favor of QR codes",
+    "Security features remain unchanged from the previous series"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Notes carry portraits of Shibusawa Eiichi, Tsuda Umeko, and Kitasato Shibasaburo",
+   "tier": "should",
+   "kind": "judge_only",
+   "patterns": [],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "portraits of SHIBUSAWA Eiichi, TSUDA Umeko, and KITASATO Shibasaburo, respectively",
+   "paraphrases": [
+    "New notes feature portraits of Shibusawa Eiichi, Tsuda Umeko, and Kitasato Shibasaburo",
+    "The 10,000, 5,000, and 1,000 yen notes depict Shibusawa, Tsuda, and Kitasato respectively",
+    "Redesigned banknotes carry images of three historical Japanese figures"
+   ],
+   "decoys": [
+    "New notes feature portraits of current government officials",
+    "The 10,000 yen note now depicts Emperor Naruhito"
+   ]
+  }
+ ]
+}

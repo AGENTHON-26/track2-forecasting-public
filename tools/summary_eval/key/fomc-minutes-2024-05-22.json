@@ -1,0 +1,149 @@
+{
+ "doc_id": "fomc-minutes-2024-05-22",
+ "doc_type": "fomc_minutes",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Committee held the federal funds target range unchanged this meeting",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(target range|federal funds rate|fed funds rate|policy rate).{0,60}(unchanged|steady|on hold|held|no change|maintained)",
+    "(unchanged|steady|on hold|held|no change|maintained).{0,60}(target range|federal funds rate|fed funds rate|policy rate)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(target range|federal funds rate|fed funds rate|policy rate).{0,60}(rais\\w*|hik\\w*|cut|lower\\w*|reduc\\w*)",
+    "(rais\\w*|hik\\w*|cut|lower\\w*|reduc\\w*).{0,60}(target range|federal funds rate|fed funds rate|policy rate)"
+   ],
+   "quote": "keeping the target range for the federal funds rate unchanged",
+   "paraphrases": [
+    "Fed kept rates on hold, leaving the target range unchanged.",
+    "FOMC left the fed funds rate steady at this meeting.",
+    "Committee maintained its restrictive policy stance, holding the target range unchanged."
+   ],
+   "decoys": [
+    "FOMC cut the target range by 25bp at this meeting.",
+    "Fed raised the target range 25bp, continuing its hiking cycle."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Inflation remained above the Fed's 2 percent longer-run goal despite recent improvement",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(inflation|price growth|price pressures|price gains).{0,80}(above|exceed\\w*|overshoot\\w*).{0,60}((?<!\\d)2(?!\\d)\\s*(percent|%)|target|goal|objective)",
+    "(above|exceed\\w*|overshoot\\w*).{0,60}((?<!\\d)2(?!\\d)\\s*(percent|%)|target|goal|objective).{0,80}(inflation|price growth|price pressures|price gains)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(inflation|price growth|price pressures|price gains).{0,80}(below|beneath|under|back at|already at|now at|reached|hit).{0,60}((?<!\\d)2(?!\\d)\\s*(percent|%)|target|goal|objective)",
+    "(below|beneath|under|back at|already at|now at|reached|hit).{0,60}((?<!\\d)2(?!\\d)\\s*(percent|%)|target|goal|objective).{0,80}(inflation|price growth|price pressures|price gains)"
+   ],
+   "quote": "it remained above the Committee's 2 percent longer-run goal",
+   "paraphrases": [
+    "Inflation stayed above the Fed's 2% longer-run target even as it eased.",
+    "Despite recent progress, inflation was still running above the 2 percent goal.",
+    "Price growth remained above the Committee's 2% objective."
+   ],
+   "decoys": [
+    "Inflation was already back at the Fed's 2 percent target.",
+    "Inflation had fallen below the Committee's 2 percent goal."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Inflation had declined over the past year even as it remained above target",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(inflation|price growth|price pressures|price gains).{0,80}(declin\\w*|eased|fallen|dropped|slowed|moderated|cooled|come down).{0,60}(past year|last year|over the year|during the past year|preceding (twelve|12) months|twelve months|12 months)",
+    "(declin\\w*|eased|fallen|dropped|slowed|moderated|cooled|come down).{0,60}(past year|last year|over the year|during the past year|preceding (twelve|12) months|twelve months|12 months).{0,80}(inflation|price growth|price pressures|price gains)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(inflation|price growth|price pressures|price gains).{0,80}(risen|increased|rose|climbed|accelerated).{0,60}(past year|last year|over the year)"
+   ],
+   "quote": "while inflation had declined over the past year, it remained above the Committee's 2 percent longer-run goal",
+   "paraphrases": [
+    "Inflation had eased over the past year, even though it remained above the 2% goal.",
+    "While still above target, inflation had declined over the preceding twelve months.",
+    "Inflation cooled over the past year but stayed above the Fed's longer-run objective."
+   ],
+   "decoys": [
+    "Inflation had risen over the past year, moving further above the Fed's goal.",
+    "Inflation remained above the Committee's 2 percent longer-run goal."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Some participants said they would be willing to tighten policy further if inflation proves more persistent than expected",
+   "tier": "should",
+   "kind": "phrase",
+   "patterns": [
+    "(willing to tighten|open to (further )?tightening|additional tightening|hike further|raise rates further|tighten (policy )?further)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(rule(d)? out|no need for|unlikely to need|do not (expect|anticipate)).{0,80}(tighten\\w*|hike|hiking|additional (tightening|hikes))"
+   ],
+   "quote": "they would be willing to tighten policy further if inflation were to prove more persistent than expected",
+   "paraphrases": [
+    "Some officials said they'd hike further if inflation proves stickier than expected.",
+    "A number of participants remained open to additional tightening should inflation prove more persistent.",
+    "Some policymakers were willing to raise rates further if price pressures stayed elevated longer than expected."
+   ],
+   "decoys": [
+    "Some participants said they would consider cutting rates further if growth weakened unexpectedly.",
+    "All participants ruled out any further policy tightening this year."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Several participants pushed back their expected timing of the first rate cut",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(rate (cut|reduction)|first (rate )?cut|easing).{0,80}(later|delay\\w*|push\\w*.{0,10}back|further out|pushed out)",
+    "(later|delay\\w*|push\\w*.{0,10}back|further out|pushed out).{0,80}(rate (cut|reduction)|first (rate )?cut|easing)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(rate (cut|reduction)|first (rate )?cut|easing).{0,80}(sooner|earlier|moved up|brought forward)",
+    "(sooner|earlier|moved up|brought forward).{0,80}(rate (cut|reduction)|first (rate )?cut|easing)"
+   ],
+   "quote": "they had moved their assessment of the timing of rate reduction later than earlier anticipated",
+   "paraphrases": [
+    "Several participants pushed back their expected timing for the first rate cut.",
+    "Many officials now see the initial rate reduction coming later than previously thought.",
+    "The expected start of rate cuts was delayed, per several participants' updated views."
+   ],
+   "decoys": [
+    "Several participants said the first rate cut could come sooner than previously expected.",
+    "Participants said the first rate cut had been moved up to the June meeting."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "FOMC reiterated it would not cut the target range until gaining greater confidence inflation is moving sustainably toward 2 percent",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "(greater confidence|confident).{0,100}(sustainably|sustainable|sustained).{0,40}((?<!\\d)2(?!\\d)\\s*(percent|%))"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "they did not expect it would be appropriate to reduce the target range until they had gained greater confidence that inflation was moving sustainably toward 2 percent",
+   "paraphrases": [
+    "The Fed said it needs greater confidence inflation is moving sustainably to 2% before cutting rates.",
+    "FOMC reiterated no rate cuts until it's confident inflation is headed sustainably back to 2 percent.",
+    "Guidance: rate reduction awaits greater confidence in a sustainable return to the 2% goal."
+   ],
+   "decoys": [
+    "The Fed said it needs greater confidence in labor-market strength before cutting rates.",
+    "FOMC said it would cut rates once GDP growth exceeded 3 percent."
+   ]
+  }
+ ]
+}

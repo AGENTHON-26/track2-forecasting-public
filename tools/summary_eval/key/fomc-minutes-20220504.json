@@ -1,0 +1,232 @@
+{
+ "doc_id": "fomc-minutes-20220504",
+ "doc_type": "fomc_minutes",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Committee raised the federal funds target range 50 basis points",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "((?<!\\d)50(?!\\d)\\s*-?\\s*(basis[\\s-]*points?|bps?|bp)|(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)\\s*percentage\\s*point|half\\s*a?\\s*percentage\\s*point|(?<!\\d)0\\.50(?!\\d)\\s*(percentage\\s*point|%)).{0,80}(target range|federal funds rate|fed funds rate|fed funds target|policy rate|funds rate|\\btarget\\b|\\brates?\\b)",
+    "(target range|federal funds rate|fed funds rate|fed funds target|policy rate|funds rate|\\brates?\\b).{0,80}((?<!\\d)50(?!\\d)\\s*-?\\s*(basis[\\s-]*points?|bps?|bp)|(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)\\s*percentage\\s*point|half\\s*a?\\s*percentage\\s*point|(?<!\\d)0\\.50(?!\\d)\\s*(percentage\\s*point|%))"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "it was appropriate to raise the target range for the federal funds rate 50 basis points at this meeting",
+   "paraphrases": [
+    "FOMC hiked rates 50bp at this meeting.",
+    "Fed raised the policy rate by half a percentage point (50bp).",
+    "Committee delivered a 50-basis-point (0.50%) increase to the funds rate."
+   ],
+   "decoys": [
+    "Fed held rates steady, awaiting more data.",
+    "FOMC raised rates 25 basis points."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "The new target range is 3/4 to 1 percent",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(3/4|0\\.75)\\s*(to|-|–)\\s*1\\s*(percent|%)",
+    "0\\.75\\s*(to|-|–)\\s*1\\.00\\s*%"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Committee decided to raise the target range for the federal funds rate to 3/4 to 1 percent",
+   "paraphrases": [
+    "The fed funds target is now 3/4 to 1 percent.",
+    "The new policy rate range is 0.75-1.00%.",
+    "The target range moved to 3/4 to 1 percent."
+   ],
+   "decoys": [
+    "Fed held rates steady at 1/4 to 1/2 percent, awaiting more data.",
+    "FOMC raised rates 25 basis points to a range of 1/2 to 3/4 percent."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Balance-sheet runoff (QT) begins June 1, 2022",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(balance sheet|securities holdings|runoff|reinvest\\w*).{0,80}June\\s*(?<!\\d)1(?!\\d)\\b",
+    "June\\s*(?<!\\d)1(?!\\d)\\b.{0,80}(balance sheet|securities holdings|runoff|reinvest\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "begin reducing its holdings of Treasury securities and agency debt and agency mortgage-backed securities on June 1",
+   "paraphrases": [
+    "Fed will start balance-sheet runoff (QT) on June 1, letting Treasuries and MBS roll off.",
+    "Committee to begin shrinking its securities holdings starting June 1, 2022.",
+    "Quantitative tightening kicks off June 1 via reduced reinvestment of Treasury and MBS proceeds."
+   ],
+   "decoys": [
+    "Balance-sheet runoff will begin on September 1, once caps are finalized.",
+    "The Fed will continue reinvesting all proceeds, keeping the balance sheet flat for now."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Committee said it is highly attentive to inflation risks",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "(highly\\s+attentive|high\\s+attentiveness|closely\\s+watching).{0,60}inflation\\s+risks?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "inflation risks?.{0,40}(balanced|diminished|no longer|have faded)"
+   ],
+   "quote": "highly attentive to inflation risks",
+   "paraphrases": [
+    "The FOMC said it remains highly attentive to inflation risks.",
+    "Fed signaled it is closely watching, and highly attentive to, inflation risks.",
+    "Statement reiterated the Committee's high attentiveness to inflation risk."
+   ],
+   "decoys": [
+    "The Committee said it is highly attentive to downside growth risks.",
+    "The FOMC noted inflation risks were now balanced and required no special attention."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Most participants judged 50 basis point hikes likely appropriate at the next couple of meetings",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)50(?!\\d)\\s*-?\\s*(basis[\\s-]*points?|bps?|bp).{0,80}(next|coming|upcoming|future).{0,20}(couple|two|few|several)?.{0,10}meetings?",
+    "(next|coming|upcoming|future).{0,20}(couple|two|few|several)?.{0,10}meetings?.{0,80}(?<!\\d)50(?!\\d)\\s*-?\\s*(basis[\\s-]*points?|bps?|bp)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)25(?!\\d)\\s*-?\\s*(basis[\\s-]*points?|bps?|bp).{0,80}(next|coming|upcoming|future).{0,20}meetings?"
+   ],
+   "quote": "Most participants judged that 50 basis point increases in the target range would likely be appropriate at the next couple of meetings",
+   "paraphrases": [
+    "Fed signaled additional 50bp hikes at the next couple of meetings.",
+    "Most officials expected two more half-point (50bp) rate increases at upcoming meetings.",
+    "FOMC guided toward further 50-basis-point moves at the next few meetings."
+   ],
+   "decoys": [
+    "Most participants expected 25bp increases at the next couple of meetings.",
+    "Officials said further hikes were unlikely for the rest of the year."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Initial monthly runoff cap set at $30 billion for Treasuries",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)30(?!\\d)\\s*(billion|bn|b)\\b.{0,80}(treasur\\w+)",
+    "(treasur\\w+).{0,80}\\$?(?<!\\d)30(?!\\d)\\s*(billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the cap will initially be set at $30 billion per month",
+   "paraphrases": [
+    "Initial QT cap: $30B/month for Treasuries.",
+    "Runoff will start at $30 billion for Treasury securities per month.",
+    "Fed set a starting redemption cap of $30bn for Treasuries monthly."
+   ],
+   "decoys": [
+    "Runoff caps were set at $60 billion Treasuries from the start.",
+    "Fed capped monthly Treasury runoff at $25 billion."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Initial monthly runoff cap set at $17.5 billion for agency MBS",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)17\\.5(?!\\d)\\s*(billion|bn|b)\\b.{0,80}(mbs|mortgage[- ]backed|agency)",
+    "(mbs|mortgage[- ]backed|agency).{0,80}\\$?(?<!\\d)17\\.5(?!\\d)\\s*(billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "For agency debt and agency mortgage-backed securities, the cap will initially be set at $17.5 billion per month",
+   "paraphrases": [
+    "Initial QT cap: $17.5B/month for agency MBS.",
+    "Runoff will start at $17.5 billion for MBS per month.",
+    "Fed set a starting redemption cap of $17.5bn for agency MBS monthly."
+   ],
+   "decoys": [
+    "Runoff caps were set at $35 billion MBS from the start.",
+    "Fed capped monthly MBS runoff at $15 billion."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Total PCE inflation was 6.6 percent over the 12 months through March",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)6\\.6(?!\\d)\\s*(percent|%).{0,80}(pce|inflation)",
+    "(\\bpce\\b|inflation).{0,80}(?<!\\d)6\\.6(?!\\d)\\s*(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,30}(?<!\\d)6\\.6(?!\\d)",
+    "(?<!\\d)6\\.6(?!\\d).{0,30}core"
+   ],
+   "quote": "Total PCE price inflation was 6.6 percent over the 12 months ending in March, and core PCE price inflation",
+   "paraphrases": [
+    "Headline PCE inflation ran at 6.6% y/y through March.",
+    "12-month PCE inflation hit 6.6%.",
+    "Total PCE price inflation was 6.6% for the year through March."
+   ],
+   "decoys": [
+    "Headline PCE inflation cooled to 4.6% y/y in March.",
+    "Core PCE inflation was 6.6 percent over the 12 months ending in March."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Core PCE inflation was 5.2 percent over the same 12-month period",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)5\\.2(?!\\d)\\s*(percent|%).{0,130}(core|pce)",
+    "(core|pce).{0,130}(?<!\\d)5\\.2(?!\\d)\\s*(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "core PCE price inflation, which excludes changes in consumer energy prices and many consumer food prices, was 5.2 percent over the same period",
+   "paraphrases": [
+    "Core PCE inflation was 5.2% over the 12 months through March.",
+    "Core (ex food & energy) PCE inflation ran at 5.2% for the year to March.",
+    "Core PCE price inflation stood at 5.2 percent."
+   ],
+   "decoys": [
+    "Core PCE inflation surged to 8.2% over the 12 months ending in March.",
+    "Total PCE inflation was 6.6 percent over the same period."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Unemployment rate declined to 3.6 percent",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(unemployment( rate| level)?|jobless rate).{0,60}(?<!\\d)3\\.6(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)3\\.6(?!\\d)\\s*(percent|%).{0,60}(unemployment( rate| level)?|jobless rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the unemployment rate declined to 3.6 percent",
+   "paraphrases": [
+    "Unemployment fell to 3.6% in March.",
+    "Jobless rate dropped to 3.6 percent.",
+    "The unemployment rate declined to 3.6%, a new low."
+   ],
+   "decoys": [
+    "Unemployment rate held steady at 3.8 percent.",
+    "Unemployment rate rose to 3.9 percent in March."
+   ]
+  }
+ ]
+}

@@ -1,0 +1,210 @@
+{
+ "doc_id": "fomc-minutes-20130501",
+ "doc_type": "fomc_minutes",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Committee continued QE3 Treasury purchases at $45 billion per month",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)45(?!\\d)\\s*(billion|bn|b)\\b.{0,80}treasur\\w+",
+    "treasur\\w+.{0,80}\\$?(?<!\\d)45(?!\\d)\\s*(billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "continue purchases of MBS at a pace of $40 billion per month and purchases of longer-term Treasury securities at a pace of $45 billion per month",
+   "paraphrases": [
+    "Fed kept buying $45bn/month of Treasuries.",
+    "Committee maintained QE3 Treasury purchases at $45 billion per month.",
+    "FOMC continued asset purchases at $45B monthly in longer-term Treasuries."
+   ],
+   "decoys": [
+    "Committee slowed Treasury purchases to $35 billion per month.",
+    "Fed announced it would end Treasury purchases entirely at this meeting."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Committee continued QE3 agency MBS purchases at $40 billion per month",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)40(?!\\d)\\s*(billion|bn|b)\\b.{0,80}(mbs|mortgage[- ]backed|agency)",
+    "(mbs|mortgage[- ]backed|agency).{0,80}\\$?(?<!\\d)40(?!\\d)\\s*(billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "continue purchases of MBS at a pace of $40 billion per month and purchases of longer-term Treasury securities at a pace of $45 billion per month",
+   "paraphrases": [
+    "Fed kept buying $40bn/month of agency MBS.",
+    "Committee maintained QE3 MBS purchases at $40 billion per month.",
+    "FOMC continued asset purchases at $40B monthly in agency mortgage-backed securities."
+   ],
+   "decoys": [
+    "Committee slowed MBS purchases to $30 billion per month.",
+    "Fed announced it would end MBS purchases entirely at this meeting."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "George dissented from the decision",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "George.{0,80}(dissent\\w*|voted against|opposed|objected)",
+    "(dissent\\w*|voted against|opposed|objected).{0,80}George"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Ms. George dissented because she continued to view monetary policy as overly accommodative and therefore as posing risks",
+   "paraphrases": [
+    "George dissented from the decision.",
+    "Esther George voted against the decision.",
+    "The sole dissenter was George."
+   ],
+   "decoys": [
+    "Lacker dissented from the decision.",
+    "All eleven members voted for the decision with no dissents recorded."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "George preferred to signal a near-term tapering of asset purchases",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "George.{0,100}(prefer\\w*|favor\\w*|wanted|sought).{0,60}(taper\\w*|reduc\\w*|slow\\w*)",
+    "(prefer\\w*|favor\\w*|wanted|sought).{0,60}(taper\\w*|reduc\\w*|slow\\w*).{0,100}George"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Ms. George preferred to signal a near-term tapering of asset purchases, which would begin to move policy toward a more appropriate stance.",
+   "paraphrases": [
+    "George preferred to signal a near-term taper of asset purchases.",
+    "George favored an early move toward tapering the Fed's asset purchases.",
+    "Esther George wanted the Committee to signal tapering purchases soon."
+   ],
+   "decoys": [
+    "George dissented from the decision.",
+    "George preferred to increase the pace of asset purchases."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Guidance: highly accommodative policy expected to remain in place at least while unemployment is above 6-1/2 percent and inflation projections are contained",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(unemployment|jobless\\w*).{0,60}(?<!\\d)6(?!\\d)(?:-(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|\\s(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|\\.(?<!\\d)5(?!\\d)|½)\\s*(percent|%)",
+    "(?<!\\d)6(?!\\d)(?:-(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|\\s(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|\\.(?<!\\d)5(?!\\d)|½)\\s*(percent|%).{0,60}(unemployment|jobless\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "this exceptionally low range for the federal funds rate will be appropriate at least as long as the unemployment rate remains above 6 1/2 percent",
+   "paraphrases": [
+    "Fed reiterated near-zero rates would stay in place at least until unemployment falls below 6.5%.",
+    "Committee kept its 6-1/2% unemployment threshold for considering the first rate hike.",
+    "Guidance: rates stay exceptionally low as long as joblessness is above 6.5 percent."
+   ],
+   "decoys": [
+    "Committee lowered its unemployment threshold for a hike to 5.5 percent.",
+    "Fed said it would hike once unemployment fell below 4 percent."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Committee signaled willingness to increase or reduce the pace of purchases as the outlook changes",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(increase or reduce|increase or decrease|raise or lower|speed up or slow|adjust\\w*|up or down).{0,60}(pace|purchas\\w*|buying)",
+    "(pace|purchas\\w*|buying).{0,60}(increase or reduce|increase or decrease|speed up or slow|up or down|adjust\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The Committee is prepared to increase or reduce the pace of its purchases to maintain appropriate policy accommodation as the outlook for the labor market or inflation changes",
+   "paraphrases": [
+    "Fed signaled it could speed up or slow QE purchases depending on the outlook.",
+    "Committee said it stood ready to increase or reduce its buying pace as conditions warrant.",
+    "FOMC kept optionality to adjust the pace of asset purchases up or down."
+   ],
+   "decoys": [
+    "Committee said the pace of purchases was now fixed and would not change.",
+    "Fed committed to ending purchases entirely within two months."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Inflation running somewhat below the Committee's 2 percent longer-run objective",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(inflation|price gains|price growth|prices).{0,60}(below|under|beneath).{0,60}(objective|goal|target|(?<!\\d)2(?!\\d)\\s?(percent|%))",
+    "(below|under|beneath).{0,40}(?<!\\d)2(?!\\d)\\s?(percent|%).{0,40}(objective|goal|target)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "inflation.{0,60}(above|exceed\\w*|overshoot\\w*).{0,60}(objective|goal)"
+   ],
+   "quote": "Inflation has been running somewhat below the Committee's longer-run objective",
+   "paraphrases": [
+    "Inflation ran somewhat below the Fed's 2 percent longer-run objective.",
+    "Price gains stayed under the Committee's longer-run 2% goal.",
+    "Headline inflation remained below the FOMC's longer-run objective."
+   ],
+   "decoys": [
+    "Inflation ran persistently above the Committee's longer-run objective.",
+    "Inflation held exactly at the Committee's 2 percent objective, unaffected by energy prices."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Unemployment rate was 7.6 percent in March",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(unemployment( rate| level)?|jobless rate).{0,60}(?<!\\d)7\\.6(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)7\\.6(?!\\d)\\s*(percent|%).{0,60}(unemployment( rate| level)?|jobless rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The unemployment rate was 7.6 percent in March",
+   "paraphrases": [
+    "Unemployment rate stood at 7.6% in March.",
+    "Jobless rate was 7.6 percent last month.",
+    "The unemployment rate held at 7.6%, a little below its Q4 average."
+   ],
+   "decoys": [
+    "Unemployment rate fell to 6.6 percent in March.",
+    "Unemployment rate rose to 8.1 percent in March."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Fiscal policy (sequestration and tax increases) was seen as restraining economic growth",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(fiscal policy|sequest\\w*|tax increas\\w*).{0,60}(restrain\\w*|drag|headwind|weigh\\w*|held back|held down)",
+    "(restrain\\w*|drag|headwind|weigh\\w*).{0,60}(fiscal policy|sequest\\w*|federal spending)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "fiscal policy.{0,60}(boost\\w*|support\\w*|stimulat\\w*)",
+    "(not|rather than) fiscal policy",
+    "monetary policy,? not fiscal"
+   ],
+   "quote": "fiscal policy was restraining economic growth",
+   "paraphrases": [
+    "Fiscal tightening (sequestration, tax hikes) was seen as a drag on growth.",
+    "Participants said fiscal policy continued to restrain economic activity.",
+    "The federal spending sequester was viewed as a headwind to the recovery."
+   ],
+   "decoys": [
+    "Fiscal policy was seen as providing a meaningful boost to growth this year.",
+    "Participants said monetary policy, not fiscal policy, was the main drag on growth."
+   ]
+  }
+ ]
+}

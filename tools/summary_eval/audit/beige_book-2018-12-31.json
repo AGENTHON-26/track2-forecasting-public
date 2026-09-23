@@ -1,0 +1,21 @@
+{
+ "doc_id": "beige_book-2018-12-31",
+ "labels": {
+  "p1": true,
+  "p2": true,
+  "p3": true,
+  "p4": true,
+  "p5": false,
+  "p6": false,
+  "p7": true,
+  "p8": true,
+  "p9": false,
+  "p10": false,
+  "p11": false,
+  "p12": false
+ },
+ "notes": {
+  "p5": "tariffs appear only as an uncertainty in the outlook, not as costs spreading down the chain",
+  "p6": "no wage growth statement at all"
+ }
+}

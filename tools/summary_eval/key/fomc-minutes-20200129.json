@@ -1,0 +1,277 @@
+{
+ "doc_id": "fomc-minutes-20200129",
+ "doc_type": "fomc_minutes",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Committee held the target range at 1-1/2 to 1-3/4 percent",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(target range|federal funds rate|policy rate|\\brates?\\b).{0,80}((?<!\\d)1(?!\\d)[\\s-]*(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)1\\.50(?!\\d)|(?<!\\d)1\\.5(?!\\d)).{0,20}(to|-|–).{0,20}((?<!\\d)1(?!\\d)[\\s-]*(?<!\\d)3(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)1\\.75(?!\\d))",
+    "((?<!\\d)1(?!\\d)[\\s-]*(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)1\\.50(?!\\d)|(?<!\\d)1\\.5(?!\\d)).{0,20}(to|-|–).{0,20}((?<!\\d)1(?!\\d)[\\s-]*(?<!\\d)3(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)1\\.75(?!\\d)).{0,80}(target range|federal funds rate|policy rate|\\brates?\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Members agreed to maintain the target range for the federal funds rate at 1-1/2 to 1-3/4 percent.",
+   "paraphrases": [
+    "FOMC left the target range unchanged at 1.50-1.75% for a second consecutive meeting.",
+    "Fed held rates steady at 1-1/2 to 1-3/4 percent.",
+    "Committee kept the policy rate at 1.50%-1.75%."
+   ],
+   "decoys": [
+    "FOMC raised rates 25bp to 1.75-2.00 percent.",
+    "Fed cut the target range to 1.25-1.50 percent."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "The decision was unanimous, with no dissents",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "voting against this action.{0,20}\\bnone\\b",
+    "unanimous\\w*",
+    "no dissent\\w*|none dissent\\w*|zero dissent\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Voting against this action: None.",
+   "paraphrases": [
+    "The decision was unanimous, with no dissents.",
+    "All ten voting members supported the decision; none dissented.",
+    "Voting against this action: none — a unanimous vote."
+   ],
+   "decoys": [
+    "One member dissented from the decision.",
+    "The vote was 9-1 in favor of the decision."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Statement changed inflation language from 'near' to 'returning to' 2 percent",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "returning to.{0,60}((?<!\\d)2(?!\\d)\\s*(percent|%))",
+    "\\bnear\\b.{0,60}((?<!\\d)2(?!\\d)\\s*(percent|%))"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "They also agreed to describe the current monetary policy stance as consistent with inflation \"returning to,\" rather than being \"near,\" their symmetric 2 percent longer-run objective.",
+   "paraphrases": [
+    "The Fed changed its statement language from 'inflation near 2%' to 'returning to 2 percent.'",
+    "FOMC revised its guidance, replacing 'near 2 percent' with 'returning to 2 percent.'",
+    "The Committee said inflation was 'returning to' rather than 'near' its 2 percent objective."
+   ],
+   "decoys": [
+    "The Fed said inflation was already near its 2 percent objective, with no need for policy change.",
+    "The Committee changed its language to say growth, not inflation, was returning to trend."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Board raised the IOER rate to 1.60 percent",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(IOER|interest (on|rate).{0,20}(excess|required) reserves?).{0,80}(?<!\\d)1\\.60(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)1\\.60(?!\\d)\\s*(percent|%).{0,80}(IOER|interest (on|rate).{0,20}(excess|required) reserves?)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Board of Governors voted unanimously to raise the interest rates on required and excess reserve balances to 1.60 percent",
+   "paraphrases": [
+    "The Fed raised the IOER rate to 1.60%.",
+    "Board lifted interest on excess reserves to 1.60 percent.",
+    "IOER was set at 1.60%, keeping the effective funds rate within range."
+   ],
+   "decoys": [
+    "The Fed cut the IOER rate to 1.55 percent.",
+    "Board left the IOER rate unchanged at 1.55 percent."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "The IOER increase was a 5 basis point technical adjustment",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)5(?!\\d)\\s*-?\\s*(basis[\\s-]*points?|bps?|bp).{0,80}(IOER|interest (on|rate).{0,30}reserves?)",
+    "(IOER|interest (on|rate).{0,30}reserves?).{0,80}(?<!\\d)5(?!\\d)\\s*-?\\s*(basis[\\s-]*points?|bps?|bp)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Board would lift the interest rates on required and excess reserves by 5 basis points",
+   "paraphrases": [
+    "The Fed raised the IOER rate by 5 basis points, a technical adjustment.",
+    "IOER was lifted 5bp as a technical tweak to keep the funds rate within range.",
+    "The Board's move on interest on reserves was a small, 5-basis-point technical adjustment."
+   ],
+   "decoys": [
+    "The Fed raised the IOER rate by 25 basis points.",
+    "The IOER adjustment reflected a policy tightening, not a technical fix."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Unemployment rate held at 3.5 percent in December",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(unemployment( rate)?|jobless rate).{0,60}(?<!\\d)3\\.5(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)3\\.5(?!\\d)\\s*(percent|%).{0,60}(unemployment( rate)?|jobless rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The unemployment rate held steady at its 50-year low of 3.5 percent in December",
+   "paraphrases": [
+    "Unemployment held at 3.5% in December.",
+    "Jobless rate stayed at 3.5 percent, matching November's reading.",
+    "The unemployment rate remained 3.5% in December."
+   ],
+   "decoys": [
+    "Unemployment rate rose to 3.7 percent in December.",
+    "Unemployment held steady at 3.6 percent for a third month."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "The 3.5 percent unemployment rate was a 50-year low",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(50[- ]year|50 years|five decades|half\\s*(a\\s*)?century).{0,60}low\\w*",
+    "low\\w*.{0,60}(50[- ]year|50 years|five decades|half\\s*(a\\s*)?century)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The unemployment rate held steady at its 50-year low of 3.5 percent in December",
+   "paraphrases": [
+    "The unemployment rate remained at a 50-year low in December.",
+    "Unemployment stayed at its lowest level in half a century.",
+    "The jobless rate held at a 50-year low of 3.5% in December."
+   ],
+   "decoys": [
+    "Unemployment held steady at 3.5 percent in December.",
+    "Unemployment fell to its lowest level in 10 years."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Upcoming annual benchmark revision was expected to reduce estimated payroll growth (due early February 2020)",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "benchmark revision.{0,80}(reduce|lower|down\\w*|cut).{0,40}(payroll\\w*|estimate\\w*|job[\\s-]?growth|figures)",
+    "(reduce|lower|down\\w*|cut).{0,40}(payroll\\w*|estimate\\w*|job[\\s-]?growth|figures).{0,80}benchmark revision"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "benchmark revision.{0,80}(increase|rais\\w*|boost\\w*|up\\w*).{0,40}(payroll\\w*|estimate\\w*|job[\\s-]?growth|figures)"
+   ],
+   "quote": "the upcoming annual benchmark revision was expected to reduce estimates of recent payroll growth",
+   "paraphrases": [
+    "The upcoming BLS benchmark revision was expected to lower estimated payroll growth.",
+    "An annual benchmark revision, due in early February, would likely reduce payroll gains estimates.",
+    "Officials noted the coming benchmark revision would mark down recent job-growth figures."
+   ],
+   "decoys": [
+    "The benchmark revision was expected to raise estimated payroll growth for 2019.",
+    "A benchmark revision to GDP growth was expected in early February."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Total PCE inflation was 1.5 percent over the 12 months through November",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)1\\.5(?!\\d)\\s*(percent|%).{0,80}(pce|inflation)",
+    "(pce|inflation).{0,80}(?<!\\d)1\\.5(?!\\d)\\s*(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Total consumer prices, as measured by the PCE price index, increased 1.5 percent over the 12 months ending in November.",
+   "paraphrases": [
+    "Headline PCE inflation ran at 1.5% y/y through November.",
+    "Total PCE price inflation was 1.5% for the year through November.",
+    "PCE inflation was 1.5% over the 12 months to November, still below the Fed's 2% goal."
+   ],
+   "decoys": [
+    "Headline PCE inflation held at 2.4% year-over-year through November.",
+    "Core PCE inflation was 1.6 percent over the same period."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Core PCE inflation was 1.6 percent over the same 12-month period",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)1\\.6(?!\\d)\\s*(percent|%).{0,120}(core|ex[- ]food[- ]and[- ]energy|excluding food and energy)",
+    "(core|ex[- ]food[- ]and[- ]energy|excluding food and energy).{0,120}(?<!\\d)1\\.6(?!\\d)\\s*(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Core PCE price inflation (which excludes changes in consumer food and energy prices) was 1.6 percent over that same 12-month period.",
+   "paraphrases": [
+    "Core PCE inflation was 1.6 percent over the 12 months through November.",
+    "Ex-food-and-energy PCE inflation ran at 1.6% for the year to November.",
+    "Core inflation, excluding food and energy, stood at 1.6 percent."
+   ],
+   "decoys": [
+    "Core PCE inflation jumped to 2.8 percent over the same period.",
+    "Headline PCE inflation was 1.5 percent over the same period."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Coronavirus outbreak emerged as a new risk to the global growth outlook",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "coronavirus.{0,80}(risk|threat).{0,60}(global (growth|economic)|outlook)",
+    "(risk|threat).{0,80}coronavirus"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "coronavirus.{0,60}(no (material )?risk|not a risk|posed (little|no) risk|no threat|not (a |much of a )?threat)"
+   ],
+   "quote": "The threat of the coronavirus, in addition to its human toll, had emerged as a new risk to the global growth outlook, which participants agreed warranted close watching.",
+   "paraphrases": [
+    "The coronavirus outbreak emerged as a new risk to the global growth outlook.",
+    "Participants flagged the coronavirus as an emerging threat to global growth, warranting close watching.",
+    "A new risk-coronavirus-was cited as a concern for the global economic outlook."
+   ],
+   "decoys": [
+    "Participants said the risk of a disorderly Brexit had receded further, with little mention of other global threats.",
+    "The coronavirus outbreak was judged to pose no material risk to the global outlook."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Phase-one US-China trade deal and USMCA passage helped reduce downside risks to the outlook",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(trade (deal|agreement)|phase-one|USMCA).{0,100}(reduce\\w*|eas\\w*|lower\\w*|diminish\\w*).{0,40}(downside )?risk\\w*",
+    "(reduce\\w*|eas\\w*|lower\\w*|diminish\\w*).{0,40}(downside )?risk\\w*.{0,100}(trade (deal|agreement)|phase-one|USMCA)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(trade (deal|agreement)|phase-one|USMCA).{0,100}(increase\\w*|heighten\\w*|worsen\\w*|escalat\\w*).{0,40}(downside )?risk\\w*"
+   ],
+   "quote": "The easing of trade tensions resulting from the recent agreement with China and the passage of the USMCA as well as tentative signs of stabilization in global economic growth helped reduce downside risks and appeared to buoy business sentiment.",
+   "paraphrases": [
+    "The phase-one US-China trade deal and USMCA passage helped reduce downside risks to the outlook.",
+    "Easing trade tensions and the USMCA's passage lowered risks and lifted business sentiment.",
+    "Progress on trade (China phase-one, USMCA) diminished downside risks to growth."
+   ],
+   "decoys": [
+    "Renewed trade tensions with China increased downside risks to the outlook.",
+    "The USMCA's passage had little effect on the Committee's risk assessment."
+   ]
+  }
+ ]
+}

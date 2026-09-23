@@ -1,0 +1,277 @@
+{
+ "doc_id": "macro_release-2020-02-07",
+ "doc_type": "macro_release",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "number",
+   "point": "Total nonfarm payroll employment rose by 225,000 in January 2020.",
+   "patterns": [
+    "(?:nonfarm (?:payrolls?|jobs|employment)|nfp|payroll employment).{0,80}(?:(?<!\\d)225,?000(?!\\d)|(?<!\\d)225(?!\\d)\\s*k\\b)",
+    "(?:(?<!\\d)225,?000(?!\\d)|(?<!\\d)225(?!\\d)\\s*k\\b).{0,80}(?:nonfarm (?:payrolls?|jobs|employment)|nfp|payroll employment)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:fell|declin\\w*|dropped|lost|down|shed).{0,40}(?:(?<!\\d)225,?000(?!\\d)|(?<!\\d)225(?!\\d)\\s*k\\b)",
+    "(?:(?<!\\d)225,?000(?!\\d)|(?<!\\d)225(?!\\d)\\s*k\\b).{0,40}(?:fell|declin\\w*|dropped|lost|down|shed)"
+   ],
+   "quote": "Total nonfarm payroll employment rose by 225,000 in January",
+   "paraphrases": [
+    "Nonfarm payrolls added 225,000 jobs in January.",
+    "The U.S. economy added 225k nonfarm jobs last month.",
+    "January NFP print: +225,000, well above consensus."
+   ],
+   "decoys": [
+    "Nonfarm payrolls added 175,000 jobs in January.",
+    "Nonfarm payrolls fell by 225,000 in January."
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "must",
+   "kind": "number",
+   "point": "The unemployment rate was little changed at 3.6% in January.",
+   "patterns": [
+    "(unemployment rate|jobless rate|unemployment).{0,60}(?<!\\d)3\\.?6(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)3\\.?6(?!\\d)\\s*(percent|%).{0,60}(unemployment rate|jobless rate|unemployment)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "unemployment rate.{0,40}(?:rose|jumped|climbed|increased).{0,40}(?<!\\d)3\\.?6(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)3\\.?6(?!\\d)\\s*(?:percent|%).{0,40}(?:rose|jumped|climbed|increased).{0,40}unemployment rate"
+   ],
+   "quote": "the unemployment rate was little changed at 3.6 percent",
+   "paraphrases": [
+    "Unemployment rate held steady at 3.6% in January.",
+    "The jobless rate was little changed at 3.6 percent.",
+    "U.S. unemployment stayed at 3.6% last month."
+   ],
+   "decoys": [
+    "Unemployment rate held steady at 3.5% in January.",
+    "Unemployment rate jumped to 3.6% in January."
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "number",
+   "point": "Average hourly earnings rose 3.1% year-over-year in January.",
+   "patterns": [
+    "(average hourly earnings|ahe\\b|wages?|earnings).{0,140}(?<!\\d)3\\.?1(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)3\\.?1(?!\\d)\\s*(percent|%).{0,140}(average hourly earnings|ahe\\b|wages?|earnings)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(fell|declin\\w*|decreas\\w*|dropped|down).{0,40}(?<!\\d)3\\.?1(?!\\d)\\s*(percent|%).{0,60}(earnings|wages?)",
+    "(earnings|wages?).{0,40}(fell|declin\\w*|decreas\\w*|dropped).{0,40}(?<!\\d)3\\.?1(?!\\d)\\s*(percent|%)"
+   ],
+   "quote": "Over the past 12 months, average hourly earnings have increased by 3.1 percent.",
+   "paraphrases": [
+    "Average hourly earnings rose 3.1% y/y in January.",
+    "Wage growth held at 3.1 percent year-over-year.",
+    "AHE climbed 3.1% annually in January."
+   ],
+   "decoys": [
+    "Average hourly earnings rose 2.1 percent year-over-year in January.",
+    "Average hourly earnings fell 3.1 percent year-over-year in January."
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "should",
+   "kind": "number",
+   "point": "Average hourly earnings rose 7 cents to $28.44 in January.",
+   "patterns": [
+    "(average hourly earnings|wages?|earnings).{0,60}7\\s*cents?.{0,40}(?<!\\d)28\\.44(?!\\d)",
+    "(?<!\\d)28\\.44(?!\\d).{0,40}7\\s*cents?",
+    "7\\s*cents?.{0,40}(?<!\\d)28\\.44(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(fell|declin\\w*|dropped|decreas\\w*).{0,40}7\\s*cents?.{0,40}(?<!\\d)28\\.44(?!\\d)",
+    "(?<!\\d)28\\.44(?!\\d).{0,40}(fell|declin\\w*|dropped|decreas\\w*).{0,40}7\\s*cents?"
+   ],
+   "quote": "In January, average hourly earnings for all employees on private nonfarm payrolls rose by 7 cents to $28.44.",
+   "paraphrases": [
+    "Average hourly earnings rose 7 cents to $28.44 in January.",
+    "Hourly wages increased 7 cents, reaching $28.44.",
+    "The average hourly wage climbed to $28.44 in January, up 7 cents."
+   ],
+   "decoys": [
+    "Average hourly earnings fell 7 cents to $28.44 in January.",
+    "Average hourly earnings rose 7 cents to $28.34 in January."
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "must",
+   "kind": "concept",
+   "point": "Notable job gains were concentrated in construction, health care, and transportation and warehousing.",
+   "patterns": [
+    "construction.{0,120}(health care|healthcare).{0,80}transport\\w*",
+    "(notable job gains|job gains|hiring).{0,150}(construction|health care|transport\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "job (?:losses|cuts).{0,120}construction.{0,120}(?:health care|transportation)"
+   ],
+   "quote": "Notable job gains occurred in construction, in health care, and in transportation and warehousing.",
+   "paraphrases": [
+    "Job gains were led by construction, health care, and transportation/warehousing.",
+    "Construction, health care, and transportation and warehousing posted the biggest payroll gains.",
+    "Hiring strength was concentrated in construction, health care, and transport/warehousing."
+   ],
+   "decoys": [
+    "Job losses were concentrated in construction, health care, and transportation.",
+    "Notable job gains occurred in retail, manufacturing, and mining."
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "number",
+   "point": "Labor force participation rate was 63.4% in January.",
+   "patterns": [
+    "(labor force )?participation( rate)?.{0,60}(?<!\\d)63\\.?4(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)63\\.?4(?!\\d)\\s*(percent|%).{0,60}(labor force )?participation"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:labor force participation).{0,40}(?:fell|declin\\w*|dropped|down).{0,40}(?<!\\d)63\\.?4(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)63\\.?4(?!\\d)\\s*(?:percent|%).{0,40}(?:fell|declin\\w*|dropped|down).{0,40}(?:labor force participation)"
+   ],
+   "quote": "the labor force participation rate edged up by 0.2 percentage point to 63.4 percent",
+   "paraphrases": [
+    "Labor force participation rate was 63.4% in January.",
+    "The participation rate stood at 63.4 percent.",
+    "Labor force participation reached 63.4% in January."
+   ],
+   "decoys": [
+    "Labor force participation rate held at 62.4% in January.",
+    "Labor force participation rate edged down to 63.4% in January."
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "number",
+   "point": "Labor force participation rate edged up 0.2 percentage point in January.",
+   "patterns": [
+    "participation.{0,60}(0\\.2|two[- ]tenths).{0,20}(percentage point|point|pp)",
+    "(0\\.2|two[- ]tenths).{0,20}(percentage point|point|pp).{0,60}participation"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "participation.{0,60}(down|decreas\\w*|fell).{0,20}(0\\.2|two[- ]tenths)",
+    "(down|decreas\\w*|fell).{0,20}(0\\.2|two[- ]tenths).{0,60}participation"
+   ],
+   "quote": "the labor force participation rate edged up by 0.2 percentage point to 63.4 percent",
+   "paraphrases": [
+    "Labor force participation rate edged up 0.2 percentage point in January.",
+    "The participation rate rose two-tenths of a point in January.",
+    "Labor force participation increased by 0.2pp for the month."
+   ],
+   "decoys": [
+    "Labor force participation rate edged down 0.2 percentage point in January.",
+    "The employment-population ratio edged up 0.2 percentage point in January."
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "number",
+   "point": "November payroll gains were revised up by 5,000 to +261,000.",
+   "patterns": [
+    "(november|nov\\b).{0,120}((?<!\\d)261,?000(?!\\d)|(?<!\\d)261(?!\\d)k)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "revised (down|lower|downward).{0,80}((?<!\\d)261,?000(?!\\d)|(?<!\\d)261(?!\\d)k)"
+   ],
+   "quote": "The change in total nonfarm payroll employment for November was revised up by 5,000 from +256,000 to +261,000, and the change for December was revised up by 2,000 from +145,000 to +147,000.",
+   "paraphrases": [
+    "November payrolls were revised up to +261,000.",
+    "The November jobs gain was revised higher by 5,000, to 261k.",
+    "November nonfarm payroll growth was revised up from 256,000 to 261,000."
+   ],
+   "decoys": [
+    "November payrolls were revised down to +251,000.",
+    "December payrolls were revised up to +261,000."
+   ]
+  },
+  {
+   "id": "p9",
+   "tier": "should",
+   "kind": "number",
+   "point": "December payroll gains were revised up by 2,000 to +147,000.",
+   "patterns": [
+    "(december|dec\\b).{0,120}((?<!\\d)147,?000(?!\\d)|(?<!\\d)147(?!\\d)k)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "revised (down|lower|downward).{0,80}((?<!\\d)147,?000(?!\\d)|(?<!\\d)147(?!\\d)k)"
+   ],
+   "quote": "The change in total nonfarm payroll employment for November was revised up by 5,000 from +256,000 to +261,000, and the change for December was revised up by 2,000 from +145,000 to +147,000.",
+   "paraphrases": [
+    "December payrolls were revised up to +147,000.",
+    "The December jobs gain was revised higher by 2,000, to 147k.",
+    "December nonfarm payroll growth was revised up from 145,000 to 147,000."
+   ],
+   "decoys": [
+    "December payrolls were revised down to +137,000.",
+    "November payrolls were revised up to +147,000."
+   ]
+  },
+  {
+   "id": "p10",
+   "tier": "should",
+   "kind": "number",
+   "point": "Manufacturing employment changed little in January, down 12,000.",
+   "patterns": [
+    "(manufacturing|factory).{0,60}((?<!\\d)12,?000(?!\\d)|(?<!\\d)12(?!\\d)k)",
+    "((?<!\\d)12,?000(?!\\d)|(?<!\\d)12(?!\\d)k).{0,60}(manufacturing|factory)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "manufacturing.{0,40}(?:added|gained|rose|up).{0,40}(?<!\\d)12,?000(?!\\d)",
+    "(?<!\\d)12,?000(?!\\d).{0,40}(?:added|gained|rose|up).{0,40}manufacturing"
+   ],
+   "quote": "Manufacturing employment changed little in January (-12,000) and has shown little movement, on net, over the past 12 months.",
+   "paraphrases": [
+    "Manufacturing employment was little changed in January, down 12,000.",
+    "Factory payrolls slipped 12k in January, little net movement over the year.",
+    "Manufacturing jobs edged down by 12,000 in January."
+   ],
+   "decoys": [
+    "Manufacturing employment rose 12,000 in January.",
+    "Manufacturing employment fell 44,000 in January."
+   ]
+  },
+  {
+   "id": "p11",
+   "tier": "should",
+   "kind": "number",
+   "point": "Annual benchmark revision cut the March 2019 payroll level by 514,000, or -0.3%.",
+   "patterns": [
+    "((?<!\\d)514,?000(?!\\d)|(?<!\\d)514(?!\\d)k)",
+    "march.{0,20}(?<!\\d)2019(?!\\d)",
+    "(revis\\w*\\s+down\\w*|revised down|cut|reduc\\w*|lower\\w*|down(ward)? (by )?|shaved|-\\s?(?<!\\d)514(?!\\d)|-(?<!\\d)0\\.?3(?!\\d))"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(raised|increased|revised up|upward|added).{0,60}((?<!\\d)514,?000(?!\\d)|(?<!\\d)514(?!\\d)k)"
+   ],
+   "quote": "The total nonfarm employment level for March 2019 was revised downward by 514,000 (-505,000 on a not seasonally adjusted basis), or -0.3 percent.",
+   "paraphrases": [
+    "The annual benchmark revision cut March 2019 payrolls by 514,000, or -0.3%.",
+    "Benchmark revisions lowered the March 2019 employment level by 514k (-0.3 percent).",
+    "March 2019 nonfarm employment was revised down 0.3% (-514,000) in the annual benchmark."
+   ],
+   "decoys": [
+    "The annual benchmark revision raised March 2019 payrolls by 514,000.",
+    "The annual benchmark revision cut March 2018 payrolls by 514,000."
+   ]
+  }
+ ]
+}

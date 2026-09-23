@@ -1,0 +1,238 @@
+{
+ "doc_id": "fomc_statement_20200315",
+ "doc_type": "landmark",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Fed cut the target range for the federal funds rate to 0 to 1/4 percent (emergency move to zero)",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(target range|federal funds rate|funds rate|policy rate|\\brates?\\b).{0,80}((?<!\\d)0(?!\\d)(?:\\.(?<!\\d)00(?!\\d))?\\s*(?:to|-)\\s*(?<!\\d)0\\.25(?!\\d)|(?<!\\d)0(?!\\d)\\s*(?:to|-)\\s*(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|zero\\s*(?:to|-)\\s*(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|zero to (?:a |one-)?quarter)",
+    "((?<!\\d)0(?!\\d)(?:\\.(?<!\\d)00(?!\\d))?\\s*(?:to|-)\\s*(?<!\\d)0\\.25(?!\\d)|(?<!\\d)0(?!\\d)\\s*(?:to|-)\\s*(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|zero\\s*(?:to|-)\\s*(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|zero to (?:a |one-)?quarter).{0,80}(target range|federal funds rate|funds rate|policy rate|\\brates?\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Committee decided to lower the target range for the federal funds rate to 0 to 1/4 percent",
+   "paraphrases": [
+    "The Fed made an emergency cut, lowering rates to 0-0.25%.",
+    "FOMC slashed the fed funds target range to zero to 1/4 percent.",
+    "Committee cut the policy rate to 0.00-0.25%, effectively to zero."
+   ],
+   "decoys": [
+    "The Fed cut rates 50bp to 1 to 1.25 percent.",
+    "The Fed left rates unchanged, citing strong labor markets."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Fed launched QE: at least $500 billion in Treasury purchases",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)500(?!\\d)\\s*(?:billion|bn|b)\\b.{0,40}(treasur\\w*)",
+    "(treasur\\w*).{0,40}\\$?(?<!\\d)500(?!\\d)\\s*(?:billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(reduc\\w*|cut\\w*|decreas\\w*|lower\\w*|trim\\w*).{0,30}\\$?(?<!\\d)500(?!\\d)\\s*(?:billion|bn|b)\\b",
+    "\\$?(?<!\\d)500(?!\\d)\\s*(?:billion|bn|b)\\b.{0,30}(reduc\\w*|cut\\w*|decreas\\w*|lower\\w*|trim\\w*)"
+   ],
+   "quote": "the Committee will increase its holdings of Treasury securities by at least $500 billion and its holdings of agency mortgage-backed securities by at least $200 billion",
+   "paraphrases": [
+    "Fed will buy at least $500bn in Treasuries in coming months.",
+    "FOMC announced $500 billion of Treasury purchases.",
+    "New QE: at least $500B in Treasuries."
+   ],
+   "decoys": [
+    "Fed will buy $500 billion in corporate bonds over coming months.",
+    "Fed announced $50 billion in Treasury purchases."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Fed launched QE: at least $200 billion in agency MBS purchases",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)200(?!\\d)\\s*(?:billion|bn|b)\\b.{0,40}(mortgage-backed|mbs|agency mbs)",
+    "(mortgage-backed|mbs|agency mbs).{0,40}\\$?(?<!\\d)200(?!\\d)\\s*(?:billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(reduc\\w*|cut\\w*|decreas\\w*|lower\\w*|trim\\w*).{0,30}\\$?(?<!\\d)200(?!\\d)\\s*(?:billion|bn|b)\\b",
+    "\\$?(?<!\\d)200(?!\\d)\\s*(?:billion|bn|b)\\b.{0,30}(reduc\\w*|cut\\w*|decreas\\w*|lower\\w*|trim\\w*)"
+   ],
+   "quote": "the Committee will increase its holdings of Treasury securities by at least $500 billion and its holdings of agency mortgage-backed securities by at least $200 billion",
+   "paraphrases": [
+    "Fed will buy at least $200bn in MBS in coming months.",
+    "FOMC announced $200 billion of agency MBS purchases.",
+    "New QE: at least $200B in MBS."
+   ],
+   "decoys": [
+    "Fed announced $20 billion in MBS purchases.",
+    "Fed will cut its MBS holdings by $200 billion."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Loretta Mester dissented from the decision",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "Mester.{0,60}(dissent\\w*|voted? against|voting against)",
+    "(dissent\\w*|voted? against|voting against).{0,60}Mester"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "Mester.{0,60}(in favor|voted for|supported the action|no dissent)",
+    "(in favor|voted for|supported the action|no dissent).{0,60}Mester"
+   ],
+   "quote": "Voting against this action was Loretta J. Mester, who was fully supportive of all of the actions taken to promote the smooth functioning of markets and the flow of credit to households and businesses but preferred to reduce the target range for the federal funds rate to 1/2 to 3/4 percent at this meeting.",
+   "paraphrases": [
+    "Loretta Mester dissented from the decision.",
+    "Cleveland Fed's Mester was the lone dissenter on the vote.",
+    "One member, Mester, voted against the rate action."
+   ],
+   "decoys": [
+    "Esther George dissented, preferring no change in rates.",
+    "Mester voted in favor of the rate cut, with no dissents recorded."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Mester preferred a smaller cut, to a target range of 1/2 to 3/4 percent",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "Mester.{0,260}(1/2|0\\.50?|half).{0,20}(?:to|-).{0,20}(3/4|0\\.75|three-quarter\\w*)",
+    "(1/2|0\\.50?|half).{0,20}(?:to|-).{0,20}(3/4|0\\.75|three-quarter\\w*).{0,260}Mester"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Voting against this action was Loretta J. Mester, who was fully supportive of all of the actions taken to promote the smooth functioning of markets and the flow of credit to households and businesses but preferred to reduce the target range for the federal funds rate to 1/2 to 3/4 percent at this meeting.",
+   "paraphrases": [
+    "Mester preferred a smaller cut, to a target range of 1/2 to 3/4 percent.",
+    "Mester wanted to cut only to 0.50-0.75%, a smaller reduction.",
+    "Mester favored a 50 basis point cut to a range of half a percent to three-quarters of a percent."
+   ],
+   "decoys": [
+    "Mester preferred a cut to 1/4 to 1/2 percent instead.",
+    "Mester voted for the full cut to 0 to 1/4 percent, with no smaller alternative preference noted."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "The coronavirus outbreak is weighing on activity and poses risks to the economic outlook",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(coronavirus|covid|pandemic|virus).{0,100}(weigh\\w*|risk\\w*|harm\\w*|disrupt\\w*)",
+    "(weigh\\w*|risk\\w*|harm\\w*|disrupt\\w*).{0,100}(coronavirus|covid|pandemic|virus)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The effects of the coronavirus will weigh on economic activity in the near term and pose risks to the economic outlook.",
+   "paraphrases": [
+    "The Fed said the coronavirus outbreak poses risks to economic activity and the outlook.",
+    "COVID-19 is disrupting the economy and weighing on the outlook, the FOMC said.",
+    "The pandemic is expected to weigh on near-term growth, the Committee warned."
+   ],
+   "decoys": [
+    "The Fed said the coronavirus had a minimal effect on U.S. growth so far.",
+    "The Committee said trade tensions posed the primary risk to the outlook."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Fed will hold the target range until confident the economy has weathered events and is on track for its goals",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(confident).{0,100}(weathered|weather|recovered|on track)",
+    "(weathered|recovered|on track).{0,100}confident"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The Committee expects to maintain this target range until it is confident that the economy has weathered recent events and is on track to achieve its maximum employment and price stability goals.",
+   "paraphrases": [
+    "The Fed will keep rates near zero until it's confident the economy has weathered the crisis and is on track for its goals.",
+    "FOMC pledged to hold the target range until confident the economy has recovered and is moving toward max employment and price stability.",
+    "Rates will stay at zero until the Committee is confident growth is back on track post-crisis."
+   ],
+   "decoys": [
+    "The Fed said it would raise rates as soon as the outbreak ended, regardless of data.",
+    "The Committee set a fixed date of June 2021 to reassess the target range."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Job gains had been solid in recent months, heading into the shock",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(job gains?|payroll\\w*).{0,100}(solid|strong|robust)",
+    "(solid|strong|robust).{0,100}(job gains?|payroll\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Job gains have been solid, on average, in recent months, and the unemployment rate has remained low.",
+   "paraphrases": [
+    "Job gains had been solid heading into the crisis.",
+    "Payroll growth was strong before the coronavirus hit.",
+    "The labor market showed steady, solid job gains just before the pandemic shock."
+   ],
+   "decoys": [
+    "Job growth had already stalled sharply before the pandemic.",
+    "Payroll gains had been weak for several months running."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "The unemployment rate had remained low, heading into the shock",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(unemployment rate|jobless rate|joblessness).{0,60}(remain\\w*\\s+low|stayed?\\s+(near\\s+)?low|near.{0,15}low\\w*|\\blow\\b)",
+    "(\\blow\\b|remain\\w*\\s+low|stayed?\\s+low|near.{0,15}low\\w*).{0,60}(unemployment rate|jobless rate|joblessness)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(unemployment rate|jobless rate|joblessness).{0,60}\\b(rising|rose|risen|climb\\w*|surg\\w*|increas\\w*|jump\\w*|higher|elevated)\\b",
+    "\\b(rising|rose|risen|climb\\w*|surg\\w*|increas\\w*|jump\\w*|higher|elevated)\\b.{0,60}(unemployment rate|jobless rate|joblessness)"
+   ],
+   "quote": "Job gains have been solid, on average, in recent months, and the unemployment rate has remained low.",
+   "paraphrases": [
+    "The unemployment rate remained low heading into the crisis.",
+    "Joblessness stayed near historic lows just before the pandemic hit.",
+    "The jobless rate was low prior to the coronavirus shock."
+   ],
+   "decoys": [
+    "The unemployment rate had surged to 10 percent in February.",
+    "Unemployment had been rising steadily before the pandemic began."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Fed coordinated with other central banks to enhance U.S. dollar liquidity swap lines",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(swap line|dollar liquidity).{0,100}(central bank|coordinat\\w*)",
+    "(central bank|coordinat\\w*).{0,100}(swap line|dollar liquidity)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "in coordination with other central banks—the U.S. dollar liquidity swap line arrangements",
+   "paraphrases": [
+    "The Fed coordinated with other central banks to boost U.S. dollar liquidity swap lines.",
+    "Central banks jointly enhanced dollar swap line arrangements to ease funding strains.",
+    "The Fed announced additional measures including expanded discount window use and coordinated dollar swap lines with other central banks."
+   ],
+   "decoys": [
+    "The Fed acted unilaterally, without coordinating with other central banks.",
+    "The ECB cut its deposit rate in a coordinated move with the Fed."
+   ]
+  }
+ ]
+}

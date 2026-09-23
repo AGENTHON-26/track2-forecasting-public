@@ -1,0 +1,22 @@
+{
+ "doc_id": "macro_release-2015-10-15",
+ "labels": {
+  "p1": true,
+  "p2": true,
+  "p3": true,
+  "p4": false,
+  "p5": true,
+  "p6": true,
+  "p7": true,
+  "p8": false,
+  "p9": false,
+  "p10": true,
+  "p11": true,
+  "p12": false
+ },
+ "notes": {
+  "p4": "'highest since July 2014' absent",
+  "p9": "only monthly shelter/rent figures, no 12-month",
+  "p12": "the offset is shown but not the Fed/liftoff framing"
+ }
+}

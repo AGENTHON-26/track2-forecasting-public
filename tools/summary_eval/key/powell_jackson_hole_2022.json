@@ -1,0 +1,216 @@
+{
+ "doc_id": "powell_jackson_hole_2022",
+ "doc_type": "landmark",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Powell said policy is moving to a level that will be \"sufficiently restrictive\" to return inflation to 2%",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "sufficiently restrictive"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "We are moving our policy stance purposefully to a level that will be sufficiently restrictive to return inflation to 2 percent.",
+   "paraphrases": [
+    "Powell said policy needs to become sufficiently restrictive to bring inflation back to 2%.",
+    "The Fed is moving toward a sufficiently restrictive stance to curb inflation, Powell said.",
+    "Policy will need to be sufficiently restrictive for some time, per Powell's Jackson Hole remarks."
+   ],
+   "decoys": [
+    "Powell said policy was already adequately calibrated and needed no further tightening.",
+    "Powell said policy needed to become moderately accommodative to support growth."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "July's FOMC meeting raised the target range for the federal funds rate to 2.25 to 2.5 percent",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(target range|federal funds rate|funds rate|fed funds range|policy rate).{0,80}(2\\.25|2\\s*1/4|2-1/4).{0,20}(to|-|–).{0,20}(2\\.5|2\\s*1/2|2-1/2)",
+    "(2\\.25|2\\s*1/4|2-1/4).{0,20}(to|-|–).{0,20}(2\\.5|2\\s*1/2|2-1/2).{0,80}(target range|federal funds rate|funds rate|fed funds range|policy rate)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(cut|lower\\w*|decreas\\w*|reduc\\w*).{0,40}(target range|federal funds rate|funds rate|policy rate)",
+    "(target range|federal funds rate|funds rate|policy rate).{0,40}(cut|lower\\w*|decreas\\w*|reduc\\w*)"
+   ],
+   "quote": "At our most recent meeting in July, the FOMC raised the target range for the federal funds rate to 2.25 to 2.5 percent",
+   "paraphrases": [
+    "The Fed raised its target range to 2.25-2.50% in July.",
+    "FOMC hiked to a fed funds range of 2 1/4 to 2 1/2 percent last month.",
+    "Policy rate now sits at 2.25%-2.5% after July's increase."
+   ],
+   "decoys": [
+    "The Fed raised its target range to 1.50-1.75% in July.",
+    "The Fed cut its target range to 2.25-2.5% in July."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Powell warned that fighting inflation will bring some pain to households and businesses",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "\\bpain\\b.{0,100}(households|businesses)",
+    "(households|businesses).{0,100}\\bpain\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "painless",
+    "\\bpain\\b.{0,60}(foreign economies|abroad|other countries)",
+    "(foreign economies|abroad|other countries).{0,60}\\bpain\\b",
+    "\\bnot\\b.{0,40}(households|businesses).{0,30}\\bpain\\b"
+   ],
+   "quote": "While higher interest rates, slower growth, and softer labor market conditions will bring down inflation, they will also bring some pain to households and businesses.",
+   "paraphrases": [
+    "Powell warned that fighting inflation will bring some pain to households and businesses.",
+    "He acknowledged tighter policy carries costs, including pain for households and firms.",
+    "Powell said reducing inflation means real pain for American households and businesses."
+   ],
+   "decoys": [
+    "Powell said the transition to lower inflation would be painless for most households.",
+    "Powell said pain would be felt mainly by foreign economies, not U.S. households."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Powell said restrictive policy must be maintained for some time",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "restrictive.{0,100}(some time|extended period|sustained period|a while)",
+    "(some time|extended period|sustained period|a while).{0,100}restrictive"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Restoring price stability will likely require maintaining a restrictive policy stance for some time. The historical record cautions strongly against prematurely loosening policy.",
+   "paraphrases": [
+    "Powell said the Fed must keep policy restrictive for some time.",
+    "He signaled a sustained period of restrictive policy is likely needed.",
+    "Restrictive policy will need to stay in place for an extended period, Powell said."
+   ],
+   "decoys": [
+    "Powell said restrictive policy would only be needed for a few more weeks.",
+    "Powell said policy could return to neutral almost immediately."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "History warns against prematurely loosening policy",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(prematur\\w*|too soon|too early).{0,60}(loosen\\w*|eas\\w*|cut\\w*|pivot\\w*)",
+    "(loosen\\w*|eas\\w*|cut\\w*|pivot\\w*).{0,60}(prematur\\w*|too soon|too early)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Restoring price stability will likely require maintaining a restrictive policy stance for some time. The historical record cautions strongly against prematurely loosening policy.",
+   "paraphrases": [
+    "He cautioned that history argues against loosening policy too soon.",
+    "Powell warned that prematurely easing policy would be a mistake, citing historical experience.",
+    "The historical record cautions against pivoting to rate cuts too early, Powell said."
+   ],
+   "decoys": [
+    "Powell said the Fed could ease policy quickly once inflation ticked down.",
+    "Powell said history shows early policy loosening carries little risk."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Powell signaled it will likely become appropriate to slow the pace of rate increases at some point",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(slow\\w*|smaller|moderat\\w*).{0,80}(pace of (increases|hikes)|rate (increases|hikes)|hikes|increases)",
+    "(hikes|increases).{0,80}(slow\\w*|smaller|moderat\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(rule\\w* out|never|won'?t).{0,40}(slow\\w*|smaller|moderat\\w*)",
+    "(slow\\w*|smaller|moderat\\w*).{0,40}(rule\\w* out|never|won'?t)"
+   ],
+   "quote": "At some point, as the stance of monetary policy tightens further, it likely will become appropriate to slow the pace of increases.",
+   "paraphrases": [
+    "Powell said it will likely become appropriate to slow the pace of rate increases at some point.",
+    "The Fed signaled smaller hikes ahead as the tightening cycle matures.",
+    "Officials may downshift to smaller rate hikes going forward, Powell suggested."
+   ],
+   "decoys": [
+    "Powell said the Fed would accelerate the pace of rate hikes going forward.",
+    "Powell ruled out ever slowing the pace of hikes this cycle."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "July's rate hike was 75 basis points",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)75(?!\\d)\\s*(basis.?points?|bp)",
+    "(?<!\\d)0\\.75(?!\\d)\\s*percentage point",
+    "three-quarter\\w*\\s+(of\\s+a\\s+)?percentage point"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "July's increase in the target range was the second 75 basis point increase in as many meetings",
+   "paraphrases": [
+    "July's hike was 75 basis points.",
+    "The Fed raised rates by 0.75 percentage point in July.",
+    "July's increase was three-quarters of a percentage point."
+   ],
+   "decoys": [
+    "July's hike was 50 basis points.",
+    "July's hike was 100 basis points."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "July's hike was the second consecutive 75 basis point increase, matching June's move",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(second|back-to-back|consecutive).{0,40}(75|0\\.75|three-quarter\\w*|large|big|jumbo).{0,40}(increase|hike)",
+    "(75|0\\.75|three-quarter\\w*|large|big|jumbo).{0,40}(increase|hike).{0,40}(second|back-to-back|consecutive)",
+    "as many meetings"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "July's increase in the target range was the second 75 basis point increase in as many meetings",
+   "paraphrases": [
+    "July's hike was the second straight 75bp increase, matching June's.",
+    "The Fed delivered back-to-back 75-basis-point hikes in June and July.",
+    "This marked the second consecutive 0.75 percentage point rate increase in as many meetings."
+   ],
+   "decoys": [
+    "This was the first 75bp hike of the cycle.",
+    "July's 75bp hike followed a series of smaller 25bp increases, not another 75bp move."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Powell said the Fed \"must keep at it until the job is done\" on inflation",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(keep at it|stay the course|won'?t stop|not stop).{0,60}(job is done|until|inflation)",
+    "until the job is done"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "That brings me to the third lesson, which is that we must keep at it until the job is done.",
+   "paraphrases": [
+    "Powell vowed the Fed will keep at it until the job is done on inflation.",
+    "He said the Committee must stay the course until inflation is fully under control.",
+    "Powell pledged to keep at it until the job is done."
+   ],
+   "decoys": [
+    "Powell said the Fed's inflation-fighting job was essentially finished.",
+    "Powell said the Committee would pause and reassess before taking further action."
+   ]
+  }
+ ]
+}

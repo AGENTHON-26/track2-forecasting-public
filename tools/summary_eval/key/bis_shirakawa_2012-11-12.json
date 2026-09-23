@@ -1,0 +1,215 @@
+{
+ "doc_id": "bis_shirakawa_2012-11-12",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "BOJ increased the Asset Purchase Program by about 11 trillion yen, to about 91 trillion yen",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:increas\\w*|expand\\w*|rais\\w*|boost\\w*|add\\w*).{0,80}(?:(?<!\\d)11(?!\\d)\\s*trillion(?:\\s*yen)?|¥\\s?(?<!\\d)11(?!\\d)\\s?tn|(?<!\\d)11(?!\\d)\\s?tn(?:\\s*yen)?)|(?:(?<!\\d)11(?!\\d)\\s*trillion(?:\\s*yen)?|¥\\s?(?<!\\d)11(?!\\d)\\s?tn|(?<!\\d)11(?!\\d)\\s?tn(?:\\s*yen)?).{0,80}(?:increas\\w*|expand\\w*|rais\\w*|boost\\w*|add\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:reduc\\w*|cut|decreas\\w*|shrink\\w*).{0,80}(?:(?<!\\d)11(?!\\d)\\s*trillion(?:\\s*yen)?|(?<!\\d)11(?!\\d)\\s?tn)|(?:(?<!\\d)11(?!\\d)\\s*trillion(?:\\s*yen)?|(?<!\\d)11(?!\\d)\\s?tn).{0,80}(?:reduc\\w*|cut|decreas\\w*|shrink\\w*)"
+   ],
+   "quote": "decided to increase the size of the Asset Purchase Program (hereafter, the Program) by about 11 trillion yen, from about 80 trillion yen to about 91 trillion yen",
+   "paraphrases": [
+    "BOJ expanded its Asset Purchase Program by about 11 trillion yen to roughly 91 trillion yen",
+    "Asset purchase program size raised ¥11tn, from ~¥80tn to ~¥91tn",
+    "Bank of Japan boosted the APP by around 11 trillion yen"
+   ],
+   "decoys": [
+    "BOJ increased the Asset Purchase Program by about 15 trillion yen",
+    "BOJ decided to reduce the Asset Purchase Program by about 11 trillion yen"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "That increase brought the Asset Purchase Program's total size to about 91 trillion yen",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:program|APP|asset purchase).{0,80}(?<!\\d)91(?!\\d)\\s*(?:trillion|tn)|(?<!\\d)91(?!\\d)\\s*(?:trillion|tn).{0,80}(?:program|APP|asset purchase)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:reduc\\w*|cut|decreas\\w*|shrink\\w*).{0,80}(?<!\\d)91(?!\\d)\\s*(?:trillion|tn)|(?<!\\d)91(?!\\d)\\s*(?:trillion|tn).{0,80}(?:reduc\\w*|cut|decreas\\w*|shrink\\w*)"
+   ],
+   "quote": "decided to increase the size of the Asset Purchase Program (hereafter, the Program) by about 11 trillion yen, from about 80 trillion yen to about 91 trillion yen",
+   "paraphrases": [
+    "The Asset Purchase Program now totals about 91 trillion yen",
+    "BOJ's asset purchase program size stands at roughly ¥91 trillion after the increase",
+    "The program was expanded to about 91 trillion yen in total"
+   ],
+   "decoys": [
+    "The Asset Purchase Program now totals about 80 trillion yen",
+    "BOJ's asset purchase program size stands at roughly ¥95 trillion after the increase"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "BOJ has set its price stability goal at 1 percent for the time being",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:goal|target).{0,60}\\b(?<!\\d)1(?!\\d)\\s*(?:percent|%)|\\b(?<!\\d)1(?!\\d)\\s*(?:percent|%).{0,60}(?:goal|target)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:goal|target).{0,60}\\b(?<!\\d)2(?!\\d)\\s*(?:percent|%)\\b|\\b(?<!\\d)2(?!\\d)\\s*(?:percent|%)\\b.{0,60}(?:goal|target)|abandon\\w*.{0,60}(?:goal|target)|(?:goal|target).{0,60}abandon\\w*"
+   ],
+   "quote": "has set a goal of 1 percent for the time being",
+   "paraphrases": [
+    "BOJ set a price stability goal of 1 percent for the time being",
+    "Bank of Japan's inflation goal stands at 1%",
+    "BOJ will keep easing until the 1 percent price goal is in sight"
+   ],
+   "decoys": [
+    "BOJ set a price stability goal of 2 percent for the time being",
+    "BOJ abandoned its 1 percent price stability goal"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "The BOJ decided to undertake further aggressive monetary easing at the October 30 Monetary Policy Meeting",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:eas\\w*|stimulus).{0,80}Oct(?:ober)?\\b|Oct(?:ober)?\\b.{0,80}(?:eas\\w*|stimulus)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "tighten\\w*.{0,80}Oct(?:ober)?\\b|Oct(?:ober)?\\b.{0,80}tighten\\w*"
+   ],
+   "quote": "the Bank decided to undertake further aggressive monetary easing at the Monetary Policy Meeting on October 30",
+   "paraphrases": [
+    "BOJ decided to expand aggressive monetary easing at its October 30 policy meeting",
+    "Bank of Japan eased policy further at the October MPM",
+    "BOJ ramped up monetary stimulus at the Oct 30 meeting"
+   ],
+   "decoys": [
+    "BOJ decided to tighten monetary policy at the October 30 meeting",
+    "BOJ decided to undertake further aggressive monetary easing at the September Monetary Policy Meeting"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Median Policy Board growth forecasts were 1.5%, 1.6% and 0.6% for FY2012-2014",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "growth.{0,100}(?<!\\d)1\\.5(?!\\d)\\s*(?:percent|%)|(?<!\\d)1\\.5(?!\\d)\\s*(?:percent|%).{0,100}growth",
+    "growth.{0,100}(?<!\\d)1\\.6(?!\\d)\\s*(?:percent|%)|(?<!\\d)1\\.6(?!\\d)\\s*(?:percent|%).{0,100}growth",
+    "growth.{0,100}(?<!\\d)0\\.6(?!\\d)\\s*(?:percent|%)|(?<!\\d)0\\.6(?!\\d)\\s*(?:percent|%).{0,100}growth"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "inflation.{0,40}(?<!\\d)1\\.5(?!\\d)\\s*(?:percent|%)|(?<!\\d)1\\.5(?!\\d)\\s*(?:percent|%).{0,40}inflation"
+   ],
+   "quote": "the median of the Bank's nine Policy Board members' forecasts for the annualized growth rate is 1.5 percent, 1.6 percent, and 0.6 percent for fiscal 2012, 2013, and 2014, respectively",
+   "paraphrases": [
+    "BOJ Policy Board's median growth forecasts: 1.5% for FY2012, 1.6% for FY2013, 0.6% for FY2014",
+    "Board members see growth at 1.5%, 1.6% and 0.6% in FY12-FY14",
+    "Median growth projections were 1.5 percent, 1.6 percent and 0.6 percent through fiscal 2014"
+   ],
+   "decoys": [
+    "Board members see growth at 2.5%, 2.6% and 1.6% in FY12-FY14",
+    "BOJ Policy Board's median inflation forecasts: 1.5% for FY2012, 1.6% for FY2013, 0.6% for FY2014"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Median CPI forecasts were -0.1%, 0.4% and 0.8% for FY2012-2014 excluding the consumption tax hike",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "-\\s?(?<!\\d)0\\.1(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)0\\.4(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)0\\.8(?!\\d)\\s*(?:percent|%)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "growth.{0,60}-\\s?(?<!\\d)0\\.1(?!\\d)\\s*(?:percent|%)|-\\s?(?<!\\d)0\\.1(?!\\d)\\s*(?:percent|%).{0,60}growth"
+   ],
+   "quote": "figures for fiscal 2012 and 2013 are -0.1 percent and 0.4 percent, respectively, and 0.8 percent for fiscal 2014",
+   "paraphrases": [
+    "BOJ's median CPI forecasts were -0.1% for FY2012, 0.4% for FY2013, and 0.8% for FY2014 ex tax hike",
+    "Board's core CPI projections: -0.1 percent, 0.4 percent, 0.8 percent for FY12-FY14",
+    "Underlying inflation forecast at -0.1%, 0.4%, 0.8% over the three fiscal years"
+   ],
+   "decoys": [
+    "BOJ's median CPI forecasts were 0.1% for FY2012, 0.4% for FY2013, and 0.8% for FY2014",
+    "BOJ's median growth forecasts were -0.1% for FY2012, 0.4% for FY2013, and 0.8% for FY2014"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Closer attention should be paid to downside risks to the economic and price outlook",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "downside.{0,80}risk|risk.{0,80}downside"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "upside.{0,80}risk|risk.{0,80}upside|(?:yen|exchange rate).{0,80}downside|downside.{0,80}(?:yen|exchange rate)"
+   ],
+   "quote": "relatively closer attention should be paid to the downside risk for the time being",
+   "paraphrases": [
+    "BOJ flagged that risks to the outlook were tilted to the downside",
+    "Closer attention was warranted on downside risks to the forecast",
+    "Risks to the economic and price outlook were seen skewed to the downside"
+   ],
+   "decoys": [
+    "BOJ flagged that risks to the outlook were tilted to the upside",
+    "BOJ flagged that risks to the yen's exchange rate were tilted to the downside"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Overseas economies entered a deceleration phase in the second half of 2011",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:overseas|global|world).{0,60}(?:decelerat\\w*|slow\\w*|weaken\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:overseas|global|world).{0,60}(?:accelerat\\w*|pick(?:ed|ing)? up|strengthen\\w*)|deceleration.{0,40}(?<!\\d)2013(?!\\d)|(?<!\\d)2013(?!\\d).{0,40}deceleration"
+   ],
+   "quote": "Overseas economies entered a deceleration phase in the second half of 2011",
+   "paraphrases": [
+    "Global economies moved into a deceleration phase in H2 2011",
+    "Overseas growth has been slowing since the second half of 2011",
+    "The world economy entered a slowdown phase in late 2011"
+   ],
+   "decoys": [
+    "Overseas economies entered an acceleration phase in the second half of 2011",
+    "Overseas economies entered a deceleration phase in the second half of 2013"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "The Bank assessed Japan's economy as 'weakening somewhat' as of the October 30 meeting",
+   "tier": "should",
+   "kind": "phrase",
+   "patterns": [
+    "weakening somewhat"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the economy has been 'weakening somewhat.'",
+   "paraphrases": [
+    "BOJ assessed the economy as 'weakening somewhat'",
+    "Bank of Japan characterized Japan's economy as weakening somewhat",
+    "Japan's economy was judged to be weakening somewhat as of the October MPM"
+   ],
+   "decoys": [
+    "The economy has been assessed as 'recovering moderately'",
+    "The economy has been assessed as 'weakening rapidly'"
+   ]
+  }
+ ]
+}

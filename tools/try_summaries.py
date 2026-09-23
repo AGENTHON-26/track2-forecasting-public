@@ -50,6 +50,17 @@ def pick_one_per_type(pick: str = "median") -> list[dict]:
     return picked
 
 
+def from_manifest(path: pathlib.Path) -> list[dict]:
+    """The documents listed in a summary-eval manifest (tools/build_summary_evalset.py)."""
+    docs = []
+    for m in json.loads(path.read_text()):
+        text_dir = ROOT / "units" / m["unit"] / "text"
+        _, admissible = ts.load_corpus(text_dir)
+        d = next(d for d in admissible if d["doc_id"] == m["doc_id"])
+        docs.append({**d, "unit": m["unit"]})
+    return docs
+
+
 def timed(doc: dict) -> dict:
     t0 = time.monotonic()
     out = ts.summarize_doc(doc)
@@ -62,14 +73,22 @@ def main() -> int:
     p.add_argument("--out", type=pathlib.Path, default=None)
     p.add_argument("--pick", choices=["median", "largest", "p25"], default="median",
                    help="which document of each type: median size, largest, or 25th percentile")
+    p.add_argument("--patience", action="store_true",
+                   help="local dev: wait minutes, not seconds, on 429 (build.nvidia.com throttling)")
+    p.add_argument("--workers", type=int, default=8,
+                   help="parallel model calls; lower this when the endpoint answers 429")
+    p.add_argument("--manifest", type=pathlib.Path, default=None,
+                   help="summarize exactly these docs, e.g. tools/summary_eval/manifest.json (overrides --pick)")
     a = p.parse_args()
     load_dotenv(ROOT / ".env")
+    if a.patience:
+        ts._RETRY_WAITS = (10.0, 30.0, 60.0, 120.0, 240.0)
 
     # Exercise every prompt, including fomc_statement, whose docs are normally passed through.
     ts._PASSTHROUGH_CHARS = 0
-    docs = pick_one_per_type(a.pick)
+    docs = from_manifest(a.manifest) if a.manifest else pick_one_per_type(a.pick)
     t0 = time.monotonic()
-    with ThreadPoolExecutor(max_workers=8) as pool:
+    with ThreadPoolExecutor(max_workers=a.workers) as pool:
         results = list(pool.map(timed, docs))
     wall = time.monotonic() - t0
 

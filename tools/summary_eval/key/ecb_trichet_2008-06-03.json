@@ -1,0 +1,224 @@
+{
+ "doc_id": "ecb_trichet_2008-06-03",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "ECB monetary policy stays firmly focused on delivering price stability despite the shocks",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:firmly focused|remains? committed|committed to|unaltered|not altered|unchanged|remains? focused|stays? focused).{0,80}price[ -]stability",
+    "price[ -]stability.{0,80}(?:firmly focused|remains? committed|committed to|unaltered|not altered|unchanged|remains? focused|stays? focused)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:abandon|de-?prioriti[sz]e|shift(?:ed|ing)? away from|loosen|eas(?:e|ing)).{0,80}price[ -]stability",
+    "price[ -]stability.{0,80}(?:abandon|de-?prioriti[sz]e|shift(?:ed|ing)? away from|loosen|eas(?:e|ing))",
+    "no longer.{0,80}price[ -]stability",
+    "price[ -]stability.{0,80}no longer"
+   ],
+   "quote": "monetary policy stays firmly focused on delivering price stability, which is important for the efficient working of the market system and the optimal allocation of resources",
+   "paraphrases": [
+    "Trichet says ECB policy remains firmly focused on price stability despite the shocks",
+    "Despite the turmoil, the ECB's ruleset for monetary policy is unchanged and centered on price stability",
+    "ECB stays committed to its price-stability mandate even amid extraordinary shocks"
+   ],
+   "decoys": [
+    "ECB policy is no longer firmly focused on price stability, Trichet suggests",
+    "ECB says price stability is now secondary to growth concerns amid the crisis"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Signals suggest globalisation's dis-inflationary impact on euro area import prices may be weakening",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "dis-?inflationary.{0,80}(?:weaken|fad(?:e|ing)|los(?:e|ing) (?:its )?strength|diminish|erod|revers|less pronounced)",
+    "(?:weaken|fad(?:e|ing)|los(?:e|ing) (?:its )?strength|diminish|erod|revers|less pronounced).{0,80}dis-?inflationary"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "dis-?inflationary.{0,80}(?:intensif|strengthen|widen|accelerat|robust)",
+    "(?:intensif|strengthen|widen|accelerat|robust).{0,80}dis-?inflationary"
+   ],
+   "quote": "there have been recently signals that the dis-inflationary impact of low-cost countries on euro area import prices may be weakening",
+   "paraphrases": [
+    "Trichet flags signs that globalisation's dis-inflationary effect on euro area import prices is fading",
+    "The disinflationary pull from low-cost country imports may be losing strength, ECB says",
+    "ECB signals the disinflationary drag from cheap imports on euro area prices is weakening"
+   ],
+   "decoys": [
+    "Trichet says the disinflationary effect of globalisation is intensifying",
+    "Trichet says oil price shocks, not globalisation, are the main disinflationary force in the euro area"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Eurosystem increased LTRO refinancing significantly while cutting MRO refinancing correspondingly",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:LTROs?|longer-term refinancing)(?:(?!MRO|main refinancing).){0,80}(?:increas|boost|expand|rais(?:e|ed|ing)|ramp(?:ed)? up)|(?:increas|boost|expand|rais(?:e|ed|ing)|ramp(?:ed)? up)(?:(?!MRO|main refinancing).){0,80}(?:LTROs?|longer-term refinancing)",
+    "(?:MROs?|one-week main refinancing|main refinancing operations)(?:(?!LTRO|longer-term refinancing).){0,80}(?:reduc|cut|trim|lower|decreas)|(?:reduc|cut|trim|lower|decreas)(?:(?!LTRO|longer-term refinancing).){0,80}(?:MROs?|one-week main refinancing|main refinancing operations)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "The amount of refinancing provided via longer-term refinancing operations (LTROs) has been increased significantly with a view to smooth conditions in the term money market. The amount of refinancing provided via the one-week main refinancing operations (MROs) was reduced correspondingly, so that the total amount of outstanding refinancing has remained unchanged.",
+   "paraphrases": [
+    "ECB shifted liquidity toward longer-term operations, boosting LTRO allotments while cutting one-week MRO allotments by a corresponding amount",
+    "Eurosystem increased LTRO refinancing significantly and reduced MRO refinancing correspondingly",
+    "ECB ramped up longer-term refinancing operations while trimming main refinancing operations"
+   ],
+   "decoys": [
+    "ECB cut LTRO allotments while boosting one-week MRO operations",
+    "Eurosystem increased overnight deposit rates by 50bp to combat inflation"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "The corresponding LTRO/MRO shift left the total amount of outstanding refinancing unchanged",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:total|overall).{0,80}refinancing.{0,80}(?:unchanged|remain(?:ed)? (?:flat|the same)|no change|stayed flat)|(?:unchanged|remain(?:ed)? (?:flat|the same)|no change|stayed flat).{0,80}(?:total|overall).{0,80}refinancing"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:total|overall).{0,80}refinancing.{0,80}(?:increased|decreased|rose|fell|grew|shrank|jumped|surged)|(?:increased|decreased|rose|fell|grew|shrank|jumped|surged).{0,80}(?:total|overall).{0,80}refinancing"
+   ],
+   "quote": "The amount of refinancing provided via the one-week main refinancing operations (MROs) was reduced correspondingly, so that the total amount of outstanding refinancing has remained unchanged.",
+   "paraphrases": [
+    "Total refinancing outstanding stayed unchanged even as the ECB shifted the mix toward LTROs",
+    "The overall amount of refinancing provided remained flat despite the reallocation between LTRO and MRO",
+    "ECB's total refinancing outstanding remained the same even as it moved liquidity toward longer maturities"
+   ],
+   "decoys": [
+    "Total refinancing outstanding rose sharply as the ECB expanded both LTRO and MRO allotments",
+    "The overall amount of refinancing fell as the ECB scaled back its operations"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Since December 2007 the ECB has run TAF operations with the US Federal Reserve and Swiss National Bank, providing USD liquidity to euro area banks",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "(?:Federal Reserve|the Fed).{0,150}(?:USD liquidity|dollar liquidity|TAF)|(?:USD liquidity|dollar liquidity|TAF).{0,150}(?:Federal Reserve|the Fed)",
+    "(?:Swiss National Bank|SNB).{0,150}(?:TAF|liquidity|term auction)|(?:TAF|liquidity|term auction).{0,150}(?:Swiss National Bank|SNB)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "Since December 2007, the ECB has, in cooperation with the US Federal Reserve and together with the Swiss National Bank, been conducting several term auction facilities \u2013 so-called TAF-operations \u2013 in which it provides USD liquidity, on behalf of the US Fed, to euro area banks.",
+   "paraphrases": [
+    "ECB has run USD-liquidity TAF operations with the Fed and Swiss National Bank since December 2007",
+    "Since Dec 2007, the ECB has provided dollar liquidity to euro area banks via term auction facilities, in coordination with the Fed and SNB",
+    "TAF operations, run jointly with the US Federal Reserve and the SNB, have supplied euro area banks with USD funding since late 2007"
+   ],
+   "decoys": [
+    "ECB launched TAF operations with the Bank of England, not the Fed, in December 2007",
+    "ECB began providing USD liquidity via TAF operations in December 2008"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Trichet stresses the ECB keeps the monetary policy stance analytically distinct from its liquidity decisions",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:distinction|separat|isolat).{0,120}liquidity",
+    "liquidity.{0,120}(?:distinction|separat|isolat)",
+    "policy stance.{0,120}liquidity|liquidity.{0,120}policy stance"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "merged into a single|no (?:longer|distinction) between (?:the )?policy stance and liquidity|abandoned its distinction"
+   ],
+   "quote": "we made a clear distinction between setting the monetary policy stance to maintain price stability over the medium term and its liquidity decisions taken in the course of implementing this stance",
+   "paraphrases": [
+    "Trichet stresses the ECB keeps monetary policy stance separate from its liquidity operations",
+    "ECB draws a clear line between the policy stance and liquidity management so markets don't confuse the two",
+    "Liquidity decisions are isolated from the policy-rate stance, Trichet says, to avoid sending false signals"
+   ],
+   "decoys": [
+    "Trichet says liquidity operations and the policy stance are now merged into a single tool",
+    "Trichet says the ECB has abandoned its distinction between liquidity and rate policy"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Average EONIA has stayed close to the minimum bid rate through the turmoil",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "EONIA.{0,80}(?:close to|near|minimum bid rate)",
+    "(?:close to|near|minimum bid rate).{0,80}EONIA"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "EONIA.{0,80}(?:diverg|decoupl|far (?:above|below)|well above|well below)",
+    "(?:diverg|decoupl|far (?:above|below)|well above|well below).{0,80}EONIA"
+   ],
+   "quote": "the average level of EONIA has remained close to the minimum bid rate even if its volatility has at times been higher than normal",
+   "paraphrases": [
+    "EONIA has stayed close to the minimum bid rate despite higher volatility during the turmoil",
+    "Overnight rates (EONIA) held near the ECB's minimum bid rate even as swings picked up",
+    "Trichet notes EONIA's average level tracked the minimum bid rate closely"
+   ],
+   "decoys": [
+    "Trichet says EONIA has diverged sharply from the minimum bid rate amid the crisis",
+    "Trichet says EONIA fell well below the deposit rate floor during the turmoil"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "EONIA's volatility has at times been higher than normal, even as its average tracked the minimum bid rate",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "volatilit\\w*.{0,80}(?:higher|increas\\w*|elevated|ris(?:e|ing)|picked up|greater)",
+    "(?:higher|increas\\w*|elevated|ris(?:e|ing)|picked up|greater).{0,80}volatilit\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "volatilit\\w*.{0,80}(?:lower|decreas\\w*|reduced|calm(?:ed)?|subsided|fell|low)",
+    "(?:lower|decreas\\w*|reduced|calm(?:ed)?|subsided|fell|low).{0,80}volatilit\\w*"
+   ],
+   "quote": "the average level of EONIA has remained close to the minimum bid rate even if its volatility has at times been higher than normal",
+   "paraphrases": [
+    "EONIA's volatility was higher than usual at times during the turmoil",
+    "Overnight rate volatility picked up periodically even as its average held steady",
+    "Trichet notes EONIA's volatility was greater than normal despite its average tracking the minimum bid rate"
+   ],
+   "decoys": [
+    "EONIA volatility remained low and stable throughout the turmoil",
+    "EONIA's swings calmed down compared with earlier in the crisis"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Trichet notes he is speaking in the pre-meeting purdah period, so the speech should not be read as signalling the Governing Council's policy intentions",
+   "tier": "should",
+   "kind": "phrase",
+   "patterns": [
+    "purdah"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "purdah.{0,80}(?:lifted|ended early|waived|not in effect)",
+    "(?:lifted|ended early|waived|not in effect).{0,80}purdah"
+   ],
+   "quote": "I am in the purdah period, so that nothing I will say should be interpreted in any respect as signalling intentions of the Governing Council as regards the monetary policy stance",
+   "paraphrases": [
+    "Trichet notes he is in the pre-meeting purdah period, so his remarks should not be read as policy signals",
+    "Speaking during the pre-meeting purdah, Trichet says nothing here signals the Governing Council's policy intentions",
+    "Trichet flags that he is in purdah, so the speech should not be read as hinting at the Governing Council's coming decision"
+   ],
+   "decoys": [
+    "Trichet confirms his remarks reflect the Governing Council's agreed policy stance",
+    "Trichet says the purdah period was lifted early so he could preview the rate decision"
+   ]
+  }
+ ]
+}

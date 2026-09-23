@@ -1,0 +1,282 @@
+{
+ "doc_id": "beige_book-2013-03-31",
+ "doc_type": "beige_book",
+ "points": [
+  {
+   "id": "p1",
+   "point": "National economic activity expanded at a modest-to-moderate pace across Districts",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "modest[- ]to[- ]moderate"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "economic activity generally expanded at a modest to moderate pace since the previous Beige Book",
+   "paraphrases": [
+    "Nationally, growth was modest to moderate across the twelve Districts.",
+    "The Fed's Districts reported activity expanding at a modest-to-moderate clip since the last report.",
+    "Overall economic growth remained modest to moderate."
+   ],
+   "decoys": [
+    "Nationally, growth slowed sharply across most Districts.",
+    "Eight of the twelve Districts reported moderate growth, the fastest pace in a year."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Labor market conditions improved modestly in most Districts",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(labor market|labor condition|job market).{0,60}(improv|gain|better|modest improvement)|(improv|gain|better|modest improvement).{0,60}(labor market|labor condition|job market)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(labor market|hiring|employment).{0,80}(deteriorat|layoffs|widespread cuts)|(deteriorat|layoffs|widespread cuts).{0,80}(labor market|hiring|employment)"
+   ],
+   "quote": "The majority of Districts reported modest improvements in labor market conditions, although hiring plans were limited in several Districts.",
+   "paraphrases": [
+    "Labor markets improved modestly across most Districts.",
+    "Most Districts saw modest gains in labor market conditions.",
+    "Job market conditions were somewhat better nationwide in most Districts."
+   ],
+   "decoys": [
+    "Labor market conditions deteriorated sharply in most Districts, with widespread layoffs.",
+    "Hiring plans were limited in several Districts, even as overall conditions held steady."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Hiring plans stayed limited in several Districts despite improving labor conditions",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "hiring.{0,60}(limited|restrained|cautious|constrain|capped|curtail)|(limited|restrained|cautious|constrain|capped|curtail).{0,60}hiring"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "hiring.{0,60}(surge|boom|accelerat|expand rapidly)|(surge|boom|accelerat|expand rapidly).{0,60}hiring"
+   ],
+   "quote": "The majority of Districts reported modest improvements in labor market conditions, although hiring plans were limited in several Districts.",
+   "paraphrases": [
+    "Hiring plans remained limited in several Districts.",
+    "Several Districts reported that hiring intentions stayed restrained.",
+    "Firms in a number of Districts kept hiring plans capped."
+   ],
+   "decoys": [
+    "Hiring plans surged in several Districts as labor conditions improved.",
+    "Labor market conditions improved modestly in most Districts."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Residential real estate strengthened broadly across Districts",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(residential real estate|home sales|housing market).{0,80}(strengthen|firm(ed|ing)?|improv)|(strengthen|firm(ed|ing)?|improv).{0,80}(residential real estate|home sales|housing market)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(residential real estate|home sales|housing market).{0,80}(weaken|declin|soften)|(weaken|declin|soften).{0,80}(residential real estate|home sales|housing market)"
+   ],
+   "quote": "Residential real estate markets strengthened in nearly all Districts and home prices rose amid falling inventories across much of the country.",
+   "paraphrases": [
+    "Home sales strengthened almost everywhere across the Districts.",
+    "Residential real estate kept improving nationwide, and prices rose as inventories fell.",
+    "Housing markets firmed further in nearly every District."
+   ],
+   "decoys": [
+    "Residential real estate weakened in most Districts as home prices fell amid rising inventories.",
+    "A couple of Districts noted slightly higher home sales, but nationwide activity remained sluggish."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Price pressures remained modest nationally, apart from higher prices for some raw materials and retail prices in several Districts",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "price pressures.{0,60}(modest|remained modest|stayed modest|contained)|(modest|remained modest|stayed modest|contained).{0,60}price pressures"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "price pressures.{0,60}(intensif|surg|spik|accelerat)|(intensif|surg|spik|accelerat).{0,60}price pressures"
+   ],
+   "quote": "Price pressures remained modest, with the exception of increases in prices for certain raw materials and slightly higher retail prices in several Districts.",
+   "paraphrases": [
+    "Price pressures stayed modest nationally, except for some raw materials and retail prices in a few Districts.",
+    "Nationally, price pressures remained modest, aside from upticks in certain raw material and retail prices.",
+    "Overall price pressures were modest, with only a few Districts seeing higher raw material or retail prices."
+   ],
+   "decoys": [
+    "Price pressures intensified sharply nationwide amid broad-based cost increases.",
+    "Most District contacts did not plan to increase selling prices this quarter."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Most District contacts did not plan to increase selling prices despite some rising input costs",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(did not plan|no plans).{0,60}(increase|raise).{0,40}(selling )?price"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!no )(?<!not )(?<!n't )(plan(ned|s)? to|intend(ed)? to).{0,60}(increase|raise).{0,40}(selling )?price"
+   ],
+   "quote": "Even with some input costs rising, most District contacts did not plan to increase selling prices.",
+   "paraphrases": [
+    "Most firms had no plans to raise selling prices even as some input costs rose.",
+    "Input costs ticked up in places, but most contacts did not plan to raise prices.",
+    "Despite some rising input costs, most contacts said they had no plans to increase selling prices."
+   ],
+   "decoys": [
+    "Nearly all District contacts said they would raise prices within the month.",
+    "Price pressures remained modest nationally, apart from higher prices for some raw materials."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Manufacturing conditions improved modestly in most Districts",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(manufacturing|factory activity|factory conditions).{0,60}(improv|modest gain)|(improv|modest gain).{0,60}(manufacturing|factory activity|factory conditions)",
+    "(manufacturing|factory).{0,80}modest|modest.{0,80}(manufacturing|factory)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(manufacturing|factory).{0,80}(worsen|weaken|declin|contract)|(worsen|weaken|declin|contract).{0,80}(manufacturing|factory)"
+   ],
+   "quote": "Manufacturing conditions improved in nearly all Districts, but the increases were generally modest.",
+   "paraphrases": [
+    "Factory activity improved in almost every District, though gains were modest.",
+    "Manufacturing conditions improved broadly, but the increases were modest.",
+    "Most Districts reported modest gains in manufacturing output."
+   ],
+   "decoys": [
+    "Manufacturing conditions worsened in nearly all Districts amid steep declines in output.",
+    "Manufacturing surged in every District, posting the fastest growth in years."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Consumer spending expanded in most Districts",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(consumer spending|spending).{0,60}(expand\\w*|expansion|grew|grow|rose|increased)|(expand\\w*|expansion|grew|grow|rose|increased).{0,60}(consumer spending|spending)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(consumer spending|spending).{0,80}(contract|declin|fell)|(contract|declin|fell).{0,80}(consumer spending|spending)"
+   ],
+   "quote": "Most Districts reported expansion in consumer spending, although retail sales slowed in several Districts.",
+   "paraphrases": [
+    "Consumer spending expanded across most Districts.",
+    "Most Districts reported an expansion in consumer spending.",
+    "Overall consumer spending grew in most Districts."
+   ],
+   "decoys": [
+    "Consumer spending contracted in most Districts.",
+    "Retail sales slowed in several Districts even as national spending was flat."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Retail sales slowed in several Districts even as consumer spending expanded overall",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "retail sales.{0,60}(slow\\w*|eased|easing|cooled|softened)|(slow\\w*|eased|easing|cooled|softened).{0,60}retail sales"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "retail sales.{0,60}(accelerat|surg|pickup|pick up)|(accelerat|surg|pickup|pick up).{0,60}retail sales"
+   ],
+   "quote": "Most Districts reported expansion in consumer spending, although retail sales slowed in several Districts.",
+   "paraphrases": [
+    "Retail sales slowed in a handful of Districts.",
+    "Several Districts saw retail sales slow.",
+    "Retail sales growth eased in a number of Districts."
+   ],
+   "decoys": [
+    "Retail sales accelerated in every District.",
+    "Consumer spending expanded in most Districts this period."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Atlanta Fed Business Inflation Expectations survey: unit costs up 1.7% y/y in February",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)1\\.7(?!\\d).{0,60}(unit cost|percent|%)|unit cost.{0,60}(?<!\\d)1\\.7(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)2\\.7(?!\\d) percent"
+   ],
+   "quote": "Firms responding to our Business Inflation Expectations survey reported that unit costs were up 1.7 percent in February over the past year, roughly unchanged from their assessment late last year.",
+   "paraphrases": [
+    "Atlanta Fed survey: unit costs rose 1.7% year-over-year in February.",
+    "The Business Inflation Expectations survey showed unit costs up 1.7 percent from a year earlier.",
+    "Firms reported unit costs up 1.7% year-over-year."
+   ],
+   "decoys": [
+    "The survey showed unit costs up 2.7% year-over-year, well above expectations.",
+    "Firms expected unit costs to rise 1.9 percent over the next 12 months."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Firms expected unit costs to rise 1.9% over the next 12 months",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)1\\.9(?!\\d).{0,60}(unit cost|percent|%|next ((?<!\\d)12(?!\\d) months|year))|unit cost.{0,60}(?<!\\d)1\\.9(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)2\\.9(?!\\d) percent"
+   ],
+   "quote": "On average, firms expected unit costs to rise 1.9 percent over the next 12 months.",
+   "paraphrases": [
+    "Firms expected unit costs to rise 1.9% over the next year.",
+    "The survey projected unit costs increasing 1.9 percent over the next 12 months.",
+    "Businesses expected unit cost growth of 1.9% over the coming year."
+   ],
+   "decoys": [
+    "Firms expected unit costs to rise 2.9 percent over the next 12 months.",
+    "Unit costs rose 1.7 percent over the past year, roughly unchanged from expectations."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Wage pressures remained mostly limited nationally, apart from upward pressure for some skilled positions",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "wage pressures.{0,60}(limited|minimal|mostly limited|contained)",
+    "(upward pressure|pressure).{0,80}skilled|skilled.{0,80}(upward pressure|pressure)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "wage pressures.{0,60}(broaden|widespread|across (nearly )?all)"
+   ],
+   "quote": "Wage pressures were mostly limited, but some contacts reported upward pressure for skilled positions in certain industries due to worker shortages.",
+   "paraphrases": [
+    "Wage pressures stayed mostly limited, aside from some upward pressure for skilled roles.",
+    "Wage pressures were contained overall, though skilled workers saw some upward pay pressure amid shortages.",
+    "Wage pressures were minimal nationally, except for pockets of upward pressure on skilled-worker pay."
+   ],
+   "decoys": [
+    "Wage pressures broadened sharply across nearly all industries and skill levels.",
+    "Unskilled labor saw the largest wage increases, while skilled worker pay was flat."
+   ]
+  }
+ ]
+}

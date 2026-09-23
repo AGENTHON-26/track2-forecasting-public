@@ -1,0 +1,309 @@
+{
+ "doc_id": "macro_release-2023-06-13",
+ "doc_type": "macro_release",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Headline CPI rose 4.0% year-over-year in May",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The all items index increased 4.0 percent for the 12 months ending May; this was the smallest 12-month increase since the period ending March 2021.",
+   "paraphrases": [
+    "Headline CPI rose 4.0% year-over-year in May.",
+    "All items CPI increased 4.0 percent over the past year.",
+    "Annual headline inflation was 4.0% in May."
+   ],
+   "decoys": [
+    "Headline CPI rose 5.3% year-over-year in May.",
+    "Core CPI rose 4.0% year-over-year in May."
+   ],
+   "patterns": [
+    "(headline|all items).{0,60}(?<!\\d)4\\.0(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)4\\.0(?!\\d)\\s?(percent|%).{0,60}(headline|all items)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,20}(?<!\\d)4\\.0(?!\\d)",
+    "(?<!\\d)4\\.0(?!\\d).{0,20}core"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "May's 4.0% year-over-year headline CPI increase was the smallest 12-month increase since March 2021",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The all items index increased 4.0 percent for the 12 months ending May; this was the smallest 12-month increase since the period ending March 2021.",
+   "paraphrases": [
+    "Headline CPI rose 4.0% year-over-year in May, the smallest annual gain since March 2021.",
+    "Headline inflation cooled to its lowest 12-month rate since March 2021.",
+    "The 12-month change was the smallest since the period ending March 2021."
+   ],
+   "decoys": [
+    "Headline inflation cooled to its lowest 12-month rate since March 2020.",
+    "Core CPI's annual increase was the smallest since March 2021."
+   ],
+   "patterns": [
+    "(smallest|slowest|softest|lowest).{0,100}march.{0,10}(?<!\\d)2021(?!\\d)",
+    "march.{0,10}(?<!\\d)2021(?!\\d).{0,100}(smallest|slowest|softest|lowest)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,80}march.{0,10}(?<!\\d)2021(?!\\d)",
+    "march.{0,10}(?<!\\d)2021(?!\\d).{0,80}core"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Core CPI (ex food and energy) rose 5.3% year-over-year in May",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The all items less food and energy index rose 5.3 percent over the last 12 months.",
+   "paraphrases": [
+    "Core CPI rose 5.3% year-over-year in May.",
+    "Core inflation held at 5.3% y/y.",
+    "Core prices, excluding food and energy, were up 5.3 percent from a year earlier."
+   ],
+   "decoys": [
+    "Core CPI eased to 4.0% year-over-year in May.",
+    "Headline CPI rose 5.3% year-over-year in May."
+   ],
+   "patterns": [
+    "core.{0,60}(?<!\\d)5\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)5\\.3(?!\\d)\\s?(percent|%).{0,60}core",
+    "less food and energy.{0,60}(?<!\\d)5\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)5\\.3(?!\\d)\\s?(percent|%).{0,60}less food and energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)5\\.3(?!\\d)",
+    "(?<!\\d)5\\.3(?!\\d).{0,20}headline"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Headline CPI rose just 0.1% month-over-month in May",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 0.1 percent in May on a seasonally adjusted basis, after increasing 0.4 percent in April",
+   "paraphrases": [
+    "Headline CPI rose just 0.1% m/m in May.",
+    "Monthly headline inflation slowed sharply to 0.1% in May.",
+    "All items CPI increased 0.1 percent for the month of May."
+   ],
+   "decoys": [
+    "Headline CPI accelerated to 0.4% month-over-month in May.",
+    "Core CPI rose 0.1% month-over-month in May."
+   ],
+   "patterns": [
+    "(headline|all items|cpi-u|consumer price index)\\w*.{0,60}(?<!\\d)0\\.1(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.1(?!\\d)\\s?(percent|%).{0,60}(headline|all items|cpi-u|consumer price index)\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,30}(?<!\\d)0\\.1(?!\\d)",
+    "(?<!\\d)0\\.1(?!\\d).{0,30}core"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "April's month-over-month headline CPI increase was 0.4%, making May's 0.1% a sharp deceleration",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 0.1 percent in May on a seasonally adjusted basis, after increasing 0.4 percent in April",
+   "paraphrases": [
+    "Headline CPI rose just 0.1% in May, down from 0.4% in April.",
+    "Monthly headline inflation slowed to 0.1% in May from 0.4% in April.",
+    "May's 0.1 percent reading decelerated sharply from April's 0.4 percent gain."
+   ],
+   "decoys": [
+    "Headline CPI accelerated to 0.4% month-over-month in May.",
+    "CPI rose 0.4% in May, down from April's 0.1%."
+   ],
+   "patterns": [
+    "(?<!\\d)0\\.4(?!\\d)\\s?(percent|%)\\s*(in|during|for)?\\s*april",
+    "april('s)?\\s*(?<!\\d)0\\.4(?!\\d)\\s?(percent|%)",
+    "april.{0,15}(rose|rising|increased?|gain(ed)?|climb(ed)?|up)\\s*(?<!\\d)0\\.4(?!\\d)",
+    "(?<!\\d)0\\.4(?!\\d)\\s?(percent|%).{0,15}(rise|rising|increase[d]?|gain(ed)?).{0,10}april"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(core|less food and energy).{0,30}(?<!\\d)0\\.4(?!\\d).{0,20}april",
+    "(core|less food and energy).{0,30}april.{0,20}(?<!\\d)0\\.4(?!\\d)"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Core CPI rose 0.4% month-over-month in May",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The index for all items less food and energy rose 0.4 percent in May, as it did in April and March.",
+   "paraphrases": [
+    "Core CPI rose 0.4% m/m in May.",
+    "Monthly core inflation was 0.4 percent in May.",
+    "Core (ex food & energy) CPI increased 0.4% for the month of May."
+   ],
+   "decoys": [
+    "Core CPI decelerated to 0.1% month-over-month in May.",
+    "Headline CPI rose 0.4% month-over-month in May."
+   ],
+   "patterns": [
+    "core.{0,60}(?<!\\d)0\\.4(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.4(?!\\d)\\s?(percent|%).{0,60}core",
+    "less food and energy.{0,60}(?<!\\d)0\\.4(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.4(?!\\d)\\s?(percent|%).{0,60}less food and energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)0\\.4(?!\\d)",
+    "(?<!\\d)0\\.4(?!\\d).{0,20}headline"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "May's 0.4% core CPI increase matched April and March, the third straight month at that pace",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The index for all items less food and energy rose 0.4 percent in May, as it did in April and March.",
+   "paraphrases": [
+    "Core CPI held at 0.4% in May, the same pace as April and March.",
+    "Monthly core inflation stayed sticky at 0.4 percent for a third consecutive month.",
+    "Core CPI rose 0.4% in May, matching April's and March's readings."
+   ],
+   "decoys": [
+    "Core CPI rose 0.4% in May, up from a smaller gain in April.",
+    "Headline CPI held at 0.4% in May, matching April and March."
+   ],
+   "patterns": [
+    "(core|less food and energy).{0,60}(?<!\\d)0\\.4(?!\\d)\\s?(percent|%).{0,60}april.{0,20}march",
+    "(third|3rd) (straight|consecutive|consec\\w*).{0,20}month"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)0\\.4(?!\\d).{0,60}april.{0,20}march"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Shelter rose 8.0% year-over-year in May and accounted for over 60% of the total increase in core CPI",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The shelter index increased 8.0 percent over the last year, accounting for over 60 percent of the total increase in all items less food and energy.",
+   "paraphrases": [
+    "Shelter costs rose 8.0% y/y, driving over 60% of core's annual increase.",
+    "The shelter index was up 8.0 percent over the past year and remained the dominant driver of core inflation.",
+    "Housing costs climbed 8.0% year-over-year, contributing more than 60 percent of the core CPI gain."
+   ],
+   "decoys": [
+    "Shelter costs fell 8.0% year-over-year in May.",
+    "Medical care costs rose 8.0% year-over-year in May."
+   ],
+   "patterns": [
+    "(shelter|housing cost).{0,60}(?<!\\d)8\\.0(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)8\\.0(?!\\d)\\s?(percent|%).{0,60}(shelter|housing cost)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "medical.{0,30}(?<!\\d)8\\.0(?!\\d)",
+    "(shelter|housing cost).{0,60}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)8\\.0(?!\\d)"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Energy prices fell 11.7% year-over-year in May, a major drag on headline inflation",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The energy index fell 11.7 percent over the past 12 months.",
+   "paraphrases": [
+    "Energy prices dropped 11.7% y/y in May.",
+    "The energy index was down 11.7 percent over the past year, weighing on the headline figure.",
+    "Energy costs fell 11.7% from a year earlier."
+   ],
+   "decoys": [
+    "Energy prices rose 11.7% year-over-year in May.",
+    "Food prices fell 11.7% year-over-year in May."
+   ],
+   "patterns": [
+    "energy.{0,40}(fell|fall|declin\\w*|decreas\\w*|down|drop\\w*).{0,20}(?<!\\d)11\\.7(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)11\\.7(?!\\d)\\s?(percent|%).{0,40}energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "energy.{0,40}(ros\\w*|ris\\w*|increas\\w*|up).{0,20}(?<!\\d)11\\.7(?!\\d)",
+    "food.{0,30}(?<!\\d)11\\.7(?!\\d)"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Used car and truck prices jumped 4.4% in May, rebounding and adding to core stickiness",
+   "tier": "should",
+   "kind": "number",
+   "quote": "the index for used cars and trucks, which increased 4.4 percent",
+   "paraphrases": [
+    "Used car and truck prices rebounded 4.4% m/m in May.",
+    "The used vehicles index jumped 4.4 percent for the month, reversing prior declines.",
+    "Used cars and trucks rose 4.4% in May, a notable rebound."
+   ],
+   "decoys": [
+    "Used car and truck prices fell 4.4% in May.",
+    "New vehicle prices rose 4.4% in May."
+   ],
+   "patterns": [
+    "used (car|vehicle).{0,60}(?<!\\d)4\\.4(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)4\\.4(?!\\d)\\s?(percent|%).{0,60}used (car|vehicle)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "used (car|vehicle).{0,60}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)4\\.4(?!\\d)",
+    "new vehicle.{0,30}(?<!\\d)4\\.4(?!\\d)"
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Household furnishings prices fell 0.6% in May, the first decline in that index since June 2021",
+   "tier": "should",
+   "kind": "number",
+   "quote": "Several indexes declined in May, led by the household furnishings and operations index which fell 0.6 percent over the month. This was the first decline in that index since June 2021 and also the largest 1-month decline since August 2009.",
+   "paraphrases": [
+    "Household furnishings prices fell 0.6% m/m in May, the first decline since June 2021.",
+    "The furnishings and operations index dropped 0.6 percent in May, ending nearly two years of increases.",
+    "Household furnishings costs declined 0.6% in May, their first monthly drop since mid-2021."
+   ],
+   "decoys": [
+    "Household furnishings prices rose 0.6% in May.",
+    "Apparel prices fell 0.6% in May."
+   ],
+   "patterns": [
+    "(household furnishing|furnishings and operations).{0,60}(?<!\\d)0\\.6(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.6(?!\\d)\\s?(percent|%).{0,60}(household furnishing|furnishings and operations)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "apparel.{0,30}(?<!\\d)0\\.6(?!\\d)",
+    "(household furnishing|furnishings and operations).{0,60}(ros\\w*|climb\\w*|jump\\w*|increas\\w*|surg\\w*).{0,20}(?<!\\d)0\\.6(?!\\d)"
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "The 0.6% May decline in household furnishings was also the largest 1-month drop since August 2009",
+   "tier": "should",
+   "kind": "number",
+   "quote": "Several indexes declined in May, led by the household furnishings and operations index which fell 0.6 percent over the month. This was the first decline in that index since June 2021 and also the largest 1-month decline since August 2009.",
+   "paraphrases": [
+    "The furnishings decline was also the largest monthly drop since August 2009.",
+    "Household furnishings costs fell at their steepest pace since 2009.",
+    "This was the biggest 1-month decline in furnishings prices since August 2009."
+   ],
+   "decoys": [
+    "Household furnishings costs fell at their steepest pace since 2015.",
+    "Airline fares fell at their steepest pace since August 2009."
+   ],
+   "patterns": [
+    "(household furnishing|furnishings).{0,180}(largest|biggest|steepest|sharpest).{0,60}(?<!\\d)2009(?!\\d)",
+    "(largest|biggest|steepest|sharpest).{0,60}(?<!\\d)2009(?!\\d).{0,180}(household furnishing|furnishings)",
+    "(largest|biggest|steepest|sharpest).{0,180}(household furnishing|furnishings).{0,60}(?<!\\d)2009(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": []
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "doc_id": "cftc_cot_japanese_2007",
+ "labels": {
+  "p1": true,
+  "p2": true,
+  "p3": true,
+  "p4": true,
+  "p5": false,
+  "p6": true,
+  "p7": true
+ },
+ "notes": {
+  "p2": "wording is self-contradictory ('a decrease of 883 (more negative)') but the parenthetical gets the direction right",
+  "p4": "latest level given; the summary never says it fell",
+  "p5": "prior week's 320,333 is absent"
+ }
+}

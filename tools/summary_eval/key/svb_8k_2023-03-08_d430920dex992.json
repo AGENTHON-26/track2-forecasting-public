@@ -1,0 +1,284 @@
+{
+ "doc_id": "svb_8k_2023-03-08_d430920dex992",
+ "doc_type": "corporate_8k",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "number",
+   "point": "SVB commenced an offering seeking to raise approximately $2.25 billion of new capital (common equity and mandatory convertible preferred stock)",
+   "patterns": [
+    "((?<!\\d)2\\.25(?!\\d)\\s?(billion|bn|b)\\b.{0,80}(raise|capital|offering)|(raise|capital|offering).{0,80}(?<!\\d)2\\.25(?!\\d)\\s?(billion|bn|b)\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(repurchase|buyback).{0,80}(?<!\\d)2\\.25(?!\\d)\\s?(billion|bn|b)\\b",
+    "(?<!\\d)2\\.25(?!\\d)\\s?(billion|bn|b)\\b.{0,80}(repurchase|buyback)"
+   ],
+   "quote": "commenced an underwritten public offering, seeking to raise approximately $2.25 billion between common equity and mandatory convertible preferred shares.",
+   "paraphrases": [
+    "SVB launched a public offering seeking to raise about $2.25 billion in common equity and mandatory convertible preferred stock.",
+    "The bank is targeting a ~$2.25B capital raise combining common shares and convertible preferred.",
+    "SVB commenced offerings to raise approximately $2.25 billion of new capital."
+   ],
+   "decoys": [
+    "SVB completed a $2.25 billion stock buyback program.",
+    "SVB is seeking to raise approximately $1.25 billion in new capital."
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "must",
+   "kind": "number",
+   "point": "The balance-sheet repositioning (AFS sale and hedging) is estimated to improve annualized NII by about $450 million on a post-tax basis",
+   "patterns": [
+    "((?<!\\d)450(?!\\d)\\s?(million|mm|m)\\b.{0,80}(nii|net interest income)|(nii|net interest income).{0,80}(?<!\\d)450(?!\\d)\\s?(million|mm|m)\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)450(?!\\d)\\s?(million|mm|m)\\b.{0,80}(declin|decreas|reduc|drop)",
+    "(declin|decreas|reduc|drop).{0,80}(?<!\\d)450(?!\\d)\\s?(million|mm|m)\\b"
+   ],
+   "quote": "Estimated +$450M improvement 3.6-year Duration 1, 3, 4 in annualized NII (post-tax)",
+   "paraphrases": [
+    "The balance-sheet repositioning is expected to improve annualized post-tax NII by about $450 million.",
+    "SVB estimates a +$450M annualized boost to net interest income (post-tax) from the securities sale and hedging actions.",
+    "Management expects the AFS sale and related actions to add roughly $450 million to annual NII on a post-tax basis."
+   ],
+   "decoys": [
+    "The repositioning is expected to reduce annualized post-tax NII by about $450 million.",
+    "The balance-sheet repositioning is expected to improve annualized post-tax NII by about $150 million."
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "concept",
+   "point": "FY'23 net interest income guidance is now a mid-thirties percent decline, including the AFS sale impact",
+   "patterns": [
+    "(net interest income|nii)[\\s\\S]{0,80}(declin|decreas|drop|fall|contract)|(declin|decreas|drop|fall|contract)[\\s\\S]{0,80}(net interest income|nii)",
+    "(mid.?(thirties|30s)|3[0-9]\\s?%)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(net interest income|nii).{0,80}(increase|grow|rise|improve)",
+    "(increase|grow|rise|improve).{0,80}(net interest income|nii)"
+   ],
+   "quote": "FY’23 NII outlook Low twenties % decline 2 Net interest income $4,522M High teens % decline Mid thirties % decline with AFS sale",
+   "paraphrases": [
+    "SVB now expects FY'23 net interest income to decline in the mid-30s percent range, due to the AFS sale.",
+    "Updated guidance shows NII declining roughly 35% for FY'23 including the securities sale impact.",
+    "Full-year 2023 NII is now expected to decline in the mid-thirties percent range (with the AFS sale)."
+   ],
+   "decoys": [
+    "SVB now expects FY'23 net interest income to grow in the mid-30s percent range.",
+    "SVB now expects FY'23 net interest income to decline in the low-teens percent range."
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "should",
+   "kind": "concept",
+   "point": "The prior (1/19/23) FY'23 NII guidance was a low-twenties percent decline, much less steep than the new mid-thirties percent guidance",
+   "patterns": [
+    "(low.?(twenties|20s)|2[0-4]\\s?%).{0,60}(declin|decreas|drop|fall)",
+    "(declin|decreas|drop|fall).{0,60}(low.?(twenties|20s)|2[0-4]\\s?%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(low.?(twenties|20s)|2[0-4]\\s?%).{0,60}(increase|grow|rise|improve)",
+    "(increase|grow|rise|improve).{0,60}(low.?(twenties|20s)|2[0-4]\\s?%)"
+   ],
+   "quote": "FY’23 NII outlook Low twenties % decline 2 Net interest income $4,522M High teens % decline Mid thirties % decline with AFS sale",
+   "paraphrases": [
+    "The prior FY'23 NII guidance was a low-twenties percent decline, much less steep than the new mid-thirties percent outlook.",
+    "SVB's original 1/19/23 guidance called for a low-20s percent NII decline.",
+    "Previously, FY'23 NII was guided to decline in the low twenties percent range."
+   ],
+   "decoys": [
+    "SVB's original 1/19/23 guidance called for a low-20s percent NII increase.",
+    "SVB's original 1/19/23 guidance called for a mid-thirties percent NII decline."
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "should",
+   "kind": "number",
+   "point": "SVB trimmed its Q1'23 average deposits outlook to about $167-169 billion, amid elevated client cash burn",
+   "patterns": [
+    "(deposit).{0,80}((?<!\\d)167(?!\\d)|(?<!\\d)168(?!\\d)|(?<!\\d)169(?!\\d))",
+    "((?<!\\d)167(?!\\d)|(?<!\\d)168(?!\\d)|(?<!\\d)169(?!\\d)).{0,80}(deposit)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Average deposits ~ $171-175B ~$167-169B",
+   "source_pattern": [
+    "(deposit).{0,80}((?<!\\d)167(?!\\d)|(?<!\\d)168(?!\\d)|(?<!\\d)169(?!\\d))|((?<!\\d)167(?!\\d)|(?<!\\d)168(?!\\d)|(?<!\\d)169(?!\\d)).{0,80}(deposit)"
+   ],
+   "paraphrases": [
+    "SVB trimmed its Q1'23 average deposits outlook to about $167-169 billion.",
+    "Average deposits guidance was cut to roughly $168B for Q1'23 amid elevated client cash burn.",
+    "The bank's Q1 average deposit forecast is now in the $167-169 billion range."
+   ],
+   "decoys": [
+    "SVB trimmed its Q1'23 average deposits outlook to about $160-165 billion.",
+    "SVB trimmed its Q1'23 average loans outlook to about $73-75 billion."
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "number",
+   "point": "The prior Q1'23 average deposits guide was $171-175 billion, higher than the new $167-169 billion outlook",
+   "patterns": [
+    "(deposit).{0,80}((?<!\\d)171(?!\\d)|(?<!\\d)172(?!\\d)|(?<!\\d)173(?!\\d)|(?<!\\d)174(?!\\d)|(?<!\\d)175(?!\\d))",
+    "((?<!\\d)171(?!\\d)|(?<!\\d)172(?!\\d)|(?<!\\d)173(?!\\d)|(?<!\\d)174(?!\\d)|(?<!\\d)175(?!\\d)).{0,80}(deposit)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Average deposits ~ $171-175B ~$167-169B",
+   "source_pattern": [
+    "(deposit).{0,80}((?<!\\d)171(?!\\d)|(?<!\\d)172(?!\\d)|(?<!\\d)173(?!\\d)|(?<!\\d)174(?!\\d)|(?<!\\d)175(?!\\d))|((?<!\\d)171(?!\\d)|(?<!\\d)172(?!\\d)|(?<!\\d)173(?!\\d)|(?<!\\d)174(?!\\d)|(?<!\\d)175(?!\\d)).{0,80}(deposit)"
+   ],
+   "paraphrases": [
+    "The prior Q1'23 average deposits guide was $171-175 billion.",
+    "SVB had previously guided to $171-175 billion of average deposits for Q1'23.",
+    "The 1/19/23 outlook called for average deposits of about $171-175 billion."
+   ],
+   "decoys": [
+    "The prior Q1'23 average deposits guide was $167-169 billion.",
+    "The prior Q1'23 average loans guide was $171-175 billion."
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "name",
+   "point": "SVB disclosed that Moody's is considering potential ratings actions, which could include a negative outlook or a downgrade of one or two notches",
+   "patterns": [
+    "(moody'?s).{0,80}(downgrade|negative outlook|ratings? action|review for downgrade)|(downgrade|negative outlook|ratings? action|review for downgrade).{0,80}(moody'?s)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "moody'?s.{0,80}(upgrade|affirm(ed)? rating|positive outlook)",
+    "(upgrade|affirm(ed)? rating|positive outlook).{0,80}moody'?s"
+   ],
+   "quote": "with Moody's, who we understand are",
+   "paraphrases": [
+    "Moody's is reviewing SVB for a possible ratings downgrade of one or two notches.",
+    "SVB disclosed that Moody's may cut its credit rating, potentially placing it on review for downgrade.",
+    "Moody's could downgrade SVB and assign a negative outlook amid the balance-sheet actions."
+   ],
+   "decoys": [
+    "Moody's upgraded SVB's credit rating following the balance-sheet actions.",
+    "S&P downgraded SVB's credit rating by two notches."
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "number",
+   "point": "Q1'23 U.S. VC investment is on track to decline 15-20% versus Q4'22, in line with expectations",
+   "patterns": [
+    "(vc|venture capital).{0,80}(declin|drop|fall)|(declin|drop|fall).{0,80}(vc|venture capital)",
+    "(?<!\\d)15(?!\\d).{0,5}(-|to| )?(?<!\\d)20(?!\\d)\\s?%"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(vc|venture capital).{0,80}(increase|rise|grow)",
+    "(increase|rise|grow).{0,80}(vc|venture capital)"
+   ],
+   "quote": "decline 15-20% vs. Q4'22, in-line with our expectations",
+   "paraphrases": [
+    "Q1'23 U.S. VC investment is tracking a 15-20% decline versus Q4'22.",
+    "Venture capital investment is expected to drop 15% to 20% quarter-over-quarter, in line with expectations.",
+    "SVB said VC funding activity is on pace to fall 15-20% from the prior quarter."
+   ],
+   "decoys": [
+    "Q1'23 U.S. VC investment is tracking a 15-20% increase versus Q4'22.",
+    "Q1'23 U.S. VC investment is tracking a 5-10% decline versus Q4'22."
+   ]
+  },
+  {
+   "id": "p9",
+   "tier": "should",
+   "kind": "number",
+   "point": "SVB's embedded rate assumptions have Fed funds at 5.00% in March 2023",
+   "patterns": [
+    "(fed funds).{0,40}(?<!\\d)5\\.00(?!\\d)\\s?%.{0,20}march",
+    "(fed funds).{0,40}march.{0,20}(?<!\\d)5\\.00(?!\\d)\\s?%",
+    "(?<!\\d)5\\.00(?!\\d)\\s?%.{0,20}march.{0,40}(fed funds)",
+    "march.{0,20}(?<!\\d)5\\.00(?!\\d)\\s?%.{0,40}(fed funds)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "fed funds.{0,60}(fall|falls|falling|decrease|lower|cut).{0,30}(?<!\\d)5\\.00(?!\\d)",
+    "(?<!\\d)5\\.00(?!\\d).{0,30}(fall|falls|falling|decrease|lower|cut).{0,60}fed funds"
+   ],
+   "quote": "Current Q1’23 expectations assume Fed Funds at 5.00% in March, 5.25% in May and 5.50% in June.",
+   "paraphrases": [
+    "SVB now assumes the Fed funds rate reaches 5.00% in March 2023.",
+    "The bank's updated outlook has Fed funds at 5.00% in March.",
+    "SVB models Fed funds at 5.00% for March 2023."
+   ],
+   "decoys": [
+    "SVB now assumes the Fed funds rate falls to 5.00% in March, down from a prior higher assumption.",
+    "SVB now assumes the Fed funds rate reaches 5.00% in June."
+   ]
+  },
+  {
+   "id": "p10",
+   "tier": "should",
+   "kind": "number",
+   "point": "SVB's embedded rate assumptions have Fed funds at 5.25% in May 2023",
+   "patterns": [
+    "(fed funds).{0,40}(?<!\\d)5\\.25(?!\\d)\\s?%.{0,20}may\\b",
+    "(fed funds).{0,40}may\\b.{0,20}(?<!\\d)5\\.25(?!\\d)\\s?%",
+    "(?<!\\d)5\\.25(?!\\d)\\s?%.{0,20}may\\b.{0,40}(fed funds)",
+    "may\\b.{0,20}(?<!\\d)5\\.25(?!\\d)\\s?%.{0,40}(fed funds)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "fed funds.{0,60}(fall|falls|falling|decrease|lower|cut).{0,30}(?<!\\d)5\\.25(?!\\d)",
+    "(?<!\\d)5\\.25(?!\\d).{0,30}(fall|falls|falling|decrease|lower|cut).{0,60}fed funds"
+   ],
+   "quote": "Current Q1’23 expectations assume Fed Funds at 5.00% in March, 5.25% in May and 5.50% in June.",
+   "paraphrases": [
+    "SVB now assumes the Fed funds rate reaches 5.25% in May 2023.",
+    "The bank's updated outlook has Fed funds at 5.25% in May.",
+    "SVB models Fed funds at 5.25% for May 2023."
+   ],
+   "decoys": [
+    "SVB now assumes the Fed funds rate falls to 5.25% in May, down from a prior higher assumption.",
+    "SVB now assumes the Fed funds rate reaches 5.25% in June."
+   ]
+  },
+  {
+   "id": "p11",
+   "tier": "should",
+   "kind": "number",
+   "point": "SVB raised its embedded Fed funds rate assumptions, now expecting 5.50% by June 2023",
+   "patterns": [
+    "(fed funds).{0,40}(?<!\\d)5\\.50(?!\\d)\\s?%.{0,20}june",
+    "(fed funds).{0,40}june.{0,20}(?<!\\d)5\\.50(?!\\d)\\s?%",
+    "(?<!\\d)5\\.50(?!\\d)\\s?%.{0,20}june.{0,40}(fed funds)",
+    "june.{0,20}(?<!\\d)5\\.50(?!\\d)\\s?%.{0,40}(fed funds)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "fed funds.{0,60}(fall|falls|falling|decrease|lower|cut).{0,30}(?<!\\d)5\\.50(?!\\d)",
+    "(?<!\\d)5\\.50(?!\\d).{0,30}(fall|falls|falling|decrease|lower|cut).{0,60}fed funds"
+   ],
+   "quote": "Current Q1’23 expectations assume Fed Funds at 5.00% in March, 5.25% in May and 5.50% in June.",
+   "paraphrases": [
+    "SVB's updated outlook assumes the Fed funds rate reaches 5.50% by June, up from the prior 5.00% assumption.",
+    "The bank now models Fed funds at 5.50% in June, a higher path than previously assumed.",
+    "SVB raised its embedded rate assumptions, now expecting Fed funds of 5.50% by June 2023."
+   ],
+   "decoys": [
+    "SVB now assumes the Fed funds rate falls to 5.50% by June, down from a prior higher assumption.",
+    "SVB now assumes the Fed funds rate reaches 4.50% by June."
+   ]
+  }
+ ]
+}

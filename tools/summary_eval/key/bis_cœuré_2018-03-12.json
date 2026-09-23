@@ -1,0 +1,189 @@
+{
+ "doc_id": "bis_cœuré_2018-03-12",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "ECB's projections put euro-area inflation at 1.4% for next year",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)1\\.4(?!\\d)\\s*%?.{0,80}(inflation|target)|(inflation|target).{0,80}(?<!\\d)1\\.4(?!\\d)\\s*%?"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the ECB's projections put inflation at 1.4% for next year, which is good, but not close enough to 2%",
+   "paraphrases": [
+    "ECB sees inflation at 1.4% next year",
+    "ECB's forecast puts next year's inflation at 1.4%",
+    "Euro-area inflation projected at 1.4% for next year"
+   ],
+   "decoys": [
+    "ECB sees inflation at 2.4% next year",
+    "ECB sees inflation reaching 2% next year"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "That 1.4% projection is still short of the ECB's ~2% inflation goal",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:not close (?:enough )?to|short of|below|under|shy of|still below).{0,80}(?<!\\d)2(?!\\d)\\s*%|(?<!\\d)2(?!\\d)\\s*%.{0,80}(?:not close (?:enough )?to|short of|below|under|shy of|still below)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:above|exceed\\w*|surpass\\w*|higher than|hitting|hit|reach\\w*).{0,80}(?<!\\d)2(?!\\d)\\s*%|(?<!\\d)2(?!\\d)\\s*%.{0,80}(?:above|exceed\\w*|surpass\\w*|higher than|hitting|hit|reach\\w*)"
+   ],
+   "quote": "the ECB's projections put inflation at 1.4% for next year, which is good, but not close enough to 2%",
+   "paraphrases": [
+    "That's still short of the ECB's roughly 2% inflation target",
+    "1.4% remains below the ECB's near-2% goal",
+    "Inflation is projected to fall short of the ECB's ~2% objective next year"
+   ],
+   "decoys": [
+    "Inflation is now projected to hit the ECB's 2% target next year",
+    "The 1.4% forecast already exceeds the ECB's 2% goal"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Governing Council tweaked its guidance to drop the pledge to increase the scale of monthly asset purchases, a small step toward ending QE",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(no longer (?:intend|plan|signal)\\w*|drop\\w*|remov\\w*|not (?:planning|intending)|stopped signal\\w*).{0,100}(increase|expand|rais(?:e|ing)|scal(?:e|ing) up|ramp(?:ed)? up)",
+    "(asset purchase|purchases|QE|bond.?buying|monthly purchases)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "the decision taken by the ECB's Governing Council last week, which entails changing our communication very slightly to show that we no longer intend to increase the scale of the central bank's monthly asset purchases",
+   "paraphrases": [
+    "ECB Governing Council dropped its pledge to potentially increase QE purchases if needed",
+    "ECB tweaks guidance: no longer signals it could ramp up monthly bond buying",
+    "Governing Council removes reference to expanding asset purchases, a small step toward tapering"
+   ],
+   "decoys": [
+    "ECB Governing Council decided to increase the scale of its monthly asset purchases",
+    "ECB Governing Council raised interest rates for the first time since the crisis"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "About 0.5 percentage points of the euro area's 2.5% growth rate is attributable to ECB monetary policy",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "((?<!\\d)0\\.5(?!\\d)[\\s-]*(?:%|pp|points?)|half (?:a |)(?:percentage point|point)).{0,150}(monetary policy|ECB)|(monetary policy|ECB).{0,150}((?<!\\d)0\\.5(?!\\d)[\\s-]*(?:%|pp|points?)|half (?:a |)(?:percentage point|point))",
+    "(?<!\\d)2\\.5(?!\\d)\\s*%"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "with a growth rate of around 2.5% in the euro area, 0.5%, half a percentage point, is dependent on monetary policy",
+   "paraphrases": [
+    "ECB estimates monetary policy is adding about 0.5pp to euro-area growth, without it growth would be 2% instead of 2.5%",
+    "Half a percentage point of the euro area's 2.5% growth is due to ECB measures, Cœuré says",
+    "Without the ECB's monetary stimulus, growth would be 2% rather than 2.5%, per Cœuré's estimate of a 0.5-point boost"
+   ],
+   "decoys": [
+    "Without ECB's measures, euro-area growth would be 3%, not 2.5%",
+    "Cœuré says growth would be unaffected by the absence of its monetary measures"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Governing Council has not discussed raising rates; short-term ECB-controlled rates seen staying very low well beyond the horizon of asset purchases",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(short-term (?:interest )?rates?|borrowing costs).{0,100}(very low|ultra-low|remain(?:s|ing)? low|stay(?:ing)? low)|(very low|ultra-low|remain(?:s|ing)? low|stay(?:ing)? low).{0,100}(short-term (?:interest )?rates?|borrowing costs)",
+    "(well )?beyond.{0,60}(horizon|end|asset purchase|QE|bond buying)|long after.{0,60}(asset purchase|QE|bond buying|wind.?down)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(short-term (?:interest )?rates?|borrowing costs).{0,100}(ris(?:e|ing)|hike|increase)|(ris(?:e|ing)|hike|increase).{0,100}(short-term (?:interest )?rates?|borrowing costs)"
+   ],
+   "quote": "It is very clear to us that short-term interest rates those the ECB controls, will remain at very low levels, well beyond the horizon of our asset purchases",
+   "paraphrases": [
+    "Cœuré: ECB-controlled short-term rates will stay very low well beyond the end of QE",
+    "Short-term rates seen anchored at ultra-low levels long after asset purchases wind down",
+    "ECB signals borrowing costs will remain very low for an extended period beyond the QE horizon"
+   ],
+   "decoys": [
+    "Cœuré signals short-term rates could rise as soon as asset purchases end",
+    "ECB says short-term rates will remain low only until mid-2018"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "End of QE is inevitable, but the Governing Council has not yet discussed the timing or manner of its termination",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(QE|quantitative easing|asset purchase).{0,80}(end|termination|wind.?down)|(end|termination|wind.?down).{0,80}(QE|quantitative easing|asset purchase)",
+    "(undecided|unresolved|unsettled|unclear|(?:not|hasn'?t|has not)\\s*(?:yet\\s*)?(?:discussed|decided|settled|agreed)).{0,80}(when|how|timing|date)|(when|how|timing|date).{0,80}(undecided|unresolved|unsettled|unclear|(?:not|hasn'?t|has not)\\s*(?:yet\\s*)?(?:discussed|decided|settled|agreed))"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "continue indefinitely|no end in sight|open-ended|will not end",
+    "already (agreed|decided|settled) (on |)(the |)(exact |)(date|when|how|timing)"
+   ],
+   "quote": "No, the end is inevitable. We have always said that quantitative easing would not last forever. We have not yet discussed the when and how of its termination.",
+   "paraphrases": [
+    "Cœuré: QE will definitely end, but the ECB hasn't yet decided the timing or manner of exit",
+    "End of asset purchases is inevitable, though the 'when and how' remain undecided, says Cœuré",
+    "ECB confirms QE won't last forever but has not settled on an end date or process"
+   ],
+   "decoys": [
+    "Cœuré says QE will continue indefinitely with no end in sight",
+    "ECB has already agreed on the exact date to end QE"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Cœuré calls a Trump-driven trade war, targeting Europe/Germany first, the major risk facing the euro area",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(trade (?:war|tensions?)|tariffs?|trump).{0,100}(major risk|biggest risk|top risk|main risk)|(major risk|biggest risk|top risk|main risk).{0,100}(trade (?:war|tensions?)|tariffs?|trump)",
+    "(europe|german(?:y|)).{0,100}(trade (?:war|tensions?)|tariffs?|trump)|(trade (?:war|tensions?)|tariffs?|trump).{0,100}(europe|german(?:y|))"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(little risk|no (?:real )?risk|minor risk|not a (?:major |big )?risk).{0,80}(trade (?:war|tensions?)|tariffs?|trump)|(trade (?:war|tensions?)|tariffs?|trump).{0,80}(little risk|no (?:real )?risk|minor risk|not a (?:major |big )?risk)"
+   ],
+   "quote": "Europe as a whole, the euro area, and Germany in particular, was the first target of the trade war that Donald Trump wants to unleash",
+   "paraphrases": [
+    "Cœuré flags a Trump trade war targeting Europe and Germany as the top risk to the euro area",
+    "ECB's Cœuré: threat of US trade war, hitting Germany hardest, is the major risk right now",
+    "Trade tensions with the US, aimed first at Europe and Germany, seen as the biggest risk by Cœuré"
+   ],
+   "decoys": [
+    "Cœuré says a US trade war poses little risk to the euro area",
+    "Cœuré identifies Italian political instability as the top risk facing the euro area"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "French government debt stands at 97% of GDP; holding the deficit at 3% risks serious debt-sustainability problems",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)97(?!\\d)\\s*%.{0,80}(debt|GDP)|(debt|GDP).{0,80}(?<!\\d)97(?!\\d)\\s*%",
+    "(?<!\\d)3(?!\\d)\\s*%.{0,80}(deficit|debt sustainability|sustainability)|(deficit|debt sustainability|sustainability).{0,80}(?<!\\d)3(?!\\d)\\s*%"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "Government debt is 97% of GDP. If our deficit remains at 3%, it is clear that we are heading towards serious debt sustainability problems.",
+   "paraphrases": [
+    "Cœuré notes French government debt stands at 97% of GDP, warning that holding the deficit at 3% risks debt-sustainability problems",
+    "France's public debt is at 97% of GDP; ECB's Cœuré warns a persistent 3% deficit would raise sustainability concerns",
+    "French debt-to-GDP is 97%, and keeping the deficit near 3% would be unsustainable, Cœuré says"
+   ],
+   "decoys": [
+    "France's public debt stands at 79% of GDP, Cœuré notes",
+    "Cœuré says France's debt levels pose no sustainability concerns"
+   ]
+  }
+ ]
+}

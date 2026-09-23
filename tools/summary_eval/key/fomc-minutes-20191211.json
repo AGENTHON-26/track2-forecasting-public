@@ -1,0 +1,278 @@
+{
+ "doc_id": "fomc-minutes-20191211",
+ "doc_type": "fomc_minutes",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Committee held the target range at 1-1/2 to 1-3/4 percent",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(target range|federal funds rate|policy rate).{0,80}((?<!\\d)1(?!\\d)[\\s-]*(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)1\\.50(?!\\d)|(?<!\\d)1\\.5(?!\\d)).{0,20}(to|-|–).{0,20}((?<!\\d)1(?!\\d)[\\s-]*(?<!\\d)3(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)1\\.75(?!\\d))",
+    "((?<!\\d)1(?!\\d)[\\s-]*(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)1\\.50(?!\\d)|(?<!\\d)1\\.5(?!\\d)).{0,20}(to|-|–).{0,20}((?<!\\d)1(?!\\d)[\\s-]*(?<!\\d)3(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)1\\.75(?!\\d)).{0,80}(target range|federal funds rate|policy rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Members agreed to maintain the target range for the federal funds rate at 1-1/2 to 1-3/4 percent.",
+   "paraphrases": [
+    "FOMC left the target range unchanged at 1.50-1.75%.",
+    "Fed held the target range steady at 1-1/2 to 1-3/4 percent.",
+    "Committee kept the policy rate at 1.50% to 1.75% for a second straight meeting."
+   ],
+   "decoys": [
+    "FOMC cut rates 25bp to 1.25-1.50 percent.",
+    "Fed held rates steady at 2.00 to 2.25 percent."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "The decision was unanimous, with no dissents",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "voting against this action.{0,20}\\bnone\\b",
+    "unanimous\\w*",
+    "no dissent\\w*|none dissent\\w*|zero dissent\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Voting against this action: None.",
+   "paraphrases": [
+    "The decision was unanimous, with no dissents.",
+    "All ten voting members supported the decision; none dissented.",
+    "Voting against this action: none — a unanimous vote."
+   ],
+   "decoys": [
+    "One member dissented from the decision.",
+    "The vote was 9-1 in favor of the decision."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Committee judged the current stance of monetary policy appropriate, signaling a pause after 2019's cuts",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "current stance of monetary policy.{0,30}appropriate",
+    "current (monetary )?policy.{0,30}appropriate",
+    "appropriate.{0,60}current stance of monetary policy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(policy stance|stance of monetary policy|current (stance|policy)).{0,60}(no longer appropriate|inappropriate|not appropriate|needs? (to be )?adjust\\w*)"
+   ],
+   "quote": "Members judged that the current stance of monetary policy is appropriate to support sustained expansion of economic activity, strong labor market conditions, and inflation near the Committee's symmetric 2 percent objective.",
+   "paraphrases": [
+    "The Fed said its current policy stance is appropriate, signaling a pause after three 2019 cuts.",
+    "FOMC judged the current stance of monetary policy appropriate, holding steady.",
+    "Committee reiterated that current policy is appropriate to support the expansion."
+   ],
+   "decoys": [
+    "The Fed said further easing would be needed given a weakening outlook.",
+    "FOMC judged its policy stance no longer appropriate, hinting at a rate change."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Unemployment rate moved back down to 3.5 percent in November",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(unemployment( rate)?|jobless rate).{0,100}(?<!\\d)3\\.5(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)3\\.5(?!\\d)\\s*(percent|%).{0,100}(unemployment( rate)?|jobless rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The unemployment rate ticked up in October but then moved back down to its 50-year low of 3.5 percent in November",
+   "paraphrases": [
+    "Unemployment moved back down to 3.5% in November.",
+    "Jobless rate was 3.5 percent in November.",
+    "The unemployment rate fell to 3.5% last month, after ticking up in October."
+   ],
+   "decoys": [
+    "Unemployment rate rose to 3.7 percent in November.",
+    "Unemployment held steady at 3.6 percent for a third straight month."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "The 3.5 percent unemployment rate matched its 50-year low",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(50[- ]year|50 years|five decades|half\\s*(a\\s*)?century).{0,60}low\\w*",
+    "low\\w*.{0,60}(50[- ]year|50 years|five decades|half\\s*(a\\s*)?century)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The unemployment rate ticked up in October but then moved back down to its 50-year low of 3.5 percent in November",
+   "paraphrases": [
+    "Unemployment returned to its 50-year low in November.",
+    "The jobless rate matched its lowest level in half a century.",
+    "Unemployment hit a 50-year low of 3.5% last month."
+   ],
+   "decoys": [
+    "Unemployment rate was 3.5 percent in November.",
+    "Unemployment fell to its lowest level in 10 years."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Total PCE inflation was 1.3 percent over the 12 months through October",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)1\\.3(?!\\d)\\s*(percent|%).{0,80}(pce|inflation)",
+    "(pce|inflation).{0,80}(?<!\\d)1\\.3(?!\\d)\\s*(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "increased 1.3 percent over the 12 months ending in October",
+   "paraphrases": [
+    "Headline PCE inflation was 1.3% over the 12 months through October.",
+    "Total PCE price inflation ran at 1.3% for the year to October.",
+    "Consumer prices, per the PCE index, rose 1.3 percent year-over-year through October."
+   ],
+   "decoys": [
+    "Headline PCE inflation held at 2.2% year-over-year through October.",
+    "Core PCE inflation was 1.6 percent over the same period."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Core PCE inflation was 1.6 percent over the same 12-month period",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)1\\.6(?!\\d)\\s*(percent|%).{0,120}(core|ex[- ]food[- ]and[- ]energy|excluding food and energy)",
+    "(core|ex[- ]food[- ]and[- ]energy|excluding food and energy).{0,120}(?<!\\d)1\\.6(?!\\d)\\s*(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Core PCE price inflation (which excludes changes in consumer food and energy prices) was 1.6 percent over that same 12-month period",
+   "paraphrases": [
+    "Core PCE inflation was 1.6 percent over the 12 months through October.",
+    "Ex-food-and-energy PCE inflation ran at 1.6% for the year to October.",
+    "Core inflation, excluding food and energy, stood at 1.6 percent."
+   ],
+   "decoys": [
+    "Core PCE inflation jumped to 2.6 percent over the same period.",
+    "Headline PCE inflation was 1.3 percent over the same period."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Nonfarm payrolls surged in November",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(payroll\\w*|job gains|nonfarm).{0,80}(surg\\w*|jump\\w*|strong|boost\\w*|lift\\w*)",
+    "(surg\\w*|jump\\w*|boost\\w*|lift\\w*).{0,80}(payroll\\w*|job gains|nonfarm)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(payroll\\w*|job gains|nonfarm).{0,80}(slump\\w*|fell|declin\\w*|weak\\w*)"
+   ],
+   "quote": "Total nonfarm payroll employment surged in November, boosted in part by the return of auto workers who had previously been on strike in October.",
+   "paraphrases": [
+    "Nonfarm payrolls surged in November.",
+    "Payroll employment jumped sharply last month.",
+    "Job gains surged in November after a soft October."
+   ],
+   "decoys": [
+    "Nonfarm payrolls fell in November.",
+    "Payroll growth was roughly flat in November."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "November's payroll surge was boosted by the return of GM autoworkers from strike",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(strike|auto workers|GM|General Motors).{0,100}(payroll\\w*|job gains|nonfarm)",
+    "(payroll\\w*|job gains|nonfarm).{0,100}(strike|auto workers|GM|General Motors)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Total nonfarm payroll employment surged in November, boosted in part by the return of auto workers who had previously been on strike in October.",
+   "paraphrases": [
+    "Payrolls surged in November, boosted by returning GM autoworkers who had been on strike.",
+    "The end of the General Motors strike lifted November payroll gains.",
+    "Autoworkers returning from strike helped boost November job gains."
+   ],
+   "decoys": [
+    "Nonfarm payrolls surged in November.",
+    "Payrolls surged in November on strong retail hiring, unrelated to the auto sector."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Pace of 2019 payroll gains was slower than in 2018, even before the anticipated benchmark revision",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(payroll\\w*|job gains).{0,80}(slower|slowed|weaker|decelerat\\w*|lagged|below).{0,60}((?<!\\d)2018(?!\\d)|last year|prior year)",
+    "(slower|slowed|weaker|decelerat\\w*|lagged|below).{0,80}(payroll\\w*|job gains).{0,60}((?<!\\d)2018(?!\\d)|last year|prior year)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(payroll\\w*|job gains).{0,80}(faster|stronger|accelerat\\w*|above|outpaced|exceeded).{0,60}((?<!\\d)2018(?!\\d)|last year|prior year)"
+   ],
+   "quote": "the rate of increase in payrolls so far this year was slower than last year, even accounting for the anticipated effects of the Bureau of Labor Statistics' benchmark revision to payroll employment",
+   "paraphrases": [
+    "2019 payroll gains ran slower than in 2018, even after accounting for the coming benchmark revision.",
+    "The pace of job gains this year lagged 2018's, before an expected downward benchmark revision.",
+    "Payroll growth in 2019 was weaker than the prior year's pace."
+   ],
+   "decoys": [
+    "Payroll gains in 2019 outpaced 2018's pace by a wide margin.",
+    "Job gains in 2019 matched the 2018 pace exactly, unaffected by revisions."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Fed continued Treasury bill purchases at a $60 billion per month pace to maintain ample reserves",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)60(?!\\d)\\s*(billion|bn|b)\\b.{0,80}(treasury bills?|per month|monthly)",
+    "(treasury bills?).{0,80}\\$?(?<!\\d)60(?!\\d)\\s*(billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Reserve management purchases of Treasury bills continued at a pace of $60 billion per month",
+   "paraphrases": [
+    "The Fed kept buying Treasury bills at a $60 billion monthly pace to build reserves.",
+    "Treasury bill purchases continued at $60bn/month to maintain ample reserves.",
+    "The Desk's reserve-management purchases held at $60 billion of T-bills per month."
+   ],
+   "decoys": [
+    "Treasury bill purchases were reduced to $40 billion per month.",
+    "The Fed halted Treasury bill purchases amid the December meeting."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Market pricing (OIS) implied about a 25bp decline in the fed funds rate by the end of 2020",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)25(?!\\d)\\s*-?\\s*(basis[\\s-]*points?|bps?|bp).{0,80}((?<!\\d)2020(?!\\d)|end of (the )?year)",
+    "((?<!\\d)2020(?!\\d)|end of (the )?year).{0,80}(?<!\\d)25(?!\\d)\\s*-?\\s*(basis[\\s-]*points?|bps?|bp)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Forward rates implied by overnight index swap quotes declined slightly, on net, and implied about a 25 basis point decline in the federal funds rate by the end of 2020.",
+   "paraphrases": [
+    "Markets priced in about a 25bp rate cut by the end of 2020.",
+    "OIS-implied pricing showed roughly one 25-basis-point cut by year-end 2020.",
+    "Futures markets saw the fed funds rate about 25bp lower by end-2020."
+   ],
+   "decoys": [
+    "Markets priced in a 75bp rate cut by the end of 2020.",
+    "OIS pricing implied a 25bp rate hike by mid-2021."
+   ]
+  }
+ ]
+}

@@ -1,0 +1,279 @@
+{
+ "doc_id": "boj_ycc_20240319",
+ "doc_type": "landmark",
+ "points": [
+  {
+   "id": "p1",
+   "point": "BOJ ended negative interest rates, saying the policy had fulfilled its role",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(negative[\\s-]?(interest )?rates?|NIRP).{0,150}(fulfilled|done (its|their) (role|job)|end\\w*|discontinu\\w*|terminat\\w*|scrap\\w*)",
+    "(fulfilled|done (its|their) (role|job)|end\\w*|discontinu\\w*|terminat\\w*|scrap\\w*).{0,150}(negative[\\s-]?(interest )?rates?|NIRP)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The Bank considers that the policy framework of Quantitative and Qualitative Monetary Easing (QQE) with Yield Curve Control and the negative interest rate policy to date have fulfilled their roles.",
+   "paraphrases": [
+    "The BOJ ended negative interest rates, saying the policy had fulfilled its role.",
+    "BOJ scrapped NIRP, its first rate hike since 2007.",
+    "The Bank of Japan declared its negative-rate policy had done its job and would end."
+   ],
+   "decoys": [
+    "The BOJ said it would maintain negative rates for the foreseeable future.",
+    "The BOJ ended its ETF purchase program, calling it a success."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "BOJ ended yield curve control (YCC), saying the framework had fulfilled its role",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(yield curve control|\\bYCC\\b).{0,150}(fulfilled|done (its|their) (role|job)|end\\w*|discontinu\\w*|terminat\\w*|scrap\\w*)",
+    "(fulfilled|done (its|their) (role|job)|end\\w*|discontinu\\w*|terminat\\w*|scrap\\w*).{0,150}(yield curve control|\\bYCC\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The Bank considers that the policy framework of Quantitative and Qualitative Monetary Easing (QQE) with Yield Curve Control and the negative interest rate policy to date have fulfilled their roles.",
+   "paraphrases": [
+    "The BOJ ended yield curve control, saying the framework had fulfilled its role.",
+    "BOJ scrapped YCC as part of the policy overhaul.",
+    "The Bank of Japan declared its YCC framework had done its job and would end."
+   ],
+   "decoys": [
+    "The BOJ said yield curve control would remain a core tool for policy for years to come.",
+    "The BOJ tightened its yield curve control band rather than removing it."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "BOJ set a new guideline of 0 to 0.1 percent for the overnight call rate, its first hike since 2007",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(call rate|policy rate|interest rate|short-term rates?|\\brates?\\b).{0,80}(0\\s*(to|-)\\s*0\\.1|zero to 0\\.1)\\s*(percent|%)?",
+    "(0\\s*(to|-)\\s*0\\.1|zero to 0\\.1)\\s*(percent|%)?.{0,80}(call rate|policy rate|interest rate|short-term rates?|\\brates?\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The Bank will encourage the uncollateralized overnight call rate to remain at around 0 to 0.1 percent.",
+   "paraphrases": [
+    "BOJ set a new call rate guideline of 0 to 0.1 percent, its first hike in 17 years.",
+    "The Bank raised short-term rates to a range of 0-0.1%, ending eight years of NIRP.",
+    "New guideline: overnight call rate at 0 to 0.10 percent."
+   ],
+   "decoys": [
+    "BOJ set the new guideline at 0.1 to 0.25 percent.",
+    "BOJ kept the call rate at -0.1 percent, unchanged."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Nakamura Toyoaki dissented against ending the framework",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "Nakamura.{0,100}(dissent\\w*|voted against|against the action)",
+    "(dissent\\w*|voted against|against the action).{0,100}Nakamura"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "Nakamura.{0,60}(in favor|voted for|supported)",
+    "(in favor|voted for|supported).{0,60}Nakamura"
+   ],
+   "quote": "V oting against the action: NAKAMURA Toyoaki and NOGUCHI Asahi.",
+   "paraphrases": [
+    "Nakamura Toyoaki dissented from ending negative rates.",
+    "Board member Nakamura voted against the policy framework change.",
+    "Nakamura dissented, wanting to keep negative rates until smaller firms could raise wages."
+   ],
+   "decoys": [
+    "Nakamura supported ending NIRP immediately, ahead of other members.",
+    "Governor Ueda dissented, preferring to keep rates negative."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Noguchi Asahi dissented against ending the framework",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "Noguchi.{0,100}(dissent\\w*|voted against|against the action)",
+    "(dissent\\w*|voted against|against the action).{0,100}Noguchi"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "Noguchi.{0,60}(in favor|voted for|supported)",
+    "(in favor|voted for|supported).{0,60}Noguchi"
+   ],
+   "quote": "V oting against the action: NAKAMURA Toyoaki and NOGUCHI Asahi.",
+   "paraphrases": [
+    "Noguchi Asahi dissented from ending negative rates.",
+    "Board member Noguchi voted against the policy framework change.",
+    "Noguchi dissented, arguing the BOJ should avoid discontinuous changes in financial conditions."
+   ],
+   "decoys": [
+    "Noguchi supported ending NIRP immediately, ahead of other members.",
+    "Governor Ueda dissented, preferring to keep rates negative."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "BOJ will discontinue ETF and J-REIT purchases",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(discontinue|stop|halt|cease)\\w*.{0,80}(ETFs?|exchange-traded funds?|J-REITs?)",
+    "(ETFs?|exchange-traded funds?|J-REITs?).{0,80}(discontinue|stop|halt|cease)\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The Bank will discontinue purchases of exchange-traded funds (ETFs) and Japan real estate investment trusts (J-REITs).",
+   "paraphrases": [
+    "The BOJ will stop buying ETFs and J-REITs altogether.",
+    "BOJ to discontinue purchases of exchange-traded funds and Japanese REITs.",
+    "The Bank will halt ETF and J-REIT purchases as part of the policy overhaul."
+   ],
+   "decoys": [
+    "The BOJ will continue ETF purchases at a reduced pace.",
+    "The BOJ will discontinue JGB purchases entirely."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "BOJ will gradually reduce and discontinue CP and corporate bond purchases within about a year",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(CP|commercial paper|corporate bonds?).{0,100}(discontinu\\w*|reduc\\w*|phas\\w*\\s*out|about (a|one) year|gradually)",
+    "(discontinu\\w*|reduc\\w*|phas\\w*\\s*out|about (a|one) year|gradually).{0,100}(CP|commercial paper|corporate bonds?)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The Bank will gradually reduce the amount of purchases of CP and corporate bonds and will discontinue the purchases in about one year.",
+   "paraphrases": [
+    "The BOJ will gradually reduce CP and corporate bond purchases and end them within about a year.",
+    "Purchases of commercial paper and corporate bonds will be phased out over roughly one year.",
+    "The Bank will wind down its CP and corporate bond buying, discontinuing it in about a year."
+   ],
+   "decoys": [
+    "The BOJ will immediately halt all CP and corporate bond purchases.",
+    "The BOJ will continue CP and corporate bond purchases indefinitely at the current pace."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "BOJ judged the wage-price virtuous cycle had become more solid",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "virtuous cycle.{0,60}(more solid|solid\\w*|strengthen\\w*)",
+    "(more solid|solid\\w*|strengthen\\w*).{0,60}virtuous cycle"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the virtuous cycle between wages and prices has become more solid",
+   "paraphrases": [
+    "The BOJ judged the virtuous cycle between wages and prices had become more solid.",
+    "The Bank concluded the wage-price virtuous cycle was solid enough to end easing.",
+    "BOJ said the wage-price virtuous cycle had strengthened and become more solid."
+   ],
+   "decoys": [
+    "The BOJ said the wage-price cycle remained too weak to justify a hike.",
+    "The BOJ said the virtuous cycle had weakened over the past year."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "BOJ judged the 2% price target now in sight of being achieved sustainably",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(sustainable|stable|sustainably).{0,150}(achiev\\w*|reach\\w*)",
+    "(achiev\\w*|reach\\w*).{0,150}(sustainable|stable|sustainably)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(distant prospect|unlikely|not likely|years away|far off).{0,100}(achiev\\w*|reach\\w*)",
+    "(achiev\\w*|reach\\w*).{0,100}(distant prospect|unlikely|not likely|years away|far off)"
+   ],
+   "quote": "judged it came in sight that the price stability target of 2 percent would be achieved in a sustainable and stable manner",
+   "paraphrases": [
+    "BOJ said the 2% price target is now in sight of being achieved sustainably.",
+    "The Bank judged that sustainable, stable achievement of its 2% goal had come into view.",
+    "BOJ concluded the 2 percent inflation target could now be reached in a sustainable and stable manner."
+   ],
+   "decoys": [
+    "The BOJ said the 2% target was unlikely to be reached for years.",
+    "The BOJ said achieving 2% inflation sustainably remained a distant prospect."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "BOJ will continue JGB purchases at broadly the same pace as before",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(JGB|government bond|bond-buying|\\bbonds?\\b).{0,60}(broadly the same|unchanged|stead\\w*)",
+    "(broadly the same|unchanged|stead\\w*).{0,60}(JGB|government bond|bond-buying|\\bbonds?\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The Bank will continue its JGB purchases with broadly the same amount as before.",
+   "paraphrases": [
+    "The BOJ will keep buying JGBs at broadly the same pace as before.",
+    "JGB purchases continue unchanged, the BOJ said.",
+    "The Bank left its bond-buying pace steady, broadly matching the prior amount."
+   ],
+   "decoys": [
+    "The BOJ will cut JGB purchases in half compared with before.",
+    "The BOJ will end all JGB purchases immediately."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "BOJ's JGB purchases are currently about 6 trillion yen per month",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(JGB|government bond|bond-buying|purchases).{0,60}(?<!\\d)6(?!\\d)\\s*(trillion|tn)",
+    "(?<!\\d)6(?!\\d)\\s*(trillion|tn).{0,60}(JGB|government bond|bond-buying|purchases)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The amount of JGB purchases is curr ently about 6 trillion yen per month.",
+   "paraphrases": [
+    "JGB purchases currently run about 6 trillion yen per month.",
+    "The BOJ's bond-buying pace is roughly ¥6tn monthly.",
+    "About 6 trillion yen a month in JGBs are being purchased, the BOJ noted."
+   ],
+   "decoys": [
+    "JGB purchases currently run about 3 trillion yen per month.",
+    "JGB purchases currently run about 9 trillion yen per month."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Wages are expected to continue increasing steadily this year, following firm spring wage negotiations",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "wages?.{0,150}stead\\w*",
+    "stead\\w*.{0,150}wages?"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "it is highly likely that wages will continue to increase steadily this year, following the firm wage increase last year",
+   "paraphrases": [
+    "Wages are expected to keep rising steadily this year, following firm gains last year.",
+    "The BOJ noted strong spring wage negotiation results pointing to steady pay growth.",
+    "Firms are expected to continue raising wages steadily, per this year's shunto results."
+   ],
+   "decoys": [
+    "Wage growth is expected to stagnate this year after last year's gains.",
+    "The BOJ said price growth, not wages, would drive the outlook."
+   ]
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "doc_id": "beige_book-2024-11-30",
+ "labels": {
+  "p1": true,
+  "p2": false,
+  "p3": true,
+  "p4": true,
+  "p5": true,
+  "p6": true,
+  "p7": true,
+  "p8": false,
+  "p9": false,
+  "p10": true,
+  "p11": false,
+  "p12": false
+ },
+ "notes": {
+  "p2": "tariffs appear as policy uncertainty slowing investment, never as an upside inflation risk",
+  "p8": "Richmond, Helene and the port strike are all absent",
+  "p9": "two Districts are called flat/declining but none is named"
+ }
+}

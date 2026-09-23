@@ -1,0 +1,256 @@
+{
+ "doc_id": "bis_wilkins_2014-11-13",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Bank of Canada views Bitcoin and other cryptocurrencies as investment products rather than money",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(bitcoin|crypto\\w*).{0,100}investment|investment.{0,100}(bitcoin|crypto\\w*)",
+    "(bitcoin|crypto\\w*).{0,100}(not (?:considered |treated as |)money|isn'?t money|doesn'?t count as money|not a form of money|rather than (?:a form of |)money)|(not (?:considered |treated as |)money|isn'?t money|doesn'?t count as money|not a form of money|rather than (?:a form of |)money).{0,100}(bitcoin|crypto\\w*)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(bitcoin|crypto\\w*).{0,80}((?:is|are|now) (?:considered |treated as |)money|counts as money)|((?:is|are|now) (?:considered |treated as |)money|counts as money).{0,80}(bitcoin|crypto\\w*)"
+   ],
+   "quote": "the Bank of Canada views Bitcoin and other cryptocurrencies as investment products rather than money",
+   "paraphrases": [
+    "BoC treats Bitcoin and other cryptocurrencies as investment products, not money",
+    "Bank of Canada: cryptocurrencies like Bitcoin are investments rather than a form of money",
+    "Wilkins says Bitcoin doesn't count as money at the Bank of Canada, just an investment vehicle"
+   ],
+   "decoys": [
+    "Bank of Canada now classifies Bitcoin as legal tender alongside the Canadian dollar",
+    "Wilkins says gold, not Bitcoin, is the investment product the Bank is most focused on"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "E-money is not yet big enough to pose a material risk to financial stability in Canada",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "e-money.{0,120}(isn'?t (?:yet )?(?:big|large) enough|not (?:yet |)big enough|too small|poses? no material|no material risk|not (?:a )?material risk)|(isn'?t (?:yet )?(?:big|large) enough|not (?:yet |)big enough|too small|poses? no material|no material risk|not (?:a )?material risk).{0,120}e-money"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "e-money.{0,80}(poses? an? material risk|is (?:now |)an? material risk|already (?:poses|is) an? material risk|significant risk|threatens financial stability)|(poses? an? material risk|is (?:now |)an? material risk|already (?:poses|is) an? material risk|significant risk|threatens financial stability).{0,80}e-money"
+   ],
+   "quote": "E-money is not big enough to pose material risk to financial stability in Canada at this time",
+   "paraphrases": [
+    "E-money isn't yet large enough to threaten Canada's financial stability, Wilkins says",
+    "BoC: e-money poses no material financial-stability risk in Canada at this point",
+    "Wilkins: e-money's scale remains too small to be a material risk to financial stability"
+   ],
+   "decoys": [
+    "Wilkins warns e-money already poses a material risk to Canada's financial stability",
+    "Wilkins says cash, not e-money, is now the main threat to financial stability"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Widespread e-money adoption is very unlikely to impair the Bank's ability to conduct monetary policy",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(e-money|electronic money).{0,120}(unlikely|not impair|(?:wouldn'?t|won'?t) (?:undermine|impair)|(?:remains?|stays?) effective|still (?:be able|work|matter))|(unlikely|not impair|(?:wouldn'?t|won'?t) (?:undermine|impair)|(?:remains?|stays?) effective|still (?:be able|work|matter)).{0,120}(e-money|electronic money)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(e-money|electronic money).{0,60}(would|will|already) (?:seriously |significantly |)impair|(?:would|will|already) (?:seriously |significantly |)impair.{0,60}(e-money|electronic money)"
+   ],
+   "quote": "widespread use of e-money could impair the ability of the central bank to conduct monetary policy. This is very unlikely because Canadian interest rates would still matter",
+   "paraphrases": [
+    "Wilkins: e-money is unlikely to impair the BoC's ability to run monetary policy",
+    "Widespread e-money use probably won't undermine BoC monetary policy transmission, Wilkins argues",
+    "Bank of Canada says monetary policy would stay effective even if e-money use became widespread"
+   ],
+   "decoys": [
+    "Wilkins says widespread e-money adoption would seriously impair the Bank's ability to conduct monetary policy",
+    "Wilkins says a widely-used cryptocurrency, unlike e-money, would have no effect on monetary policy"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "That's because Canadian interest rates would still matter even with widespread e-money use",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(canadian )?(?:interest )?rates.{0,40}(still matter|remain effective|still work)|(still matter|remain effective|still work).{0,40}(canadian )?(?:interest )?rates"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(canadian )?(?:interest )?rates.{0,60}(no longer matter|stop(?:ped)? (?:being )?effective|lose effectiveness|stop(?:ped)? working)|(no longer matter|stop(?:ped)? (?:being )?effective|lose effectiveness|stop(?:ped)? working).{0,60}(canadian )?(?:interest )?rates"
+   ],
+   "quote": "widespread use of e-money could impair the ability of the central bank to conduct monetary policy. This is very unlikely because Canadian interest rates would still matter",
+   "paraphrases": [
+    "Even if e-money became widespread, Canadian interest rates would still matter for monetary policy",
+    "Canadian rates would remain effective regardless of e-money's growth, Wilkins argues",
+    "Interest rates set by the Bank would still work as a policy lever even with broad e-money use"
+   ],
+   "decoys": [
+    "Canadian interest rates would no longer matter if e-money became widespread",
+    "Interest rates would stop being an effective policy tool under widespread e-money use"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Broad cryptocurrency use would reduce the Bank's ability to influence economic activity via interest rates",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "crypto\\w*.{0,150}(reduce|diminish|weaken|lessen).{0,60}(bank'?s ability|influence|interest rates)|(reduce|diminish|weaken|lessen).{0,150}(bank'?s ability|influence|interest rates).{0,60}crypto\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "crypto\\w*.{0,150}(increase|boost|strengthen|enhance).{0,60}(bank'?s ability|influence|interest rates)|(increase|boost|strengthen|enhance).{0,150}(bank'?s ability|influence|interest rates).{0,60}crypto\\w*",
+    "e-money.{0,150}(reduce|diminish|weaken|lessen).{0,60}(bank'?s ability|influence|interest rates)|(not crypto|not cryptocurrency|rather than crypto)"
+   ],
+   "quote": "a significant proportion of economic transactions would not be denominated in Canadian dollars. This would reduce the Bank's ability to influence macroeconomic activity through Canadian interest rates",
+   "paraphrases": [
+    "Broad cryptocurrency adoption would reduce the Bank of Canada's ability to influence activity through interest rates, Wilkins warns",
+    "Wilkins: widespread crypto use could diminish how much Canadian interest rates affect the broader economy",
+    "If crypto use became widespread, it would weaken the Bank's influence over the economy through interest rates"
+   ],
+   "decoys": [
+    "Wilkins says broad cryptocurrency adoption would have no effect on the Bank's ability to influence the economy via rates",
+    "Wilkins says broad e-money (not cryptocurrency) adoption would reduce the Bank's rate influence"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "That's because a significant share of transactions would fall outside Canadian dollars under broad crypto use",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "crypto\\w*.{0,150}(?:not (?:be )?denominated|outside (?:the )?canadian dollar|fall outside|sit outside|no longer denominated).{0,60}(?:canadian dollar|national currency)|(?:not (?:be )?denominated|outside (?:the )?canadian dollar|fall outside|sit outside|no longer denominated).{0,60}(?:canadian dollar|national currency).{0,150}crypto\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:would|will) (?:remain|stay) denominated.{0,60}(canadian dollar|national currency)"
+   ],
+   "quote": "a significant proportion of economic transactions would not be denominated in Canadian dollars. This would reduce the Bank's ability to influence macroeconomic activity through Canadian interest rates",
+   "paraphrases": [
+    "If cryptocurrencies gained broad use, a large share of transactions would sit outside Canadian dollars",
+    "Widespread crypto adoption would mean many transactions are no longer denominated in Canadian dollars",
+    "A significant share of economic transactions would fall outside the Canadian dollar under broad crypto use"
+   ],
+   "decoys": [
+    "Even with broad cryptocurrency use, transactions would remain denominated in Canadian dollars",
+    "Broad e-money (not cryptocurrency) use would push transactions outside Canadian dollars"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "M-Pesa in Kenya handles about 2 million transactions a day",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "((?<!\\d)2(?!\\d)\\s*million|(?<!\\d)2(?!\\d)m\\b).{0,80}M-Pesa|M-Pesa.{0,80}((?<!\\d)2(?!\\d)\\s*million|(?<!\\d)2(?!\\d)m\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "M-Pesa is used in some 2 million transactions each day, worth about $5 billion annually. That's nearly 20 per cent of Kenya's GDP.",
+   "paraphrases": [
+    "Kenya's M-Pesa processes about 2 million transactions daily",
+    "M-Pesa handles roughly 2m transactions a day",
+    "In Kenya, M-Pesa mobile money sees about 2 million daily transactions"
+   ],
+   "decoys": [
+    "Kenya's M-Pesa processes about 200,000 transactions daily",
+    "Hong Kong's Octopus card handles 2 million transactions a day"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Those M-Pesa transactions are worth roughly $5 billion a year",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(\\$|USD\\s?)(?<!\\d)5(?!\\d)\\s*(?:billion|bn).{0,80}(M-Pesa|Kenya|annual|year)|(M-Pesa|Kenya).{0,80}(\\$|USD\\s?)(?<!\\d)5(?!\\d)\\s*(?:billion|bn)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "M-Pesa is used in some 2 million transactions each day, worth about $5 billion annually. That's nearly 20 per cent of Kenya's GDP.",
+   "paraphrases": [
+    "M-Pesa moves about $5 billion a year in Kenya",
+    "Those transactions are worth roughly $5bn annually",
+    "M-Pesa's annual transaction value is about $5 billion"
+   ],
+   "decoys": [
+    "M-Pesa's transactions are worth about $500 million a year",
+    "M-Pesa's annual transaction value has grown to $50 billion"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "M-Pesa's annual transaction value is near 20% of Kenya's GDP",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)20(?!\\d)\\s*(?:per ?cent|%).{0,60}GDP|GDP.{0,60}(?<!\\d)20(?!\\d)\\s*(?:per ?cent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "not (?:its |)GDP"
+   ],
+   "quote": "M-Pesa is used in some 2 million transactions each day, worth about $5 billion annually. That's nearly 20 per cent of Kenya's GDP.",
+   "paraphrases": [
+    "M-Pesa's volume amounts to nearly 20% of Kenya's GDP",
+    "That's close to 20% of Kenya's GDP flowing through M-Pesa",
+    "M-Pesa transaction value equals about 20 percent of Kenyan GDP"
+   ],
+   "decoys": [
+    "M-Pesa's volume is only about 2% of Kenya's GDP",
+    "That's close to 20% of Kenya's annual government budget, not its GDP"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Canadian debit/credit card transactions (21+ million per day) vastly exceed Bitcoin's global daily transaction volume (~70,000 per day)",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "((?<!\\d)21(?!\\d)\\s*million|(?<!\\d)21(?!\\d)m\\b).{0,60}(debit|credit|card)|(debit|credit|card).{0,60}((?<!\\d)21(?!\\d)\\s*million|(?<!\\d)21(?!\\d)m\\b)",
+    "((?<!\\d)70,?000(?!\\d)|(?<!\\d)70(?!\\d)\\s*k\\b).{0,60}(bitcoin|crypto\\w*)|(bitcoin|crypto\\w*).{0,60}((?<!\\d)70,?000(?!\\d)|(?<!\\d)70(?!\\d)\\s*k\\b)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "there were around 70,000 Bitcoin transactions per day across the globe",
+   "paraphrases": [
+    "Bitcoin's ~70k daily global transactions pale next to Canada's 21 million-plus daily debit/credit card transactions",
+    "Canada alone sees over 21 million card transactions a day, dwarfing Bitcoin's roughly 70,000 daily transactions worldwide",
+    "Wilkins contrasts Bitcoin's 70,000 daily transactions globally with Canada's 21m+ daily card transactions"
+   ],
+   "decoys": [
+    "Bitcoin's 700,000 daily global transactions pale next to Canada's 21 million daily card transactions",
+    "Canada sees about 70,000 debit and credit card transactions a day, far below Bitcoin's global volume"
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "The federal government's payment-systems review gave the Bank of Canada increased responsibility to oversee systemically important payment systems",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(increased|greater|expanded|boosts?|boosted|enhanced).{0,20}(responsibility|authority|mandate|role).{0,100}(oversee|payment system)|(oversee|payment system).{0,100}(increased|greater|expanded|boosts?|boosted|enhanced).{0,20}(responsibility|authority|mandate|role)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(reduced|lost|gave up|stripped of).{0,60}(responsibility|authority|mandate|role).{0,60}(oversee|payment system)"
+   ],
+   "quote": "This review has resulted in the Bank of Canada having increased responsibility to oversee payment systems of economic and systemic importance",
+   "paraphrases": [
+    "Ottawa's payments-system review gave the Bank of Canada greater oversight responsibility for systemically important payment systems",
+    "Bank of Canada now has expanded authority to oversee payment systems of systemic importance, following a federal review",
+    "Federal review boosts the BoC's mandate to oversee payment systems of economic and systemic significance"
+   ],
+   "decoys": [
+    "The federal review stripped the Bank of Canada of its payment-system oversight role",
+    "The federal review gave the Department of Finance, not the Bank of Canada, new payment-oversight powers"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,277 @@
+{
+ "doc_id": "fomc-minutes-20190619",
+ "doc_type": "fomc_minutes",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Committee maintained the target range at 2-1/4 to 2-1/2 percent",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(target range|federal funds rate|fed funds rate|policy rate).{0,80}((?<!\\d)2(?!\\d)[\\s-]*(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)2\\.25(?!\\d)).{0,20}(to|-|–).{0,20}((?<!\\d)2(?!\\d)[\\s-]*(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)2\\.50(?!\\d)|(?<!\\d)2\\.5(?!\\d))",
+    "((?<!\\d)2(?!\\d)[\\s-]*(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)2\\.25(?!\\d)).{0,20}(to|-|–).{0,20}((?<!\\d)2(?!\\d)[\\s-]*(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)2\\.50(?!\\d)|(?<!\\d)2\\.5(?!\\d)).{0,80}(target range|federal funds rate|fed funds rate|policy rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Committee decided to maintain the target range for the federal funds rate at 2-1/4 to 2-1/2 percent",
+   "paraphrases": [
+    "FOMC left the fed funds target range unchanged at 2.25-2.50%.",
+    "Fed held rates steady, keeping the target range at 2-1/4 to 2-1/2 percent.",
+    "Committee kept the policy rate at 2.25% to 2.50%, no change this meeting."
+   ],
+   "decoys": [
+    "FOMC cut the target range 25bp to 2.00-2.25 percent.",
+    "Fed held rates steady at 1-3/4 to 2 percent."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Bullard dissented, preferring to cut the target range 25 basis points at this meeting",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "Bullard.{0,80}(dissent\\w*|voted against)",
+    "(dissent\\w*|voted against).{0,80}Bullard"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Mr. Bullard dissented because he believed that the current stance of monetary policy could be better positioned to foster progress toward the Committee's statutory objectives",
+   "paraphrases": [
+    "Bullard dissented, preferring a 25bp rate cut at this meeting.",
+    "James Bullard voted against the decision, wanting lower rates now.",
+    "The lone dissenter, Bullard, favored easing policy immediately."
+   ],
+   "decoys": [
+    "George dissented, preferring to keep rates unchanged.",
+    "All ten members voted for the decision with no dissents."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Statement dropped the 'patient' language, opening the door to a possible rate cut",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "(remov\\w*|drop\\w*|scrap\\w*).{0,40}(\\\"|')?patient(\\\"|')?.{0,40}(language|guidance|wording|stance|posture)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(retain\\w*|kept|keep|remain\\w*|reaffirm\\w*).{0,40}(\\\"|')?patient(\\\"|')?"
+   ],
+   "quote": "members agreed to remove the \"patient\" language",
+   "paraphrases": [
+    "The FOMC dropped the 'patient' language from its statement, opening the door to a cut.",
+    "Fed removed patient guidance, signaling readiness to act if needed.",
+    "The Committee dropped its 'patient' stance, opening the door to rate cuts."
+   ],
+   "decoys": [
+    "The FOMC reaffirmed it would remain patient on rate changes.",
+    "The Fed introduced new patient language emphasizing a long pause."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Unemployment rate held at 3.6 percent",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(unemployment( rate)?|jobless rate).{0,60}(?<!\\d)3\\.6(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)3\\.6(?!\\d)\\s*(percent|%).{0,60}(unemployment( rate)?|jobless rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The unemployment rate declined to 3.6 percent in April and remained there in May, its lowest level in 50 years.",
+   "paraphrases": [
+    "Unemployment held at 3.6% in May.",
+    "Jobless rate stayed at 3.6 percent in May.",
+    "The unemployment rate remained 3.6%, matching April's reading."
+   ],
+   "decoys": [
+    "Unemployment rate rose to 3.9 percent in May.",
+    "Unemployment held at 3.5 percent in May."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "The 3.6 percent unemployment rate was its lowest level in 50 years",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(lowest|low\\w*).{0,60}(50[- ]year|50 years|five decades|half\\s*(a\\s*)?century)",
+    "(50[- ]year|50 years|five decades|half\\s*(a\\s*)?century).{0,60}(low\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The unemployment rate declined to 3.6 percent in April and remained there in May, its lowest level in 50 years.",
+   "paraphrases": [
+    "The 3.6% jobless rate was its lowest level in 50 years.",
+    "Unemployment hit a 50-year low in May.",
+    "The jobless rate matched its lowest reading in half a century."
+   ],
+   "decoys": [
+    "Unemployment fell to its lowest level in 10 years.",
+    "The unemployment rate held at 3.6 percent in May."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Total PCE inflation was 1.5 percent over the 12 months through April",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)1\\.5(?!\\d)\\s*(percent|%).{0,80}(pce|inflation)",
+    "(pce|inflation).{0,80}(?<!\\d)1\\.5(?!\\d)\\s*(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "increased 1.5 percent over the 12 months ending in April",
+   "paraphrases": [
+    "Headline PCE inflation was 1.5% over the 12 months through April.",
+    "Total consumer prices, as measured by PCE, rose 1.5 percent year-over-year through April.",
+    "PCE price inflation ran at 1.5% for the year ending in April."
+   ],
+   "decoys": [
+    "Headline PCE inflation held at 2.1% year-over-year in April.",
+    "Core PCE inflation was 1.6 percent over the same period."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Core PCE inflation moved down to 1.6 percent over the 12 months through April",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)1\\.6(?!\\d)\\s*(percent|%).{0,80}(core|ex[- ]food[- ]and[- ]energy|excluding food and energy)",
+    "(core|ex[- ]food[- ]and[- ]energy|excluding food and energy).{0,80}(?<!\\d)1\\.6(?!\\d)\\s*(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "core PCE price inflation (which excludes changes in consumer food and energy prices) moved down to 1.6 percent",
+   "paraphrases": [
+    "Core PCE inflation moved down to 1.6% over the 12 months through April.",
+    "Core PCE price inflation, excluding food and energy, was 1.6 percent.",
+    "Ex-food-and-energy inflation eased to 1.6% year-over-year through April."
+   ],
+   "decoys": [
+    "Core PCE inflation rose to 2.6 percent over the 12 months through April.",
+    "Total PCE inflation was 1.5 percent over the same period."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Market pricing implied about an 85 percent probability of a 25bp rate cut by the July meeting",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)85(?!\\d)\\s*(percent|%).{0,80}(july|cut)",
+    "(july|cut).{0,80}(?<!\\d)85(?!\\d)\\s*(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The market-implied probability for a 25 basis point cut in the target range for the federal funds rate by the July FOMC meeting rose to about 85 percent.",
+   "paraphrases": [
+    "Markets priced an ~85% chance of a 25bp cut at the July meeting.",
+    "The probability of a July rate cut rose to roughly 85%, per market pricing.",
+    "Futures markets implied about an 85 percent likelihood of easing in July."
+   ],
+   "decoys": [
+    "Markets priced only a 40% chance of a July rate cut.",
+    "Markets saw an 85% probability of a hike at the September meeting."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Downside risks to the outlook rose materially since the May meeting",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(downside risk\\w*|risks? to the outlook|risks and uncertainties surrounding the (economic )?outlook).{0,80}(rose|risen|rising|increased|intensif\\w*|heightened|mounted|elevated|grew|growing|shifted (to the )?downside|tilted (to the )?downside|weighted (to the )?downside)",
+    "(rose|risen|rising|increased|intensif\\w*|heightened|mounted|elevated|grew|growing|shifted (to the )?downside|tilted (to the )?downside|weighted (to the )?downside).{0,80}(downside risk\\w*|risks? to the outlook|risks and uncertainties surrounding the (economic )?outlook)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(downside risk\\w*|risks? to the outlook).{0,80}(\\beased\\b|diminished|receded|fallen|declined|lessened|balanced|no longer)",
+    "(\\beased\\b|diminished|receded|fallen|declined|lessened|balanced|no longer)\\w*.{0,80}(downside risk\\w*|risks? to the outlook)"
+   ],
+   "quote": "Participants generally agreed that downside risks to the outlook for economic activity had risen materially since their May meeting, particularly those associated with ongoing trade negotiations and slowing economic growth abroad.",
+   "paraphrases": [
+    "Downside risks to the outlook rose materially since the May meeting.",
+    "Officials said risks to the outlook had intensified since the prior meeting.",
+    "Participants agreed the downside risks to the economic outlook had increased materially."
+   ],
+   "decoys": [
+    "Participants said downside risks had eased since the May meeting.",
+    "Risks to the outlook were judged balanced, unchanged from the May meeting."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "The rise in downside risks was tied to trade negotiations and slowing global growth",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(downside risk\\w*|risks? to the outlook).{0,100}(trade (negotiations|tensions|disputes|war)|trade-related|tariffs|slowing (economic )?growth abroad|global growth)",
+    "(trade (negotiations|tensions|disputes|war)|trade-related|tariffs|slowing (economic )?growth abroad|global growth).{0,100}(downside risk\\w*|risks? to the outlook)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Participants generally agreed that downside risks to the outlook for economic activity had risen materially since their May meeting, particularly those associated with ongoing trade negotiations and slowing economic growth abroad.",
+   "paraphrases": [
+    "The rise in downside risks was tied to trade negotiations and slowing global growth.",
+    "Officials linked the higher downside risks to trade tensions and a weakening global economy.",
+    "Trade-related uncertainty and slower growth abroad were cited as driving the increased downside risks."
+   ],
+   "decoys": [
+    "Downside risks to the outlook rose materially since the May meeting.",
+    "Downside risks rose, driven mainly by concerns over a potential government shutdown."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Job gains slowed sharply in May",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(job gains|payroll\\w*|employment growth).{0,80}(slow\\w*|weak\\w*|soft\\w*|decelerat\\w*|cool\\w*)",
+    "(slow\\w*|weak\\w*|soft\\w*|decelerat\\w*|cool\\w*).{0,80}(job gains|payroll\\w*|employment growth)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(job gains|payroll\\w*|employment growth).{0,80}(accelerat\\w*|surg\\w*|strengthen\\w*|pick\\w* up|rebound\\w*)",
+    "(accelerat\\w*|surg\\w*|strengthen\\w*|pick\\w* up|rebound\\w*).{0,80}(job gains|payroll\\w*|employment growth)"
+   ],
+   "quote": "job gains slowed sharply in May after a strong increase in April",
+   "paraphrases": [
+    "Job gains slowed sharply in May.",
+    "Payroll growth decelerated markedly in May.",
+    "Employment growth cooled sharply during May."
+   ],
+   "decoys": [
+    "Job gains accelerated sharply in May, beating April's pace.",
+    "Payroll growth held steady in May, matching the prior month's pace."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "May's slowdown in job gains followed a strong increase in April",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(strong|solid|robust)\\w*.{0,80}April",
+    "April.{0,80}(strong|solid|robust)\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "job gains slowed sharply in May after a strong increase in April",
+   "paraphrases": [
+    "May's slowdown in job gains followed a strong increase in April.",
+    "Payroll growth had been strong in April before slowing sharply in May.",
+    "April saw a solid increase in hiring, in contrast to May's sharp slowdown."
+   ],
+   "decoys": [
+    "Job gains slowed sharply in May.",
+    "Job gains were weak in April as well, extending the slowdown."
+   ]
+  }
+ ]
+}

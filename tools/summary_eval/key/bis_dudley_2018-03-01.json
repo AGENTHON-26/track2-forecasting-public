@@ -1,0 +1,208 @@
+{
+ "doc_id": "bis_dudley_2018-03-01",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Dudley argues protectionism is not the answer to globalization's costs and would be destructive in the longer term",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(protectionism|trade barriers?).{0,80}(not the answer|dead end|destructive|backfire)|(not the answer|dead end|destructive|backfire).{0,80}(protectionism|trade barriers?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(protectionism|trade barriers?).{0,80}(is the answer|best (?:solution|path|way)|would (?:help|benefit))|(is the answer|best (?:solution|path|way)|would (?:help|benefit)).{0,80}(protectionism|trade barriers?)",
+    "(free trade|open trade).{0,80}(destructive|dead end|backfire|proven destructive)|(destructive|dead end|backfire|proven destructive).{0,80}(free trade|open trade)",
+    "not protectionism"
+   ],
+   "quote": "Countries need to compete better, not compete less.",
+   "paraphrases": [
+    "Dudley: protectionism is not the answer and would prove destructive over the longer term",
+    "Trade barriers are a dead end, Dudley argues, likely to backfire and hurt workers",
+    "NY Fed's Dudley says raising trade barriers would be destructive, not a real fix for globalization's costs"
+   ],
+   "decoys": [
+    "Dudley says protectionism is the best answer to globalization's costs",
+    "Dudley says free trade, not protectionism, is what has proven destructive over time"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "If a higher-trade-barrier country's saving/investment gap is unchanged, the domestic currency would appreciate to keep the trade deficit financed, offsetting the barriers",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(currency|dollar).{0,100}(appreciat\\w*|strengthen\\w*|rise|rising|rose)|(appreciat\\w*|strengthen\\w*|rise|rising|rose).{0,100}(currency|dollar)|push\\w*.{0,20}(currency|dollar).{0,10}up",
+    "trade barriers?|tariffs?|trade effect"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(currency|dollar).{0,100}(depreciat).{0,100}(trade deficit|trade barrier)|(trade deficit|trade barrier).{0,100}(currency|dollar).{0,100}depreciat"
+   ],
+   "quote": "The domestic currency will appreciate to cause the trade deficit to widen to accommodate the desired capital inflows.",
+   "paraphrases": [
+    "Higher trade barriers would cause the dollar to appreciate, widening the trade deficit to keep capital inflows unchanged, Dudley says",
+    "Dudley: if saving/investment gaps are unchanged, tariffs just push the currency up, offsetting the intended trade effect",
+    "Currency appreciation would offset higher trade barriers, keeping the trade deficit financed, per Dudley"
+   ],
+   "decoys": [
+    "Dudley says the dollar would depreciate sharply if the US raised trade barriers",
+    "Dudley says higher trade barriers would shrink the trade deficit permanently with no currency effect"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "US monetary policy has a significant impact on global financial conditions, including exchange rates",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(U\\.?S\\.? monetary policy|federal reserve|fed).{0,100}(significant impact|global financial conditions)|(significant impact|global financial conditions).{0,100}(U\\.?S\\.? monetary policy|federal reserve|fed)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(U\\.?S\\.? monetary policy|federal reserve|fed).{0,100}(little|no|negligible|minimal) (?:effect|impact|influence).{0,60}(global|capital flows)",
+    "not (?:the )?(?:fed(?:eral reserve)?|U\\.?S\\.? monetary policy)"
+   ],
+   "quote": "U.S. monetary policy can have a significant impact on global financial conditions, including exchange rates, and shifts in U.S. monetary policy can lead to consequential shifts in global capital flows",
+   "paraphrases": [
+    "Dudley: Fed policy has a meaningful impact on global financial conditions",
+    "US monetary policy has a big influence on global financial conditions, including FX",
+    "Changes in Fed policy carry significant spillovers to global financial conditions, Dudley says"
+   ],
+   "decoys": [
+    "Dudley says Fed policy has little effect on global financial conditions",
+    "Dudley says it is ECB policy, not Fed policy, that shapes global financial conditions"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Shifts in US monetary policy can also trigger consequential shifts in global capital flows",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(U\\.?S\\.? monetary policy|federal reserve|fed).{0,150}capital[- ]flows?|capital[- ]flows?.{0,150}(U\\.?S\\.? monetary policy|federal reserve|fed)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(little|no|negligible|minimal) (?:effect|impact|influence).{0,60}capital[- ]flows?|capital[- ]flows?.{0,60}(little|no|negligible|minimal) (?:effect|impact|influence)",
+    "not (?:the )?(?:fed(?:eral reserve)?|U\\.?S\\.? monetary policy)"
+   ],
+   "quote": "U.S. monetary policy can have a significant impact on global financial conditions, including exchange rates, and shifts in U.S. monetary policy can lead to consequential shifts in global capital flows",
+   "paraphrases": [
+    "Shifts in Fed policy can trigger consequential shifts in global capital flows",
+    "Changes in US monetary policy can cause large capital-flow shifts worldwide",
+    "Dudley: Fed policy changes can meaningfully move cross-border capital flows"
+   ],
+   "decoys": [
+    "Shifts in Fed policy have little effect on global capital flows",
+    "It's ECB policy shifts, not Fed policy, that move global capital flows"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Trade in goods and services grew from nearly 40% of global GDP in 1990 to 54% in 2016",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)40(?!\\d)\\s*(?:per ?cent|%).{0,100}(?<!\\d)1990(?!\\d).{0,100}(?<!\\d)54(?!\\d)\\s*(?:per ?cent|%).{0,40}(?<!\\d)2016(?!\\d)|(?<!\\d)54(?!\\d)\\s*(?:per ?cent|%).{0,60}(?<!\\d)2016(?!\\d).{0,150}(?<!\\d)40(?!\\d)\\s*(?:per ?cent|%).{0,60}(?<!\\d)1990(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Trade in goods and services, for example, has grown from nearly 40 percent of global GDP in 1990 to 54 percent in 2016",
+   "paraphrases": [
+    "Global trade in goods and services rose from ~40% of world GDP in 1990 to 54% by 2016",
+    "Trade's share of global GDP climbed from about 40% (1990) to 54% (2016), Dudley notes",
+    "World trade grew from nearly 40 percent of GDP in 1990 to 54 percent in 2016"
+   ],
+   "decoys": [
+    "Global trade in goods and services fell from 54% of world GDP in 1990 to 40% by 2016",
+    "Global trade in goods and services rose from 40% of world GDP in 2000 to 54% by 2016"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Emerging market economies have accounted for 70% of global economic growth since the crisis, double their share of two decades ago",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)70(?!\\d)\\s*(?:per ?cent|%).{0,100}(emerging market|global (?:economic )?growth)|(emerging market|global (?:economic )?growth).{0,100}(?<!\\d)70(?!\\d)\\s*(?:per ?cent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(advanced economies|developed economies).{0,60}(?<!\\d)70(?!\\d)\\s*(?:per ?cent|%)|(?<!\\d)70(?!\\d)\\s*(?:per ?cent|%).{0,60}(advanced economies|developed economies)"
+   ],
+   "quote": "emerging market economies have accounted for 70 percent of global economic growth since the crisis-double their share from two decades ago",
+   "paraphrases": [
+    "EM economies drove 70% of global growth since the crisis, twice their share of 20 years ago",
+    "Emerging markets accounted for about 70 percent of world growth post-crisis, per Dudley",
+    "Dudley: EMs' share of global growth has doubled to roughly 70% since the crisis"
+   ],
+   "decoys": [
+    "Emerging market economies have accounted for just 7 percent of global economic growth since the crisis",
+    "Advanced economies, not emerging markets, drove 70 percent of global growth since the crisis"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "US-Brazil bilateral trade in goods rose from $17 billion in 1994 to nearly $57 billion in 2016",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)17(?!\\d)\\s*(?:billion|bn).{0,60}(?<!\\d)1994(?!\\d).{0,200}(?<!\\d)57(?!\\d)\\s*(?:billion|bn).{0,60}(?<!\\d)2016(?!\\d)|(?<!\\d)57(?!\\d)\\s*(?:billion|bn).{0,60}(?<!\\d)2016(?!\\d).{0,220}(?<!\\d)17(?!\\d)\\s*(?:billion|bn).{0,60}(?<!\\d)1994(?!\\d)|(?<!\\d)17(?!\\d)\\s*(?:billion|bn).{0,100}(?<!\\d)57(?!\\d)\\s*(?:billion|bn).{0,80}(?<!\\d)1994(?!\\d).{0,40}(?<!\\d)2016(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Bilateral trade flows in goods have risen from $17 billion in 1994 to nearly $57 billion in 2016",
+   "paraphrases": [
+    "US-Brazil goods trade climbed from $17bn in 1994 to nearly $57bn in 2016",
+    "Bilateral trade between the US and Brazil rose from $17 billion (1994) to about $57 billion (2016), Dudley notes",
+    "Dudley: US-Brazil trade in goods grew from $17 billion to nearly $57 billion between 1994 and 2016"
+   ],
+   "decoys": [
+    "US-Brazil goods trade fell from $57 billion in 1994 to $17 billion in 2016",
+    "US-Brazil goods trade climbed from $17bn in 1994 to nearly $57bn in 2010"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Dudley calls for greater support for displaced workers (retraining, job search help, broader unemployment support) rather than protectionism",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(retrain|job search|unemployment support).{0,100}(displaced workers|support|assistance)|(displaced workers).{0,100}(retrain|job search|unemployment support)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Policies should include more assistance with job retraining, help with job search and mobility, and broader unemployment support.",
+   "paraphrases": [
+    "Dudley calls for more retraining, job-search help, and broader unemployment support for displaced workers",
+    "Rather than protectionism, Dudley wants greater assistance for workers hurt by trade, including retraining and mobility support",
+    "Dudley: policy should give trade-displaced workers more retraining and unemployment support, not tariffs"
+   ],
+   "decoys": [
+    "Dudley calls for tariffs and import quotas to directly protect displaced workers' jobs",
+    "Dudley says displaced workers need no additional government support since markets will adjust"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Dudley notes the momentum behind global trade reform has clearly waned in recent years despite areas like agriculture and services needing further reform",
+   "tier": "should",
+   "kind": "judge_only",
+   "patterns": [],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "at a broader level, the momentum behind global trade reform has clearly waned in recent years",
+   "paraphrases": [
+    "Dudley: momentum for global trade reform has clearly faded in recent years",
+    "Global trade-reform momentum has waned, even though areas like agriculture and services need more work, Dudley says",
+    "Dudley flags a loss of momentum behind global trade reform despite unfinished business in agriculture and services"
+   ],
+   "decoys": [
+    "Dudley says momentum behind global trade reform has never been stronger",
+    "Dudley says agricultural trade reform was fully completed years ago"
+   ]
+  }
+ ]
+}

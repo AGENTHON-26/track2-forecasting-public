@@ -1,0 +1,198 @@
+{
+ "doc_id": "moderna_8k_2020-10-29_d134701dex991",
+ "doc_type": "corporate_8k",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "number",
+   "point": "Total revenue was $157.9 million for Q3 2020",
+   "patterns": [
+    "(revenue).{0,80}(?<!\\d)157\\.9(?!\\d)\\s?(million|mm|m)\\b|(?<!\\d)157\\.9(?!\\d)\\s?(million|mm|m)\\b.{0,80}(revenue)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(revenue).{0,80}(declin|decreas|fall|drop).{0,40}(?<!\\d)157\\.9(?!\\d)",
+    "(?<!\\d)157\\.9(?!\\d).{0,40}(declin|decreas|fall|drop).{0,80}(revenue)"
+   ],
+   "quote": "Total revenue was $157.9 million for the three months ended September 30, 2020 compared to $17.0 million for the same period in 2019.",
+   "paraphrases": [
+    "Moderna reported Q3 2020 total revenue of $157.9 million.",
+    "Third-quarter revenue came in at $157.9 million.",
+    "Moderna's Q3'20 revenue was $157.9M, driven by higher grant revenue from the BARDA agreement."
+   ],
+   "decoys": [
+    "Moderna reported Q3 2020 total revenue of $17.0 million.",
+    "Moderna reported Q3 2020 total revenue of $232.7 million."
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "should",
+   "kind": "number",
+   "point": "Q3 2019 revenue was just $17.0 million, so Q3 2020's $157.9 million was a sharp increase",
+   "patterns": [
+    "(?<!\\d)17\\.0(?!\\d)\\s?(million|mm|m)\\b.{0,60}(2019|prior year|year.ago|same period)",
+    "(2019|prior year|year.ago|same period).{0,60}(?<!\\d)17\\.0(?!\\d)\\s?(million|mm|m)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(revenue).{0,80}(increas|ris|grow|grew|climb).{0,40}(?<!\\d)17\\.0(?!\\d).{0,40}2020",
+    "2020.{0,40}(?<!\\d)17\\.0(?!\\d).{0,40}(increas|ris|grow|grew|climb).{0,80}revenue"
+   ],
+   "quote": "Total revenue was $157.9 million for the three months ended September 30, 2020 compared to $17.0 million for the same period in 2019.",
+   "paraphrases": [
+    "Q3 2019 revenue was $17.0 million.",
+    "Revenue in the same quarter last year (2019) was just $17.0 million.",
+    "The year-ago quarter's revenue was $17.0 million, compared to $157.9 million this year."
+   ],
+   "decoys": [
+    "Q3 2019 revenue was $157.9 million.",
+    "Q3 2020 revenue was $17.0 million."
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "number",
+   "point": "Moderna received $1.1 billion of customer deposits for supply of mRNA-1273 in Q3 2020, recorded as deferred revenue",
+   "patterns": [
+    "(customer deposit).{0,80}(?<!\\d)1\\.1(?!\\d)\\s?(billion|bn|b)\\b|(?<!\\d)1\\.1(?!\\d)\\s?(billion|bn|b)\\b.{0,80}(customer deposit)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)1\\.1(?!\\d)\\s?(billion|bn|b)\\b.{0,80}(recognized as revenue|revenue recognized)",
+    "(recognized as revenue|revenue recognized).{0,80}(?<!\\d)1\\.1(?!\\d)\\s?(billion|bn|b)\\b"
+   ],
+   "quote": "Received $1.1 billion of customer deposits for supply of mRNA-1273 in Q3 2020, recorded as deferred revenue",
+   "paraphrases": [
+    "Moderna received $1.1 billion in customer deposits in Q3 2020 tied to mRNA-1273 supply agreements, booked as deferred revenue.",
+    "The company collected $1.1B of upfront customer deposits for its COVID vaccine supply deals during the third quarter.",
+    "Q3 2020 customer deposits for vaccine supply totaled $1.1 billion, recorded as deferred revenue rather than recognized revenue."
+   ],
+   "decoys": [
+    "Moderna recognized $1.1 billion of vaccine revenue in Q3 2020.",
+    "Moderna received $1.7 billion in customer deposits in Q3 2020."
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "must",
+   "kind": "number",
+   "point": "Moderna's Phase 3 COVID-19 vaccine trial (mRNA-1273) completed enrollment of 30,000 participants",
+   "patterns": [
+    "(phase (?<!\\d)3(?!\\d)|covid.?(?<!\\d)19(?!\\d) vaccine|mrna-(?<!\\d)1273(?!\\d)).{0,80}(?<!\\d)30,?000(?!\\d)|(?<!\\d)30,?000(?!\\d).{0,80}(phase (?<!\\d)3(?!\\d)|covid.?(?<!\\d)19(?!\\d) vaccine|mrna-(?<!\\d)1273(?!\\d))"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)30,?000(?!\\d).{0,80}(still enrolling|not yet (fully )?enrolled)",
+    "(still enrolling|not yet (fully )?enrolled).{0,80}(?<!\\d)30,?000(?!\\d)",
+    "phase (?<!\\d)2(?!\\d).{0,80}(?<!\\d)30,?000(?!\\d)",
+    "(?<!\\d)30,?000(?!\\d).{0,80}phase (?<!\\d)2(?!\\d)"
+   ],
+   "quote": "Phase 3 study of COVID-19 vaccine candidate (mRNA-1273) fully enrolled with 30,000 participants",
+   "paraphrases": [
+    "Moderna's Phase 3 COVID-19 vaccine trial (mRNA-1273) completed enrollment of 30,000 participants.",
+    "The pivotal Phase 3 study of mRNA-1273 is fully enrolled, with 30,000 volunteers including 37% from diverse communities.",
+    "Enrollment in the 30,000-person Phase 3 COVID vaccine trial has been completed."
+   ],
+   "decoys": [
+    "Moderna's Phase 3 COVID-19 vaccine trial is still enrolling participants toward a 30,000 target.",
+    "Moderna's Phase 2 COVID-19 vaccine trial (mRNA-1273) fully enrolled with 30,000 participants."
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "should",
+   "kind": "concept",
+   "point": "Positive interim Phase 2 data for the CMV vaccine candidate (mRNA-1647)",
+   "patterns": [
+    "(cmv|mrna-(?<!\\d)1647(?!\\d)).{0,80}(positive|favorable)",
+    "(positive|favorable).{0,80}(cmv|mrna-(?<!\\d)1647(?!\\d))"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(cmv|mrna-(?<!\\d)1647(?!\\d)).{0,80}(negative|failed|missed|disappointing)",
+    "(negative|failed|missed|disappointing).{0,80}(cmv|mrna-(?<!\\d)1647(?!\\d))"
+   ],
+   "quote": "Positive interim data from Phase 2 study of CMV vaccine candidate (mRNA-1647) announced during R&D Day; pivotal Phase 3 trial expected to begin in 2021",
+   "paraphrases": [
+    "Moderna's CMV vaccine candidate (mRNA-1647) showed positive interim Phase 2 data.",
+    "Positive Phase 2 results were reported for the CMV vaccine (mRNA-1647).",
+    "mRNA-1647, Moderna's CMV vaccine, produced favorable interim Phase 2 data."
+   ],
+   "decoys": [
+    "Moderna's CMV vaccine candidate (mRNA-1647) showed disappointing interim Phase 2 data.",
+    "Moderna's Zika vaccine candidate (mRNA-1893) showed positive interim Phase 2 data."
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "concept",
+   "point": "A pivotal Phase 3 trial for the CMV vaccine candidate (mRNA-1647) is expected to begin in 2021",
+   "patterns": [
+    "(cmv|mrna-(?<!\\d)1647(?!\\d)).{0,150}phase (?<!\\d)3(?!\\d).{0,40}(?<!\\d)2021(?!\\d)",
+    "phase (?<!\\d)3(?!\\d).{0,40}(?<!\\d)2021(?!\\d).{0,150}(cmv|mrna-(?<!\\d)1647(?!\\d))",
+    "phase (?<!\\d)3(?!\\d).{0,80}(cmv|mrna-(?<!\\d)1647(?!\\d)).{0,60}(?<!\\d)2021(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Positive interim data from Phase 2 study of CMV vaccine candidate (mRNA-1647) announced during R&D Day; pivotal Phase 3 trial expected to begin in 2021",
+   "paraphrases": [
+    "A pivotal Phase 3 trial for Moderna's CMV vaccine (mRNA-1647) is expected to begin in 2021.",
+    "Moderna plans to start a Phase 3 study of mRNA-1647 in 2021.",
+    "The CMV vaccine candidate's pivotal Phase 3 trial is targeted to begin in 2021."
+   ],
+   "decoys": [
+    "A pivotal Phase 3 trial for Moderna's CMV vaccine (mRNA-1647) is expected to begin in 2022.",
+    "A pivotal Phase 3 trial for Moderna's Zika vaccine (mRNA-1893) is expected to begin in 2021."
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "number",
+   "point": "DARPA awarded Moderna up to $56 million for rapid, small-scale mobile manufacturing of nucleic acid vaccines and therapeutics",
+   "patterns": [
+    "(darpa).{0,80}(?<!\\d)56(?!\\d)\\s?(million|mm|m)\\b|(?<!\\d)56(?!\\d)\\s?(million|mm|m)\\b.{0,80}(darpa)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)56(?!\\d)\\s?(million|mm|m)\\b.{0,80}(repaid|returned|paid to darpa)",
+    "(repaid|returned|paid to darpa).{0,80}(?<!\\d)56(?!\\d)\\s?(million|mm|m)\\b"
+   ],
+   "quote": "the Defense Advanced Research Projects Agency (DARPA) awarded Moderna up to $56 million to enable small-scale, rapid mobile manufacturing of nucleic acid vaccines and therapeutics",
+   "paraphrases": [
+    "DARPA awarded Moderna up to $56 million for rapid, small-scale mobile vaccine manufacturing.",
+    "Moderna received a new $56 million award from DARPA under its Nucleic Acids On-Demand initiative.",
+    "The Defense Department's DARPA granted Moderna up to $56M to develop mobile manufacturing capabilities."
+   ],
+   "decoys": [
+    "Moderna repaid DARPA $56 million after the manufacturing initiative was cancelled.",
+    "DARPA awarded Moderna up to $65 million for rapid mobile manufacturing."
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "number",
+   "point": "Moderna raised its 2020 cash-flow outlook, citing approximately $1.2 billion of customer deposits received year-to-date as of September 30, 2020",
+   "patterns": [
+    "(customer deposit).{0,80}(?<!\\d)1\\.2(?!\\d)\\s?(billion|bn|b)\\b|(?<!\\d)1\\.2(?!\\d)\\s?(billion|bn|b)\\b.{0,80}(customer deposit)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "driven by customer deposits of approximately $1.2 billion received year-to-date as of September 30, 2020",
+   "paraphrases": [
+    "Moderna updated its 2020 outlook, citing approximately $1.2 billion of customer deposits received year-to-date through September 30.",
+    "Year-to-date customer deposits reached about $1.2 billion, supporting Moderna's raised 2020 cash flow guidance.",
+    "Moderna said cumulative 2020 customer deposits totaled roughly $1.2 billion as of Q3-end."
+   ],
+   "decoys": [
+    "Moderna said cumulative 2020 customer deposits totaled roughly $1.1 billion as of September 30.",
+    "Moderna said cumulative 2020 customer deposits totaled roughly $2.2 billion as of September 30."
+   ]
+  }
+ ]
+}

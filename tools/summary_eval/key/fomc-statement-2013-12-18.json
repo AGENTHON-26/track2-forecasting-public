@@ -1,0 +1,283 @@
+{
+ "doc_id": "fomc-statement-2013-12-18",
+ "doc_type": "fomc_statement",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "concept",
+   "match": "any",
+   "point": "Fed begins tapering its asset purchases",
+   "quote": "the Committee will add to its holdings of agency mortgage-backed securities at a pace of $35 billion per month rather than $40 billion per month, and will add to its holdings of longer-term Treasury securities at a pace of $40 billion per month rather than $45 billion per month",
+   "paraphrases": [
+    "Fed begins tapering its asset purchases.",
+    "FOMC starts scaling back its bond-buying program.",
+    "The Committee begins reducing the pace of its asset purchases."
+   ],
+   "decoys": [
+    "The Committee increased its pace of asset purchases.",
+    "The Committee left the pace of asset purchases unchanged."
+   ],
+   "patterns": [
+    "taper(ing|ed)?",
+    "reduc\\w*.{0,60}(pace|rate) of.{0,20}purchases",
+    "(pace|rate) of.{0,20}purchases.{0,60}reduc\\w*",
+    "scal\\w* back.{0,60}(purchases|bond[\\-\\s]?buying|asset purchases)"
+   ],
+   "not_patterns": [
+    "increas\\w*.{0,80}(asset purchases|pace of.{0,20}purchases)",
+    "(asset purchases|pace of.{0,20}purchases).{0,80}increas\\w*",
+    "unchanged.{0,80}(asset purchases|pace of.{0,20}purchases)"
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "should",
+   "kind": "number",
+   "match": "any",
+   "point": "MBS purchases cut to $35 billion per month, from $40 billion",
+   "quote": "the Committee will add to its holdings of agency mortgage-backed securities at a pace of $35 billion per month rather than $40 billion per month, and will add to its holdings of longer-term Treasury securities at a pace of $40 billion per month rather than $45 billion per month",
+   "paraphrases": [
+    "MBS purchases cut to $35 billion per month.",
+    "Agency MBS buying reduced to $35bn monthly.",
+    "The Fed will now buy $35 billion of MBS per month."
+   ],
+   "decoys": [
+    "MBS purchases cut to $30 billion per month.",
+    "Treasury purchases cut to $40 billion per month."
+   ],
+   "patterns": [
+    "(mortgage[\\-\\s]?backed|MBS).{0,80}(?<!\\d)\\$?(?<!\\d)35(?!\\d)\\s?(?:billion|bn|b\\b)",
+    "(?<!\\d)\\$?(?<!\\d)35(?!\\d)\\s?(?:billion|bn|b\\b).{0,80}(mortgage[\\-\\s]?backed|MBS)"
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "should",
+   "kind": "number",
+   "match": "any",
+   "point": "Treasury purchases cut to $40 billion per month, from $45 billion",
+   "quote": "the Committee will add to its holdings of agency mortgage-backed securities at a pace of $35 billion per month rather than $40 billion per month, and will add to its holdings of longer-term Treasury securities at a pace of $40 billion per month rather than $45 billion per month",
+   "paraphrases": [
+    "Treasury purchases cut to $40 billion per month.",
+    "Longer-term Treasury buying reduced to $40bn monthly.",
+    "The Fed will now buy $40 billion of Treasuries per month."
+   ],
+   "decoys": [
+    "Treasury purchases cut to $35 billion per month.",
+    "MBS purchases cut to $35 billion per month."
+   ],
+   "patterns": [
+    "treasur\\w*.{0,80}(?<!\\d)\\$?(?<!\\d)40(?!\\d)\\s?(?:billion|bn|b\\b)",
+    "(?<!\\d)\\$?(?<!\\d)40(?!\\d)\\s?(?:billion|bn|b\\b).{0,80}treasur\\w*"
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "must",
+   "kind": "name",
+   "match": "any",
+   "point": "Rosengren dissented, believing the reduction in asset purchases was premature given elevated unemployment and low inflation",
+   "quote": "Voting against the action was Eric S. Rosengren, who believes that, with the unemployment rate still elevated and the inflation rate well below the target, changes\nin the purchase program are premature",
+   "paraphrases": [
+    "Rosengren dissented, calling the taper premature given elevated unemployment and low inflation.",
+    "Boston Fed's Rosengren voted against, saying reducing purchases was premature.",
+    "Dissent: Rosengren opposed tapering as premature."
+   ],
+   "decoys": [
+    "Bullard dissented, calling the pace of tapering premature.",
+    "Rosengren voted for the decision to reduce the pace of asset purchases."
+   ],
+   "patterns": [
+    "Rosengren.{0,80}(dissent\\w*|voting against|voted against)",
+    "(dissent\\w*|voting against|voted against).{0,80}Rosengren"
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "must",
+   "kind": "number",
+   "match": "any",
+   "point": "Enhanced forward guidance: Fed anticipates holding rates well past the time unemployment falls below 6-1/2 percent, especially if inflation stays projected below 2 percent",
+   "quote": "the Committee now anticipates, based on its assessment of these factors, that it likely will be appropriate to maintain the current target range\nfor the federal funds rate well past the time that the unemployment rate declines below 6-1/2 percent, especially if projected inflation continues to run below the Committee's 2 percent longer-run goal",
+   "paraphrases": [
+    "Fed strengthened guidance: rates likely to stay near zero well past unemployment falling below 6.5%.",
+    "FOMC now sees holding rates well past the 6-1/2% unemployment threshold, especially if inflation stays low.",
+    "Enhanced guidance: near-zero rates seen well past the time the jobless rate hits 6.5%."
+   ],
+   "decoys": [
+    "The Committee anticipates raising rates as soon as unemployment declines below 6-1/2 percent.",
+    "The Committee anticipates maintaining rates well past the time unemployment declines below 5-1/2 percent."
+   ],
+   "patterns": [
+    "well past.{0,80}((?<!\\d)6(?!\\d)[\\-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)6\\.5(?!\\d))",
+    "((?<!\\d)6(?!\\d)[\\-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)6\\.5(?!\\d)).{0,80}well past"
+   ],
+   "not_patterns": [
+    "as soon as.{0,80}((?<!\\d)6(?!\\d)[\\-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)6\\.5(?!\\d))",
+    "well past.{0,80}(?<!\\d)5(?!\\d)[\\-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)",
+    "(?<!\\d)5(?!\\d)[\\-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d).{0,80}well past"
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Unemployment rate has declined",
+   "quote": "the unemployment rate has declined but remains elevated",
+   "paraphrases": [
+    "Unemployment has fallen.",
+    "Jobless rate is down.",
+    "Unemployment rate declining."
+   ],
+   "decoys": [
+    "The unemployment rate has risen.",
+    "The unemployment rate remains elevated."
+   ],
+   "patterns": [
+    "(?:(?:unemployment|jobless).{0,80}(?:declin\\w*|fell|fallen|falling|down)|(?:declin\\w*|fell|fallen|falling|down).{0,80}(?:unemployment|jobless))"
+   ],
+   "not_patterns": [
+    "(unemployment|jobless).{0,80}(ris\\w*|rose|increas\\w*)",
+    "(ris\\w*|rose|increas\\w*).{0,80}(unemployment|jobless)"
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Unemployment rate remains elevated",
+   "quote": "the unemployment rate has declined but remains elevated",
+   "paraphrases": [
+    "Unemployment remains elevated.",
+    "Jobless rate is still high.",
+    "Unemployment stays elevated overall."
+   ],
+   "decoys": [
+    "The unemployment rate has returned to normal levels.",
+    "The unemployment rate has declined."
+   ],
+   "patterns": [
+    "(?:(?:unemployment|jobless).{0,80}(?:elevated|still high|remains? high)|(?:elevated|still high|remains? high).{0,80}(?:unemployment|jobless))"
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Fiscal policy is restraining growth",
+   "quote": "Fiscal\npolicy is restraining economic growth, although the extent of restraint may be diminishing.",
+   "paraphrases": [
+    "Fiscal policy remains a drag on growth.",
+    "Fiscal restraint continues to weigh on the economy.",
+    "Fiscal tightening remains a headwind to growth."
+   ],
+   "decoys": [
+    "Fiscal policy is now providing a tailwind to economic growth.",
+    "The extent of fiscal restraint may be diminishing."
+   ],
+   "patterns": [
+    "(?:fiscal (?:policy|tightening|restraint).{0,80}(?:restrain\\w*|drag|headwind|weigh\\w*)|(?:restrain\\w*|drag|headwind|weigh\\w*).{0,80}fiscal (?:policy|tightening|restraint))"
+   ],
+   "not_patterns": [
+    "(tailwind|boost\\w*|support\\w*).{0,80}(growth|economy)"
+   ]
+  },
+  {
+   "id": "p9",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "The extent of fiscal restraint may be diminishing",
+   "quote": "Fiscal\npolicy is restraining economic growth, although the extent of restraint may be diminishing.",
+   "paraphrases": [
+    "The drag from fiscal policy may be easing.",
+    "Fiscal restraint appears to be lessening.",
+    "The fiscal headwind may be diminishing."
+   ],
+   "decoys": [
+    "Fiscal policy is restraining growth, and the extent of restraint is intensifying.",
+    "Fiscal policy is restraining growth."
+   ],
+   "patterns": [
+    "(?:(?:restraint|drag|headwind).{0,80}(?:diminish\\w*|eas\\w*|lessen\\w*)|(?:diminish\\w*|eas\\w*|lessen\\w*).{0,80}(?:restraint|drag|headwind))"
+   ],
+   "not_patterns": [
+    "(restraint|drag|headwind).{0,80}(intensify\\w*|worsen\\w*|grow\\w*ing)"
+   ]
+  },
+  {
+   "id": "p10",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Committee sees persistently below-target inflation as a risk",
+   "quote": "The Committee recognizes that inflation persistently below its 2 percent objective could pose risks to economic performance, and it is monitoring inflation developments carefully for evidence that inflation will move back toward its objective over the medium term.",
+   "paraphrases": [
+    "Fed said persistently low inflation could pose risks.",
+    "Committee flagged risk from inflation staying below 2%.",
+    "Persistently below-target inflation seen as a risk to performance."
+   ],
+   "decoys": [
+    "The Committee said above-target inflation could pose risks to economic performance.",
+    "The Committee is monitoring for a return toward the 2 percent objective."
+   ],
+   "patterns": [
+    "(?:(?:inflation|price pressures).{0,100}(?:persistently below|persistently low|too low|staying below|below.{0,10}objective|below.{0,10}target)|(?:persistently below|persistently low|too low|staying below|below.{0,10}objective|below.{0,10}target).{0,100}(?:inflation|price pressures))"
+   ],
+   "not_patterns": [
+    "inflation.{0,80}(above|exceed\\w*).{0,80}(objective|(?<!\\d)2(?!\\d)\\s?(?:percent|%))"
+   ]
+  },
+  {
+   "id": "p11",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Committee is monitoring inflation developments for a return toward the 2 percent objective",
+   "quote": "The Committee recognizes that inflation persistently below its 2 percent objective could pose risks to economic performance, and it is monitoring inflation developments carefully for evidence that inflation will move back toward its objective over the medium term.",
+   "paraphrases": [
+    "The Fed is watching closely for signs of inflation rebounding toward 2%.",
+    "Committee is monitoring for a return of inflation to target.",
+    "Fed watching inflation developments carefully for a move back toward objective."
+   ],
+   "decoys": [
+    "The Committee said it is no longer concerned about inflation running below its objective.",
+    "Committee flagged risk from inflation staying below 2%."
+   ],
+   "patterns": [
+    "(?:(?:monitor\\w*|watch\\w*).{0,100}(?:inflation|return|move back|rebound|objective|target)|(?:inflation|return|move back|rebound|objective|target).{0,100}(?:monitor\\w*|watch\\w*))"
+   ],
+   "not_patterns": [
+    "no longer concerned"
+   ]
+  },
+  {
+   "id": "p12",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Committee sees risks to the outlook for economic activity and the labor market as more nearly balanced",
+   "quote": "The Committee sees the risks to the outlook for the\neconomy and the labor market as having become more nearly balanced.",
+   "paraphrases": [
+    "Fed sees risks to the outlook as more nearly balanced now.",
+    "Risks to growth and labor market outlook judged more balanced.",
+    "Outlook risks described as more nearly balanced than before."
+   ],
+   "decoys": [
+    "The Committee sees the risks to the outlook as tilted to the downside.",
+    "The Committee sees the risks to the outlook as slightly skewed but broadly balanced."
+   ],
+   "patterns": [
+    "risk\\w*.{0,80}(more nearly balanced|nearly balanced|more balanced)",
+    "(more nearly balanced|nearly balanced|more balanced).{0,80}risk\\w*"
+   ],
+   "not_patterns": [
+    "(tilt\\w*|skew\\w*).{0,80}(downside|upside)"
+   ]
+  }
+ ]
+}

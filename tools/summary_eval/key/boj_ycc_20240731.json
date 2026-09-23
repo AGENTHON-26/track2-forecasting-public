@@ -1,0 +1,297 @@
+{
+ "doc_id": "boj_ycc_20240731",
+ "doc_type": "landmark",
+ "points": [
+  {
+   "id": "p1",
+   "point": "BOJ raised the overnight call rate guideline to around 0.25 percent",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(call rate|policy rate|interest rate).{0,80}(around\\s*)?(?<!\\d)0\\.25(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)0\\.25(?!\\d)\\s*(percent|%).{0,80}(call rate|policy rate|interest rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The Bank will encourage the uncollateralized ove rnight call rate to remain at around 0.25 percent.",
+   "paraphrases": [
+    "BOJ raised its policy rate to around 0.25%, the highest since 2008.",
+    "Bank of Japan hiked the overnight call rate target to approximately 0.25 percent.",
+    "BOJ raised the call rate target from around 0.1 percent to about 0.25 percent."
+   ],
+   "decoys": [
+    "BOJ kept the overnight call rate at around 0.1 percent.",
+    "BOJ raised the call rate to around 0.5 percent."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "BOJ set a plan to taper JGB purchases to about 3 trillion yen per month by January-March 2026",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:\\u00a5\\s*(?<!\\d)3(?!\\d)\\s*(?:trillion|tn)|(?<!\\d)3(?!\\d)\\s*(?:trillion|tn)\\s*yen).{0,100}(?<!\\d)2026(?!\\d)",
+    "(?<!\\d)2026(?!\\d).{0,100}(?:\\u00a5\\s*(?<!\\d)3(?!\\d)\\s*(?:trillion|tn)|(?<!\\d)3(?!\\d)\\s*(?:trillion|tn)\\s*yen)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "increas\\w*.{0,60}(JGB|government bond).{0,40}purchase",
+    "purchase.{0,60}(JGB|government bond).{0,40}increas\\w*"
+   ],
+   "quote": "the Bank decided, by a unanimous vote , on a plan to reduce the amount of its monthly outright purchases of JGBs so that it will be about 3 trillion yen in January-March 2026. The amount will be cut down by about 400 billion yen each calendar quarter",
+   "paraphrases": [
+    "BOJ will taper JGB purchases to about ¥3 trillion per month by Q1 2026.",
+    "The Bank plans to reduce monthly JGB buying to around 3 trillion yen by January-March 2026.",
+    "Monthly JGB purchases will fall to about ¥3tn by early 2026, the BOJ said."
+   ],
+   "decoys": [
+    "BOJ will cut JGB purchases to about 5 trillion yen by 2026.",
+    "BOJ will increase JGB purchases to 3 trillion yen per quarter starting 2026."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "BOJ will cut the pace of JGB purchase reductions by about 400 billion yen each quarter",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:\\u00a5\\s*(?<!\\d)400(?!\\d)\\s*(?:billion|bn)|(?<!\\d)400(?!\\d)\\s*(?:billion|bn)\\s*yen).{0,80}quarter",
+    "quarter.{0,80}(?:\\u00a5\\s*(?<!\\d)400(?!\\d)\\s*(?:billion|bn)|(?<!\\d)400(?!\\d)\\s*(?:billion|bn)\\s*yen)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "increas\\w*.{0,60}(?<!\\d)400(?!\\d)\\s*(?:billion|bn)",
+    "(?<!\\d)400(?!\\d)\\s*(?:billion|bn).{0,60}increas\\w*"
+   ],
+   "quote": "the Bank decided, by a unanimous vote , on a plan to reduce the amount of its monthly outright purchases of JGBs so that it will be about 3 trillion yen in January-March 2026. The amount will be cut down by about 400 billion yen each calendar quarter",
+   "paraphrases": [
+    "The BOJ will trim JGB purchases by about ¥400 billion each quarter.",
+    "Monthly purchases will be cut by roughly 400 billion yen every calendar quarter.",
+    "JGB purchase reductions of about ¥400bn per quarter are planned."
+   ],
+   "decoys": [
+    "The BOJ will cut JGB purchases by about ¥40 billion each quarter.",
+    "The BOJ will increase JGB purchases by about ¥400 billion each quarter."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Nakamura Toyoaki dissented against the rate hike",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "Nakamura.{0,100}(dissent\\w*|voted against|against the action)",
+    "(dissent\\w*|voted against|against the action).{0,100}Nakamura"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "Nakamura.{0,60}(in favor|voted for|supported)",
+    "(in favor|voted for|supported).{0,60}Nakamura"
+   ],
+   "quote": "V oting against the action: NAKAMURA Toyoaki and NOGUCHI Asahi.",
+   "paraphrases": [
+    "Nakamura Toyoaki dissented against the rate hike.",
+    "Board member Nakamura voted against raising the rate.",
+    "Nakamura dissented, wanting to wait for more data before the hike."
+   ],
+   "decoys": [
+    "Nakamura voted in favor of the rate hike, citing strong wage data.",
+    "Deputy Governor Uchida dissented from the decision."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Noguchi Asahi dissented against the rate hike",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "Noguchi.{0,100}(dissent\\w*|voted against|against the action)",
+    "(dissent\\w*|voted against|against the action).{0,100}Noguchi"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "Noguchi.{0,60}(in favor|voted for|supported)",
+    "(in favor|voted for|supported).{0,60}Noguchi"
+   ],
+   "quote": "V oting against the action: NAKAMURA Toyoaki and NOGUCHI Asahi.",
+   "paraphrases": [
+    "Noguchi Asahi dissented against the rate hike.",
+    "Board member Noguchi voted against raising the rate.",
+    "Noguchi dissented, wanting more assessment of wage-driven improvement before hiking."
+   ],
+   "decoys": [
+    "Noguchi voted in favor of the rate hike, citing improved wage data.",
+    "Deputy Governor Himino dissented from the decision."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Complementary deposit facility rate set to 0.25 percent",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(deposit facility|current account|deposit rate).{0,150}(?<!\\d)0\\.25(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)0\\.25(?!\\d)\\s*(percent|%).{0,150}(deposit facility|current account|deposit rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The interest rate applied to the complementary deposit facility (the interest rate applied to current account balances held by financial institutions at the Bank, excluding required reserve balances) will be 0.25 percent.",
+   "paraphrases": [
+    "The rate on the complementary deposit facility was set to 0.25%.",
+    "BOJ set the deposit facility rate at 0.25 percent, effective August 1.",
+    "Complementary deposit rate: 0.25%."
+   ],
+   "decoys": [
+    "The deposit facility rate was set to 0.10 percent.",
+    "BOJ set the complementary deposit facility rate at 0.5 percent."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Basic loan rate set to 0.5 percent",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(basic\\s+(?:loan|lending)\\s+rate|lending facility).{0,80}(?<!\\d)0\\.50?(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)0\\.50?(?!\\d)\\s*(percent|%).{0,80}(basic\\s+(?:loan|lending)\\s+rate|lending facility)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The basic loan rate applicable under the complementary lending facility will be 0.5 percent.",
+   "paraphrases": [
+    "The basic loan rate was set to 0.5%.",
+    "BOJ set the basic lending rate at 0.50 percent, effective August 1.",
+    "Basic loan rate: 0.5%."
+   ],
+   "decoys": [
+    "BOJ cut the basic loan rate to 0.25 percent.",
+    "The basic loan rate was left unchanged at 0.1 percent."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Wage increases are spreading across regions, industries and firm sizes",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "wage.{0,100}(spread\\w*|broaden\\w*).{0,100}(region|industr|firm size)",
+    "(spread\\w*|broaden\\w*).{0,60}(region|industr|firm size)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "have been spreading across regions, industries, and firm sizes.",
+   "paraphrases": [
+    "Wage hikes are spreading across regions, industries and company sizes, the BOJ said.",
+    "The BOJ noted broadening wage gains beyond large firms, across sectors and regions.",
+    "Wage increases have spread across regions, industries, and firm sizes, per the BOJ."
+   ],
+   "decoys": [
+    "The BOJ said wage increases remained concentrated among large firms only.",
+    "The BOJ said wage growth had stalled across most regions and industries."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Services prices are rising as firms pass through higher wages",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "services prices.{0,40}(rise|rising|increase\\w*)",
+    "(wage.{0,60}pass-through|pass-through.{0,60}wage)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "manufacturing.{0,80}pass-through",
+    "pass-through.{0,80}manufacturing",
+    "services prices.{0,40}(fall\\w*|fell|declin\\w*|drop\\w*)",
+    "(fall\\w*|fell|declin\\w*|drop\\w*).{0,40}services prices"
+   ],
+   "quote": "services prices have continued to rise moderately, with a strengthening of moves to reflect wage increases in selling prices",
+   "paraphrases": [
+    "Services prices are rising moderately as firms pass wage increases into pricing.",
+    "The BOJ noted a strengthening wage-to-price pass-through in the services sector.",
+    "The BOJ said firms are increasingly reflecting wage gains in services prices, strengthening pass-through."
+   ],
+   "decoys": [
+    "Manufacturing prices, not services, showed the strongest wage pass-through.",
+    "Services prices continued to fall despite rising wages."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Import prices turned positive again on a year-on-year basis",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "import\\s+prices?.{0,80}(positive|turned|renewed|rising|rose)",
+    "(positive|turned|renewed|rising|rose).{0,80}import\\s+prices?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "import\\s+prices?.{0,40}(declin\\w*|fall\\w*|fell|negative|weaken\\w*)",
+    "(declin\\w*|fall\\w*|fell|negative|weaken\\w*).{0,40}import\\s+prices?"
+   ],
+   "quote": "The year -on-year rate of change in import prices has turned positive again, and upside risks to prices require attention.",
+   "paraphrases": [
+    "Import prices turned positive again on a year-on-year basis, the BOJ said.",
+    "Year-over-year import price growth turned positive again.",
+    "The BOJ noted a renewed rise in import prices on a year-on-year basis."
+   ],
+   "decoys": [
+    "Import prices continued to decline on a year-on-year basis.",
+    "Import prices remained negative year-on-year, the BOJ noted."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Upside risks to prices require attention",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "upside\\s+risks?.{0,80}prices?",
+    "upside.{0,20}price.{0,20}risks?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "\\b(eas\\w*|reduc\\w*|declin\\w*|fall\\w*|fell)\\b.{0,40}upside",
+    "upside.{0,40}\\b(eas\\w*|reduc\\w*|declin\\w*|fall\\w*|fell)\\b"
+   ],
+   "quote": "The year -on-year rate of change in import prices has turned positive again, and upside risks to prices require attention.",
+   "paraphrases": [
+    "The BOJ warned that upside risks to prices require attention.",
+    "Upside risks to the price outlook need close watching, the BOJ said.",
+    "The BOJ flagged upside risks that prices could rise more than expected."
+   ],
+   "decoys": [
+    "Import prices continued to decline, easing upside price risks.",
+    "The BOJ flagged downside risks to prices from weak demand."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "BOJ signaled it will continue to raise the policy rate if the July outlook is realized",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(continue|further|keep).{0,60}(raise|rais\\w*|hike\\w*|increase\\w*).{0,60}(policy rate|interest rate|\\brates?\\b)",
+    "(continue|further|keep).{0,60}(policy rate|interest rate|\\brates?\\b).{0,60}(raise|rais\\w*|hike\\w*|increase\\w*)",
+    "(policy rate|interest rate|\\brates?\\b).{0,60}(continue|further|keep).{0,60}(raise|rais\\w*|hike\\w*|increase\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(no plans?|not planning|ruled out|no further|unlikely to).{0,40}(raise|hike|increase)",
+    "(raise|hike|increase)\\w*.{0,40}(no plans?|not planning|ruled out|no further|unlikely to)"
+   ],
+   "quote": "the Bank will accordingly continue to raise the policy interest rate and adjust the degree of monetary accommodation",
+   "paraphrases": [
+    "BOJ signaled it will keep raising the policy rate if the outlook plays out as expected.",
+    "The Bank said it would continue to hike rates further, consistent with achieving 2% inflation.",
+    "Further rate increases are likely if economic and price developments unfold as projected, BOJ said."
+   ],
+   "decoys": [
+    "The BOJ said it had no plans for further rate hikes this year.",
+    "The BOJ said it would consider cutting rates if the yen strengthened too much."
+   ]
+  }
+ ]
+}
