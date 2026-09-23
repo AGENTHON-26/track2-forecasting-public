@@ -35,9 +35,9 @@ from conftest import make_plan
 from qfbench2_common.contracts import ContractError, EvaluationPlan
 
 from qfbench2_track_forecasting.grid import grid_from_plan_entry
-from qfbench2_track_forecasting.normalization import NormalizationMode, load_ref_scale
+from qfbench2_track_forecasting.normalization import NormalizationMode, load_verified_ref_scales
 from qfbench2_track_forecasting.official import score_roster
-from qfbench2_track_forecasting.scoring import build_verifier, card_joint_statistic
+from qfbench2_track_forecasting.scoring import build_verifier
 
 HANDLE = "u-7e7e7e7e"
 
@@ -66,17 +66,11 @@ def test_the_in_process_verifier_and_the_official_entrypoint_agree(
         "output_dir": res_root / HANDLE,
         "unit_handle": HANDLE,
         "plan_entry": entry,
+        "plan": plan,
+        "verified_ref_scales": load_verified_ref_scales(plan, ref_root),
         "expected_grid": grid_from_plan_entry(entry),
         "grid_source": "plan",
         "normalization_mode": NormalizationMode.REF_SCALE,
-        # Must mirror official.py's call argument for argument. Hand-copied production wiring is
-        # how the two "paths" this test compares drift apart while it stays green -- and it did:
-        # this copy tracked cell_count and missed joint_statistic for one commit.
-        "ref_scale": load_ref_scale(
-            reference_root,
-            cell_count=grid_from_plan_entry(entry).cell_count,
-            joint_statistic=card_joint_statistic(card),
-        ),
     }
     verdict = build_verifier(ctx).run(ctx)
     assert verdict.admissible

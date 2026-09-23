@@ -333,6 +333,7 @@ def make_plan(
     clip: bool = True,
     failure_score: float | None = None,
     domain: tuple[float, float] = (0.0, 4.0),
+    scale_commitment: str | None = None,
 ) -> dict[str, Any]:
     """A signed, expanded forecasting C1 with `W = 4.0` and `ref_scale` normalization.
 
@@ -373,7 +374,7 @@ def make_plan(
         "required_evidence": {"c2": True, "c3": True, "telemetry": False, "judge": False},
         "normalization": {
             "mode": "ref_scale",
-            "ref_scale_commitment": digest_json("synthetic:ref-scale"),
+            "ref_scale_commitment": scale_commitment or digest_json("synthetic:ref-scale"),
         },
     }
     for handle in handles:

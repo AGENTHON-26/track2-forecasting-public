@@ -55,7 +55,7 @@ For raw HTTP JSON, put `chat_template_kwargs` at the top level of the request bo
 Omitting this option keeps thinking enabled. Use this API option instead of the older system-prompt
 toggle. These settings were verified against the selected chat template and synthetic request
 rendering on September 16, 2026; this verification does not announce participant access or change
-request/token allowances. See the shared guide for the public checkpoint and the limits of local
+the per-unit request limit or the per-request output-token limit. See the shared guide for the public checkpoint and the limits of local
 reproducibility.
 
 ## What this means concretely

@@ -37,13 +37,33 @@ window; setup/provisioning and container creation/execution after activation can
 retrying under the same allocation resets neither the window nor request counters. Credentials
 last at most 7,200 seconds from issue and never beyond that fixed end. Deployment and verification
 remain required before opening; this changes no compute allowance.
-See the [Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.3/docs/DEVELOPMENT-RUNTIME.md)
+See the [Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/DEVELOPMENT-RUNTIME.md)
 for applied limits and pending access status. Development settings do not certify Final resources.
 
 Build a `linux/amd64` image identified by its immutable digest. Follow the
-[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.3/docs/IMAGE-SUBMISSIONS.md)
+[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/IMAGE-SUBMISSIONS.md)
 for anonymous public pulls and the organizer confirmation required before using a private mirror.
 A descriptor category or image-access field does not itself make a service available.
+
+## How an upload is made
+
+An upload is a **zip, not an image reference**. Push your `linux/amd64` image to a registry that
+allows anonymous pulls by digest (the image submission guide above), write `submission.json`
+with that digest (the sealed descriptor, see the
+[descriptor guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/starter-packs/track2/SUBMISSION-DESCRIPTOR.md)),
+then let the toolkit seal and pack it:
+
+```bash
+qfbench2 submission pack --descriptor submission.json --team-number <your team number> --out submission.zip
+```
+
+`pack` asks for your Team Key on a hidden prompt, derives your `team_id`, and writes
+`submission.zip` containing `submission.json` and `team-claim.json` -- the
+[team-claim guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/starter-packs/track2/TEAM-CLAIM.md)
+explains the claim and what happens when it is wrong. Upload `submission.zip` on this track's
+CodaBench competition page from your team's designated CodaBench account; the page link was
+issued to registered teams at the Development opening and is in the participant announcements.
+The Team Key never goes into the zip and is never sent to anyone.
 
 ## Development submission limits
 
@@ -57,7 +77,7 @@ Development runs through **October 12, 2026**. The joint **Final + Verification 
 October 13–25, 2026**. Each team makes **one final submission per track**; organizers perform
 verification within that same phase, with no separate participant Verification submission.
 Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates and task/data cutoffs are unchanged.
-See the [Development submission limits](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.3/docs/DEVELOPMENT-RUNTIME.md#submission-limits-at-the-development-opening).
+See the [Development submission limits](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/DEVELOPMENT-RUNTIME.md#submission-limits-at-the-development-opening).
 
 ## Network modes (per unit card, `[environment].network`)
 
@@ -142,14 +162,16 @@ server.
 4. **Pin temperature/seed** where the API supports it. Entries are verified *statistically*
    (bootstrap-CI overlap on organizer rerun for T2/T3/T4; for T1, the single-pass per-unit
    verdicts must agree exactly).
-5. **House API allocation.** The input allowance is **1,000,000 input tokens per unit**.
-   The selected House allowance is **25 admitted requests per unit**, with **at most 4,000
-   output tokens per call**. Omitted output limits use 4,000; larger limits are reduced to
-   4,000, and smaller valid limits are preserved. Multiple generated alternatives are refused.
+5. **House API allocation — the budget is requests per unit.** The House allowance is
+   **25 admitted requests per unit**, with **at most 4,000 output tokens per call**; both are
+   counted and applied by the House route. Omitted output limits use 4,000; larger limits are
+   reduced to 4,000, and smaller valid limits are preserved. Multiple generated alternatives are
+   refused. **There is no per-unit token allowance** — the earlier figure of 1,000,000 input plus
+   100,000 output tokens per unit is withdrawn and nothing replaces it.
    An admitted request is charged before forwarding: upstream failures or a lost response do
    not refund it. An admitted participant or SDK retry can consume another slot, even with the
-   same content. Invalid requests refused before admission do not consume a slot. Keep track
-   of input use and budget automatic retries. Platform availability and deployment status
+   same content. Invalid requests refused before admission do not consume a slot. Budget
+   automatic retries. Platform availability and deployment status
    will be announced separately.
 
 **One leaderboard.** All categories rank on a single board; every entry is tagged with its

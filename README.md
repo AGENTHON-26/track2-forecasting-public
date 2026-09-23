@@ -220,9 +220,12 @@ scoring detail.
 
 ### House API allocation
 
-See the [model-API rules](SUBMISSION_CLI.md#rules-for-model-api-use-restricted-mode) for the
-allowance of 1,000,000 input tokens per unit, the selected House request limits, and accounting
-for failed or retried requests. Model calls use the organizer-supplied endpoint; participant vendor
+The model budget is **requests per unit**: **25 admitted requests per unit**, with **at most
+4,000 output tokens per request**, both counted by the House route. There is no per-unit token
+allowance — the earlier figure of 1,000,000 input plus 100,000 output tokens per unit is withdrawn
+and nothing replaces it. See the
+[model-API rules](SUBMISSION_CLI.md#rules-for-model-api-use-restricted-mode) for the accounting of
+failed or retried requests. Model calls use the organizer-supplied endpoint; participant vendor
 API keys are not supported. Platform availability and deployed enforcement will be announced
 separately.
 
@@ -400,9 +403,9 @@ those inputs, local checks can establish admissibility and changes in prediction
 
 ```bash
 # 1. The shared toolkit, pinned.
-# Pin toolkit v2.4.2 for the current submission commands and model-free fixture.
-# The installed package reports version 2.4.2.
-pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.3#subdirectory=common"
+# Pin toolkit v2.4.4 for the current submission commands and model-free fixture.
+# The installed package reports version 2.4.4.
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.4#subdirectory=common"
 
 # 2. This track's package, from the repository root. Without it neither the reference CLI nor
 #    the smoke scorer can import `qfbench2_track_forecasting`, and both stop at an ImportError
@@ -545,18 +548,18 @@ Install the `qfbench2-common` package (schemas, scoring, leakage guard) from the
 repository that publishes it, `Agenthon-2026/Agenthon2026-public`:
 
 ```bash
-pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.3#subdirectory=common"
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.4#subdirectory=common"
 ```
 
 The toolkit is half of what you need. Running the scorer or the exemplar also requires this
 repository itself — `pip install .` from the repository root — which is what brings in pandas and
 the rest. See the Quick-start checklist, step 0.
 
-**Pin the tag, and pin this one.** `v2.4.2` is the tag whose descriptor contract matches what the
+**Pin the tag, and pin this one.** `v2.4.4` is the tag whose descriptor contract matches what the
 evaluation verifier accepts. `v2.3.1` carries `qfbench2_common.contracts` — earlier tags predate it
 entirely — but it **refuses a descriptor the verifier accepts**: it demands at least one `models`
 entry, while the current contract allows `"models": []`. Building against it means your own tools
-reject work that would have scored. `v2.4.2` is also the tag `.github/workflows/ci.yml` installs, so what
+reject work that would have scored. `v2.4.4` is also the tag `.github/workflows/ci.yml` installs, so what
 you verify locally is what CI verifies.
 
 Do not install from a branch. An unpinned toolkit is how a local result and a scored result come
@@ -573,12 +576,24 @@ The following are NOT available to participants during the competition:
 
 - **Realized outcomes for the held-out evaluation window (H2 2025 – Q2 2026).** Scores are
   computed server-side. Results are released after the competition closes.
+- **The official baseline's per-card normalization scales** (`reference/ref_scale.json`, the
+  denominators that make 1.0 mean "no better than the text-blind baseline"). Each one is that
+  baseline's error measured against the sealed outcome, so a published scale plus a reproducible
+  baseline inverts to the answer — which makes these files answer-equivalent, not configuration.
+  No card released to participants carries one, and the scorer refuses to read a scale from
+  anywhere but a card's `reference/` directory. The **method** that produces them is published in
+  full: see [docs/M0-BASELINE.md](docs/M0-BASELINE.md).
 - **The exact card IDs, as-of dates, and asset combinations for the sealed evaluation set.**
   You know the four families and the four panels, but not which specific cards appear.
 - **The EM FX panel** used for F2 (Text-cued regime shift with transfer) cards. G10 FX is in
   training; EM FX is the transfer target and is absent from all input panels.
 - **Regime event labels for F4 cards.** The harness knows which cards are tail/shock cards,
   but specific event dates are not pre-announced.
+
+Sealed means the *values*, not the *procedure*. Everything about how the baseline is built — the
+window, the differencing, the gap and alignment rules, the horizon conversion, the covariance
+structure, the draw count and the per-card seed — is specified in
+[docs/M0-BASELINE.md](docs/M0-BASELINE.md), so the denominator of your score is not a black box.
 
 ---
 
@@ -677,9 +692,9 @@ availability is announced separately.
 Include dependencies and permitted artifacts in the image before submission. Cold image pulls
 consume the unit clock; previously reported pull timings are historical observations, not a
 current startup guarantee. See the
-[Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.3/docs/DEVELOPMENT-RUNTIME.md)
+[Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/DEVELOPMENT-RUNTIME.md)
 for process, temporary-space and output limits, and the
-[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.3/docs/IMAGE-SUBMISSIONS.md)
+[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/IMAGE-SUBMISSIONS.md)
 for anonymous public pulls and organizer-confirmed private mirrors. The writable image layer,
 temporary filesystem and output mount are separate; do not infer an image-size quota or a
 writable workspace allowance from a card's memory or disk field.
@@ -692,7 +707,7 @@ writable workspace allowance from a card's memory or disk field.
    dependencies (pandas among them) come from `pip install .`, and without it step 3 fails with
    `ModuleNotFoundError: No module named 'pandas'`:
    ```bash
-   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.3#subdirectory=common"
+   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.4#subdirectory=common"
    pip install .
    ```
 1. Read `docs/CONCEPTS.md` — understand CRPS, variogram, tail penalty, text ablation, and leakage.
@@ -706,13 +721,17 @@ writable workspace allowance from a card's memory or disk field.
 5. Run the smoke scorer against the exemplar card.
 6. Score your model against the validation cards in `units/`.
 7. Optionally run the text-ablated variant and compare scores.
-8. Submit your image digest to the leaderboard portal.
+8. Pack and upload: `qfbench2 submission pack --descriptor submission.json --team-number <N> --out submission.zip`,
+   then upload `submission.zip` on the track's CodaBench competition page (see
+   ["How an upload is made"](SUBMISSION_CLI.md#how-an-upload-is-made)).
 
 ## Competition schedule and submission limits
 
 Development runs through **October 12, 2026**. The joint **Final + Verification phase runs
 October 13–25, 2026**. Each team makes **one final submission per track**; organizers perform
 verification within that same phase, with no separate participant Verification submission.
+If two Final submissions finish this track with the same ranking score, the tie is broken in
+favour of the one uploaded earlier.
 Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates and task/data cutoffs are unchanged.
 
 At the participant Development opening, Track 2 allows **5 uploads per team per day**
