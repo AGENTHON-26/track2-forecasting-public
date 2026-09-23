@@ -113,7 +113,7 @@ in both modes — network access is for **model calls only**, never for fetching
 
 ### Submission categories (agent tracks only)
 
-A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"` for this non-adapter path; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
+A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"`; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
 
 **Bring-your-own models and adapters are not part of this competition.** Every submission runs against the House model (or calls none); the former `byo-small` / `byo-large` categories are invalid since toolkit 2.4.3, `qfbench2 submission pack` refuses them, and an upload that still carries one is held by the organizer's intake and never run.
 

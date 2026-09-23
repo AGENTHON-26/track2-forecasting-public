@@ -3,21 +3,53 @@
 ## Executive summary (read this first)
 
 This file separates changes awaiting the next public update from changes already available in
-the Track 2 forecasting kit. Each entry says whether scoring is affected. The published
-baseline below was checked against public commit `1c6fdb6` on 2026-09-14; the next update has
-not yet been published. Release timing follows the organizer announcement in public issue #4.
+the Track 2 forecasting kit. Each entry says whether scoring is affected. Release timing
+follows the organizer announcement in public issue #4.
 
 ## Unreleased
 
-**Track scorer code and evaluation cards: unchanged.** These changes update toolkit install
-pins, the reference image, documentation and synthetic regression tests. They do not update
-the deployed scorer. The local toolkit correction inherited by the new pin is noted below.
+**Track scorer code and evaluation cards: unchanged.** These are documentation and build-pin
+corrections. They change no scoring path, no gate, no card and no published number.
+
+- **Toolkit pin moved to `v2.4.4` everywhere.** The 2026-09-18 bump reached the README's install
+  commands but not `.github/workflows/ci.yml` or the `Dockerfile`, so CI and the reference
+  submission image kept validating against `v2.4.2` — whose category enum still contains
+  `byo-large` and `byo-small`, the two values the same ruling withdrew. A descriptor naming one
+  of them packs cleanly under `v2.4.2`, is then held at organizer intake and never runs, and
+  still costs a Development attempt, with no local signal that anything was wrong. The README
+  prose also still told you to pin `v2.4.2` while the command beside it installed `v2.4.3`. The
+  2026-09-21 bump to `v2.4.4` fixed `ci.yml` and that prose but again missed the `Dockerfile`. All
+  three now name `v2.4.4`, and a new stdlib-only CI step fails the build if they disagree again.
+- **`README.md` container-environment table corrected.** It described `MODEL_ENDPOINT` as
+  already carrying `/v1` and never mentioned `MODEL_TOKEN` at all. `MODEL_ENDPOINT` is the route
+  origin with no path, the OpenAI-compatible API is served under `/v1`, and a request without
+  `Authorization: Bearer $MODEL_TOKEN` is refused 401 — so an agent built from that table alone
+  failed every House call. The 2026-09-17 House-route correction reached `SUBMISSION_CLI.md` and
+  `docs/NVIDIA-STACK.md` and missed this table. It now also states `NO_PROXY` and the House
+  request allowance, and names `SUBMISSION_CLI.md` as the binding version instead of maintaining
+  a second full copy that can drift.
+- **`docs/ARTIFACT-POLICY.md` aligned with the 2026-09-18 ruling.** Its executive summary still
+  said Track 2 permits artifacts "in both submission categories" and that "the adapter-only rule
+  governs language-model serving", and a later paragraph still asserted a one-adapter limit on a
+  bring-your-own language-model path — each contradicting the ruling stated in the same file and
+  in `README.md`. This was the last file in the tree carrying the withdrawn regime, and it is the
+  file `README.md` designates as the authority on what may be packaged. The permitted-artifact
+  table is unchanged; what changes is the description of the regime around it. Policy revision
+  stamp moved to 2026-09-21.1. The category sentence this file shares with `README.md` and
+  `SUBMISSION_CLI.md` also loses its leftover "for this non-adapter path", in all three files.
+
+## Published — in public `main` since commit `3760ed0`
+
+**Track scorer code and evaluation cards: unchanged.** These changes updated toolkit install
+pins, the reference image, documentation and synthetic regression tests. They did not update
+the deployed scorer. The local toolkit correction inherited by the pin is noted below.
 
 - **Toolkit installation:** align the reference Docker image, README and CI at `v2.4.2`,
   including the current submission-packaging command and corrected model-free simulation
   fixture. The image previously installed `v2.3.1`, which refuses an empty `models` array even
-  when the evaluation verifier accepts it. The new pin becomes available with the next toolkit
-  release; existing toolkit tags remain unchanged. The pin also includes the local CRPS
+  when the evaluation verifier accepts it. (Superseded: see the `v2.4.4` entry above — the
+  `v2.4.3` bump reached the README and not `ci.yml` or the `Dockerfile`.) The pin also includes the
+  local CRPS
   correction already released in toolkit `v2.4.1`: a component with zero weight and exactly
   zero reference scale contributes zero instead of poisoning the composite with `NaN`.
   See the toolkit starter-pack changelog; this patch adds no scoring implementation.
