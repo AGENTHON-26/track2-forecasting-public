@@ -59,11 +59,12 @@ _MAX_TOKENS = 4_000
 #: Off: measured 4-5x slower on (23-30 s vs 6 s per doc) and it leaked its reasoning into the
 #: reply once in 16 calls, looping until the cap. The small quality gain was not worth either.
 _THINKING = False
-#: Doc types that get thinking ON anyway. Landmarks mix two formats (policy decisions and speeches)
-#: under one label, so the model has to work out which one it is reading. The reasoning is billed
-#: against the same token cap, so these calls get a larger one.
-_THINKING_TYPES = {"landmark"}
-_MAX_TOKENS_THINKING = 16_000
+#: Doc types that get thinking ON anyway. Landmark used to be here: its reasoning needed a 16,000
+#: token budget, and the house rule is at most 4,000 output tokens per request, reasoning included.
+#: At 4,000 with thinking on the model spent the whole budget reasoning and 4 of 8 landmark
+#: documents came back with no summary at all (17-19k chars of cut-off reasoning in `content`).
+_THINKING_TYPES: set[str] = set()
+_MAX_TOKENS_THINKING = 4_000
 #: A real 12-bullet minutes summary is ~3.5k chars; far past that is not a summary.
 _MAX_SUMMARY_CHARS = 8_000
 _TIMEOUT_SEC = 300.0
@@ -179,6 +180,7 @@ events after {date}.
 Ignore website navigation, cookie notices, menus, footers, footnote markers and other boilerplate.
 Keep numbers, dates, rates and quoted phrases exactly as written, and keep every number's unit
 exactly as written (per share, million, billion, percent, basis points) -- never change a unit.
+When you quote, quote only the words that carry the signal -- a phrase, never a whole paragraph.
 Only state what the document says. Never add topics, names, causes or numbers it does not contain,
 and do not write bullets about what the document does NOT say.
 Output bullet points only (lines starting with "- "), one sentence each, at most {bullets} bullets.
@@ -202,13 +204,22 @@ _FOCUS: dict[str, tuple[str, str]] = {
     ),
     "fomc_minutes": (
         "FOMC meeting minutes",
+        # The decision, the level, the names and the guidance wording come first: with the old
+        # discussion-first checklist the model wrote 15 bullets of staff outlook and never said
+        # what the Committee did (41% of must-facts vs 97% for statements, which ask decision-first).
+        "- the policy decision taken at this meeting and the resulting federal funds target range\n"
+        "- every dissent AND abstention, with the person NAMED and what they preferred, including\n"
+        "  votes on directives, authorizations and resolutions, not only the rate vote\n"
+        "- wording kept, changed or dropped versus the previous statement, quoted exactly\n"
         "- participants' views on the future policy path, KEEPING the quantifiers exactly\n"
         "  (all / most / many / several / some / a few / a couple)\n"
-        "- the assessment of inflation and of the labor market\n"
-        "- risks participants flagged and in which direction\n"
-        "- balance sheet discussion\n"
-        "- the staff economic outlook\n"
-        "- any visible disagreement or dissent",
+        "- the inflation figures cited: headline and core PCE 12-month rates\n"
+        "- the labor figures cited: unemployment rate and the pace of payroll gains\n"
+        "- risks participants flagged and in which direction, naming whatever specific country,\n"
+        "  institution, event or policy the minutes give as the cause, never only a general phrase\n"
+        "- balance sheet and money-market operations with their amounts, caps and rates\n"
+        "- what market pricing implied about the policy path\n"
+        "- the staff economic outlook",
     ),
     "cb_speech": (
         "a central banker's speech",
