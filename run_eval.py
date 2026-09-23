@@ -30,6 +30,7 @@ import pathlib
 import subprocess
 import sys
 import tempfile
+import time
 import tomllib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import defaultdict
@@ -63,6 +64,15 @@ def _iter_unit_dirs() -> list[pathlib.Path]:
 
 
 def run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
+    """Times the whole unit (agent + scoring) and stamps the result with elapsed_seconds,
+    regardless of which branch below it returns from -- see _run_one for the actual work."""
+    start = time.perf_counter()
+    result = _run_one(unit_dir, gates_only)
+    result["elapsed_seconds"] = round(time.perf_counter() - start, 2)
+    return result
+
+
+def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
     card = tomllib.loads((unit_dir / "card.toml").read_text())
     unit_id = card["task"]["id"]
     asof = card["provenance"]["data_cutoff"]
@@ -125,6 +135,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", type=pathlib.Path, default=None,
                      help="report file path (default: eval_reports/<timestamp>.json)")
     ap.add_argument("--label", default=None, help="a short note stored in the report (e.g. a git ref/commit)")
+    ap.add_argument("--limit", type=int, default=None,
+                     help="run only the first N units (sorted order), report file still written -- "
+                          "for a quick look at a real (but small, and non-representative) report "
+                          "without paying for a full sweep")
     ap.add_argument("--concurrency", type=int, default=1,
                      help="run this many units' forecast_agent.py + scoring at once (default: "
                           "1, sequential -- each unit is a separate subprocess, so raising this "
@@ -139,17 +153,21 @@ def main(argv: list[str] | None = None) -> int:
     if not unit_dirs:
         print(f"no unit matched {a.unit!r}", file=sys.stderr)
         return 1
+    if a.limit is not None:
+        unit_dirs = unit_dirs[:a.limit]
 
     by_status = defaultdict(list)
     composites_by_category = defaultdict(list)
     all_results = []
     concurrency = max(1, a.concurrency)
+    wall_start = time.perf_counter()
     if concurrency == 1:
         results: list[dict] = [run_one(unit_dir, a.gates_only) for unit_dir in unit_dirs]
     else:
         with ThreadPoolExecutor(max_workers=concurrency) as pool:
             futures = [pool.submit(run_one, unit_dir, a.gates_only) for unit_dir in unit_dirs]
             results = [f.result() for f in as_completed(futures)]  # completion order, not input order
+    wall_seconds = round(time.perf_counter() - wall_start, 2)
 
     for result in results:
         by_status[result["status"]].append(result)
@@ -160,10 +178,13 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(result, indent=2))
 
     units_with_issues = [r for r in all_results if r.get("text_signal_issues")]
+    per_unit_seconds = [r["elapsed_seconds"] for r in all_results]
 
     if not a.unit:
         total = len(unit_dirs)
-        print(f"Ran {total} unit(s):")
+        avg_seconds = sum(per_unit_seconds) / len(per_unit_seconds) if per_unit_seconds else 0.0
+        print(f"Ran {total} unit(s) in {wall_seconds:.1f}s wall-clock "
+              f"(avg {avg_seconds:.1f}s/unit, concurrency={concurrency}):")
         for status in ("scored", "gates_only", "inadmissible", "agent_crashed", "scorer_crashed"):
             items = by_status.get(status, [])
             if items:
@@ -185,6 +206,11 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"  {r['unit_id']}: {line}")
             if len(units_with_issues) > 15:
                 print(f"  ... and {len(units_with_issues) - 15} more unit(s); see the report file")
+        slowest = sorted(all_results, key=lambda r: r["elapsed_seconds"], reverse=True)[:5]
+        if slowest:
+            print("\nslowest 5 unit(s):")
+            for r in slowest:
+                print(f"  {r['unit_id']}: {r['elapsed_seconds']:.1f}s")
         if composites_by_category:
             print("\nComposite score by family (lower is better; 1.0 = text-blind baseline on the "
                   "REAL leaderboard -- this raw composite is NOT normalized the same way, so treat "
@@ -207,6 +233,9 @@ def main(argv: list[str] | None = None) -> int:
         "total_units": len(unit_dirs),
         "status_counts": {status: len(items) for status, items in by_status.items()},
         "units_with_text_signal_issues": len(units_with_issues),
+        "wall_seconds": wall_seconds,
+        "avg_unit_seconds": round(sum(per_unit_seconds) / len(per_unit_seconds), 2) if per_unit_seconds else 0.0,
+        "concurrency": concurrency,
         "family_summary": family_summary,
         "units": {r["unit_id"]: r for r in all_results},
     }
