@@ -11,7 +11,7 @@ THE CONTRACT (do not change the shapes — this is what lets us integrate):
     build_draws(panels, assets, horizons, asof, adjustments, n_draws, seed) -> np.ndarray
                                                      shape = (n_draws, n_assets, n_horizons)
 
-Runs offline with numpy + pyarrow only.
+Runs offline with numpy + pyarrow; the F1 M2 path (f1_pipeline/m2_unit.py) also needs pandas.
 """
 
 from __future__ import annotations
@@ -68,9 +68,18 @@ def read_text_signal(text_dir: pathlib.Path, assets: list[str]) -> dict[str, dic
 
 
 # ============================================================================
-#  OWNER: DEW  ·  the time-series / numbers part   branch: feat/timeseries
+#  OWNER: DEW  ·  the time-series / numbers part   branch: feat/model
 #  Turn the panels (+ Nish's adjustments) into correlated joint draws.
 # ============================================================================
+#: Families whose LEVEL cards use M2 (f1_pipeline/m2_unit.py) instead of the random walk below.
+#: M2 was built and tuned on F1 only (f1_pipeline notebooks 01-04); other families keep the
+#: random walk until M2 is measured on them.
+_M2_FAMILIES = {"T2-F1"}
+
+#: Which base produced the last build_draws() call -- read by main() for the rationale.
+_last_base = "random walk"
+
+
 def build_draws(
     panels: dict[str, "pa.Table"],
     assets: list[str],
@@ -79,14 +88,32 @@ def build_draws(
     adjustments: dict[str, dict[str, float]],
     n_draws: int,
     seed: int,
+    *,
+    target_type: str | None = None,
+    family: str | None = None,
 ) -> np.ndarray:
-    """Joint Gaussian random walk, correlated ACROSS assets, with Nish's adjustments applied.
-    Returns array of shape (n_draws, n_assets, n_horizons).
+    """Joint draws with Nish's adjustments applied. Returns (n_draws, n_assets, n_horizons).
 
-    BASELINE: single shared correlated roll per draw (Cholesky), tilted per-asset by `skew`
-    (see below). Improve me: real correlation from history, fat tails (Student-t) for shock
-    cards, a skew that reaches across assets instead of only within one.
+    F1 LEVEL cards (`family` in _M2_FAMILIES and `target_type == "level"`): M2 -- ridge centre,
+    ridge log-variance width, and a joint bootstrap of standardised residuals (one historical
+    date per draw, shared by every cell). `shift` moves the centre, `widen` scales sigma; `skew`
+    is not applied, since the residual pool already carries the shape. Any M2 failure falls back
+    to the random walk rather than crashing the card.
+
+    Everything else, and callers that pass neither keyword: the random walk below -- one
+    shared correlated roll per draw (Cholesky), tilted per-asset by `skew` when enabled.
     """
+    global _last_base
+    if target_type == "level" and family in _M2_FAMILIES:
+        try:
+            out = _m2_draws(panels, assets, horizons, asof, adjustments, n_draws, seed)
+            _last_base = "M2"
+            return out
+        except Exception as exc:  # a crashed card scores worst-case; the random walk does not
+            print(f"[m2] {type(exc).__name__}: {exc}; falling back to the random walk",
+                  file=sys.stderr)
+    _last_base = "random walk"
+
     rng = np.random.default_rng(seed)
     hist = {a: _series(panels, a, asof) for a in assets}
     diffs = np.array(
@@ -126,6 +153,26 @@ def build_draws(
         tilted = _skew_tilt(z, u, skew)
         out[:, :, hi] = center + tilted * (sd * widen * np.sqrt(h))
     return out
+
+
+def _m2_draws(
+    panels: dict[str, "pa.Table"],
+    assets: list[str],
+    horizons: list[int],
+    asof: str,
+    adjustments: dict[str, dict[str, float]],
+    n_draws: int,
+    seed: int,
+) -> np.ndarray:
+    """M2 fitted at `asof` on the panel that holds every asset, then notebook 04's joint draw."""
+    from f1_pipeline import m2_unit as m2
+
+    unit = m2.unit_from_panels(panels, assets, horizons, asof, target_type="level")
+    fits = [m2.fit_m2(c) for c in m2.build_features(unit)]  # asset-major, then horizon: card order
+    shift = [adjustments.get(f.asset, {}).get("shift", 0.0) for f in fits]
+    widen = [adjustments.get(f.asset, {}).get("widen", 1.0) for f in fits]
+    samples = m2.draw_joint(fits, n_draws, seed, shift, widen)
+    return samples.reshape(n_draws, len(assets), len(horizons))
 
 
 #: The skew-normal family's sample skewness is bounded (|.| < ~0.995 as shape -> infinity) and
@@ -220,7 +267,9 @@ def main(argv: list[str] | None = None) -> int:
 
     panels = _read_panels(a.panels)
     adjustments = read_text_signal(a.text, assets)          # NISH
-    samples = build_draws(panels, assets, horizons, a.asof, adjustments, n_draws, a.seed)  # DEW
+    samples = build_draws(panels, assets, horizons, a.asof, adjustments, n_draws, a.seed,  # DEW
+                          target_type=tgt.get("target_type"),
+                          family=card.get("metadata", {}).get("category"))
 
     # write the 3 required files
     out_dir = a.out.parent
@@ -264,9 +313,14 @@ def main(argv: list[str] | None = None) -> int:
     (out_dir / "forecast_rationale.md").write_text(
         f"# Forecast rationale — {unit_id}\n\n"
         f"Joint draws for {', '.join(assets)} at horizons {horizons}, as of {a.asof}.\n"
-        f"Base: correlated Gaussian random walk from panel history "
-        f"(skew implemented but disabled pending measurement -- see _SKEW_ENABLED).\n"
-        f"Text used: {'yes' if used_text else 'no (baseline stub)'}.\n"
+        + (
+            "Base: M2 -- ridge location-scale fitted on panel history, joint bootstrap of "
+            "standardised residuals (f1_pipeline/m2_unit.py).\n"
+            if _last_base == "M2" else
+            "Base: correlated Gaussian random walk from panel history "
+            "(skew implemented but disabled pending measurement -- see _SKEW_ENABLED).\n"
+        )
+        + f"Text used: {'yes' if used_text else 'no (baseline stub)'}.\n"
     )
     print(f"wrote forecast.parquet + sidecars to {out_dir} "
           f"({len(assets)} assets x {len(horizons)} horizons, {n_draws} draws)")
