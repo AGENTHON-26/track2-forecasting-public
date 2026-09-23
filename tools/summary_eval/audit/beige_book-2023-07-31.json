@@ -1,0 +1,20 @@
+{
+ "doc_id": "beige_book-2023-07-31",
+ "labels": {
+  "p1": true,
+  "p2": true,
+  "p3": true,
+  "p4": true,
+  "p5": true,
+  "p6": true,
+  "p7": true,
+  "p8": true,
+  "p9": false,
+  "p10": false,
+  "p11": false
+ },
+ "notes": {
+  "p9": "no Atlanta Fed unit-cost figures",
+  "p11": "Philadelphia never named"
+ }
+}

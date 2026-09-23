@@ -1,0 +1,294 @@
+{
+ "doc_id": "beige_book-2022-07-31",
+ "doc_type": "beige_book",
+ "points": [
+  {
+   "id": "p1",
+   "point": "The outlook for future growth turned mostly negative across reporting Districts, with contacts expecting demand to weaken further over the next six to twelve months.",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(outlook.{0,60}negative|negative.{0,60}outlook).{0,80}(weaken\\w*|soften\\w*|slow\\w*|declin\\w*|cool\\w*)",
+    "(weaken\\w*|soften\\w*|slow\\w*|declin\\w*|cool\\w*).{0,80}(outlook.{0,60}negative|negative.{0,60}outlook)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "outlook.{0,60}(mostly |largely )?positive",
+    "outlook.{0,60}negative.{0,80}(strengthen\\w*|improv\\w*|accelerat\\w*)"
+   ],
+   "quote": "the outlook for future economic growth was mostly negative among reporting Districts, with contacts noting expectations for further weakening of demand over the next six to twelve months",
+   "paraphrases": [
+    "Districts' forward outlook turned mostly negative, with demand expected to weaken further over the next 6-12 months.",
+    "Most reporting Districts saw a negative outlook, anticipating continued demand weakening over the coming 6 to 12 months.",
+    "The growth outlook remained mostly negative, with contacts expecting demand to keep softening over the next couple of quarters."
+   ],
+   "decoys": [
+    "The outlook for future economic growth turned mostly positive among reporting Districts, with contacts expecting demand to strengthen.",
+    "The outlook for near-term inflation was mostly negative among reporting Districts."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Contacts in five Districts explicitly flagged an increased risk of recession, consistent with a mostly negative outlook.",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(five|(?<!\\d)5(?!\\d)).{0,20}districts?.{0,60}recession",
+    "recession.{0,60}(five|(?<!\\d)5(?!\\d)).{0,20}districts?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "recession.{0,30}(eased|diminished|abated|receded|subsided)",
+    "no (increased )?risk of (a )?recession"
+   ],
+   "quote": "contacts in five Districts noted concerns over an increased risk of a recession",
+   "paraphrases": [
+    "Five Districts cited growing recession risk as demand slows.",
+    "Contacts in 5 of 12 Districts flagged rising odds of a recession.",
+    "Outlook turned mostly negative, with recession concerns cited in five Districts."
+   ],
+   "decoys": [
+    "Recession fears eased across most Districts as growth accelerated.",
+    "Contacts in two Districts noted concerns about recession risk."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "New York (Second District) growth nearly stalled",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "(new york|ny fed|second district).{0,80}(slowed to a crawl|near.?halt|ground to a (near )?halt|nearly stalled|stalled)",
+    "(slowed to a crawl|near.?halt|ground to a (near )?halt|nearly stalled|stalled).{0,80}(new york|ny fed|second district)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "New York Economic growth slowed to a crawl in the latest reporting period",
+   "paraphrases": [
+    "New York (Second District) growth slowed to a crawl amid weak household and business demand.",
+    "The NY Fed district's economy nearly stalled as demand cooled and supply backlogs persisted.",
+    "Growth in the New York Fed District ground to a near halt in the latest period."
+   ],
+   "decoys": [
+    "New York growth accelerated sharply in the latest period.",
+    "Philadelphia growth slowed to a crawl in the latest period."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Nationally, economic activity expanded at a modest pace on balance, in contrast to New York's near-stall",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(economic activity|the economy|growth|activity).{0,60}(modest pace|was modest|remained modest)|(modest pace|was modest|remained modest).{0,60}(economic activity|the economy|growth|activity)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "economic activity.{0,60}(contract\\w*|declin\\w*|recession)"
+   ],
+   "quote": "Economic activity expanded at a modest pace, on balance, since mid-May",
+   "paraphrases": [
+    "Nationally, economic activity expanded at a modest pace on balance.",
+    "Overall growth was modest since mid-May, Districts reported.",
+    "On balance, the economy grew at a modest pace since mid-May."
+   ],
+   "decoys": [
+    "Economic activity contracted at a modest pace since mid-May.",
+    "New York growth slowed to a crawl in the latest reporting period."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Labor availability improved modestly in nearly all Districts amid weaker demand for workers",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(labor availability|worker availability|labor shortages|hiring (difficulty|challenges)|finding (workers|staff)).{0,80}(improv\\w*|eas\\w*|soften\\w*|better|less (severe|difficult|acute))",
+    "(improv\\w*|eas\\w*|soften\\w*|better|less (severe|difficult|acute)).{0,80}(labor availability|worker availability|labor shortages|hiring (difficulty|challenges)|finding (workers|staff))"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(labor availability|worker availability).{0,40}(worsen\\w*|declin\\w*|deteriorat\\w*|tighten\\w*)"
+   ],
+   "quote": "nearly all Districts noted modest improvements in labor availability amid weaker demand for workers",
+   "paraphrases": [
+    "Nearly every District saw some easing in labor shortages as demand for workers softened.",
+    "Hiring got slightly easier almost everywhere as labor availability improved a bit.",
+    "Most Districts reported modestly better worker availability."
+   ],
+   "decoys": [
+    "Labor availability worsened further in nearly all Districts.",
+    "A third of Districts noted modest improvements in capital availability."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Labor market conditions remained tight overall",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "condition\\w*.{0,40}remain\\w*.{0,40}tight|tight.{0,40}remain\\w*.{0,40}condition\\w*",
+    "labor market\\w*.{0,40}(remain\\w*)?.{0,20}tight"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "labor market\\w*.{0,40}(loosen\\w*|slack|easing considerably)"
+   ],
+   "quote": "Most Districts continued to report that employment rose at a modest to moderate pace and conditions remained tight overall.",
+   "paraphrases": [
+    "Labor market conditions remained tight overall despite the improvement in availability.",
+    "Overall, labor markets stayed tight.",
+    "Conditions in the labor market remained tight on the whole."
+   ],
+   "decoys": [
+    "Labor market conditions loosened substantially overall.",
+    "Labor availability improved modestly in nearly all Districts."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Substantial price increases were reported across all Districts, at all stages of consumption",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "substantial price increase\\w*.{0,60}(all|every) districts?|(all|every) districts?.{0,60}substantial price increase\\w*",
+    "price increase\\w*.{0,40}substantial.{0,40}(all|every) districts?|(all|every) districts?.{0,40}substantial.{0,40}price increase\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "price increase\\w*.{0,60}(modest|small|minor|slight)"
+   ],
+   "quote": "Substantial price increases were reported across all Districts, at all stages of consumption, though three quarters noted moderation in prices for construction inputs such as lumber and steel.",
+   "paraphrases": [
+    "Substantial price increases continued across all Districts.",
+    "Every District reported substantial price increases at all stages of consumption.",
+    "Price increases remained substantial nationwide, across all Districts."
+   ],
+   "decoys": [
+    "Price increases were minor across most Districts.",
+    "Three quarters of Districts noted moderation in prices for lumber and steel."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Three quarters of Districts noted moderation in prices for construction inputs such as lumber and steel",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(lumber|steel).{0,80}(moderat\\w*|eas\\w*|slow\\w*|declin\\w*|fell|fall\\w*)",
+    "(moderat\\w*|eas\\w*|slow\\w*|declin\\w*|fell|fall\\w*).{0,80}(lumber|steel)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(lumber|steel).{0,40}(accelerat\\w*|surg\\w*|spik\\w*|jump\\w*|soar\\w*)",
+    "(accelerat\\w*|surg\\w*|spik\\w*|jump\\w*|soar\\w*).{0,80}(lumber|steel)"
+   ],
+   "quote": "Substantial price increases were reported across all Districts, at all stages of consumption, though three quarters noted moderation in prices for construction inputs such as lumber and steel.",
+   "paraphrases": [
+    "Prices kept rising broadly, but lumber and steel cost increases moderated in three-quarters of Districts.",
+    "Input cost pressures stayed strong overall, with some easing in construction material prices like lumber and steel.",
+    "Price gains remained widespread, though building materials such as steel and lumber saw slower cost increases."
+   ],
+   "decoys": [
+    "Price increases accelerated further for construction inputs such as lumber and steel.",
+    "Half of Districts noted moderation in prices for energy and food."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Housing demand weakened noticeably as affordability concerns and rising mortgage rates cooled sales.",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "housing demand.{0,80}(weaken\\w*|cool\\w*|soften\\w*|declin\\w*|fell|fall\\w*|eas\\w*)",
+    "(weaken\\w*|cool\\w*|soften\\w*|declin\\w*|fell|fall\\w*|eas\\w*).{0,80}housing demand"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "housing demand.{0,60}(strengthen\\w*|increas\\w*|ris\\w*|robust|solid|strong)"
+   ],
+   "quote": "Housing demand weakened noticeably as growing concerns about affordability contributed to non-seasonal declines in sales",
+   "paraphrases": [
+    "Housing demand cooled sharply on affordability worries, pushing sales down outside the usual season.",
+    "Rising mortgage rates and affordability concerns weighed on home sales, weakening housing demand.",
+    "Housing demand softened markedly as buyers grew more concerned about affordability."
+   ],
+   "decoys": [
+    "Housing demand strengthened noticeably as affordability concerns eased.",
+    "Commercial real estate demand weakened noticeably amid affordability concerns."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Consumer spending moderated broadly as higher food and gas prices ate into households' discretionary income.",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "consumer spending.{0,80}(moderat\\w*|slow\\w*|cool\\w*|declin\\w*|weaken\\w*|soften\\w*)",
+    "(moderat\\w*|slow\\w*|cool\\w*|declin\\w*|weaken\\w*|soften\\w*).{0,80}consumer spending"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "consumer spending.{0,60}(accelerat\\w*|increas\\w*|ris\\w*|robust|strong|surg\\w*)"
+   ],
+   "quote": "Most Districts reported that consumer spending moderated as higher food and gas prices diminished households' discretionary income.",
+   "paraphrases": [
+    "Consumer spending slowed in most Districts as pricier food and gas cut into discretionary income.",
+    "Higher gas and food costs squeezed household budgets, moderating consumer spending across most Districts.",
+    "Households pulled back on discretionary spending as food and fuel prices climbed, cooling consumer spending."
+   ],
+   "decoys": [
+    "Consumer spending accelerated in most Districts despite higher food and gas prices.",
+    "Business investment moderated as higher food and gas prices weighed on firms."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "The Atlanta Fed's Business Inflation Expectations survey showed year-over-year unit cost growth ticking up to 4.3 percent",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "atlanta.{0,140}(?<!\\d)4\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)4\\.3(?!\\d)\\s?(percent|%).{0,140}atlanta"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "atlanta.{0,80}(?<!\\d)3\\.7(?!\\d)\\s?(percent|%)"
+   ],
+   "quote": "The Atlanta Fed's Business Inflation Expectations survey showed year-over-year unit cost growth ticked up slightly to 4.3 percent, on average, from 4.2 percent in May.",
+   "paraphrases": [
+    "Atlanta's BIE survey showed unit cost growth at 4.3% in June.",
+    "The Atlanta Fed survey found year-over-year unit costs at 4.3 percent.",
+    "Business Inflation Expectations data showed unit costs up 4.3%, per the Atlanta Fed."
+   ],
+   "decoys": [
+    "The Atlanta Fed's survey showed unit cost growth falling to 3.7 percent.",
+    "Unit cost growth ticked up from 4.2 percent in May."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "That 4.3 percent unit cost reading was up from 4.2 percent in May",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)4\\.2(?!\\d)\\s?(percent|%).{0,40}may|may.{0,40}(?<!\\d)4\\.2(?!\\d)\\s?(percent|%)",
+    "(up|ticked up|rose|increased|increase\\w*).{0,20}from.{0,20}(?<!\\d)4\\.2(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)4\\.7(?!\\d)\\s?percent.{0,20}may"
+   ],
+   "quote": "The Atlanta Fed's Business Inflation Expectations survey showed year-over-year unit cost growth ticked up slightly to 4.3 percent, on average, from 4.2 percent in May.",
+   "paraphrases": [
+    "Unit costs were up from 4.2 percent in May.",
+    "That was an increase from 4.2 percent the prior month.",
+    "The reading rose from May's 4.2 percent."
+   ],
+   "decoys": [
+    "That was down from 4.7 percent in May.",
+    "Atlanta's BIE survey showed unit cost growth at 4.3% in June."
+   ]
+  }
+ ]
+}

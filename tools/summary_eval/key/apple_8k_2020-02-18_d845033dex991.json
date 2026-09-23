@@ -1,0 +1,127 @@
+{
+  "doc_id": "apple_8k_2020-02-18_d845033dex991",
+  "doc_type": "corporate_8k",
+  "points": [
+    {
+      "id": "p1",
+      "tier": "must",
+      "kind": "concept",
+      "point": "Apple will not meet the revenue guidance it provided for the March quarter, due to COVID-19",
+      "patterns": [
+        "(guidance|outlook|forecast).{0,80}(not (expect(ed)? to )?meet|won'?t meet|miss|fall short|below|cut|lower|withdraw)|(not (expect(ed)? to )?meet|won'?t meet|miss|fall short|below|cut|lower|withdraw).{0,80}(guidance|outlook|forecast)",
+        "march"
+      ],
+      "match": "all",
+      "not_patterns": [
+        "(guidance|outlook|forecast).{0,80}(exceed|beat|reaffirm|on track|expects? to meet|maintain(s|ed)?)",
+        "(exceed|beat|reaffirm|on track|expects? to meet|maintain(s|ed)?).{0,80}(guidance|outlook|forecast)"
+      ],
+      "quote": "we do not expect to meet the revenue guidance we provided for the March quarter due to two main factors",
+      "paraphrases": [
+        "Apple said it will not meet the revenue guidance it gave for the March quarter because of COVID-19 disruptions.",
+        "Apple withdrew/cut its March-quarter revenue outlook, citing the coronavirus impact.",
+        "The company now expects to fall short of its previously issued March-quarter revenue guidance."
+      ],
+      "decoys": [
+        "Apple reaffirmed its revenue guidance for the March quarter despite the COVID-19 outbreak.",
+        "Apple withdrew its revenue guidance for the December quarter due to COVID-19."
+      ]
+    },
+    {
+      "id": "p2",
+      "tier": "must",
+      "kind": "concept",
+      "point": "Worldwide iPhone supply will be temporarily constrained because manufacturing partners are ramping up more slowly than anticipated",
+      "patterns": [
+        "(iphone).{0,80}(constrain|shortage|limited|reduced supply|supply shortfall|scarce)|(constrain|shortage|limited|reduced supply|supply shortfall|scarce).{0,80}(iphone)"
+      ],
+      "match": "any",
+      "not_patterns": [
+        "iphone.{0,80}(no longer constrain|normali[sz]ed|ample|surplus|resolved)",
+        "(no longer constrain|normali[sz]ed|ample|surplus|resolved).{0,80}iphone"
+      ],
+      "quote": "worldwide iPhone supply will be temporarily constrained",
+      "paraphrases": [
+        "Worldwide iPhone supply will be temporarily constrained as manufacturing partners ramp up more slowly than expected.",
+        "iPhone supply shortages, driven by a slower-than-expected factory ramp outside Hubei, will weigh on near-term shipments.",
+        "Apple flagged a temporary iPhone supply shortfall due to delays in the China manufacturing ramp-up."
+      ],
+      "decoys": [
+        "Apple said iPhone supply has fully normalized and is no longer constrained.",
+        "Apple said iPad supply will be temporarily constrained due to the factory ramp."
+      ]
+    },
+    {
+      "id": "p3",
+      "tier": "must",
+      "kind": "concept",
+      "point": "Demand in China has been affected: Apple stores and many partner stores closed or operated with reduced hours and low traffic",
+      "patterns": [
+        "(china).{0,80}(clos(e|ed|ure)|shut|reduced (hours|traffic)|low(er)? (customer )?traffic|demand.{0,20}affected|affected demand)|(clos(e|ed|ure)|shut|reduced (hours|traffic)|low(er)? (customer )?traffic|demand.{0,20}affected|affected demand).{0,80}(china)"
+      ],
+      "match": "any",
+      "not_patterns": [
+        "china.{0,80}(fully recovered|reopened normally|strong demand|robust demand)",
+        "(fully recovered|reopened normally|strong demand|robust demand).{0,80}china"
+      ],
+      "quote": "All of our stores in China and many of our partner stores have been closed.",
+      "paraphrases": [
+        "Apple said demand in China has been hurt as stores remain closed or operating with reduced hours and low traffic.",
+        "Most Apple retail and partner stores in China were shut, weighing on near-term demand.",
+        "China demand for Apple products has softened amid store closures and low customer traffic."
+      ],
+      "decoys": [
+        "Apple said demand in China has fully recovered as all stores have reopened normally.",
+        "Apple said demand in Japan has been affected by store closures and reduced traffic."
+      ]
+    },
+    {
+      "id": "p4",
+      "tier": "should",
+      "kind": "concept",
+      "point": "Outside of China, customer demand has remained strong and in line with expectations",
+      "patterns": [
+        "(outside (of )?china|ex-?china).{0,80}(strong|in line|robust|healthy|resilient)|(strong|in line|robust|healthy|resilient).{0,80}(outside (of )?china|ex-?china)"
+      ],
+      "match": "any",
+      "not_patterns": [
+        "(outside (of )?china|ex-?china).{0,80}(weak|soft|declin|affected|hurt)",
+        "(weak|soft|declin|affected|hurt).{0,80}(outside (of )?china|ex-?china)"
+      ],
+      "quote": "Outside of China, customer demand across our product and service categories has been strong to date and in line with our expectations.",
+      "paraphrases": [
+        "Demand outside of China has remained strong and in line with expectations.",
+        "Ex-China, customer demand across Apple's product and service categories stayed healthy.",
+        "Apple said sales trends outside China were robust and matched prior expectations."
+      ],
+      "decoys": [
+        "Demand outside of China has weakened and fallen short of expectations.",
+        "Demand within China has remained strong and in line with expectations."
+      ]
+    },
+    {
+      "id": "p5",
+      "tier": "should",
+      "kind": "concept",
+      "point": "Apple will provide more information on the impact during its next earnings call in April, without issuing new specific guidance now",
+      "patterns": [
+        "(april).{0,80}(earnings call|more information|update)|(earnings call|more information|update).{0,80}(april)"
+      ],
+      "match": "any",
+      "not_patterns": [
+        "(january|february|march|may|june)\\b.{0,80}(earnings call)",
+        "(earnings call).{0,80}(january|february|march|may|june)\\b"
+      ],
+      "quote": "The situation is evolving, and we will provide more information during our next earnings call in April.",
+      "paraphrases": [
+        "Apple said it will share more details on the financial impact during its April earnings call.",
+        "No updated guidance was given; Apple will address the impact on the next earnings call in April.",
+        "Apple plans to provide further updates at its earnings call in April as the situation evolves."
+      ],
+      "decoys": [
+        "Apple provided updated specific revenue guidance for the March quarter today.",
+        "Apple said it will provide more information during its next earnings call in July."
+      ]
+    }
+  ]
+}

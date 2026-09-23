@@ -1,0 +1,252 @@
+{
+ "doc_id": "cftc_cot_crude_2020",
+ "doc_type": "positioning_report",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Latest net long crude position is 431,466 contracts (week of 2020-02-25)",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(net long|net position|noncomm net).{0,60}(?<!\\d)431,?466(?!\\d)",
+    "(?<!\\d)431,?466(?!\\d).{0,60}(net long|net position|contracts)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(net short|short position).{0,40}(?<!\\d)431,?466(?!\\d)",
+    "(?<!\\d)431,?466(?!\\d).{0,40}(net short|short position)"
+   ],
+   "quote": "2020-02-25 2179833 558798 127332 431466",
+   "paraphrases": [
+    "Net long crude positioning stood at 431,466 contracts as of Feb 25.",
+    "Speculators' net long crude position was 431,466 contracts in the latest report.",
+    "Non-commercial net length: 431,466 contracts (week of Feb 25)."
+   ],
+   "decoys": [
+    "Net short crude position of 431,466 contracts in the latest report.",
+    "Net long crude positioning stood at 461,466 contracts as of Feb 25."
+   ],
+   "source_pattern": [
+    "(?<!\\d)431,?466(?!\\d)"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "That's up from a recent trough of 396,769 contracts (week of 2020-02-11)",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(up from|rose from|climbed from|recovered from).{0,40}(?<!\\d)396,?769(?!\\d)",
+    "(?<!\\d)396,?769(?!\\d).{0,60}(trough|low point|recent low|prior week|2020-02-11|Feb 11)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(down from|fell from|declined from|dropped from).{0,40}(?<!\\d)396,?769(?!\\d)",
+    "(?<!\\d)396,?769(?!\\d).{0,40}(down from|fell from|declined from|dropped from)"
+   ],
+   "quote": "2020-02-11 2213522 577155 180386 396769 2020-02-18 2138168 571252 159488 411764 2020-02-25 2179833 558798 127332 431466",
+   "paraphrases": [
+    "That's up from a recent trough of 396,769 contracts.",
+    "Net long crude positioning recovered from a low near 396,769 in mid-February.",
+    "Speculative net length climbed from 396,769 contracts the prior low point."
+   ],
+   "decoys": [
+    "That's down from a recent trough of 396,769 contracts.",
+    "Net long crude positioning stayed flat near 420,000 contracts, well above any recent trough."
+   ],
+   "source_pattern": [
+    "(?<!\\d)396,?769(?!\\d)"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Net long crude positioning peaked at 567,272 contracts on 2020-01-07, its high for the period, before unwinding sharply as crude sold off",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(peak|highest|high|record|largest).{0,60}(?<!\\d)567,?272(?!\\d)",
+    "(?<!\\d)567,?272(?!\\d).{0,60}(peak|highest|high|record|largest)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(low|lowest|trough|bottom).{0,60}(?<!\\d)567,?272(?!\\d)",
+    "(?<!\\d)567,?272(?!\\d).{0,60}(low|lowest|trough|bottom)"
+   ],
+   "quote": "2020-01-07 2244930 639009 71737 567272",
+   "paraphrases": [
+    "Net long crude positioning peaked at 567,272 contracts on Jan 7 before unwinding sharply.",
+    "Speculative net length hit a period high of 567,272 contracts in early January.",
+    "The largest net long of the period was 567,272 contracts (Jan 7), well above the latest reading."
+   ],
+   "decoys": [
+    "Net long crude positioning bottomed at 567,272 contracts on Jan 7 before recovering.",
+    "Net long crude positioning peaked at 537,272 contracts on Jan 7."
+   ],
+   "source_pattern": [
+    "(?<!\\d)567,?272(?!\\d)"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Gross short crude positions were 78,660 contracts on 2020-01-21",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(gross short|noncomm short|\\bshorts?\\b).{0,60}(?<!\\d)78,?660(?!\\d)",
+    "(?<!\\d)78,?660(?!\\d).{0,60}(\\bshorts?\\b|contracts short)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(gross long|long position|longs).{0,40}(?<!\\d)78,?660(?!\\d)"
+   ],
+   "quote": "2020-01-21 2146832 599228 78660 520568",
+   "paraphrases": [
+    "Gross short crude positions were 78,660 contracts on Jan 21.",
+    "Speculative short crude bets stood at 78,660 contracts in late January.",
+    "The short side of the crude book was just 78,660 contracts in late January."
+   ],
+   "decoys": [
+    "Gross long crude positions were 78,660 contracts on Jan 21.",
+    "Gross short crude positions were 87,660 contracts on Jan 21."
+   ],
+   "source_pattern": [
+    "(?<!\\d)78,?660(?!\\d)"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Gross short crude positions surged to a period-high 180,386 by 2020-02-11, a sharp increase, not a decrease",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?<!\\d)180,?386(?!\\d).{0,80}(surge|jump|rose|rising|increas|climb|higher|grew|grow|built|build|widen|doubl)",
+    "(surge|jump|rose|rising|increas|climb|higher|grew|grow|built|build|widen|doubl).{0,80}(?<!\\d)180,?386(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)180,?386(?!\\d).{0,80}(decreas|fell|fall|falling|dropped|drop|declin|reduc|shrank|shrink|lower|small)",
+    "(decreas|fell|fall|falling|dropped|drop|declin|reduc|shrank|shrink|lower|small).{0,80}(?<!\\d)180,?386(?!\\d)"
+   ],
+   "quote": "2020-02-11 2213522 577155 180386 396769",
+   "paraphrases": [
+    "Gross short crude bets surged to a period-high 180,386 contracts by Feb 11.",
+    "Speculative short crude positioning more than doubled to 180,386 contracts by mid-February.",
+    "Bearish crude bets jumped to a high of 180,386 contracts on Feb 11."
+   ],
+   "decoys": [
+    "Gross short crude bets fell to 180,386 contracts by Feb 11.",
+    "Gross short crude bets surged to 160,386 contracts by Feb 11."
+   ],
+   "source_pattern": [
+    "(?<!\\d)78,?660(?!\\d)",
+    "(?<!\\d)180,?386(?!\\d)"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Gross short crude positions then eased from the 180,386 peak to 127,332 by 2020-02-25, a partial reversal of the spike",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)127,?332(?!\\d).{0,80}(down|fell|fall|falling|decreas|declin|dropped|drop|reduc|retreat|par|eas|small)",
+    "(down|fell|fall|falling|decreas|declin|dropped|drop|reduc|retreat|par|eas|small).{0,80}(?<!\\d)127,?332(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)127,?332(?!\\d).{0,80}(rose|rise|risen|increas|climb|higher|grew|grow|surge|jump)",
+    "(rose|rise|risen|increas|climb|higher|grew|grow|surge|jump).{0,80}(?<!\\d)127,?332(?!\\d)"
+   ],
+   "quote": "2020-02-25 2179833 558798 127332 431466",
+   "paraphrases": [
+    "Gross short crude bets eased to 127,332 contracts by Feb 25, down from the Feb 11 peak of 180,386.",
+    "Bearish crude positioning retreated to 127,332 contracts in the latest week.",
+    "Short crude bets fell back to 127,332 contracts, off their mid-February high."
+   ],
+   "decoys": [
+    "Gross short crude bets rose to 127,332 contracts by Feb 25.",
+    "Gross short crude bets eased to 137,332 contracts by Feb 25."
+   ],
+   "source_pattern": [
+    "(?<!\\d)127,?332(?!\\d)"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Open interest hit a period high of 2,271,741 contracts on 2020-02-04",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(peak|high|highest|record).{0,60}(?<!\\d)2,?271,?741(?!\\d)",
+    "(?<!\\d)2,?271,?741(?!\\d).{0,60}(peak|high|highest|record)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(low|lowest|bottom|trough).{0,60}(?<!\\d)2,?271,?741(?!\\d)",
+    "(?<!\\d)2,?271,?741(?!\\d).{0,60}(low|lowest|bottom|trough)"
+   ],
+   "quote": "2020-02-04 2271741 576917 179543 397374",
+   "paraphrases": [
+    "Open interest in crude futures peaked at 2,271,741 contracts on Feb 4.",
+    "Total open interest hit a period high of 2,271,741 contracts in early February.",
+    "Crude open interest reached its highest point of the period, 2,271,741 contracts, on Feb 4."
+   ],
+   "decoys": [
+    "Open interest in crude futures bottomed at 2.27 million contracts on Feb 4.",
+    "Open interest in crude futures peaked at 2,371,741 contracts on Feb 4."
+   ],
+   "source_pattern": [
+    "(?<!\\d)2,?271,?741(?!\\d)"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Open interest eased to 2,179,833 contracts by the latest week, down from the February peak",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(open interest).{0,60}(?<!\\d)2,?179,?833(?!\\d)",
+    "(?<!\\d)2,?179,?833(?!\\d).{0,60}(open interest)",
+    "(eas\\w*|declin\\w*|fell|lower|dipped|slipped).{0,60}(?<!\\d)2,?179,?833(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)2,?179,?833(?!\\d).{0,20}(a (new )?(peak|record|high)\\b|its highest)",
+    "(peaked at|a (new )?(peak|record|high)\\b|its highest).{0,20}(?<!\\d)2,?179,?833(?!\\d)",
+    "(?<!\\d)2,?179,?833(?!\\d).{0,60}(ris\\w*|climb\\w*|higher)",
+    "(ris\\w*|climb\\w*|higher).{0,60}(?<!\\d)2,?179,?833(?!\\d)"
+   ],
+   "quote": "2020-02-25 2179833 558798 127332 431466",
+   "paraphrases": [
+    "Open interest eased to 2,179,833 contracts by the latest week.",
+    "Total open interest slipped to about 2,179,833 contracts, down from the February peak.",
+    "Crude open interest declined to 2,179,833 contracts in the most recent report."
+   ],
+   "decoys": [
+    "Open interest rose to 2,179,833 contracts, a new high.",
+    "Open interest eased to 2,079,833 contracts by the latest week."
+   ],
+   "source_pattern": [
+    "(?<!\\d)2,?179,?833(?!\\d)"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "The unwind of net long crude positioning from January's peak coincided with emerging COVID-19 demand fears, presaging further declines in oil prices",
+   "tier": "should",
+   "kind": "judge_only",
+   "patterns": [],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "2020-02-25 2179833 558798 127332 431466",
+   "paraphrases": [
+    "The retreat in bullish crude bets since early January lines up with growing COVID-19 demand concerns.",
+    "Speculative net length unwound as oil markets began pricing in a demand shock from the emerging pandemic.",
+    "Fading net long crude positioning in February foreshadowed the sharper price declines that followed."
+   ],
+   "decoys": [
+    "The retreat in bullish crude bets since early January was unrelated to any pandemic-related demand concerns.",
+    "Speculative net length built steadily through February as demand concerns eased."
+   ]
+  }
+ ]
+}

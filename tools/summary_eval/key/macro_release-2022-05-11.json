@@ -1,0 +1,314 @@
+{
+ "doc_id": "macro_release-2022-05-11",
+ "doc_type": "macro_release",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Headline CPI rose 8.3% year-over-year in April",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The all items index increased 8.3 percent for the 12 months ending April, a smaller increase than the 8.5-percent figure for the period ending in March.",
+   "paraphrases": [
+    "Headline CPI rose 8.3% year-over-year in April.",
+    "All items CPI increased 8.3 percent over the past 12 months.",
+    "Annual headline inflation was 8.3% in April."
+   ],
+   "decoys": [
+    "Core CPI rose 8.3% year-over-year in April.",
+    "Headline CPI rose 8.5% year-over-year in April."
+   ],
+   "patterns": [
+    "(headline|all items).{0,60}(?<!\\d)8\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)8\\.3(?!\\d)\\s?(percent|%).{0,60}(headline|all items)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,20}(?<!\\d)8\\.3(?!\\d)",
+    "(?<!\\d)8\\.3(?!\\d).{0,20}core"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "March's year-over-year headline CPI was 8.5%, making April's 8.3% a slight deceleration",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The all items index increased 8.3 percent for the 12 months ending April, a smaller increase than the 8.5-percent figure for the period ending in March.",
+   "paraphrases": [
+    "Headline CPI rose 8.3% in April, down from 8.5% in March.",
+    "March's year-over-year headline CPI was 8.5%, a bit higher than April's 8.3%.",
+    "The annual rate eased from 8.5% in March to 8.3% in April."
+   ],
+   "decoys": [
+    "Headline CPI accelerated to 8.5% year-over-year in April.",
+    "CPI rose 8.3% in March, down from April's 8.5%."
+   ],
+   "patterns": [
+    "(?<!\\d)8\\.5(?!\\d)\\s?-?\\s?(percent|%).{0,40}march",
+    "march.{0,40}(?<!\\d)8\\.5(?!\\d)\\s?-?\\s?(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,20}(?<!\\d)8\\.5(?!\\d).{0,20}march",
+    "core.{0,20}march.{0,20}(?<!\\d)8\\.5(?!\\d)",
+    "april('s)?\\s*(?<!\\d)8\\.5(?!\\d)",
+    "(?<!\\d)8\\.5(?!\\d)\\s?-?\\s?(percent|%)\\s*(in|during|for)?\\s*april"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Core CPI (all items less food and energy) rose 6.2% year-over-year in April",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The index for all items less food and energy rose 6.2 percent over the past 12 months.",
+   "paraphrases": [
+    "Core CPI (ex food & energy) rose 6.2% year-over-year in April.",
+    "Core inflation was 6.2% y/y in April.",
+    "Core prices, excluding food and energy, rose 6.2 percent from a year earlier."
+   ],
+   "decoys": [
+    "Core CPI eased to 5.9% year-over-year in April.",
+    "Headline CPI rose 6.2% year-over-year in April."
+   ],
+   "patterns": [
+    "core.{0,60}(?<!\\d)6\\.2(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)6\\.2(?!\\d)\\s?(percent|%).{0,60}core",
+    "less food and energy.{0,60}(?<!\\d)6\\.2(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)6\\.2(?!\\d)\\s?(percent|%).{0,60}less food and energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)6\\.2(?!\\d)",
+    "(?<!\\d)6\\.2(?!\\d).{0,20}headline"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Headline CPI rose only 0.3% month-over-month in April",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.3 percent in April on a seasonally adjusted basis after rising 1.2 percent in March",
+   "paraphrases": [
+    "Headline CPI rose just 0.3% m/m in April.",
+    "Monthly headline inflation slowed to 0.3% in April.",
+    "All items CPI increased 0.3 percent for the month of April."
+   ],
+   "decoys": [
+    "Headline CPI accelerated to 1.2% month-over-month in April.",
+    "Core CPI rose 0.3% month-over-month in April."
+   ],
+   "patterns": [
+    "(headline|all items|cpi-u|consumer price index)\\w*.{0,60}(?<!\\d)0\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.3(?!\\d)\\s?(percent|%).{0,60}(headline|all items|cpi-u|consumer price index)\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,30}(?<!\\d)0\\.3(?!\\d)",
+    "(?<!\\d)0\\.3(?!\\d).{0,30}core"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "March's month-over-month headline CPI increase was 1.2%, making April's 0.3% a sharp deceleration",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.3 percent in April on a seasonally adjusted basis after rising 1.2 percent in March",
+   "paraphrases": [
+    "Headline CPI rose just 0.3% in April, down sharply from 1.2% in March.",
+    "Monthly headline inflation slowed to 0.3% in April from March's 1.2% pace.",
+    "April's 0.3 percent reading decelerated sharply from March's 1.2 percent gain."
+   ],
+   "decoys": [
+    "Headline CPI accelerated to 1.2% month-over-month in April.",
+    "CPI rose 0.3% in March, up from April's 1.2%."
+   ],
+   "patterns": [
+    "(?<!\\d)1\\.2(?!\\d)\\s?(percent|%)\\s*(in|during|for)?\\s*march",
+    "march('s)?\\s*(?<!\\d)1\\.2(?!\\d)\\s?(percent|%)",
+    "march.{0,15}(rose|rising|increased?|gain(ed)?|climb(ed)?|up)\\s*(?<!\\d)1\\.2(?!\\d)",
+    "(?<!\\d)1\\.2(?!\\d)\\s?(percent|%).{0,15}(rise|rising|increase[d]?|gain(ed)?).{0,10}march"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,20}(?<!\\d)1\\.2(?!\\d).{0,20}march",
+    "core.{0,20}march.{0,20}(?<!\\d)1\\.2(?!\\d)"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Core CPI accelerated to 0.6% month-over-month in April",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The index for all items less food and energy rose 0.6 percent in April following a 0.3-percent advance in March.",
+   "paraphrases": [
+    "Core CPI rose 0.6% m/m in April.",
+    "Monthly core inflation was 0.6 percent in April.",
+    "Core (ex food & energy) CPI increased 0.6% for the month of April."
+   ],
+   "decoys": [
+    "Core CPI cooled to 0.3% month-over-month in April.",
+    "Headline CPI rose 0.6% month-over-month in April."
+   ],
+   "patterns": [
+    "core.{0,60}(?<!\\d)0\\.6(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.6(?!\\d)\\s?(percent|%).{0,60}core",
+    "less food and energy.{0,60}(?<!\\d)0\\.6(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.6(?!\\d)\\s?(percent|%).{0,60}less food and energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)0\\.6(?!\\d)",
+    "(?<!\\d)0\\.6(?!\\d).{0,20}headline"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "March's core CPI month-over-month increase was 0.3%, making April's 0.6% an acceleration, a divergence from the slowing headline",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The index for all items less food and energy rose 0.6 percent in April following a 0.3-percent advance in March.",
+   "paraphrases": [
+    "Core CPI's March increase was 0.3%, slower than April's 0.6% pace.",
+    "Core inflation had risen just 0.3 percent in March before accelerating to 0.6% in April.",
+    "The core index rose 0.3% in March, then jumped to 0.6% in April."
+   ],
+   "decoys": [
+    "Core CPI rose 0.3 percent in April.",
+    "Headline CPI rose 0.3 percent in March."
+   ],
+   "patterns": [
+    "(core|less food and energy).{0,60}(?<!\\d)0\\.3(?!\\d)\\s?-?\\s?(percent|%).{0,20}march",
+    "(core|less food and energy).{0,60}march.{0,20}(?<!\\d)0\\.3(?!\\d)\\s?-?\\s?(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)0\\.3(?!\\d).{0,20}march",
+    "headline.{0,20}march.{0,20}(?<!\\d)0\\.3(?!\\d)"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Gasoline prices fell 6.1% in April, offsetting gains in natural gas and electricity",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The index for gasoline fell 6.1 percent over the month, offsetting increases in the indexes for natural gas and electricity.",
+   "paraphrases": [
+    "Gasoline prices dropped 6.1% m/m in April.",
+    "The gasoline index fell 6.1 percent in April, offsetting gains elsewhere in energy.",
+    "Pump prices declined 6.1% for the month."
+   ],
+   "decoys": [
+    "Gasoline prices jumped 6.1% in April.",
+    "Electricity prices fell 6.1% in April."
+   ],
+   "patterns": [
+    "(gasoline|pump price).{0,60}(?<!\\d)6\\.1(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)6\\.1(?!\\d)\\s?(percent|%).{0,60}(gasoline|pump price)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "electricity.{0,30}(?<!\\d)6\\.1(?!\\d)",
+    "(gasoline|pump price).{0,40}(ros\\w*|climb\\w*|jump\\w*|increas\\w*|surg\\w*).{0,20}(?<!\\d)6\\.1(?!\\d)"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Shelter costs rose 0.5% in April, matching March's pace and remaining a persistent driver of core inflation",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The shelter index increased 0.5 percent in April, the same increase as in March.",
+   "paraphrases": [
+    "Shelter costs rose 0.5% m/m in April, unchanged from March's pace.",
+    "The shelter index climbed 0.5 percent for the second straight month.",
+    "Housing costs increased 0.5% in April, matching the prior month."
+   ],
+   "decoys": [
+    "Shelter costs fell 0.5% in April.",
+    "Medical care costs rose 0.5% in April."
+   ],
+   "patterns": [
+    "(shelter|housing cost).{0,40}(?<!\\d)0\\.5(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.5(?!\\d)\\s?(percent|%).{0,40}(shelter|housing cost)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "medical.{0,30}(?<!\\d)0\\.5(?!\\d)",
+    "(shelter|housing cost).{0,40}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)0\\.5(?!\\d)"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Used car and truck prices fell 0.4% in April, a third straight monthly decline after 2021's surge",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The index for used cars and trucks also fell 0.4 percent over the month, its third straight decline after a long series of increases.",
+   "paraphrases": [
+    "Used car and truck prices fell 0.4% m/m, the third consecutive monthly decline.",
+    "The used vehicles index dropped 0.4 percent in April, extending a three-month slide.",
+    "Used cars and trucks fell 0.4% for the month after a long run of increases."
+   ],
+   "decoys": [
+    "Used car prices jumped 0.4% in April, extending the 2021 surge.",
+    "New vehicle prices fell 0.4% in April."
+   ],
+   "patterns": [
+    "used (car|vehicle).{0,60}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)0\\.4(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.4(?!\\d)\\s?(percent|%).{0,60}used (car|vehicle)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "used (car|vehicle).{0,60}(jump\\w*|ros\\w*|ris\\w*|surg\\w*|increas\\w*).{0,20}(?<!\\d)0\\.4(?!\\d)",
+    "new vehicle.{0,30}(?<!\\d)0\\.4(?!\\d)"
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Airline fares surged 18.6% in April",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The index for airline fares continued to rise sharply, increasing 18.6 percent in April, the largest 1-month increase since the inception of the series in 1963.",
+   "paraphrases": [
+    "Airline fares spiked 18.6% m/m in April.",
+    "The airfare index surged 18.6 percent in April.",
+    "Airfares rose 18.6% for the month of April."
+   ],
+   "decoys": [
+    "Airline fares fell 18.6% in April.",
+    "Airline fares rose 18.6% in March."
+   ],
+   "patterns": [
+    "(airline fare|airfare).{0,40}(?<!\\d)18\\.6(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)18\\.6(?!\\d)\\s?(percent|%).{0,40}(airline fare|airfare)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(airline fare|airfare).{0,40}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)18\\.6(?!\\d)",
+    "march.{0,30}(?<!\\d)18\\.6(?!\\d).{0,30}(airline fare|airfare)",
+    "(airline fare|airfare).{0,40}(?<!\\d)18\\.6(?!\\d)\\s?(percent|%).{0,20}march"
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "April's 18.6% airfare surge was the largest 1-month increase in the series' history since 1963",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The index for airline fares continued to rise sharply, increasing 18.6 percent in April, the largest 1-month increase since the inception of the series in 1963.",
+   "paraphrases": [
+    "April's airfare surge was the largest 1-month increase since 1963.",
+    "This was a record monthly jump for airfares, the biggest since the series began in 1963.",
+    "Airfares rose at their fastest monthly pace since the index started in 1963."
+   ],
+   "decoys": [
+    "This was a record monthly jump for airfares, the biggest since the series began in 1929.",
+    "The energy index rose at its fastest monthly pace since 1963."
+   ],
+   "patterns": [
+    "(airline fare|airfare).{0,150}(largest|biggest|record|fastest).{0,100}(?<!\\d)1963(?!\\d)",
+    "(largest|biggest|record|fastest).{0,150}(airline fare|airfare).{0,100}(?<!\\d)1963(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "energy.{0,150}(largest|biggest|record|fastest).{0,100}(?<!\\d)1963(?!\\d)"
+   ]
+  }
+ ]
+}

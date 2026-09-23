@@ -1,59 +1,31 @@
-"""Evaluate repeated runs of tools/try_summaries.py on the 16 test documents.
+"""Score repeated summary runs against the answer key in tools/summary_eval/key/ (no model calls).
 
-For every document: two hand-picked key facts that must appear, a check that every number in the
-summary exists in the source (or is a correct difference of two source numbers), bullet count and
-time — reported per run so run-to-run variance is visible.
+For every document in both the runs and the key: which key points each run's summary covers
+(regex, see tools/summary_key.py), a check that every number in the summary exists in the source
+(or is a correct difference of two source numbers), bullet count and time — per run, so run-to-run
+variance is visible.
 
-    python3 tools/eval_summaries.py out/v8r1 out/v8r2 out/v8r3
-    (each prefix has <prefix>_median.json and <prefix>_largest.json)
+    python3 tools/eval_summaries.py out/base_r1.json out/base_r2.json out/base_r3.json
+    python3 tools/eval_summaries.py out/v8r1 out/v8r2          # prefix: <p>_median.json + <p>_largest.json
+      --misses        print every must point missed in any run, with its source quote
+      --json PATH     write the per-doc / per-point results for diffing two prompt versions
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import pathlib
 import re
 import sys
+from statistics import mean
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "tools"))
 
 import text_signal as ts  # noqa: E402
-
-_DISTRICTS = (r"Atlanta|Philadelphia|Chicago|Boston|New York|Cleveland|Richmond|Dallas|"
-              r"Kansas City|Minneapolis|St\. Louis|San Francisco")
-
-#: doc_id -> [(label, regex that must match | callable returning True when OK)]
-FACTS: dict[str, list[tuple[str, object]]] = {
-    "beige_book-2022-07-31": [("names districts", _DISTRICTS), ("recession risk", r"recession")],
-    "beige_book-2024-11-30": [("tariffs", r"tariff"), ("names districts", _DISTRICTS)],
-    "bis_bernanke_2008-07-15": [("payrolls -94,000", r"94,000"), ("unemployment 5-1/2", r"5-1/2")],
-    "bis_shirakawa_2012-11-12": [("1 percent goal", r"1 percent"), ("+11 trillion yen", r"11 trillion")],
-    "moderna_8k_2020-10-29_d134701dex991": [("revenue 157.9m", r"157\.9"), ("1.1bn deposits", r"1\.1 billion")],
-    "pfizer_8k_2020-10-27_pfe-09272020xex99": [
-        ("revenue guidance 48.8", r"48\.8"),
-        ("EPS not in 'billion'", lambda s: not re.search(r"EPS[^.;]*\$\d\.\d\d[^.;]*billion", s)),
-    ],
-    "fomc-minutes-20220504": [("50bp hike", r"50 basis point"), ("runoff June 1", r"June 1")],
-    "fomc-minutes-20150128": [("'patient' guidance", r"patient"), ("Lacker dissent", r"Lacker")],
-    "fomc-statement-2024-07-31": [("5-1/4 to 5-1/2", r"5-1/4 to 5-1/2"), ("'greater confidence'", r"greater confidence")],
-    "fomc-statement-2014-09-17": [
-        ("Fisher+Plosser dissent", lambda s: "Fisher" in s and "Plosser" in s),
-        ("'considerable time'", r"considerable time"),
-    ],
-    "powell_jackson_hole_2022": [("'sufficiently restrictive'", r"sufficiently restrictive"), ("2.25 to 2.5", r"2\.25 to 2\.5")],
-    "boe_mpc_statement_20220922": [("5-3-1 split", r"three members|five members|5[–-]3[–-]1"), ("Bank Rate 2.25%", r"2\.25\s?%")],
-    "macro_release-2022-05-11": [("headline 8.3 y/y", r"8\.3 percent"), ("core 6.2 y/y", r"6\.2 percent")],
-    "macro_release-2015-02-26": [("headline -0.7 m/m", r"0\.7 percent"), ("core 1.6 y/y", r"1\.6 percent")],
-    "cftc_cot_japanese_2007": [
-        ("latest -126,773", r"-126,?773"),
-        ("883 direction right", lambda s: not re.search(r"(decreas|reduc|shrank|narrow|fell)[^.\n]*883", s, re.I)),
-    ],
-    "cftc_cot_crude_2014": [
-        ("latest 253,001", r"253,?001"),
-        ("shorts 165,287->147,620 not 'rose'", lambda s: not re.search(r"(rose|increas)[^.\n]*165,?287[^.\n]*147,?620", s, re.I)),
-    ],
-}
+from summary_key import covers, load_keys, scorable  # noqa: E402
 
 _NUM = re.compile(r"\d[\d,]*\.?\d*")
 
@@ -82,47 +54,121 @@ def _unsupported_numbers(r: dict) -> list[str]:
     return bad
 
 
-def main(prefixes: list[str]) -> int:
-    runs = []
-    for p in prefixes:
-        docs = {}
-        for part in ("median", "largest"):
-            for r in json.loads(pathlib.Path(f"{p}_{part}.json").read_text()):
-                docs[r["doc_id"]] = r
-        runs.append(docs)
+def load_run(arg: str) -> dict[str, dict]:
+    """A run is a JSON list of summarize_doc outputs, or a legacy <prefix> of _median/_largest pairs."""
+    paths = [pathlib.Path(arg)] if arg.endswith(".json") else [pathlib.Path(f"{arg}_{p}.json") for p in ("median", "largest")]
+    return {r["doc_id"]: r for p in paths if p.is_file() for r in json.loads(p.read_text())}
 
-    n_ok = n_all = 0
-    print(f"{'doc_type':19} {'doc':26} {'fact':34}" + "".join(f" r{i + 1}" for i in range(len(runs))))
-    for doc_id, facts in FACTS.items():
-        r0 = runs[0].get(doc_id)
-        if r0 is None:
-            continue
-        for label, rule in facts:
-            cells = []
+
+def _pct(a: int, b: int) -> str:
+    return f"{a}/{b} ({100 * a / b:.0f}%)" if b else "-"
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("runs", nargs="+")
+    ap.add_argument("--misses", action="store_true")
+    ap.add_argument("--json", type=pathlib.Path)
+    ap.add_argument("--split", choices=["dev", "test"],
+                    help="score only this half of tools/summary_eval/split.json (tune on dev, report test once)")
+    a = ap.parse_args()
+
+    keys = load_keys()
+    if a.split:
+        split = json.loads((ROOT / "tools" / "summary_eval" / "split.json").read_text())
+        keys = {d: k for d, k in keys.items() if split.get(d) == a.split}
+    runs = [load_run(r) for r in a.runs]
+    doc_ids = [d for d in keys if any(d in run for run in runs)]
+    absent = sorted(set(keys) - set(doc_ids))
+    if not doc_ids:
+        print("no document in these runs has a key file")
+        return 1
+
+    results = []  # one row per (doc, point)
+    for doc_id in doc_ids:
+        for p in keys[doc_id]["points"]:
+            if not scorable(p):
+                results.append({"doc_id": doc_id, **p, "hits": None})
+                continue
+            hits = []
             for run in runs:
-                s = (run.get(doc_id) or {}).get("summary") or ""
-                ok = rule(s) if callable(rule) else bool(re.search(rule, s, re.I))
-                n_ok += ok
-                n_all += 1
-                cells.append(" ✅" if ok else " ❌")
-            print(f"{r0['doc_type']:19} {doc_id[:26]:26} {label:34}" + "".join(cells))
-    print(f"\nkey facts present: {n_ok}/{n_all}")
+                r = run.get(doc_id)
+                hits.append(None if r is None or r.get("summary") is None else covers(p, r["summary"]))
+            results.append({"doc_id": doc_id, **p, "hits": hits})
+    doc_type = {d: next(iter(r[d] for r in runs if d in r))["doc_type"] for d in doc_ids}
 
-    print(f"\n{'doc_type':19} {'doc':26} {'bullets':>12} {'chars':>17} {'seconds':>17}  unsupported numbers")
-    for doc_id in FACTS:
+    # --- per doc: must covered / must, per run -------------------------------------------------
+    n = len(runs)
+    print(f"{'doc_type':19} {'doc':34} " + " ".join(f"{'r' + str(i + 1):>5}" for i in range(n))
+          + "  all-pts  unstable")
+    for doc_id in doc_ids:
+        rows = [x for x in results if x["doc_id"] == doc_id and x["hits"] is not None]
+        must = [x for x in rows if x["tier"] == "must"]
+        cells = []
+        for i in range(n):
+            got = [x["hits"][i] for x in must if x["hits"][i] is not None]
+            cells.append(f"{sum(got)}/{len(must)}" if got or not must else "  -")
+        all_hits = [h for x in rows for h in x["hits"] if h is not None]
+        unstable = sum(1 for x in rows if len({h for h in x["hits"] if h is not None}) > 1)
+        print(f"{doc_type[doc_id]:19} {doc_id[:34]:34} " + " ".join(f"{c:>5}" for c in cells)
+              + f"  {100 * sum(all_hits) / max(len(all_hits), 1):5.0f}%  {unstable or '':>8}")
+
+    # --- per doc_type and overall ----------------------------------------------------------------
+    def recall(rows: list[dict], i: int | None = None) -> tuple[int, int]:
+        hs = [h for x in rows for j, h in enumerate(x["hits"]) if h is not None and (i is None or j == i)]
+        return sum(hs), len(hs)
+
+    scored = [x for x in results if x["hits"] is not None]
+    print(f"\n{'doc_type':19} {'must recall':>16} {'all-point recall':>18}  per-run must")
+    for t in sorted(set(doc_type.values())):
+        rows = [x for x in scored if doc_type[x["doc_id"]] == t]
+        must = [x for x in rows if x["tier"] == "must"]
+        per_run = " ".join(f"{100 * h / c:.0f}%" if c else "-" for h, c in (recall(must, i) for i in range(n)))
+        print(f"{t:19} {_pct(*recall(must)):>16} {_pct(*recall(rows)):>18}  {per_run}")
+    must = [x for x in scored if x["tier"] == "must"]
+    print(f"{'ALL':19} {_pct(*recall(must)):>16} {_pct(*recall(scored)):>18}  "
+          + " ".join(f"{100 * h / c:.0f}%" if c else "-" for h, c in (recall(must, i) for i in range(n))))
+    kinds: dict[str, list[dict]] = {}
+    for x in scored:
+        kinds.setdefault(x["kind"], []).append(x)
+    print("by kind: " + ", ".join(f"{k} {_pct(*recall(v))}" for k, v in sorted(kinds.items())))
+    n_judge = sum(1 for x in results if x["hits"] is None)
+    print(f"{len(doc_ids)} docs, {len(scored)} scored points, {n_judge} judge_only points not scored"
+          + (f"; {len(absent)} key docs not in these runs" if absent else ""))
+
+    # --- size, time, unsupported numbers -------------------------------------------------------
+    print(f"\n{'doc_type':19} {'doc':34} {'bullets':>12} {'chars':>17} {'seconds':>14}  unsupported numbers")
+    numbers = {}
+    for doc_id in doc_ids:
         rs = [run[doc_id] for run in runs if doc_id in run]
-        if not rs:
-            continue
         b = [(x["summary"] or "").count("\n-") + 1 if x["summary"] else 0 for x in rs]
-        c = [x["summary_chars"] for x in rs]
-        t = [x["seconds"] for x in rs]
-        bad = sorted({n for x in rs for n in _unsupported_numbers(x)})
-        err = [x["error"] for x in rs if x["error"]]
-        print(f"{rs[0]['doc_type']:19} {doc_id[:26]:26} {'/'.join(map(str, b)):>12} "
-              f"{'/'.join(map(str, c)):>17} {'/'.join(f'{v:.0f}' for v in t):>17}  "
+        c = [x.get("summary_chars", len(x["summary"] or "")) for x in rs]
+        t = [x.get("seconds", 0) for x in rs]
+        bad = sorted({v for x in rs if x.get("summary") for v in _unsupported_numbers(x)})
+        numbers[doc_id] = bad
+        err = [x["error"] for x in rs if x.get("error")]
+        print(f"{doc_type[doc_id]:19} {doc_id[:34]:34} {'/'.join(map(str, b)):>12} "
+              f"{'/'.join(map(str, c)):>17} {'/'.join(f'{v:.0f}' for v in t):>14}  "
               f"{', '.join(bad) or '-'}{'  ERR ' + err[0][:40] if err else ''}")
+
+    if a.misses:
+        print("\nmust points missed in at least one run:")
+        for x in must:
+            if not all(h for h in x["hits"] if h is not None):
+                marks = "".join("-" if h is None else ("✅" if h else "❌") for h in x["hits"])
+                print(f"  {marks} {x['doc_id']} {x['id']} [{x['kind']}] {x['point']}\n"
+                      f"      quote: {x['quote'][:160]}")
+
+    if a.json:
+        a.json.parent.mkdir(parents=True, exist_ok=True)
+        a.json.write_text(json.dumps({
+            "runs": a.runs,
+            "points": [{k: x[k] for k in ("doc_id", "id", "tier", "kind", "point", "hits")} for x in results],
+            "unsupported_numbers": numbers,
+        }, indent=1))
+        print(f"\nwrote {a.json}")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())

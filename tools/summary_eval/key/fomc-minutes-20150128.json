@@ -1,0 +1,223 @@
+{
+ "doc_id": "fomc-minutes-20150128",
+ "doc_type": "fomc_minutes",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Committee held the federal funds target range unchanged at 0 to 1/4 percent",
+   "tier": "must",
+   "kind": "number",
+   "match": "any",
+   "quote": "The Committee agreed to maintain the target range for the federal funds rate at 0 to 1/4 percent",
+   "paraphrases": [
+    "FOMC held the fed funds target range steady at 0-1/4%.",
+    "The Committee kept rates unchanged at 0 to 0.25%.",
+    "Policy rate left unchanged, target range still 0 to 1/4 percent."
+   ],
+   "decoys": [
+    "The Committee raised the target range for the federal funds rate to 1/4 to 1/2 percent.",
+    "The Committee agreed to maintain the target range for the federal funds rate at 1/4 to 1/2 percent."
+   ],
+   "patterns": [
+    "((?<!\\d)0(?!\\d) to (?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0(?!\\d)-(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0(?!\\d) to (?<!\\d)0\\.25(?!\\d)|(?<!\\d)0(?!\\d)-(?<!\\d)0\\.25(?!\\d)|zero to (?<!\\d)0\\.25(?!\\d)).{0,60}(target range|federal funds|rates?|policy rate)",
+    "(target range|federal funds|rates?|policy rate).{0,60}((?<!\\d)0(?!\\d) to (?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0(?!\\d)-(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0(?!\\d) to (?<!\\d)0\\.25(?!\\d)|(?<!\\d)0(?!\\d)-(?<!\\d)0\\.25(?!\\d)|zero to (?<!\\d)0\\.25(?!\\d))"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Forward guidance retained the \"patient\" language ahead of policy normalization",
+   "tier": "must",
+   "kind": "phrase",
+   "match": "any",
+   "quote": "the Committee judges that it can be patient in beginning to normalize the stance of monetary policy",
+   "paraphrases": [
+    "Fed reiterated it can be 'patient' before starting policy normalization.",
+    "FOMC kept the patient language on the timing of rate hikes.",
+    "Statement retained 'patient' guidance ahead of liftoff."
+   ],
+   "decoys": [
+    "The Committee dropped the patient language from the statement.",
+    "The Committee judges that it can be patient in beginning to reduce its balance sheet."
+   ],
+   "patterns": [
+    "patient.{0,80}(normali[sz]|liftoff|firming|federal funds rate)",
+    "(normali[sz]|liftoff|firming|federal funds rate).{0,80}patient",
+    "patient language"
+   ],
+   "not_patterns": [
+    "(drop|remov|eliminat)(e[psd]?|ing)?.{0,60}patient",
+    "patient.{0,60}(drop|remov|eliminat)"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Lacker dissented on the foreign currency operations authorization (not on the rate decision, which was unanimous)",
+   "tier": "must",
+   "kind": "name",
+   "match": "any",
+   "quote": "Mr. Lacker dissented in the votes on the Authorization for Foreign Currency Operations and the Foreign Currency Directive to indicate his opposition to foreign currency intervention by the Federal Reserve.",
+   "paraphrases": [
+    "Lacker dissented on the FX operations authorization, opposing Fed currency intervention.",
+    "Richmond Fed's Lacker dissented against approving the foreign currency directive.",
+    "Dissent: Lacker voted against the foreign currency operations authorization."
+   ],
+   "decoys": [
+    "Fischer dissented on the foreign currency directive.",
+    "Lacker dissented on the vote to maintain the federal funds rate target range."
+   ],
+   "patterns": [
+    "Lacker.{0,120}(dissent\\w*|voted against).{0,80}(foreign currency|foreign exchange|\\bfx\\b)",
+    "(foreign currency|foreign exchange|\\bfx\\b).{0,80}(dissent\\w*|voted against).{0,120}Lacker",
+    "Lacker.{0,80}(dissent\\w*|voted against).{0,40}(authorization|operations)"
+   ],
+   "not_patterns": [
+    "Lacker.{0,80}dissent.{0,80}(target range|federal funds rate|rate decision|rate hike|rate cut)",
+    "Lacker.{0,80}dissent\\w*.{0,60}(rrp|reverse repurchase|repo|term rrp)"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Lacker also dissented on the term RRP testing resolutions, saying enough had already been learned",
+   "tier": "should",
+   "kind": "name",
+   "match": "any",
+   "quote": "Mr. Lacker dissented in the votes on both resolutions because he felt that the testing to date had already provided sufficient information about this tool, and that authorizing further testing could encourage the incorrect impression that the Committee had already decided that it would be engaging in term RRP operations during the period of policy normalization.",
+   "paraphrases": [
+    "Lacker also dissented on the term RRP testing resolutions, saying enough had already been learned.",
+    "Lacker voted against both RRP testing resolutions, worried they would signal a decision already made on using RRPs.",
+    "Separately, Lacker dissented on the Committee's term RRP testing resolutions."
+   ],
+   "decoys": [
+    "Lacker dissented on the Authorization for Foreign Currency Operations.",
+    "All other members supported the term RRP testing resolutions without dissent."
+   ],
+   "patterns": [
+    "Lacker.{0,80}(dissent\\w*|voted against).{0,150}(RRP|repurchase agreements?|reverse repo)",
+    "(RRP|repurchase agreements?|reverse repo).{0,150}Lacker.{0,80}(dissent\\w*|voted against)"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Unemployment rate declined to 5.6 percent in December",
+   "tier": "must",
+   "kind": "number",
+   "match": "any",
+   "quote": "The unemployment rate declined to 5.6 percent in December",
+   "paraphrases": [
+    "Unemployment fell to 5.6% in December.",
+    "Jobless rate down to 5.6 percent (Dec).",
+    "December unemployment: 5.6%."
+   ],
+   "decoys": [
+    "The unemployment rate rose to 5.6 percent in December.",
+    "The unemployment rate declined to 6.5 percent in December."
+   ],
+   "patterns": [
+    "(unemployment(?: rate)?|jobless rate).{0,60}(?<!\\d)5\\.6(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)5\\.6(?!\\d)\\s?(percent|%).{0,60}(unemployment(?: rate)?|jobless rate)"
+   ],
+   "not_patterns": [
+    "rose.{0,80}(?<!\\d)5\\.6(?!\\d)",
+    "(?<!\\d)5\\.6(?!\\d).{0,80}rose",
+    "increased.{0,80}(?<!\\d)5\\.6(?!\\d)"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Inflation moved further below the 2 percent objective",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "quote": "Consumer price inflation moved further below the FOMC's longer-run objective of 2 percent, held down by continuing large decreases in energy prices.",
+   "paraphrases": [
+    "Inflation slipped further below the 2% goal.",
+    "PCE inflation moved further under the 2 percent target.",
+    "Price gains continued to soften below target."
+   ],
+   "decoys": [
+    "Inflation rose further above the FOMC's 2 percent objective, boosted by rising energy prices.",
+    "Core CPI inflation accelerated to 3.5 percent in December."
+   ],
+   "patterns": [
+    "(inflation|price (index|gains|increases)).{0,80}(below|under|soften|softer|decelerat|slow(ed)?|declin)",
+    "(below|under|soften|softer|decelerat|slow(ed)?|declin).{0,80}(inflation|price (index|gains|increases))"
+   ],
+   "not_patterns": [
+    "(inflation|price (index|gains|increases)).{0,80}(above|rose|rising|accelerat|higher)",
+    "(above|rose|rising|accelerat|higher).{0,80}(inflation|price (index|gains|increases))"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "The further decline in inflation was largely attributed to declines in energy prices",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "quote": "Participants noted that inflation had moved further below the Committee's longer-run objective, largely reflecting declines in energy prices and other transitory factors.",
+   "paraphrases": [
+    "The move below target was largely due to declines in energy prices.",
+    "Falling energy prices held inflation further below the Fed's 2 percent objective.",
+    "Officials attributed the further slide in inflation mainly to lower energy prices."
+   ],
+   "decoys": [
+    "Inflation moved further below the Committee's longer-run objective.",
+    "The further decline in inflation was attributed mainly to weak wage growth, not energy prices."
+   ],
+   "patterns": [
+    "(inflation|price (index|gains|increases)|below|declin\\w*|objective|target).{0,80}(energy price\\w*|energy costs?|declines? in energy|lower energy)",
+    "(energy price\\w*|energy costs?|declines? in energy|lower energy).{0,80}(inflation|price (index|gains|increases)|below|declin\\w*|objective|target)"
+   ],
+   "not_patterns": [
+    "not\\s+energy price\\w*",
+    "(unrelated to|rather than|instead of).{0,20}energy price\\w*"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Tarullo abstained on reaffirming the Statement on Longer-Run Goals, citing insufficient consensus",
+   "tier": "should",
+   "kind": "name",
+   "match": "any",
+   "quote": "Mr. Tarullo abstained because he did not believe the statement reflects sufficient consensus in the principles underlying the Committee's policy actions",
+   "paraphrases": [
+    "Tarullo abstained on reaffirming the long-run goals statement.",
+    "Governor Tarullo cast the lone abstention on the strategy statement update.",
+    "Tarullo dissented via abstention, citing insufficient consensus on the framework statement."
+   ],
+   "decoys": [
+    "Fischer abstained on reaffirming the long-run goals statement.",
+    "Tarullo dissented on the vote to maintain the federal funds rate target range."
+   ],
+   "patterns": [
+    "Tarullo.{0,80}abst(ain\\w*|ention)",
+    "abst(ain\\w*|ention).{0,80}Tarullo"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Participants judged risks to the outlook for economic activity and the labor market as nearly balanced",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "quote": "The risks to the outlook for economic activity and the labor market were seen as nearly balanced.",
+   "paraphrases": [
+    "Participants judged risks to growth and the labor market as roughly balanced.",
+    "FOMC viewed risks to activity and jobs as balanced, not tilted either way.",
+    "Risk assessment: nearly balanced risks to the activity and employment outlook."
+   ],
+   "decoys": [
+    "Participants judged risks to the outlook as tilted to the downside.",
+    "Participants judged risks to the inflation outlook as tilted to the upside."
+   ],
+   "patterns": [
+    "(participants|policymakers|committee|fomc|members).{0,120}risks?.{0,120}balanced",
+    "risks?.{0,80}(nearly|roughly|broadly)?\\s*balanced.{0,120}(participants|policymakers|committee|fomc)",
+    "(nearly|roughly|broadly)\\s*balanced risks.{0,80}(activity|employment|labor|jobs)"
+   ],
+   "not_patterns": [
+    "staff.{0,80}risks?.{0,80}balanced",
+    "risks?.{0,60}balanced.{0,60}staff"
+   ]
+  }
+ ]
+}

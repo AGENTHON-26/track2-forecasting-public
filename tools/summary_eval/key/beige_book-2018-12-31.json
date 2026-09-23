@@ -1,0 +1,291 @@
+{
+ "doc_id": "beige_book-2018-12-31",
+ "doc_type": "beige_book",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Most Districts continued to expand at a modest-or-moderate pace",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(most|majority of).{0,60}districts.{0,60}modest.{0,10}(or|to|-|and).{0,10}moderate",
+    "modest.{0,10}(or|to|-|and).{0,10}moderate.{0,60}(most|majority of).{0,60}districts"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "districts.{0,60}(contract|declin\\w*|shrink|recession)"
+   ],
+   "quote": "Most of the twelve Federal Reserve Districts reported that their economies expanded at a modest or moderate pace from mid-October through late November, though both Dallas and Philadelphia noted slower growth compared with the prior Beige Book period.",
+   "paraphrases": [
+    "Most Districts kept expanding at a modest or moderate pace.",
+    "Economic growth was modest to moderate in most of the twelve Districts.",
+    "Overall, the majority of Districts reported modest-to-moderate expansion."
+   ],
+   "decoys": [
+    "Most Districts reported sharp contraction in economic activity.",
+    "Dallas and Philadelphia both reported slower growth than the prior period."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Dallas and Philadelphia both reported slower growth than the prior Beige Book period, a divergence from most Districts' steady pace.",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "dallas.{0,40}philadelphia.{0,80}(slow\\w*|decelerat\\w*)|philadelphia.{0,40}dallas.{0,80}(slow\\w*|decelerat\\w*)",
+    "(slow\\w*|decelerat\\w*).{0,80}dallas.{0,40}philadelphia|(slow\\w*|decelerat\\w*).{0,80}philadelphia.{0,40}dallas"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "dallas.{0,80}philadelphia.{0,40}(faster|accelerat\\w*)",
+    "philadelphia.{0,80}dallas.{0,40}(faster|accelerat\\w*)"
+   ],
+   "quote": "though both Dallas and Philadelphia noted slower growth compared with the prior Beige Book period",
+   "paraphrases": [
+    "Dallas and Philadelphia both saw growth decelerate versus the previous report.",
+    "Growth slowed from the prior period in the Dallas and Philadelphia Districts.",
+    "Unlike most Districts, Dallas and Philadelphia noted a deceleration in growth."
+   ],
+   "decoys": [
+    "Dallas and Philadelphia both reported faster growth than the prior period.",
+    "St. Louis and Kansas City noted slower growth compared with the prior period."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Labor markets tightened further across a broad range of occupations.",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(labor|job) market\\w*.{0,80}tight\\w*",
+    "tight\\w*.{0,80}(labor|job) market\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(labor|job) market\\w*.{0,60}(loosen\\w*|eas\\w*|soften\\w*|relax\\w*)"
+   ],
+   "quote": "Labor markets tightened further across a broad range of occupations.",
+   "paraphrases": [
+    "Labor markets grew even tighter across many occupations.",
+    "Job markets tightened further, spanning a wide range of occupations.",
+    "Labor market conditions kept tightening broadly across many occupations."
+   ],
+   "decoys": [
+    "Labor markets loosened somewhat across a broad range of occupations.",
+    "Housing markets tightened further across a broad range of regions."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "More than half of Districts said firms' growth was constrained by an inability to attract and retain qualified workers",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(half|majority) of.{0,20}districts.{0,80}(inability to attract|inability to retain|hiring difficult\\w*|difficulty (hiring|finding workers)|constrain\\w*).{0,40}(worker|labor|staff|employee|growth|hiring)?|(inability to attract|inability to retain|hiring difficult\\w*|difficulty (hiring|finding workers)|constrain\\w*).{0,40}(worker|labor|staff|employee|growth|hiring)?.{0,80}(half|majority) of.{0,20}districts",
+    "(inability to attract|unable to attract).{0,40}(and retain)?.{0,40}(qualified )?workers"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(no|few) districts.{0,60}(constrain\\w*|inability)"
+   ],
+   "quote": "Over half of the Districts cited firms for which employment, production, and sometimes capacity expansion had been constrained by an inability to attract and retain qualified workers.",
+   "paraphrases": [
+    "Over half of Districts said hiring difficulties were constraining growth.",
+    "More than half the Districts reported firms unable to attract and retain qualified workers, limiting expansion.",
+    "A majority of Districts cited an inability to attract and retain workers as a constraint on growth."
+   ],
+   "decoys": [
+    "Only a couple of Districts reported any difficulty attracting workers.",
+    "Labor markets tightened further across a broad range of occupations."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Tariff-driven cost increases spread further down the supply chain, from manufacturers and contractors to retailers and restaurants.",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "tariff\\w*.{0,80}(cost|price).{0,60}(increas\\w*|ris\\w*|higher|spread\\w*|broaden\\w*|widen\\w*)",
+    "(cost|price).{0,60}(increas\\w*|ris\\w*|higher|spread\\w*|broaden\\w*|widen\\w*).{0,80}tariff\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "tariff\\w*.{0,80}(cost|price).{0,60}(receded|eased|declin\\w*|decreas\\w*|fell|dropped|reversed|subsided|abated)"
+   ],
+   "quote": "Reports of tariff-induced cost increases have spread more broadly from manufacturers and contractors to retailers and restaurants.",
+   "paraphrases": [
+    "Tariff-related cost pressures broadened from manufacturers to retailers and restaurants.",
+    "Cost increases tied to tariffs spread further, hitting retailers and restaurants in addition to manufacturers.",
+    "Tariffs pushed costs higher down the supply chain, now affecting retailers and restaurants too."
+   ],
+   "decoys": [
+    "Tariff-induced cost increases receded, easing pressure on manufacturers and retailers.",
+    "Reports of energy-induced cost increases have spread more broadly to retailers and restaurants."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Wage growth broadly tended toward the higher side of a modest-to-moderate pace across Districts.",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "wage\\w*.{0,60}(higher|upper|stronger|faster).{0,20}(side|end)",
+    "(higher|upper|stronger|faster).{0,20}(side|end).{0,60}wage\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "wage\\w*.{0,60}(lower|weaker|slower).{0,20}(side|end)"
+   ],
+   "quote": "most Districts reported that wage growth tended to the higher side of a modest to moderate pace",
+   "paraphrases": [
+    "Wage gains leaned toward the upper end of the modest-to-moderate range in most Districts.",
+    "Most Districts saw wage growth running at the stronger end of modest-to-moderate.",
+    "Wage increases tilted toward the faster side of the modest-to-moderate pace nationwide."
+   ],
+   "decoys": [
+    "Most Districts reported that wage growth tended to the lower side of a modest to moderate pace.",
+    "Most Districts reported that price growth tended to the higher side of a modest to moderate pace."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Input costs continued to outpace final goods prices, squeezing margins",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "input (cost|price)\\w*.{0,60}(faster|outpac\\w*|quicker|more (rapidly|quickly)).{0,40}(final goods|finished goods)",
+    "(final goods|finished goods).{0,60}(slower|lag\\w*).{0,40}input (cost|price)\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "input (cost|price)\\w*.{0,20}(fell|declin\\w*|decreas\\w*|drop\\w*)",
+    "final goods.{0,60}(faster|outpac\\w*|quicker).{0,60}input (cost|price)\\w*"
+   ],
+   "quote": "Nearly all reported that input costs rose faster than final goods prices.",
+   "paraphrases": [
+    "Input costs kept rising faster than the prices firms charged for finished goods.",
+    "Nearly every District said input price growth outpaced growth in final goods prices.",
+    "Firms saw input costs climb quicker than what they could charge for final goods."
+   ],
+   "decoys": [
+    "Nearly all reported that final goods prices rose faster than input costs.",
+    "Nearly all reported that input costs fell faster than final goods prices."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Overall price growth remained modest nationally, though a few Districts saw moderate increases",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "price\\w*.{0,60}(modest pace|modest overall|remained modest|stayed modest)|(modest pace|modest overall|remained modest|stayed modest).{0,60}price\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "price\\w*.{0,60}(surg\\w*|spik\\w*|accelerat\\w*|soar\\w*)"
+   ],
+   "quote": "On balance, prices rose at a modest pace in most Districts, although a few noted moderate increases.",
+   "paraphrases": [
+    "Prices rose at a modest pace overall in most Districts.",
+    "Overall price growth stayed modest, though a few Districts reported moderate increases.",
+    "Nationally, price increases remained modest on balance."
+   ],
+   "decoys": [
+    "Prices surged nationally, accelerating sharply across most Districts.",
+    "Nearly all reported that input costs rose faster than final goods prices."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "New home construction and existing home sales tended to decline or hold steady even as nonresidential construction and leasing tended to rise or remain flat.",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "((home|housing).{0,40}(declin\\w*|soften\\w*|flat|steady|slip\\w*)|(declin\\w*|soften\\w*|flat|steady|slip\\w*).{0,40}(home|housing)).{0,80}(nonresidential.{0,40}(ris\\w*|rose|increas\\w*|improv\\w*|gain\\w*)|(ris\\w*|rose|increas\\w*|improv\\w*|gain\\w*).{0,40}nonresidential)",
+    "(nonresidential.{0,40}(ris\\w*|rose|increas\\w*|improv\\w*|gain\\w*)|(ris\\w*|rose|increas\\w*|improv\\w*|gain\\w*).{0,40}nonresidential).{0,80}((home|housing).{0,40}(declin\\w*|soften\\w*|flat|steady|slip\\w*)|(declin\\w*|soften\\w*|flat|steady|slip\\w*).{0,40}(home|housing))"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "New home construction and existing home sales tended to decline or hold steady, while construction and leasing of nonresidential structures tended to rise or remain flat.",
+   "paraphrases": [
+    "Residential construction and existing home sales were flat to down, while nonresidential construction and leasing rose or held flat.",
+    "Home sales and new construction softened or held steady, in contrast to gains in nonresidential construction and leasing.",
+    "While housing activity stalled or slipped, nonresidential construction and leasing activity improved or stayed flat."
+   ],
+   "decoys": [
+    "New home construction and existing home sales tended to rise, while nonresidential construction declined.",
+    "New auto sales and used-car sales tended to decline or hold steady, while nonresidential construction rose."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "About two-thirds of nonmanufacturing firms in the Third District anticipated increased activity over the next six months",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(two.?thirds|(?<!\\d)67(?!\\d)\\s?%|(?<!\\d)67(?!\\d)\\s?percent|(?<!\\d)66(?!\\d)\\s?%|(?<!\\d)66(?!\\d)\\s?percent).{0,80}(nonmanufactur\\w*|non-manufactur\\w*|service.{0,10}firms)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(one.?third|(?<!\\d)33(?!\\d)\\s?%|(?<!\\d)33(?!\\d)\\s?percent).{0,80}(nonmanufactur\\w*|non-manufactur\\w*|service firms).{0,40}(anticipat|expect)"
+   ],
+   "quote": "with two-thirds of the nonmanufacturing firms and over 40 percent of the manufacturers anticipating increases in general activity",
+   "paraphrases": [
+    "About two-thirds of nonmanufacturing firms expected higher activity over the next six months.",
+    "Roughly 67% of nonmanufacturing contacts anticipated increased activity ahead.",
+    "Two-thirds of service-sector firms in the Third District foresaw growth in the next six months."
+   ],
+   "decoys": [
+    "Just one-third of nonmanufacturing firms anticipated increases in general activity.",
+    "Over 40 percent of manufacturers anticipated increases in general activity."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Just over 40 percent of manufacturers in the Third District anticipated increased activity over the next six months",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "((?<!\\d)40(?!\\d)\\s?%|(?<!\\d)40(?!\\d)\\s?percent|four in ten|(?<!\\d)4(?!\\d) in (?<!\\d)10(?!\\d)).{0,80}manufactur\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "((?<!\\d)20(?!\\d)\\s?%|(?<!\\d)20(?!\\d)\\s?percent).{0,80}manufactur\\w*.{0,40}(anticipat|expect)"
+   ],
+   "quote": "with two-thirds of the nonmanufacturing firms and over 40 percent of the manufacturers anticipating increases in general activity",
+   "paraphrases": [
+    "Just over 40% of manufacturers expected higher activity in the next six months.",
+    "About four in ten manufacturers anticipated increased general activity.",
+    "Over 40 percent of manufacturing contacts foresaw growth ahead."
+   ],
+   "decoys": [
+    "About 20 percent of manufacturers anticipated increases in general activity.",
+    "Two-thirds of nonmanufacturing firms anticipated increases in general activity."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Soybeans normally exported to China were instead rerouted to other markets amid tariff-related trade tensions.",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "soybean\\w*.{0,80}china.{0,60}(other market|redirect\\w*|divert\\w*|sent to|shipped to|reroute\\w*)",
+    "china.{0,80}soybean\\w*.{0,60}(other market|redirect\\w*|divert\\w*|sent to|shipped to|reroute\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "soybean\\w*.{0,80}china.{0,60}(increas\\w*|rose|rising|grew|expand\\w*)"
+   ],
+   "quote": "Logistical challenges continued as soybeans that would usually be exported to China were being sent to other markets.",
+   "paraphrases": [
+    "Soybeans typically bound for China were redirected to other buyers because of tariffs.",
+    "With China as a lost outlet, soybean exporters shipped to other markets instead.",
+    "Soybean shipments bound for China were instead diverted to alternative markets."
+   ],
+   "decoys": [
+    "Soybean exports to China increased sharply as tariff tensions eased.",
+    "Corn shipments typically bound for China were redirected to other buyers because of tariffs."
+   ]
+  }
+ ]
+}

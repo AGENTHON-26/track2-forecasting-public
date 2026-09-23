@@ -1,0 +1,189 @@
+{
+ "doc_id": "cftc_cot_japanese_2007",
+ "doc_type": "positioning_report",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Latest net position is a deep speculative net short of 126,773 JPY contracts (week of 2007-07-17)",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(net short|short yen|yen short).{0,60}(?<!\\d)126,?773(?!\\d)",
+    "(?<!\\d)126,?773(?!\\d).{0,60}(net short|short yen|yen short)",
+    "(?<!\\d)177,?204(?!\\d).{0,15}-?(?<!\\d)126,?773(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "2007-07-17 303595 50431 177204 -126773",
+   "paraphrases": [
+    "Speculators' net short yen position stood at 126,773 contracts as of July 17.",
+    "Net short position: -126,773 contracts (JPY futures).",
+    "Non-commercial traders were net short 126,773 yen contracts."
+   ],
+   "decoys": [
+    "Net short position of 125,890 contracts.",
+    "Net long yen position of 126,773 contracts."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "The net short yen position grew (deepened) by 883 contracts week-over-week, not decreased",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?<!\\d)883(?!\\d).{0,60}(grew|grow|increas|widen|deepen|extend|added|rose|climb|expand|larger|deeper)",
+    "(grew|grow|increas|widen|deepen|extend|added|rose|climb|expand|larger|deeper).{0,60}(?<!\\d)883(?!\\d)",
+    "(?<!\\d)177,?439(?!\\d).{0,15}-?(?<!\\d)125,?890(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)883(?!\\d).{0,60}(decreas|reduc|shrank|shrink|shrunk|narrow|fell|fall|fallen|drop|declin|smaller|less)",
+    "(decreas|reduc|shrank|shrink|shrunk|narrow|fell|fall|fallen|drop|declin|smaller|less).{0,60}(?<!\\d)883(?!\\d)"
+   ],
+   "quote": "177439 -125890 2007-07-17 303595 50431 177204 -126773",
+   "paraphrases": [
+    "Speculators' net short yen position widened by 883 contracts on the week.",
+    "The net short grew another 883 contracts, extending the bearish yen bet.",
+    "Non-commercial net short increased 883 contracts week-over-week to -126,773."
+   ],
+   "decoys": [
+    "Net short position narrowed by 883 contracts on the week.",
+    "Net short position widened by 830 contracts on the week."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Net short hit its deepest point of the period at -188,077 in late June (week of 2007-06-26) before partially unwinding into July",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(peak|deepest|widest|largest|record|high).{0,60}(?<!\\d)188,?077(?!\\d)",
+    "(?<!\\d)188,?077(?!\\d).{0,60}(peak|deepest|widest|largest|record|high)",
+    "(?<!\\d)237,?488(?!\\d).{0,15}-?(?<!\\d)188,?077(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)188,?077(?!\\d).{0,60}(low|smallest|narrowest|lowest|shallow)",
+    "(low|smallest|narrowest|lowest|shallow).{0,60}(?<!\\d)188,?077(?!\\d)"
+   ],
+   "quote": "2007-06-26 352299 49411 237488 -188077",
+   "paraphrases": [
+    "Net short yen positioning peaked at 188,077 contracts in late June before easing.",
+    "The deepest short of the period was -188,077 contracts, reached in late June.",
+    "Yen shorts hit a high of 188,077 contracts in late June, above the mid-July level."
+   ],
+   "decoys": [
+    "Net short yen positioning peaked at 173,005 contracts in late June before easing.",
+    "Net short yen positioning hit its lowest point of 188,077 contracts in late June."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Open interest fell to 303,595 contracts in the latest week",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(open interest).{0,60}(?<!\\d)303,?595(?!\\d)",
+    "(?<!\\d)303,?595(?!\\d).{0,60}(open interest)",
+    "(?<!\\d)2007(?!\\d)-(?<!\\d)07(?!\\d)-(?<!\\d)17(?!\\d).{0,15}(?<!\\d)303,?595(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)303,?595(?!\\d).{0,60}(rose|rise|risen|increased|increase|climbed|higher|up)",
+    "(rose|rise|risen|increased|increase|climbed|higher|up).{0,60}(?<!\\d)303,?595(?!\\d)"
+   ],
+   "quote": "2007-07-17 303595",
+   "paraphrases": [
+    "Open interest fell to 303,595 contracts in the latest week.",
+    "Total open interest in JPY futures dropped to 303,595 contracts.",
+    "Open interest declined week-over-week to 303,595 contracts."
+   ],
+   "decoys": [
+    "Open interest rose to 303,595 contracts in the latest week.",
+    "Open interest fell to 320,333 contracts in the latest week."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "That's down from 320,333 the prior week (2007-07-10)",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(down from|fell.{0,15}from|declined.{0,15}from|dropped.{0,15}from|lower than).{0,40}(?<!\\d)320,?333(?!\\d)",
+    "(?<!\\d)320,?333(?!\\d).{0,60}(prior week|previous week|week earlier|2007-07-10|July 10)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(up.{0,15}from|rose.{0,15}from|higher than).{0,40}(?<!\\d)320,?333(?!\\d)",
+    "(?<!\\d)320,?333(?!\\d).{0,40}(up.{0,15}from|rose.{0,15}from|higher than)"
+   ],
+   "quote": "2007-07-10 320333 51549 177439 -125890 2007-07-17 303595 50431 177204 -126773",
+   "paraphrases": [
+    "That's down from 320,333 contracts the prior week.",
+    "Open interest declined from 320,333 in early July to 303,595 a week later.",
+    "Total open interest eased from 320,333 the previous week."
+   ],
+   "decoys": [
+    "That's up from 320,333 contracts the prior week.",
+    "Open interest was roughly unchanged from 302,333 contracts the prior week."
+   ],
+   "source_pattern": [
+    "(?<!\\d)320,?333(?!\\d)"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Gross short position was 177,204 contracts, still the dominant side of the book",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(gross short|short position|short contracts|short side|shorts).{0,60}(?<!\\d)177,?204(?!\\d)",
+    "(?<!\\d)177,?204(?!\\d).{0,60}(short|contracts short)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(gross long|long position|longs?)\\s*(were|was|of|:|=|at)?\\s*(?<!\\d)177,?204(?!\\d)"
+   ],
+   "quote": "2007-07-17 303595 50431 177204",
+   "paraphrases": [
+    "Gross short position stood at 177,204 contracts, still the larger side of the market.",
+    "Speculators held 177,204 short contracts in JPY futures.",
+    "The short side of the book totaled 177,204 contracts."
+   ],
+   "decoys": [
+    "Gross short position stood at 174,204 contracts, still the larger side of the market.",
+    "Gross long position stood at 177,204 contracts, still the larger side of the market."
+   ],
+   "source_pattern": [
+    "(?<!\\d)177,?204(?!\\d)"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Gross long position was just 50,431 contracts, a fraction of the short side",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(gross long|long position|long contracts|long side|longs).{0,40}(?<!\\d)50,?431(?!\\d)",
+    "(?<!\\d)50,?431(?!\\d).{0,40}(long|contracts long)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(gross short|short position|shorts?\\b).{0,40}(?<!\\d)50,?431(?!\\d)"
+   ],
+   "quote": "2007-07-17 303595 50431",
+   "paraphrases": [
+    "Gross long position was just 50,431 contracts, a fraction of the short side.",
+    "Speculators held only 50,431 long contracts in JPY futures.",
+    "The long side of the book totaled 50,431 contracts."
+   ],
+   "decoys": [
+    "Gross long position was just 51,431 contracts, a fraction of the short side.",
+    "Gross short position was just 50,431 contracts, a fraction of the long side."
+   ],
+   "source_pattern": [
+    "(?<!\\d)50,?431(?!\\d)"
+   ]
+  }
+ ]
+}

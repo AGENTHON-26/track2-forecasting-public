@@ -1,0 +1,259 @@
+{
+ "doc_id": "bis_bernanke_2008-07-15",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Private payroll employment has been falling, averaging a 94,000 job decline per month through June",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:down|fell|falling|declin\\w*|losses|lost).{0,60}\\b(?:(?<!\\d)94,?000(?!\\d)|(?<!\\d)94(?!\\d)\\s?k)\\b|\\b(?:(?<!\\d)94,?000(?!\\d)|(?<!\\d)94(?!\\d)\\s?k)\\b.{0,60}(?:down|fell|falling|declin\\w*|losses|lost)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "private payroll employment has declined this year, falling at an average pace of 94,000 jobs per month through June",
+   "paraphrases": [
+    "Private payrolls fell an average 94,000 per month through June",
+    "Job losses averaged 94,000 per month over the first half of the year",
+    "Nonfarm private employment down roughly 94k jobs monthly through June"
+   ],
+   "decoys": [
+    "Private payrolls fell an average of 194,000 per month through June",
+    "Private payroll employment rose an average 94,000 per month through June"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "The unemployment rate now stands at 5-1/2 percent",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:unemployment|jobless)(?:\\s+rate)?.{0,60}(?:(?<!\\d)5(?!\\d)[-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)5\\.5(?!\\d))\\s*(?:percent|%|pct)|(?:(?<!\\d)5(?!\\d)[-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)5\\.5(?!\\d))\\s*(?:percent|%|pct).{0,60}(?:unemployment|jobless)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:fell|falling|declin\\w*|dropped|down|lower).{0,40}(?:unemployment|jobless)|(?:unemployment|jobless).{0,40}(?:fell|falling|declin\\w*|dropped|down|lower)"
+   ],
+   "quote": "The unemployment rate has risen and now stands at 5-1/2 percent.",
+   "paraphrases": [
+    "Unemployment rate now at 5.5%",
+    "Jobless rate now stands at 5-1/2 percent",
+    "Unemployment is at 5.5 percent"
+   ],
+   "decoys": [
+    "Unemployment rate fell to 5-1/2 percent",
+    "Unemployment rate now stands at 6-1/2 percent"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "The unemployment rate has risen (an increase, not just a level)",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:unemployment|jobless).{0,60}(?:risen|rising|climbed|increased|moved up|edged up|ticked up|moved higher|gone up)|(?:risen|rising|climbed|increased|moved up|edged up|ticked up|moved higher|gone up).{0,60}(?:unemployment|jobless)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:unemployment|jobless).{0,60}(?:fell|falling|declin\\w*|dropped|down|lower|steady|unchanged)|(?:fell|falling|declin\\w*|dropped|down|lower|steady|unchanged).{0,60}(?:unemployment|jobless)"
+   ],
+   "quote": "The unemployment rate has risen and now stands at 5-1/2 percent.",
+   "paraphrases": [
+    "The jobless rate has climbed recently",
+    "Unemployment has been rising",
+    "The unemployment rate moved higher"
+   ],
+   "decoys": [
+    "The unemployment rate has declined recently",
+    "The jobless rate has held steady"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "The FOMC eased policy considerably further through the spring to counter weakness in growth",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(eas\\w*|cut rates|lower\\w* (the )?(policy )?rate|reduc\\w* the policy rate).{0,60}(spring|further)",
+    "(spring).{0,60}(eas\\w*|cut rates|lower\\w* (the )?(policy )?rate)",
+    "(FOMC|Federal Open Market Committee|Fed\\w*).{0,200}(eased further|eased considerably|significantly reduced the policy rate)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:FOMC|Fed(?:eral Reserve)?).{0,60}tighten\\w*|tighten\\w*.{0,60}(?:FOMC|Fed(?:eral Reserve)?)|eas\\w*.{0,40}(?:fall|autumn|summer|winter)|(?:fall|autumn|summer|winter).{0,40}eas\\w*"
+   ],
+   "quote": "the Federal Open Market Committee (FOMC) eased policy considerably further through the spring",
+   "paraphrases": [
+    "The FOMC cut rates aggressively through spring 2008",
+    "Fed eased policy considerably further through the spring to combat weak growth",
+    "FOMC continued easing monetary policy through spring on growth concerns"
+   ],
+   "decoys": [
+    "The FOMC tightened policy considerably through the spring",
+    "The FOMC eased policy considerably through the fall"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Headline PCE inflation ran near 3-1/2 percent annualized over the first five months of the year",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "inflation.{0,60}(?:(?<!\\d)3(?!\\d)[-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)3\\.5(?!\\d))\\s*(?:percent|%)|(?:(?<!\\d)3(?!\\d)[-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)3\\.5(?!\\d))\\s*(?:percent|%).{0,60}inflation"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,40}(?:(?<!\\d)3(?!\\d)[-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)3\\.5(?!\\d))\\s*(?:percent|%)"
+   ],
+   "quote": "Inflation has remained high, running at nearly a 3-1/2 percent annual rate over the first five months of this year",
+   "paraphrases": [
+    "Headline PCE inflation ran near 3.5% annualized over the first five months",
+    "Inflation stayed elevated at about 3-1/2 percent so far this year",
+    "PCE inflation running close to 3.5 percent annual rate through May"
+   ],
+   "decoys": [
+    "Headline inflation running near 2 percent annualized",
+    "Core inflation ran at about 3-1/2 percent annual rate"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Core inflation, by contrast, has been fairly steady at about 2 percent, well below the headline rate",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:core|excluding food and energy|ex-food and energy|ex food and energy).{0,80}(?<!\\d)2(?!\\d)\\s*percent|(?<!\\d)2(?!\\d)\\s*percent.{0,80}(?:core|excluding food and energy|ex-food and energy|ex food and energy)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:core|excluding food and energy).{0,40}(?:(?<!\\d)3(?!\\d)[-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)3\\.5(?!\\d))\\s*(?:percent|%)"
+   ],
+   "quote": "Core inflation has been fairly steady this year at an annual rate of about 2 percent.",
+   "paraphrases": [
+    "Core PCE inflation held around 2 percent annualized, well below the headline figure",
+    "By contrast, core inflation stayed close to 2 percent for the year",
+    "Excluding food and energy, inflation has been steady at about 2 percent"
+   ],
+   "decoys": [
+    "Core inflation also ran near 3-1/2 percent, matching the headline rate",
+    "Core inflation fell to about 1 percent, well below its recent trend"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Risks to the growth outlook were seen as skewed to the downside",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "downside.{0,80}growth|growth.{0,80}downside"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "upside.{0,80}growth|growth.{0,80}upside|downside.{0,80}inflation"
+   ],
+   "quote": "represent significant downside risks to the outlook for growth",
+   "paraphrases": [
+    "Fed saw risks to growth tilted to the downside",
+    "Growth outlook faced significant downside risks from housing, credit, and energy",
+    "Downside risks to economic growth remained significant"
+   ],
+   "decoys": [
+    "Fed saw risks to growth tilted to the upside",
+    "Fed saw risks to inflation tilted to the downside"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Upside risks to the inflation outlook had intensified",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "upside.{0,80}inflation|inflation.{0,80}upside"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "downside.{0,80}inflation|inflation.{0,80}downside|upside.{0,80}growth|growth.{0,80}upside"
+   ],
+   "quote": "upside risks to the inflation outlook have intensified lately",
+   "paraphrases": [
+    "Risks to the inflation outlook were seen as skewed to the upside",
+    "Upside risks to inflation had increased",
+    "Inflation risks seen tilted to the upside amid rising commodity prices"
+   ],
+   "decoys": [
+    "Downside risks to inflation had increased",
+    "Upside risks to growth had intensified"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "The Fed invoked emergency authorities to facilitate JPMorgan Chase's acquisition of Bear Stearns",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "Bear Stearns.{0,80}JPMorgan|JPMorgan.{0,80}Bear Stearns"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "Bank of America.{0,80}Bear Stearns|Bear Stearns.{0,80}Bank of America|Lehman.{0,80}Bear Stearns|Bear Stearns.{0,80}Lehman"
+   ],
+   "quote": "we invoked emergency authorities to provide special financing to facilitate the acquisition of Bear Stearns by JPMorgan Chase",
+   "paraphrases": [
+    "Fed used emergency powers to help JPMorgan acquire Bear Stearns",
+    "Fed provided special financing to facilitate JPMorgan's takeover of Bear Stearns",
+    "Bear Stearns was acquired by JPMorgan Chase with Fed-arranged financing"
+   ],
+   "decoys": [
+    "Fed used emergency powers to help Bank of America acquire Bear Stearns",
+    "Bear Stearns acquired Lehman Brothers with Fed-arranged financing"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "WTI crude oil prices soared about 60 percent in 2007",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:oil|crude|WTI).{0,80}(?<!\\d)60(?!\\d)\\s*(?:percent|%)|(?<!\\d)60(?!\\d)\\s*(?:percent|%).{0,80}(?:oil|crude|WTI)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:fell|falling|declin\\w*|dropped).{0,60}(?<!\\d)60(?!\\d)\\s*(?:percent|%)|(?<!\\d)60(?!\\d)\\s*(?:percent|%).{0,60}(?:fell|falling|declin\\w*|dropped)"
+   ],
+   "quote": "The spot price of West Texas intermediate crude oil soared about 60 percent in 2007 and, thus far this year, has climbed an additional 50 percent or so.",
+   "paraphrases": [
+    "WTI crude jumped roughly 60% in 2007",
+    "Oil prices rose about 60 percent last year",
+    "Crude oil up around 60% in 2007"
+   ],
+   "decoys": [
+    "WTI crude fell about 60 percent in 2007",
+    "WTI crude soared about 16 percent in 2007"
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "WTI crude climbed a further roughly 50 percent so far in 2008, on top of the 2007 gain",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:oil|crude|WTI).{0,80}(?<!\\d)50(?!\\d)\\s*(?:percent|%)|(?<!\\d)50(?!\\d)\\s*(?:percent|%).{0,80}(?:oil|crude|WTI)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:fell|falling|declin\\w*|dropped).{0,60}(?<!\\d)50(?!\\d)\\s*(?:percent|%)|(?<!\\d)50(?!\\d)\\s*(?:percent|%).{0,60}(?:fell|falling|declin\\w*|dropped)"
+   ],
+   "quote": "The spot price of West Texas intermediate crude oil soared about 60 percent in 2007 and, thus far this year, has climbed an additional 50 percent or so.",
+   "paraphrases": [
+    "WTI crude has climbed another roughly 50% so far in 2008",
+    "Oil prices are up an additional 50 percent so far this year",
+    "Crude has added about 50% more in 2008 year to date"
+   ],
+   "decoys": [
+    "WTI crude fell about 50 percent so far in 2008",
+    "WTI crude added a further 15 percent so far in 2008"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,21 @@
+{
+ "doc_id": "bis_bernanke_2008-07-15",
+ "labels": {
+  "p1": true,
+  "p2": true,
+  "p3": true,
+  "p4": true,
+  "p5": true,
+  "p6": false,
+  "p7": true,
+  "p8": true,
+  "p9": false,
+  "p10": false,
+  "p11": false
+ },
+ "notes": {
+  "p6": "no core-PCE figure or headline/core contrast",
+  "p7": "stated as the reason for spring easing rather than as an outlook skew",
+  "p8": "'intensified' not used, but unusually uncertain outlook plus unanchoring risk carries it"
+ }
+}

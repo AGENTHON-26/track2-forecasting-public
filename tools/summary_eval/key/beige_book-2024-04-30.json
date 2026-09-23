@@ -1,0 +1,297 @@
+{
+ "doc_id": "beige_book-2024-04-30",
+ "doc_type": "beige_book",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Overall economic activity expanded slightly nationwide since late February",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(overall|nationwide|nationally|nation-?wide|national(?:ly)?|u\\.?s\\.?).{0,15}(econom(?:ic (?:activity|growth)|y)|activity).{0,60}(expand|grew|grow|increas|pick(?:ed)? up|strengthen)",
+    "(econom(?:ic (?:activity|growth)|y)|activity).{0,60}(expand|grew|grow|increas|pick(?:ed)? up|strengthen).{0,25}(overall|nationwide|nationally|nation-?wide|national(?:ly)?|u\\.?s\\.?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(econom(?:ic (?:activity|growth)|y)|activity).{0,80}(contract|declin|shrink|recession|weaken)",
+    "(contract|declin|shrink|recession|weaken).{0,80}(econom(?:ic (?:activity|growth)|y)|activity)"
+   ],
+   "quote": "Overall economic activity expanded slightly, on balance, since late February.",
+   "paraphrases": [
+    "Overall economic activity expanded slightly since late February, per the Fed's Beige Book.",
+    "US economic growth picked up modestly, with more districts reporting expansion.",
+    "Beige Book: activity growing at a slight pace nationally."
+   ],
+   "decoys": [
+    "Overall economic activity contracted slightly since late February.",
+    "Overall economic activity was little changed since late February, contacts said."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "10 of 12 Districts experienced slight or modest economic growth",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(ten|(?<!\\d)10(?!\\d)).{0,20}(twelve|(?<!\\d)12(?!\\d)).{0,20}districts"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(eight|(?<!\\d)8(?!\\d)).{0,20}(twelve|(?<!\\d)12(?!\\d)).{0,20}districts.{0,40}(experienc|report|saw)"
+   ],
+   "quote": "Ten out of twelve Districts experienced either slight or modest economic growth—up from eight in the previous report, while the other two reported no changes in activity.",
+   "paraphrases": [
+    "Ten of twelve Districts saw slight-to-modest growth.",
+    "Growth was reported in 10 of the Fed's 12 Districts.",
+    "Economic growth was evident in 10/12 Fed districts."
+   ],
+   "decoys": [
+    "Eight of twelve Districts reported growth.",
+    "That was up from 8 Districts in the previous report."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "That growth breadth was up from 8 Districts in the previous report",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "up from.{0,20}(eight|(?<!\\d)8(?!\\d)).{0,40}(previous report|prior report|last report|previously)|(eight|(?<!\\d)8(?!\\d)).{0,20}(previous|prior|last) report|(eight|(?<!\\d)8(?!\\d)).{0,20}districts?.{0,20}previously"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "up from.{0,20}(ten|(?<!\\d)10(?!\\d))"
+   ],
+   "quote": "Ten out of twelve Districts experienced either slight or modest economic growth—up from eight in the previous report, while the other two reported no changes in activity.",
+   "paraphrases": [
+    "That was up from 8 Districts in the prior report.",
+    "Growth breadth improved from 8 Districts previously.",
+    "The count of growing Districts rose from eight in the last report."
+   ],
+   "decoys": [
+    "That was up from 10 Districts in the prior report.",
+    "Ten of twelve Districts experienced slight or modest economic growth."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Consumer spending barely increased overall, with mixed reports across Districts and categories",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(consumer|household|retail) (spending|demand).{0,80}(barely|weak|soft|flat|mixed|muted|little|modest|slow|marginal|tepid|sluggish)",
+    "(barely|weak|soft|flat|mixed|muted|little|modest|slow|marginal|tepid|sluggish).{0,80}(consumer|household|retail) (spending|demand)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(consumer|household|retail) (spending|demand).{0,80}(strong|robust|surge|jump|boom|solid)",
+    "(strong|robust|surge|jump|boom|solid).{0,80}(consumer|household|retail) (spending|demand)"
+   ],
+   "quote": "Consumer spending barely increased overall, but reports were quite mixed across Districts and spending categories.",
+   "paraphrases": [
+    "Consumer spending barely rose overall, with mixed results across Districts and categories.",
+    "Retail/consumer demand barely increased, mixed across regions and categories.",
+    "Household spending grew only marginally, mixed by district and category."
+   ],
+   "decoys": [
+    "Consumer spending grew robustly across most Districts this period.",
+    "Several reports mentioned weakness in discretionary spending amid elevated price sensitivity."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Several reports noted weakness in discretionary spending as consumers' price sensitivity remained elevated",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "discretionary (spending|purchases).{0,60}(weak\\w*|soft\\w*|declin\\w*|pullback)|(weak\\w*|soft\\w*|declin\\w*|pullback).{0,60}discretionary (spending|purchases)",
+    "(weigh\\w* on|dent\\w*|dampen\\w*|curb\\w*).{0,60}discretionary (spending|purchases)|discretionary (spending|purchases).{0,60}(weigh\\w* on|dent\\w*|dampen\\w*|curb\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "discretionary spending.{0,60}(strong|robust|surge|jump)"
+   ],
+   "quote": "Several reports mentioned weakness in discretionary spending, as consumers' price sensitivity remained elevated.",
+   "paraphrases": [
+    "Discretionary spending showed weakness amid elevated price sensitivity.",
+    "Consumers' heightened price sensitivity weighed on discretionary purchases.",
+    "Several Districts flagged softness in discretionary spending as shoppers grew more price-sensitive."
+   ],
+   "decoys": [
+    "Discretionary spending strengthened as price sensitivity eased.",
+    "Consumer spending barely increased overall, with mixed results across Districts."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Employment grew at only a slight pace overall",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(employment|job growth|hiring|labor market).{0,60}(slight|modest|slow|little|flat|no change|unchanged|edge).{0,25}(overall|nationwide|nationally|national(?:ly)?|u\\.?s\\.?|most districts|across (?:regions|the country|the nation|districts))",
+    "(overall|nationwide|nationally|national(?:ly)?|u\\.?s\\.?|most districts|across (?:regions|the country|the nation|districts)).{0,25}(employment|job growth|hiring|labor market).{0,60}(slight|modest|slow|little|flat|no change|unchanged|edge)",
+    "(employment|job growth|hiring|labor market).{0,60}(overall|nationwide|nationally|national(?:ly)?|u\\.?s\\.?|most districts|across (?:regions|the country|the nation|districts)).{0,25}(slight|modest|slow|little|flat|no change|unchanged|edge)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(employment|job growth|hiring|labor market).{0,80}(declin|fell|falling|contract|shrink|drop|strong|robust|surge|solid)",
+    "(declin|fell|falling|contract|shrink|drop|strong|robust|surge|solid).{0,80}(employment|job growth|hiring|labor market)"
+   ],
+   "quote": "Employment rose at a slight pace overall, with nine Districts reporting very slow to modest increases",
+   "paraphrases": [
+    "Employment growth stayed slight, with most districts posting modest job gains.",
+    "Job growth remained modest-to-slow across regions; a few districts saw flat employment.",
+    "US employment ticked up slightly overall in the latest Beige Book."
+   ],
+   "decoys": [
+    "Employment declined across most Districts this reporting period.",
+    "Consumer spending rose at a slight pace overall, with nine Districts reporting modest increases."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Price increases stayed modest, running about the same pace as the prior report",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(price increases?|price growth|inflation).{0,30}(modest|moderate).{0,80}(same pace|prior report|last report|previous report|last period|prior period|previous period|last cycle|consistent with|previous beige book period)|(same pace|prior report|last report|previous report|last period|prior period|previous period|last cycle|consistent with|previous beige book period).{0,80}(modest|moderate).{0,30}(price increases?|price growth|inflation)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(price|inflation).{0,80}(accelerat|surg|spik|soar|deflation|fell sharply|falling sharply)",
+    "(accelerat|surg|spik|soar|deflation|fell sharply|falling sharply).{0,80}(price|inflation)"
+   ],
+   "quote": "Price increases were modest, on average, running at about the same pace as in the last report.",
+   "paraphrases": [
+    "Price growth stayed modest, roughly matching the pace seen in the prior report.",
+    "Inflation held at a moderate, steady pace nationwide, little changed from last cycle.",
+    "Overall price increases were modest and consistent with the previous Beige Book period."
+   ],
+   "decoys": [
+    "Price increases accelerated sharply since the last report.",
+    "Wage increases were modest, on average, running at about the same pace as in the last report."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Manufacturing activity declined slightly nationally",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(manufactur\\w*|factory output|industrial production).{0,80}(declin|contract|weak|fell|slip|soften|edge\\w* down)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(manufactur\\w*|factory output|industrial production).{0,80}(rebound|robust growth|broad-based growth|grew broadly|grew nationwide)"
+   ],
+   "quote": "Manufacturing activity declined slightly, as only three Districts reported growth in that sector.",
+   "paraphrases": [
+    "Manufacturing activity declined slightly nationally.",
+    "US factory output slipped slightly overall.",
+    "Nationally, manufacturing activity edged down slightly."
+   ],
+   "decoys": [
+    "Manufacturing activity grew broadly across the country this period.",
+    "Only three Districts reported growth in manufacturing this period."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Growth in manufacturing was seen in only 3 of 12 Districts",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:(?:three|(?<!\\d)3(?!\\d)).{0,40}districts.{0,40}(?:grow|grew|growth|increas|gain\\w*)|(?:grow|grew|growth|increas|gain\\w*).{0,40}(?:three|(?<!\\d)3(?!\\d)).{0,40}districts)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(eight|(?<!\\d)8(?!\\d)).{0,40}districts.{0,40}(grow|grew|growth|increas)"
+   ],
+   "quote": "Manufacturing activity declined slightly, as only three Districts reported growth in that sector.",
+   "paraphrases": [
+    "Only 3 of 12 Districts reported manufacturing growth.",
+    "Manufacturing growth was seen in just three Districts.",
+    "Just three Districts posted manufacturing gains this period."
+   ],
+   "decoys": [
+    "Manufacturing grew in eight of the twelve Districts.",
+    "Manufacturing activity declined slightly nationally."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Red Sea disruptions and the Key Bridge collapse caused shipping delays, but not yet broad price increases",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "red sea.{0,80}(shipping|delay|disrupt)",
+    "(shipping|delay|disrupt).{0,80}red sea",
+    "key bridge.{0,80}(shipping|delay|disrupt|collapse)",
+    "(shipping|delay|disrupt|collapse).{0,80}key bridge"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(red sea|key bridge).{0,80}widespread price increas"
+   ],
+   "quote": "Disruptions in the Red Sea and the collapse of Baltimore's Key Bridge caused some shipping delays but so far did not lead to widespread price increases.",
+   "paraphrases": [
+    "Red Sea disruptions and the Baltimore Key Bridge collapse caused some shipping delays, though price impact was so far limited.",
+    "Supply chains saw minor delays from Red Sea attacks and the Key Bridge collapse; broad price pass-through hasn't materialized yet.",
+    "Shipping was disrupted by Red Sea issues and the Francis Scott Key Bridge collapse, but inflationary effects remained contained."
+   ],
+   "decoys": [
+    "Red Sea disruptions and the Key Bridge collapse triggered widespread price increases across the country.",
+    "Panama Canal disruptions and a bridge collapse in Cincinnati caused shipping delays this period."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Firms' ability to pass on cost increases weakened, compressing profit margins",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(pass\\w* (?:on |through )?cost\\w*|profit margins?|pricing power).{0,80}(weaken|declin|shrink|shrank|compress|erod|squeez|smaller|reduc|harder)",
+    "(weaken|declin|shrink|shrank|compress|erod|squeez|smaller|reduc|harder).{0,80}(pass\\w* (?:on |through )?cost\\w*|profit margins?|pricing power)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(profit margins?|pricing power).{0,80}(strengthen|widen|expand|improv|grew|grow|rose|wider)",
+    "(strengthen|widen|expand|improv|grew|grow|rose|wider).{0,80}(profit margins?|pricing power)"
+   ],
+   "quote": "firms' ability to pass cost increases on to consumers had weakened considerably in recent months, resulting in smaller profit margins.",
+   "paraphrases": [
+    "Firms' ability to pass through cost increases weakened further, squeezing profit margins.",
+    "Pricing power eroded, compressing margins as businesses struggled to pass on higher costs.",
+    "Profit margins shrank as companies found it harder to pass rising costs on to customers."
+   ],
+   "decoys": [
+    "Firms' pricing power strengthened, allowing wider profit margins this period.",
+    "Labor costs weakened considerably in recent months, resulting in smaller payrolls."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Contacts described the overall economic outlook as cautiously optimistic",
+   "tier": "should",
+   "kind": "phrase",
+   "patterns": [
+    "cautiously optimistic"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "outlook.{0,80}(pessimist|downbeat|bleak|gloomy|deteriorat|worsen)",
+    "(pessimist|downbeat|bleak|gloomy|deteriorat|worsen).{0,80}outlook"
+   ],
+   "quote": "The economic outlook among contacts was cautiously optimistic, on balance.",
+   "paraphrases": [
+    "Business contacts described the outlook as cautiously optimistic overall.",
+    "Overall sentiment among contacts remained cautiously optimistic on balance.",
+    "Firms' near-term outlook stayed cautiously optimistic, per the April Beige Book."
+   ],
+   "decoys": [
+    "The economic outlook among contacts turned pessimistic and downbeat, on balance.",
+    "The economic outlook among contacts was highly optimistic, on balance."
+   ]
+  }
+ ]
+}

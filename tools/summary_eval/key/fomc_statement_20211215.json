@@ -1,0 +1,265 @@
+{
+ "doc_id": "fomc_statement_20211215",
+ "doc_type": "landmark",
+ "points": [
+  {
+   "id": "p1",
+   "point": "FOMC held the target range for the federal funds rate at 0 to 1/4 percent",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(target range|federal funds rate|funds rate|policy rate|\\brates?\\b).{0,80}((?<!\\d)0(?!\\d)(?:\\.(?<!\\d)00(?!\\d))?\\s*(?:to|-)\\s*(?<!\\d)0\\.25(?!\\d)|(?<!\\d)0(?!\\d)\\s*(?:to|-)\\s*(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|zero\\s*(?:to|-)\\s*(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|zero to (?:a |one-)?quarter)",
+    "((?<!\\d)0(?!\\d)(?:\\.(?<!\\d)00(?!\\d))?\\s*(?:to|-)\\s*(?<!\\d)0\\.25(?!\\d)|(?<!\\d)0(?!\\d)\\s*(?:to|-)\\s*(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|zero\\s*(?:to|-)\\s*(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|zero to (?:a |one-)?quarter).{0,80}(target range|federal funds rate|funds rate|policy rate|\\brates?\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Committee decided to keep the target range for the federal funds rate at 0 to 1/4 percent",
+   "paraphrases": [
+    "FOMC left the fed funds target range unchanged at 0-0.25%.",
+    "Fed held rates steady at zero to 1/4 percent.",
+    "Committee kept the policy rate at 0.00-0.25%, as expected."
+   ],
+   "decoys": [
+    "Fed raised the target range 25 basis points to 1/4-1/2 percent.",
+    "Committee kept the target range at 1/4 to 1/2 percent."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Committee cut the monthly pace of Treasury purchases by $20 billion",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)20(?!\\d)\\s*(?:billion|bn|b)\\b.{0,40}(treasur\\w*)",
+    "(treasur\\w*).{0,40}\\$?(?<!\\d)20(?!\\d)\\s*(?:billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(increas\\w*|raise\\w*|expand\\w*|add\\w*|boost\\w*).{0,50}\\$?(?<!\\d)20(?!\\d)\\s*(?:billion|bn|b)\\b",
+    "\\$?(?<!\\d)20(?!\\d)\\s*(?:billion|bn|b)\\b.{0,50}(increas\\w*|raise\\w*|expand\\w*|add\\w*|boost\\w*)"
+   ],
+   "quote": "the Committee decided to reduce the monthly pace of its net asset purchases by $20 billion for Treasury securities and $10 billion for agency mortgage-backed securities",
+   "paraphrases": [
+    "Fed doubled the taper pace, cutting monthly purchases by $20bn Treasuries.",
+    "FOMC will trim QE by $20B in Treasury buys per month.",
+    "Committee accelerated tapering: net asset purchases reduced $20 billion (Treasuries) monthly."
+   ],
+   "decoys": [
+    "Fed reduced purchases by $10 billion Treasuries monthly.",
+    "Committee increased its monthly Treasury purchases by $20 billion to support markets."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Committee cut the monthly pace of agency MBS purchases by $10 billion",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)10(?!\\d)\\s*(?:billion|bn|b)\\b.{0,40}(mortgage-backed|mbs|agency mbs)",
+    "(mortgage-backed|mbs|agency mbs).{0,40}\\$?(?<!\\d)10(?!\\d)\\s*(?:billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(increas\\w*|raise\\w*|expand\\w*|add\\w*|boost\\w*).{0,50}\\$?(?<!\\d)10(?!\\d)\\s*(?:billion|bn|b)\\b",
+    "\\$?(?<!\\d)10(?!\\d)\\s*(?:billion|bn|b)\\b.{0,50}(increas\\w*|raise\\w*|expand\\w*|add\\w*|boost\\w*)"
+   ],
+   "quote": "the Committee decided to reduce the monthly pace of its net asset purchases by $20 billion for Treasury securities and $10 billion for agency mortgage-backed securities",
+   "paraphrases": [
+    "FOMC will trim QE by $10B in MBS purchases per month.",
+    "Committee reduced MBS buying by $10 billion monthly.",
+    "Fed cut mortgage-backed securities purchases by $10 billion a month."
+   ],
+   "decoys": [
+    "Fed cut MBS purchases by $20 billion monthly.",
+    "Fed increased MBS purchases by $10 billion monthly."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Rate liftoff is conditioned on labor market conditions reaching levels consistent with maximum employment",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(labor market|employment)\\b.{0,100}(consistent with|reach\\w*|achiev\\w*).{0,100}(maximum|full|max)[\\s-]*employment",
+    "(maximum|full|max)[\\s-]*employment.{0,100}(labor market|employment)\\b.{0,100}(consistent|reach\\w*|achiev\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Committee expects it will be appropriate to maintain this target range until labor market conditions have reached levels consistent with the Committee's assessments of maximum employment",
+   "paraphrases": [
+    "Fed said it won't hike until the labor market reaches levels consistent with maximum employment.",
+    "Rate liftoff is conditioned on labor market conditions reaching max-employment levels, the FOMC said.",
+    "The Committee will hold rates near zero until employment conditions are consistent with its full-employment goal."
+   ],
+   "decoys": [
+    "The Fed said it would begin raising rates once inflation reached 2 percent, regardless of employment.",
+    "The Committee will maintain the target range until the pandemic is officially declared over."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Fed attributed the elevated inflation to pandemic-related supply and demand imbalances",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "supply.{0,15}demand.{0,15}(imbalances?|mismatch\\w*).{0,150}(inflation|price\\w*)",
+    "(inflation|price\\w*).{0,150}supply.{0,15}demand.{0,15}(imbalances?|mismatch\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Supply and demand imbalances related to the pandemic and the reopening of the economy have continued to contribute to elevated levels of inflation.",
+   "paraphrases": [
+    "The Fed said pandemic-related supply-demand imbalances are keeping inflation elevated.",
+    "Statement attributed high inflation to supply and demand mismatches tied to reopening.",
+    "Inflation remains elevated due to COVID-related supply/demand imbalances, the FOMC said."
+   ],
+   "decoys": [
+    "The Fed said inflation had eased back toward its 2 percent target as supply chains normalized.",
+    "The Committee attributed elevated unemployment to pandemic-related labor shortages."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Inflation remained elevated (level, apart from any cause)",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(inflation|price\\w*).{0,60}(elevated|remain\\w*\\s+(high|elevated)|persist\\w*.{0,15}high|still.{0,20}(high|elevated)|running\\s+hot)",
+    "(elevated|remain\\w*\\s+(high|elevated)|persist\\w*.{0,15}high|still.{0,20}(high|elevated)|running\\s+hot).{0,60}(inflation|price\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(inflation|price\\w*).{0,60}(eas\\w*|moderat\\w*|declin\\w*|\\bfell\\b|fall\\w*|cool\\w*|recede\\w*|slow\\w*)",
+    "(eas\\w*|moderat\\w*|declin\\w*|\\bfell\\b|fall\\w*|cool\\w*|recede\\w*|slow\\w*).{0,60}(inflation|price\\w*)"
+   ],
+   "quote": "Supply and demand imbalances related to the pandemic and the reopening of the economy have continued to contribute to elevated levels of inflation.",
+   "paraphrases": [
+    "Inflation remained elevated, the Fed said.",
+    "The Committee noted that price pressures were still running high.",
+    "Inflation stayed elevated amid the reopening, per the FOMC statement."
+   ],
+   "decoys": [
+    "Inflation eased back toward the Fed's 2 percent target.",
+    "Price pressures moderated significantly during the quarter."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Vote was unanimous: all 11 members voted for the action, no dissents",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(unanimous\\w*|no\\s+dissents?|without\\s+dissent)"
+   ],
+   "source_pattern": [
+    "Voting for the monetary policy action"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Voting for the monetary policy action were Jerome H. Powell, Chair; John C. Williams, Vice Chair; Thomas I. Barkin; Raphael W. Bostic; Michelle W. Bowman; Lael Brainard; Richard H. Clarida; Mary C. Daly; Charles L. Evans; Randal K. Quarles; and Christopher J. Waller.",
+   "paraphrases": [
+    "The FOMC vote was unanimous, 11-0.",
+    "All Committee members voted in favor; no dissents were recorded.",
+    "Every member of the Committee supported the decision unanimously."
+   ],
+   "decoys": [
+    "Esther George dissented, preferring to raise rates immediately.",
+    "The vote was 10-1, with one member preferring a smaller move."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "From January, new purchase pace is at least $40 billion/month Treasuries",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)40(?!\\d)\\s*(?:billion|bn|b)\\b.{0,80}(treasur\\w*)",
+    "(treasur\\w*).{0,80}\\$?(?<!\\d)40(?!\\d)\\s*(?:billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(reduc\\w*|cut\\w*|decreas\\w*|lower\\w*|trim\\w*).{0,30}\\$?(?<!\\d)40(?!\\d)\\s*(?:billion|bn|b)\\b",
+    "\\$?(?<!\\d)40(?!\\d)\\s*(?:billion|bn|b)\\b.{0,30}(reduc\\w*|cut\\w*|decreas\\w*|lower\\w*|trim\\w*)"
+   ],
+   "quote": "the Committee will increase its holdings of Treasury securities by at least $40 billion per month and of agency mortgage‑backed securities by at least $20 billion per month",
+   "paraphrases": [
+    "Starting in January, the Fed will buy at least $40bn in Treasuries monthly.",
+    "New pace: $40 billion/month Treasury purchases, beginning January.",
+    "From January, the new Treasury purchase pace is $40 billion a month."
+   ],
+   "decoys": [
+    "Starting in January, the Fed will buy at least $80 billion in Treasuries monthly.",
+    "Starting in January, the Fed will cut Treasury purchases to $40 billion monthly."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "From January, new purchase pace is at least $20 billion/month agency MBS",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)20(?!\\d)\\s*(?:billion|bn|b)\\b.{0,30}(mortgage-backed|mbs|agency mbs)",
+    "(mortgage-backed|mbs|agency mbs).{0,40}\\$?(?<!\\d)20(?!\\d)\\s*(?:billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(reduc\\w*|cut\\w*|decreas\\w*|lower\\w*|trim\\w*).{0,30}\\$?(?<!\\d)20(?!\\d)\\s*(?:billion|bn|b)\\b",
+    "\\$?(?<!\\d)20(?!\\d)\\s*(?:billion|bn|b)\\b.{0,30}(reduc\\w*|cut\\w*|decreas\\w*|lower\\w*|trim\\w*)"
+   ],
+   "quote": "the Committee will increase its holdings of Treasury securities by at least $40 billion per month and of agency mortgage‑backed securities by at least $20 billion per month",
+   "paraphrases": [
+    "Starting in January, the Fed will buy at least $20bn in MBS monthly.",
+    "New pace: $20 billion/month MBS purchases, beginning January.",
+    "From January, the new MBS purchase pace is $20 billion a month."
+   ],
+   "decoys": [
+    "Starting in January, the Fed will buy at least $40 billion in MBS monthly.",
+    "Starting in January, the Fed will cut MBS purchases to $20 billion monthly."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Committee signaled similar-sized taper reductions likely each month",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(similar|same).{0,60}(reduction|pace|increment)",
+    "(each|every)\\s*month|\\bmonthly\\b"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "The Committee judges that similar reductions in the pace of net asset purchases will likely be appropriate each month, but it is prepared to adjust the pace of purchases if warranted by changes in the economic outlook.",
+   "paraphrases": [
+    "The Fed signaled it would likely continue similar-sized taper reductions each month.",
+    "FOMC expects to keep cutting purchases at a similar pace monthly.",
+    "Committee guided toward continuing the taper at the same monthly increments."
+   ],
+   "decoys": [
+    "The Fed said it would keep asset purchases unchanged at the current pace indefinitely.",
+    "The Committee announced a one-time reduction with no further guidance on pace."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Committee said it is prepared to adjust the pace of purchases if warranted by changes in the economic outlook",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(prepared|ready|willing)\\s+to\\s+adjust.{0,60}(pace|purchases)",
+    "adjust\\w*.{0,60}(pace|purchases).{0,60}(outlook|warrant\\w*|economic conditions|needed|necessary)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "it is prepared to adjust the pace of purchases if warranted by changes in the economic outlook",
+   "paraphrases": [
+    "The Fed said it stands ready to adjust the pace of purchases if the outlook changes.",
+    "FOMC noted it could adjust the pace of purchases if economic conditions warranted.",
+    "The Committee remains prepared to adjust its purchase pace based on the economic outlook."
+   ],
+   "decoys": [
+    "The Fed committed to a fixed taper schedule regardless of economic developments.",
+    "The Committee ruled out any changes to the pace of asset purchases going forward."
+   ]
+  }
+ ]
+}

@@ -1,0 +1,130 @@
+{
+ "doc_id": "fomc-statement-2007-08-10",
+ "doc_type": "fomc_statement",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "phrase",
+   "match": "any",
+   "point": "Fed is providing liquidity to facilitate orderly functioning of financial markets amid market stress",
+   "quote": "The Federal Reserve is providing liquidity to facilitate the orderly functioning of financial markets.",
+   "paraphrases": [
+    "Fed is providing liquidity to support orderly functioning of financial markets.",
+    "Federal Reserve injecting liquidity to keep markets functioning smoothly.",
+    "Fed acts to supply liquidity and maintain orderly market functioning."
+   ],
+   "decoys": [
+    "The Federal Reserve is withdrawing liquidity to tighten financial conditions.",
+    "The Federal Reserve is providing liquidity to facilitate orderly functioning of the housing market."
+   ],
+   "patterns": [
+    "(provid\\w*|suppl\\w*|inject\\w*) liquidity.{0,80}(orderly functioning|smoothly?\\s*functioning|functioning smoothly|markets?\\s*functioning)",
+    "(orderly functioning|smoothly?\\s*functioning|functioning smoothly|markets?\\s*functioning).{0,80}(provid\\w*|suppl\\w*|inject\\w*) liquidity"
+   ],
+   "not_patterns": [
+    "(withdraw\\w*|drain\\w*|tighten\\w*|reduc\\w*) liquidity",
+    "housing market"
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "must",
+   "kind": "number",
+   "match": "any",
+   "point": "Statement references the FOMC's fed funds target rate of 5-1/4 percent",
+   "quote": "the Federal Open Market Committee's target rate of 5-1/4 percent",
+   "paraphrases": [
+    "Fed funds target rate remains 5-1/4% amid the liquidity operations.",
+    "FOMC's target rate referenced at 5.25% (525bp).",
+    "Statement cites the FOMC target rate of 5-1/4 percent."
+   ],
+   "decoys": [
+    "The FOMC cut its target rate to 5 percent to ease market strains.",
+    "The FOMC's target rate is referenced at 5-1/2 percent."
+   ],
+   "patterns": [
+    "(target rate|federal funds rate|fed funds rate).{0,80}((?<!\\d)5(?!\\d)[\\-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)5\\.25(?!\\d)|(?<!\\d)525(?!\\d)\\s?(bp|basis points))",
+    "((?<!\\d)5(?!\\d)[\\-\\s]?(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)5\\.25(?!\\d)|(?<!\\d)525(?!\\d)\\s?(bp|basis points)).{0,80}(target rate|federal funds rate|fed funds rate)"
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "phrase",
+   "match": "any",
+   "point": "Discount window is available as a source of funding",
+   "quote": "the discount window is available\nas a source of funding.",
+   "paraphrases": [
+    "The discount window remains available as a funding source for banks.",
+    "Fed noted the discount window is open as a backstop funding source.",
+    "Discount window available to institutions needing funding."
+   ],
+   "decoys": [
+    "The term auction facility is available as a source of funding.",
+    "The discount window is temporarily closed to new borrowers."
+   ],
+   "patterns": [
+    "discount window.{0,80}(available|source of funding|open)",
+    "(available|source of funding|open).{0,80}discount window"
+   ],
+   "not_patterns": [
+    "(closed|unavailable|suspend\\w*).{0,80}discount window",
+    "term auction facility"
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "should",
+   "kind": "concept",
+   "match": "all",
+   "point": "Unusual funding needs stem from dislocations in money and credit markets",
+   "quote": "depository institutions may experience unusual funding needs because of dislocations in money and credit markets",
+   "paraphrases": [
+    "Fed noted banks may face unusual funding needs amid money-market dislocations.",
+    "Depository institutions could see unusual funding needs due to credit market strains.",
+    "Unusual funding needs cited as a result of turmoil in money and credit markets."
+   ],
+   "decoys": [
+    "Depository institutions may experience unusual funding needs because of a government shutdown.",
+    "Depository institutions are experiencing normal, seasonal funding needs with no market stress."
+   ],
+   "patterns": [
+    "funding needs",
+    "(?:(?:dislocat\\w*|disrupt\\w*|strain\\w*|turmoil|stress).{0,80}(?:money and credit markets|credit markets?|money[\\-\\s]?markets?)|(?:money and credit markets|credit markets?|money[\\-\\s]?markets?).{0,80}(?:dislocat\\w*|disrupt\\w*|strain\\w*|turmoil|stress))"
+   ],
+   "not_patterns": [
+    "government shutdown",
+    "normal.{0,80}funding needs|seasonal funding needs|no market stress"
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Fed will supply reserves as necessary through open market operations to keep fed funds trading near target",
+   "quote": "The Federal Reserve will provide reserves as necessary through open market operations to promote trading in the federal funds market",
+   "paraphrases": [
+    "Fed will supply reserves as needed via open market operations to keep fed funds near target.",
+    "Federal Reserve to conduct open market operations, providing reserves as necessary.",
+    "Fed pledged flexible reserve provision through OMOs to support the fed funds rate."
+   ],
+   "decoys": [
+    "The Federal Reserve will drain reserves through open market operations.",
+    "The Federal Reserve will provide a fixed, one-time injection of reserves through the discount window."
+   ],
+   "patterns": [
+    "(open market operations|OMOs?).{0,80}reserves?",
+    "reserves?.{0,80}(open market operations|OMOs?)",
+    "(open market operations|OMOs?).{0,80}(as necessary|as needed)",
+    "(as necessary|as needed).{0,80}(open market operations|OMOs?)"
+   ],
+   "not_patterns": [
+    "drain\\w*.{0,80}reserves",
+    "fixed.{0,80}(injection|amount).{0,80}reserves",
+    "discount window.{0,80}reserves"
+   ]
+  }
+ ]
+}

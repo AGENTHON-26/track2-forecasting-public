@@ -1,0 +1,194 @@
+{
+ "doc_id": "svb_8k_2023-03-08_d430920dex991",
+ "doc_type": "corporate_8k",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "number",
+   "point": "SVB announced an offering of $1.25 billion of common stock",
+   "patterns": [
+    "(?<!\\d)1\\.25(?!\\d)\\s?(billion|bn|b)\\b.{0,80}common",
+    "common.{0,80}(?<!\\d)1\\.25(?!\\d)\\s?(billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(repurchase|buyback|redeem).{0,80}(?<!\\d)1\\.25(?!\\d)",
+    "(?<!\\d)1\\.25(?!\\d).{0,80}(repurchase|buyback|redeem)"
+   ],
+   "quote": "intends to offer $1.25 billion of its common stock and $500 million of depositary shares",
+   "paraphrases": [
+    "SVB announced a $1.25 billion common stock offering.",
+    "The bank plans to raise $1.25B via a common stock offering.",
+    "SVB launched a public offering of $1.25 billion of common equity."
+   ],
+   "decoys": [
+    "SVB completed a $1.25 billion common stock buyback.",
+    "SVB announced a $1.75 billion common stock offering."
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "must",
+   "kind": "number",
+   "point": "SVB announced an offering of $500 million of mandatory convertible preferred stock (depositary shares)",
+   "patterns": [
+    "(?<!\\d)500(?!\\d)\\s?(million|mm|m)\\b.{0,80}(preferred|depositary)",
+    "(preferred|depositary).{0,80}(?<!\\d)500(?!\\d)\\s?(million|mm|m)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(repurchase|buyback|redeem|retir\\w*).{0,80}(?<!\\d)500(?!\\d)",
+    "(?<!\\d)500(?!\\d).{0,80}(repurchase|buyback|redeem|retir\\w*)"
+   ],
+   "quote": "intends to offer $1.25 billion of its common stock and $500 million of depositary shares",
+   "paraphrases": [
+    "SVB announced a $500 million mandatory convertible preferred stock offering.",
+    "The bank plans to raise $500M via preferred depositary shares.",
+    "SVB launched an offering of $500 million of convertible preferred shares."
+   ],
+   "decoys": [
+    "SVB retired $500 million of preferred shares.",
+    "SVB announced a $250 million preferred stock offering."
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "number",
+   "point": "SVB sold approximately $21 billion of AFS securities",
+   "patterns": [
+    "(?<!\\d)21(?!\\d)\\s?(billion|bn|b)\\b.{0,80}(sold|sale|securities)",
+    "(sold|sale|securities).{0,80}(?<!\\d)21(?!\\d)\\s?(billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(purchas\\w*|bought|acquir\\w*).{0,80}(?<!\\d)21(?!\\d)\\s?(billion|bn|b)\\b.{0,40}securities",
+    "(?<!\\d)21(?!\\d)\\s?(billion|bn|b)\\b.{0,40}securities.{0,80}(purchas\\w*|bought|acquir\\w*)"
+   ],
+   "quote": "sold approximately $21 billion of securities, which will result in an after tax loss of approximately $1.8 billion in the first quarter of 2023",
+   "paraphrases": [
+    "SVB sold about $21 billion of AFS securities.",
+    "The bank sold roughly $21B of available-for-sale securities.",
+    "SVB's securities sale totaled approximately $21 billion."
+   ],
+   "decoys": [
+    "SVB sold $12 billion of securities.",
+    "SVB purchased $21 billion of securities."
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "must",
+   "kind": "number",
+   "point": "SVB's securities sale will result in an after-tax loss of approximately $1.8 billion in Q1 2023",
+   "patterns": [
+    "(?<!\\d)1\\.8(?!\\d)\\s?(billion|bn|b)\\b.{0,80}(loss|hit|charge|write-?down)",
+    "(loss|hit|charge|write-?down).{0,80}(?<!\\d)1\\.8(?!\\d)\\s?(billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)1\\.8(?!\\d)\\s?(billion|bn|b)\\b.{0,80}(gain|profit)",
+    "(gain|profit).{0,80}(?<!\\d)1\\.8(?!\\d)\\s?(billion|bn|b)\\b"
+   ],
+   "quote": "sold approximately $21 billion of securities, which will result in an after tax loss of approximately $1.8 billion in the first quarter of 2023",
+   "paraphrases": [
+    "The sale will result in a roughly $1.8 billion after-tax loss in Q1 2023.",
+    "SVB booked an after-tax loss of approximately $1.8 billion in the first quarter.",
+    "SVB expects a $1.8B after-tax hit related to the securities sale in Q1'23."
+   ],
+   "decoys": [
+    "SVB's securities sale generated a $1.8 billion after-tax gain.",
+    "SVB booked an after-tax loss of approximately $2.8 billion."
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "must",
+   "kind": "name",
+   "point": "General Atlantic committed to purchase $500 million of common stock in a concurrent private placement",
+   "patterns": [
+    "(General\\s+Atlantic.{0,80}(?<!\\d)500(?!\\d)\\s?(million|mm|m)\\b|(?<!\\d)500(?!\\d)\\s?(million|mm|m)\\b.{0,80}General\\s+Atlantic)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "General\\s+Atlantic.{0,80}(sell|divest|exit)",
+    "(sell|divest|exit).{0,80}General\\s+Atlantic"
+   ],
+   "quote": "subscription agreement with General Atlantic, a leading global growth equity investor, to purchase $500 million of common stock at the public offering price",
+   "paraphrases": [
+    "General Atlantic committed to invest $500 million in SVB's common stock offering.",
+    "SVB secured a $500M private placement commitment from General Atlantic on the same terms as the public offering.",
+    "General Atlantic will purchase $500 million of common shares in a concurrent private transaction."
+   ],
+   "decoys": [
+    "Goldman Sachs committed to invest $500 million in SVB's common stock offering.",
+    "General Atlantic committed to invest $250 million in SVB's common stock offering."
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "number",
+   "point": "Underwriters were granted an over-allotment option for an additional $187.5 million of common stock",
+   "patterns": [
+    "(?<!\\d)187\\.5(?!\\d)\\s?(million|mm|m)\\b.{0,80}(common|option|over-?allotment|underwriters|greenshoe)",
+    "(common|option|over-?allotment|underwriters|greenshoe).{0,80}(?<!\\d)187\\.5(?!\\d)\\s?(million|mm|m)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)187\\.5(?!\\d).{0,30}preferred",
+    "preferred.{0,30}(?<!\\d)187\\.5(?!\\d)"
+   ],
+   "quote": "an option to purchase up to an additional $187.5 million of common stock and (ii) the underwriters in the Preferred Stock offering an over-allotment option to purchase up to an additional $75 million",
+   "paraphrases": [
+    "Underwriters were granted an option for an extra $187.5 million of common stock.",
+    "SVB granted a $187.5 million common stock over-allotment option to underwriters.",
+    "The common offering carries a $187.5 million greenshoe option."
+   ],
+   "decoys": [
+    "Underwriters were granted options for an extra $150 million of common stock.",
+    "Underwriters were granted options for an extra $187.5 million of preferred stock."
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "number",
+   "point": "Underwriters were granted an over-allotment option for an additional $75 million (1.5 million depositary shares) of preferred stock",
+   "patterns": [
+    "(?<!\\d)75(?!\\d)\\s?(million|mm|m)\\b.{0,80}(preferred|depositary|over-?allotment)",
+    "(preferred|depositary|over-?allotment).{0,80}(?<!\\d)75(?!\\d)\\s?(million|mm|m)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "an option to purchase up to an additional $187.5 million of common stock and (ii) the underwriters in the Preferred Stock offering an over-allotment option to purchase up to an additional $75 million",
+   "paraphrases": [
+    "Underwriters were granted an option for an extra $75 million of preferred stock.",
+    "SVB granted a $75 million (1.5 million depositary shares) preferred stock over-allotment option.",
+    "The preferred offering carries a $75 million over-allotment option."
+   ],
+   "decoys": [
+    "Underwriters were granted options for an extra $50 million of preferred stock.",
+    "Underwriters were granted options for an extra $75 million of common stock."
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "judge_only",
+   "point": "Consummation of each offering is not contingent upon consummation of the other offering",
+   "patterns": [],
+   "quote": "The consummation of each offering is not contingent upon the consummation of the other offering.",
+   "paraphrases": [
+    "The common stock and preferred stock offerings are not contingent on one another.",
+    "Each offering can close independently of the other.",
+    "Completion of one offering does not depend on completion of the other."
+   ],
+   "decoys": [
+    "The common stock offering is contingent on completion of the preferred stock offering.",
+    "The offerings are contingent on regulatory approval from the SEC."
+   ]
+  }
+ ]
+}

@@ -1,0 +1,235 @@
+{
+ "doc_id": "fomc-minutes-20150917",
+ "doc_type": "fomc_minutes",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Committee held the federal funds target range steady at 0 to 1/4 percent (no liftoff)",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(target range|federal funds rate|policy rate|rates?).{0,60}((?<!\\d)0(?!\\d)\\s*(\\.(?<!\\d)00(?!\\d))?\\s*(to|-|–)\\s*((?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0\\.25(?!\\d))\\s*%?|zero to (a )?quarter( point)?)",
+    "((?<!\\d)0(?!\\d)\\s*(\\.(?<!\\d)00(?!\\d))?\\s*(to|-|–)\\s*((?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0\\.25(?!\\d))\\s*%?|zero to (a )?quarter( point)?).{0,60}(target range|federal funds rate|policy rate|rates?)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The Committee agreed to maintain the target range for the federal funds rate at 0 to 1/4 percent",
+   "paraphrases": [
+    "FOMC left rates unchanged at 0-0.25%.",
+    "Fed held the fed funds target range steady at 0 to 1/4 percent.",
+    "Committee kept the policy rate at zero to a quarter point; no liftoff this meeting."
+   ],
+   "decoys": [
+    "FOMC raised rates 25bp to a range of 1/4 to 1/2 percent.",
+    "Committee cut the target range to -0.25 to 0 percent."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Lacker dissented, preferring to raise the target range at this meeting",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "Lacker.{0,80}(dissent\\w*|voted against)",
+    "(dissent\\w*|voted against).{0,80}Lacker"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Mr. Lacker dissented because he believed that maintaining exceptionally low real interest rates was not appropriate",
+   "paraphrases": [
+    "Lacker dissented, wanting a rate hike at this meeting.",
+    "Jeffrey Lacker voted against the decision, preferring to raise rates now.",
+    "The lone dissenter, Lacker, favored tightening immediately and voted against the hold."
+   ],
+   "decoys": [
+    "George dissented, preferring to raise rates at this meeting.",
+    "All nine other members voted for the decision with no dissents recorded."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Guidance: hike expected once labor market improves further and Fed is reasonably confident inflation returns to 2 percent",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "reasonably confident.{0,100}((?<!\\d)2(?!\\d) percent|(?<!\\d)2(?!\\d)%|two percent)",
+    "((?<!\\d)2(?!\\d) percent|(?<!\\d)2(?!\\d)%|two percent).{0,100}reasonably confident"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "it would be appropriate to raise the target range for the federal funds rate when it sees some further improvement in the labor market and is reasonably confident that inflation will move back to its 2 percent objective",
+   "paraphrases": [
+    "Fed will hike once it sees further labor-market gains and is reasonably confident inflation returns to 2%.",
+    "Liftoff is conditioned on more job-market improvement and being reasonably confident inflation heads back to 2 percent.",
+    "FOMC reiterated it needs further labor gains and to be reasonably confident inflation returns to 2 percent before raising rates."
+   ],
+   "decoys": [
+    "Fed said it would hike once GDP growth exceeded 4 percent.",
+    "Committee said it needed to see inflation exceed 3 percent before easing policy."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Hold was driven partly by global growth concerns tied to slower growth in China",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(china|chinese).{0,80}(slow\\w*|weak\\w*|soft\\w*|concern|growth)",
+    "(slow\\w*|weak\\w*|soft\\w*|concern).{0,80}(china|chinese)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "recent global and financial market developments might restrain economic activity somewhat as a result of the higher level of the dollar and possible effects of slower economic growth in China",
+   "paraphrases": [
+    "The hold reflected concerns over slowing growth in China and abroad.",
+    "Officials cited slower Chinese and global growth as a reason to hold rates steady.",
+    "Concerns about a China-led global slowdown argued for waiting to hike."
+   ],
+   "decoys": [
+    "The hold was driven mainly by concerns over a U.S. government shutdown.",
+    "Officials said domestic labor market weakness was the main reason to delay."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Hold was also driven by financial-market volatility during the intermeeting period",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "market.{0,15}(volatility|turbulence|turmoil)",
+    "(volatility|turbulence|turmoil).{0,15}market"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "domestic financial conditions tightened modestly as concerns about prospects for global economic growth, centered on China, prompted an increase in financial market volatility and a deterioration in risk sentiment during the intermeeting period",
+   "paraphrases": [
+    "Rising financial-market volatility and a deterioration in risk sentiment also argued for holding rates steady.",
+    "Turbulence in financial markets during the intermeeting period was cited as a reason for the pause.",
+    "Elevated market volatility, alongside the China-driven growth concerns, supported keeping rates on hold."
+   ],
+   "decoys": [
+    "Financial markets were calm and orderly during the intermeeting period.",
+    "The hold was driven mainly by concerns over a U.S. government shutdown."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Unemployment rate fell to 5.1 percent in August",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(unemployment( rate| level)?|jobless rate).{0,60}(?<!\\d)5\\.1(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)5\\.1(?!\\d)\\s*(percent|%).{0,60}(unemployment( rate| level)?|jobless rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "fell to 5.1 percent in August",
+   "paraphrases": [
+    "Unemployment fell to 5.1% in August.",
+    "Jobless rate dropped to 5.1 percent last month.",
+    "The unemployment rate declined to 5.1%, from 5.3% in July."
+   ],
+   "decoys": [
+    "Unemployment rate rose to 5.5 percent in August.",
+    "Unemployment rate held steady at 5.3 percent in August."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Inflation continued to run below the 2 percent objective",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "inflation.{0,60}(below|under).{0,60}(objective|goal|target)",
+    "(below|under).{0,60}(objective|goal|target).{0,60}inflation"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "inflation.{0,60}(above|exceed\\w*|overshoot\\w*).{0,60}(objective|goal|target)"
+   ],
+   "quote": "Inflation has continued to run below the Committee's longer-run objective, partly reflecting declines in energy prices and in prices of non-energy imports",
+   "paraphrases": [
+    "Inflation stayed below the Fed's 2% goal.",
+    "Inflation remained under the Committee's 2 percent objective.",
+    "Headline inflation continued running below target."
+   ],
+   "decoys": [
+    "Inflation ran above the Committee's 2 percent objective for a second month.",
+    "Inflation held right at the Committee's 2 percent target."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "The inflation shortfall was held down by declines in energy and import prices",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(energy price\\w*|energy costs?|import price\\w*|non-energy imports?).{0,80}(inflation|below|declin\\w*|held down|weigh\\w*)",
+    "(inflation|below|declin\\w*|held down|weigh\\w*).{0,80}(energy price\\w*|energy costs?|import price\\w*|non-energy imports?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "not\\s+(energy|import)(\\s+or\\s+(energy|import))?\\s+price\\w*",
+    "(unrelated to|rather than).{0,20}(energy|import) price\\w*"
+   ],
+   "quote": "Inflation has continued to run below the Committee's longer-run objective, partly reflecting declines in energy prices and in prices of non-energy imports",
+   "paraphrases": [
+    "The shortfall was held down by declines in energy prices and import prices.",
+    "Falling energy and import prices kept inflation below the Fed's target.",
+    "Cheaper energy and non-energy imports were the main drags on inflation."
+   ],
+   "decoys": [
+    "Inflation continued to run below the Committee's longer-run objective.",
+    "The shortfall in inflation was attributed mainly to weak wage growth, not energy or import prices."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Odds of a September hike fell during the intermeeting period",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(probability|odds|likelihood).{0,60}(first increase|rate increase|hike|liftoff).{0,100}(fell|declined|dropped|lower|marked down)",
+    "(fell|declined|dropped|lower|marked down).{0,100}(probability|odds|likelihood).{0,60}(first increase|rate increase|hike|liftoff)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(probability|odds|likelihood).{0,60}(first increase|rate increase|hike|liftoff).{0,100}(rose|increased|higher|climbed)"
+   ],
+   "quote": "the probability of a first increase in the target range for the federal funds rate at the September meeting fell slightly",
+   "paraphrases": [
+    "Market-implied odds of a September rate hike fell during the intermeeting period.",
+    "The probability of liftoff at this meeting declined amid volatility.",
+    "Investors marked down the odds of a September hike."
+   ],
+   "decoys": [
+    "Odds of a September hike rose sharply after strong jobs data.",
+    "Market pricing for the December meeting hike fell to near zero."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "The expected fed funds path shifted down amid market turbulence",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(flatter|flatten\\w*).{0,60}path",
+    "path.{0,60}(flatter|flatten\\w*)",
+    "(shifted down|moved down|marked down|revised down).{0,40}(expected|projected).{0,20}path",
+    "(expected|projected).{0,20}path.{0,40}(shifted down|moved down|marked down|revised down)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Tighter financial market conditions and greater volatility contributed to a reduction of the odds that market participants appeared to place on the first increase in the federal funds rate occurring at the September FOMC meeting and to a flatter expected path for the policy rate thereafter.",
+   "paraphrases": [
+    "The expected fed funds path shifted down amid the market turbulence.",
+    "Investors marked down the expected policy-rate path after the volatility.",
+    "The rate path implied by markets flattened following the turmoil."
+   ],
+   "decoys": [
+    "The expected fed funds path shifted up as investors priced a faster hiking cycle.",
+    "Odds of a September hike fell during the intermeeting period."
+   ]
+  }
+ ]
+}

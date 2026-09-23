@@ -1,0 +1,214 @@
+{
+ "doc_id": "fomc-statement-2024-01-31",
+ "doc_type": "fomc_statement",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "number",
+   "match": "any",
+   "point": "Committee held the federal funds target range unchanged at 5-1/4 to 5-1/2 percent",
+   "quote": "the Committee decided to maintain the target range for the federal funds rate at 5-1/4 to 5-1/2 percent",
+   "paraphrases": [
+    "FOMC held the fed funds target range steady at 5.25-5.50%.",
+    "Fed funds target range kept unchanged at 5-1/4 to 5-1/2 percent.",
+    "Rates left unchanged, range still 525-550bp."
+   ],
+   "decoys": [
+    "The Committee decided to raise the target range for the federal funds rate to 5-1/2 to 5-3/4 percent.",
+    "The Committee decided to maintain the target range for the federal funds rate at 5 to 5-1/4 percent."
+   ],
+   "patterns": [
+    "(?:target range|federal funds rate|fed funds rate|rates?|range).{0,80}(?:5[\\-\\s]?1/4\\s?%?\\s?(?:to|-)\\s?5[\\-\\s]?1/2\\s?%?|5\\.25\\s?%?\\s?(?:to|-)\\s?5\\.5\\d?\\s?%?|525\\s?(?:to|-)\\s?550)",
+    "(?:5[\\-\\s]?1/4\\s?%?\\s?(?:to|-)\\s?5[\\-\\s]?1/2\\s?%?|5\\.25\\s?%?\\s?(?:to|-)\\s?5\\.5\\d?\\s?%?|525\\s?(?:to|-)\\s?550).{0,80}(?:target range|federal funds rate|fed funds rate|rates?|range)"
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "must",
+   "kind": "phrase",
+   "match": "any",
+   "point": "Fed will not cut until it gains 'greater confidence' inflation is moving sustainably toward 2 percent",
+   "quote": "The Committee does not expect it will be appropriate to reduce the target range until it has gained greater confidence that inflation is moving sustainably toward 2 percent.",
+   "paraphrases": [
+    "Fed won't cut rates until it gains greater confidence inflation is headed sustainably to 2%.",
+    "FOMC says rate cuts require greater confidence on sustainable disinflation to target.",
+    "No rate cut until FOMC has 'greater confidence' that inflation is moving sustainably to 2 percent."
+   ],
+   "decoys": [
+    "The Committee said it has already gained sufficient confidence to begin cutting rates.",
+    "The Committee does not expect to raise the target range until it has gained greater confidence in above-target inflation."
+   ],
+   "patterns": [
+    "greater confidence.{0,80}(inflation|sustainably|(?<!\\d)2(?!\\d) percent)",
+    "(inflation|sustainably|(?<!\\d)2(?!\\d) percent).{0,80}greater confidence"
+   ],
+   "not_patterns": [
+    "(already gained|sufficient confidence|has gained).{0,80}(cut|reduc\\w*|lower\\w*)",
+    "raise the target range.{0,80}greater confidence",
+    "greater confidence.{0,80}raise the target range"
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "concept",
+   "match": "any",
+   "point": "Job gains have moderated since early last year but remain strong",
+   "quote": "Job gains have moderated since early last year but remain strong, and the unemployment rate has remained low.",
+   "paraphrases": [
+    "Job growth has slowed from last year's pace but is still strong.",
+    "Payroll gains moderated yet remain robust.",
+    "Hiring has cooled somewhat but stays strong."
+   ],
+   "decoys": [
+    "Job growth has weakened sharply and is no longer strong.",
+    "The unemployment rate has remained low."
+   ],
+   "patterns": [
+    "(?:(?:job gains|payroll\\w*|hiring|job growth).{0,80}(?:moderat\\w*|slow\\w*|cool\\w*)|(?:moderat\\w*|slow\\w*|cool\\w*).{0,80}(?:job gains|payroll\\w*|hiring|job growth))"
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "The unemployment rate has remained low",
+   "quote": "Job gains have moderated since early last year but remain strong, and the unemployment rate has remained low.",
+   "paraphrases": [
+    "The unemployment rate has remained low.",
+    "Jobless rate stays low.",
+    "Unemployment has held at a low level."
+   ],
+   "decoys": [
+    "Job gains have moderated since early last year but remain strong.",
+    "The unemployment rate has moved up but remains low."
+   ],
+   "patterns": [
+    "(?:(?:unemployment|jobless).{0,80}low|low.{0,80}(?:unemployment|jobless))"
+   ],
+   "not_patterns": [
+    "(unemployment|jobless).{0,80}(moved up|rose|increas\\w*|higher)",
+    "(moved up|rose|increas\\w*|higher).{0,80}(unemployment|jobless)"
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Inflation has eased over the past year",
+   "quote": "Inflation has eased over the past year but remains elevated.",
+   "paraphrases": [
+    "Inflation has cooled over the past year.",
+    "Price pressures have eased from a year ago.",
+    "Inflation is down from last year's pace."
+   ],
+   "decoys": [
+    "Inflation has picked up over the past year.",
+    "Inflation remains elevated."
+   ],
+   "patterns": [
+    "(?:(?:inflation|price pressures).{0,80}(?:eas\\w*|cool\\w*|declin\\w*|moderat\\w*|down|lower)|(?:eas\\w*|cool\\w*|declin\\w*|moderat\\w*|down|lower).{0,80}(?:inflation|price pressures))"
+   ],
+   "not_patterns": [
+    "(?:(?:inflation|price pressures).{0,80}(?:pick\\w* up|accelerat\\w*|ris\\w* further|higher)|(?:pick\\w* up|accelerat\\w*|ris\\w* further|higher).{0,80}(?:inflation|price pressures))"
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Inflation remains elevated",
+   "quote": "Inflation has eased over the past year but remains elevated.",
+   "paraphrases": [
+    "Inflation remains elevated.",
+    "Price pressures are still above target.",
+    "Inflation continues to run high."
+   ],
+   "decoys": [
+    "Inflation has eased over the past year.",
+    "Inflation has eased over the past year and returned to the 2 percent objective."
+   ],
+   "patterns": [
+    "(?:(?:inflation|price pressures).{0,80}(?:elevated|above target|still high|remains? high|run\\w* high)|(?:elevated|above target|still high|remains? high|run\\w* high).{0,80}(?:inflation|price pressures))"
+   ],
+   "not_patterns": [
+    "(?:returned to|back at|already at).{0,40}(?:2 percent|target)"
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Risks to employment and inflation goals judged to be moving into better balance",
+   "quote": "The Committee judges that the risks to achieving its employment and inflation goals are moving into better balance.",
+   "paraphrases": [
+    "Fed says risks to its dual mandate goals are moving into better balance.",
+    "Committee sees employment and inflation risks becoming more balanced.",
+    "Risks to jobs and inflation goals improving toward balance."
+   ],
+   "decoys": [
+    "The Committee judges that risks to its goals remain skewed to the downside.",
+    "The Committee said inflation risks were tilted to the upside and employment risks remained elevated."
+   ],
+   "patterns": [
+    "(?:risk\\w*.{0,80}(?:better balance|more balanced|toward(?:s)? balance|improving.{0,20}balance)|(?:better balance|more balanced|toward(?:s)? balance|improving.{0,20}balance).{0,80}risk\\w*)"
+   ],
+   "not_patterns": [
+    "(?:risk\\w*.{0,80}(?:tilt\\w*|skew\\w*|downside|upside)|(?:tilt\\w*|skew\\w*|downside|upside).{0,80}risk\\w*)"
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Fed will continue reducing its holdings of Treasury securities as previously announced",
+   "quote": "the Committee will continue reducing its holdings of Treasury securities and agency debt and agency mortgage-backed securities, as described in its previously announced plans",
+   "paraphrases": [
+    "Fed continues balance-sheet runoff of Treasuries at the same pace.",
+    "QT continues: Fed still reducing Treasury holdings per prior plans.",
+    "Committee to keep shrinking its Treasury securities portfolio as previously announced."
+   ],
+   "decoys": [
+    "The Committee will halt the reduction of its Treasury holdings.",
+    "Fed continues balance-sheet runoff of agency MBS, per prior plans."
+   ],
+   "patterns": [
+    "(treasur\\w*).{0,80}(reduc\\w*|runoff|shrink\\w*|roll off|QT)",
+    "(reduc\\w*|runoff|shrink\\w*|roll off|QT).{0,80}(treasur\\w*)"
+   ],
+   "not_patterns": [
+    "(halt\\w*|stop\\w*|pause\\w*|end\\w*).{0,80}(treasur\\w*|reduc\\w*|runoff)"
+   ]
+  },
+  {
+   "id": "p9",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Fed will continue reducing its holdings of agency MBS as previously announced",
+   "quote": "the Committee will continue reducing its holdings of Treasury securities and agency debt and agency mortgage-backed securities, as described in its previously announced plans",
+   "paraphrases": [
+    "Fed continues balance-sheet runoff of agency MBS at the same pace.",
+    "QT continues: Fed still reducing agency debt and MBS holdings per prior plans.",
+    "Committee to keep shrinking its agency mortgage-backed securities portfolio as previously announced."
+   ],
+   "decoys": [
+    "The Committee will halt the reduction of its MBS holdings.",
+    "Fed continues balance-sheet runoff of Treasury securities, per prior plans."
+   ],
+   "patterns": [
+    "(MBS|mortgage[\\-\\s]?backed|agency debt).{0,80}(reduc\\w*|runoff|shrink\\w*|roll off|QT)",
+    "(reduc\\w*|runoff|shrink\\w*|roll off|QT).{0,80}(MBS|mortgage[\\-\\s]?backed|agency debt)"
+   ],
+   "not_patterns": [
+    "(halt\\w*|stop\\w*|pause\\w*|end\\w*).{0,80}(MBS|mortgage[\\-\\s]?backed|reduc\\w*|runoff)"
+   ]
+  }
+ ]
+}

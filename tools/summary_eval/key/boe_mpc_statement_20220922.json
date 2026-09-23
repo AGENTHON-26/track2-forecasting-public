@@ -1,0 +1,260 @@
+{
+ "doc_id": "boe_mpc_statement_20220922",
+ "doc_type": "landmark",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Three MPC members dissented, preferring a bigger 75bp hike to 2.5%",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(three|3)\\s*(members?)?.{0,100}(0\\.75|75\\s*(bp|basis points?)).{0,60}(2\\.5\\s*(%|percent))",
+    "(0\\.75|75\\s*(bp|basis points?)).{0,60}(2\\.5\\s*(%|percent)).{0,100}(three|3)\\s*members?"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Three members (Jonathan Haskel, Catherine L Mann and Dave Ramsden) voted against the first proposition, preferring to increase Bank Rate by 0.75 percentage points, to 2.5%.",
+   "paraphrases": [
+    "Three members dissented, preferring a bigger 75bp hike to 2.5%.",
+    "Three MPC members wanted a 0.75 percentage point increase, to 2.5%, instead.",
+    "Three dissenters favored raising Bank Rate by 75bp to 2.5%."
+   ],
+   "decoys": [
+    "Three members dissented, preferring a smaller 25bp hike to 2%.",
+    "One member dissented, preferring a bigger 75bp hike to 2.5%."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "One MPC member dissented, preferring a smaller 25bp hike to 2%",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(one)\\s*(member)?.{0,100}(0\\.25|25\\s*(bp|basis points?)).{0,60}(?<!\\d)2(?!\\.\\d)(?!\\d)\\s*(%|percent)",
+    "(0\\.25|25\\s*(bp|basis points?)).{0,60}(?<!\\d)2(?!\\.\\d)(?!\\d)\\s*(%|percent).{0,100}(one)\\s*member"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "One member (Swati Dhingra) voted against the first proposition, preferring to increase Bank Rate by 0.25 percentage points, to 2%.",
+   "paraphrases": [
+    "One member dissented, preferring a smaller 25bp hike to 2%.",
+    "One MPC member wanted just a 0.25 percentage point increase, to 2%.",
+    "The lone dissenter favored raising Bank Rate by 25bp to 2%, not 50bp."
+   ],
+   "decoys": [
+    "One member dissented, preferring a bigger 75bp hike to 2.5%.",
+    "Three members dissented, preferring a smaller 25bp hike to 2%."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Bank Rate raised by 0.5 percentage points (50bp) to 2.25 percent",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "Bank Rate.{0,80}(?<!\\d)2\\.25(?!\\d)\\s*(%|percent)|(?<!\\d)2\\.25(?!\\d)\\s*(%|percent).{0,80}Bank Rate",
+    "(increase|rais\\w*|hike\\w*).{0,40}(0\\.5(?!\\d)\\s*percentage points?|half[\\s-]?(a[\\s-])?point\\w*|half a percentage point|50\\s*(bp|basis points?))|(0\\.5(?!\\d)\\s*percentage points?|half[\\s-]?(a[\\s-])?point\\w*|half a percentage point|50\\s*(bp|basis points?)).{0,40}(increase|rais\\w*|hike\\w*)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "the MPC voted to increase Bank Rate by 0.5 percentage points, to 2.25%",
+   "paraphrases": [
+    "BoE raised Bank Rate 50bp to 2.25%.",
+    "The MPC hiked Bank Rate by 0.5 percentage points, to 2.25 percent.",
+    "Bank Rate now stands at 2.25% after a half-point increase."
+   ],
+   "decoys": [
+    "BoE raised Bank Rate 75bp to 2.5%.",
+    "BoE cut Bank Rate 50bp to 1.25%."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Committee voted unanimously to begin active gilt sales, reducing bond holdings by £80bn over 12 months to a total of £758bn",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "\\u00a3(?<!\\d)80(?!\\d)\\s*(billion|bn).{0,100}(gilt|government bond)|(gilt|government bond).{0,100}\\u00a3(?<!\\d)80(?!\\d)\\s*(billion|bn)",
+    "\\u00a3(?<!\\d)758(?!\\d)\\s*(billion|bn)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "reduce the stock of UK government bond purchases, financed by the issuance of central bank reserves, by an amount of £80 billion over the next twelve months, comprising both maturing gilts and gilt sales, to a total of £758 billion",
+   "paraphrases": [
+    "MPC voted unanimously to reduce gilt holdings by £80bn over the next year, to a total of £758bn.",
+    "The Bank will begin active gilt sales, cutting its bond stock by £80 billion to £758 billion over 12 months.",
+    "Committee unanimously approved £80bn of QT (gilt sales and maturities) over the coming year, bringing holdings to £758bn."
+   ],
+   "decoys": [
+    "MPC voted to reduce gilt holdings by £40 billion over the next year.",
+    "MPC voted against starting gilt sales, keeping QE holdings unchanged."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Twelve-month CPI inflation eased to 9.9% in August from 10.1% in July",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)9\\.9(?!\\d)\\s*%.{0,30}(August|Aug)|(August|Aug).{0,30}(?<!\\d)9\\.9(?!\\d)\\s*%",
+    "(?<!\\d)10\\.1(?!\\d)\\s*%.{0,30}(July|Jul)|(July|Jul).{0,30}(?<!\\d)10\\.1(?!\\d)\\s*%|(down from|from).{0,20}(?<!\\d)10\\.1(?!\\d)\\s*%"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(?<!\\d)10\\.9(?!\\d)\\s*%.{0,30}(August|Aug)",
+    "(August|Aug).{0,30}(?<!\\d)10\\.9(?!\\d)\\s*%",
+    "rose to (?<!\\d)10\\.9(?!\\d)"
+   ],
+   "quote": "Twelve-month CPI inflation fell slightly from 10.1% in July to 9.9% in August",
+   "paraphrases": [
+    "UK CPI inflation eased to 9.9% in August from 10.1% in July.",
+    "Headline inflation dipped slightly to 9.9% y/y in August, down from 10.1%.",
+    "August CPI printed at 9.9%, down from July's 10.1%."
+   ],
+   "decoys": [
+    "UK CPI inflation rose to 10.9% in August from 9.9% in July.",
+    "UK CPI inflation eased to 8.9% in August from 10.1% in July."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "The peak in CPI inflation is now seen just under 11% in October",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(peak|high\\w*).{0,150}(?<!\\d)11(?!\\d)\\s*%",
+    "(?<!\\d)11(?!\\d)\\s*%.{0,150}(peak|high\\w*)",
+    "(just under|just below).{0,20}(?<!\\d)11(?!\\d)\\s*%.{0,60}(October|Oct)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(over|above|more than|exceed\\w*).{0,20}(?<!\\d)11(?!\\d)\\s*%"
+   ],
+   "quote": "the peak in measured CPI inflation is now likely to be lower than projected in the August Report, at just under 11% in October",
+   "paraphrases": [
+    "The peak in CPI inflation is now seen just under 11% in October.",
+    "Inflation is expected to peak at just below 11% in October, lower than previously projected.",
+    "The MPC now sees the inflation peak coming in just under 11%, in October."
+   ],
+   "decoys": [
+    "The peak in CPI inflation is now seen just over 11% in October.",
+    "The MPC said inflation would keep rising past 11% through year-end."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "MPC said it will respond forcefully if the outlook suggests more persistent inflationary pressures",
+   "tier": "should",
+   "kind": "phrase",
+   "patterns": [
+    "forceful\\w*.{0,60}(respond|response)",
+    "(respond|response).{0,60}forceful\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Should the outlook suggest more persistent inflationary pressures, including from stronger demand, the Committee will respond forcefully, as necessary.",
+   "paraphrases": [
+    "The MPC said it would respond forcefully if inflation pressures prove more persistent.",
+    "Policymakers pledged a forceful response should demand-driven inflation persist.",
+    "The Committee reiterated it stands ready to respond forcefully to sustained inflation pressure."
+   ],
+   "decoys": [
+    "The MPC said it would respond gradually to any further inflation pressures.",
+    "The Committee said it saw no need for further tightening at this stage."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "UK unemployment fell to 3.6%, the lowest since 1974",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)3\\.6(?!\\d)\\s*%.{0,80}(unemployment|LFS|jobless)|(unemployment|LFS|jobless).{0,80}(?<!\\d)3\\.6(?!\\d)\\s*%",
+    "(lowest|low\\w*|not seen since|first time since).{0,40}(?<!\\d)1974(?!\\d)|(?<!\\d)1974(?!\\d).{0,40}(lowest|low\\w*|not seen since|first time since)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(unemployment|LFS|jobless).{0,40}(rose|rising|climb\\w*|increas\\w*)",
+    "(rose|rising|climb\\w*|increas\\w*).{0,40}(unemployment|LFS|jobless)"
+   ],
+   "quote": "The LFS unemployment rate had fallen to 3.6% in the three months to July, its lowest level since 1974",
+   "paraphrases": [
+    "UK unemployment fell to 3.6%, the lowest since 1974.",
+    "The jobless rate dropped to 3.6% in the three months to July, its lowest level since 1974.",
+    "Unemployment hit 3.6%, a level not seen since 1974."
+   ],
+   "decoys": [
+    "UK unemployment rose to 4.6% in the three months to July.",
+    "UK unemployment fell to 3.6%, the lowest since 1990."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Whole-economy pay growth ran at 5.5%",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)5\\.5(?!\\d)\\s*%.{0,80}(pay growth|total pay)",
+    "(pay growth|total pay).{0,80}(?<!\\d)5\\.5(?!\\d)\\s*%"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Annual whole-economy total pay growth had been 5.5% in the three months to July",
+   "paraphrases": [
+    "Whole-economy pay growth ran at 5.5% in the three months to July.",
+    "Total pay growth hit 5.5% annually.",
+    "Annual total pay growth was 5.5%, per the MPC statement."
+   ],
+   "decoys": [
+    "Pay growth slowed to 3.5% in the three months to July.",
+    "Private sector regular pay growth was 6.0% in the three months to July."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Sterling depreciated materially, around 4.5%, since the previous MPC meeting",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(sterling|pound|GBP).{0,100}(depreciat\\w*|weaken\\w*|fell).{0,60}((?<!\\d)4(?!\\d)\\s*(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)4\\.5(?!\\d)|four and a half|(?<!\\d)4(?!\\d)½)",
+    "((?<!\\d)4(?!\\d)\\s*(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)4\\.5(?!\\d)|four and a half|(?<!\\d)4(?!\\d)½)\\s*%?.{0,100}(sterling|pound|GBP)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "appreciat\\w*"
+   ],
+   "quote": "The sterling effective exchange rate had depreciated by around 4½% since the previous MPC meeting",
+   "paraphrases": [
+    "Sterling depreciated by around 4.5% since the previous MPC meeting.",
+    "The pound fell roughly 4½% against a broad basket of currencies since August.",
+    "GBP weakened materially, down about 4.5% on a trade-weighted basis."
+   ],
+   "decoys": [
+    "Sterling appreciated by around 4.5% since the previous MPC meeting.",
+    "Sterling depreciated by around 1.5% since the previous MPC meeting."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Energy Price Guarantee caps a typical household dual-fuel bill at £2,500/year from October for two years",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "\\u00a3(?<!\\d)2,?500(?!\\d).{0,100}(Energy Price Guarantee|energy bills?|dual-fuel|price cap)",
+    "(Energy Price Guarantee|energy bills?|dual-fuel|price cap).{0,100}\\u00a3(?<!\\d)2,?500(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Energy Price Guarantee, which would cap household unit energy prices at a level consistent with a typical annual household dual-fuel bill of £2,500 from October for a period of two years",
+   "paraphrases": [
+    "The government's Energy Price Guarantee caps a typical household bill at £2,500 a year from October, for two years.",
+    "A new £2,500 energy price cap for typical households starts in October and runs for two years.",
+    "The Energy Price Guarantee limits typical dual-fuel bills to £2,500 annually, reducing near-term inflation but supporting demand."
+   ],
+   "decoys": [
+    "The Energy Price Guarantee caps typical household bills at £3,500 a year.",
+    "The government scrapped the Energy Price Guarantee before it could take effect."
+   ]
+  }
+ ]
+}

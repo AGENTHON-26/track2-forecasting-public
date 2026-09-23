@@ -1,0 +1,21 @@
+{
+ "doc_id": "beige_book-2022-07-31",
+ "labels": {
+  "p1": true,
+  "p2": true,
+  "p3": false,
+  "p4": true,
+  "p5": true,
+  "p6": true,
+  "p7": true,
+  "p8": true,
+  "p9": true,
+  "p10": false,
+  "p11": false,
+  "p12": false
+ },
+ "notes": {
+  "p3": "New York is named only for robust leisure/tourism, never a near-stall",
+  "p9": "affordability given; mortgage rates not named, core claim present"
+ }
+}

@@ -1,0 +1,259 @@
+{
+ "doc_id": "beige_book-2023-07-31",
+ "doc_type": "beige_book",
+ "points": [
+  {
+   "id": "p1",
+   "point": "National economic activity increased only slightly since late May, a modest overall pace",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(economic activity|national activity|overall activity|activity|growth).{0,60}(increased slightly|edg(ed|ing)? (up|higher)|ticked up|modestly positive|expanded slightly)|(increased slightly|edg(ed|ing)? (up|higher)|ticked up|modestly positive|expanded slightly).{0,60}(economic activity|national activity|overall activity|activity|growth)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(economic activity|national activity|overall activity|activity|growth).{0,60}(contract|declin(ed|e)|recession|shrink|sharply)"
+   ],
+   "quote": "Overall economic activity increased slightly since late May.",
+   "paraphrases": [
+    "National economic activity ticked up slightly in June.",
+    "The Fed's Districts reported activity edging higher since late May.",
+    "Growth across the twelve Districts was modestly positive overall."
+   ],
+   "decoys": [
+    "Overall economic activity contracted sharply since late May.",
+    "Ten Districts reported strong growth in June."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Wage growth continued but moderated/decelerated nationally",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "wage[s]?.{0,60}(moderat|decelerat|slow(ing|ed)?|cool(ing)?)|(moderat|decelerat|slow(ing|ed)?|cool(ing)?).{0,60}wage[s]?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "wage[s]?.{0,60}(accelerat|surg|spik|rose sharply|jumped|increased sharply)|(accelerat|surg|spik|rose sharply|jumped|increased sharply).{0,60}wage[s]?"
+   ],
+   "quote": "Wages continued to rise, but more moderately.",
+   "paraphrases": [
+    "Wage growth continued but at a slower pace nationally.",
+    "Wage increases persisted, though at a more moderate rate than before.",
+    "Wages continued to grow, though the pace has cooled somewhat."
+   ],
+   "decoys": [
+    "Wage growth accelerated sharply across most Districts.",
+    "Wages fell for the first time since the pandemic."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Prices increased at a modest pace overall",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "prices?.{0,60}modest|modest.{0,60}prices?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "prices?.{0,60}(surg|accelerat|spik)|(surg|accelerat|spik).{0,60}prices?"
+   ],
+   "quote": "Prices increased at a modest pace overall, and several Districts noted some slowing in the pace of increase.",
+   "paraphrases": [
+    "Prices rose at a modest pace overall.",
+    "Overall price increases stayed modest.",
+    "Price growth remained modest nationwide."
+   ],
+   "decoys": [
+    "Prices surged sharply nationwide.",
+    "Several Districts noted some slowing in the pace of price increases, though the national level was unclear."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Several Districts noted some slowing in the pace of price increases",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "disinflation|(slow(ing|ed)?|eas(e|ed|ing)|moderat).{0,60}((pace|rate) of (price )?increase|inflation|price growth)|((pace|rate) of (price )?increase|inflation|price growth).{0,60}(slow(ing|ed)?|eas(e|ed|ing)|moderat)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(pace of (price )?increase|inflation|price growth).{0,60}(accelerat|pick(ed)? up|quicken)"
+   ],
+   "quote": "Prices increased at a modest pace overall, and several Districts noted some slowing in the pace of increase.",
+   "paraphrases": [
+    "Several Districts saw the pace of price increases slow further.",
+    "A number of Districts reported some further disinflation.",
+    "Some Districts noted the rate of price increase easing further."
+   ],
+   "decoys": [
+    "Every District reported the pace of price increases accelerating.",
+    "Prices increased at a modest pace overall this period."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Banking conditions were subdued as lending activity continued to soften / credit tightened",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(banking|lending|loan).{0,60}(subdued|soften|weaken|eas(e|ed|ing))|(subdued|soften|weaken|eas(e|ed|ing)).{0,60}(banking|lending|loan)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(banking|lending|loan).{0,60}(robust|surg|accelerat|record high)|(robust|surg|accelerat|record high).{0,60}(banking|lending|loan)"
+   ],
+   "quote": "Banking conditions were mostly subdued, as lending activity continued to soften.",
+   "paraphrases": [
+    "Banking activity stayed subdued, with lending conditions continuing to soften.",
+    "Lending kept softening as banking conditions remained subdued overall.",
+    "Bank credit conditions were weak, with loan activity continuing to ease."
+   ],
+   "decoys": [
+    "Banking conditions were robust, with lending activity accelerating sharply.",
+    "Loan demand surged to record highs across most Districts."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Residential real estate demand held steady despite higher mortgage rates",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(residential real estate|housing demand|home[- ]buying demand).{0,60}(steady|resilient|stable)|(steady|resilient|stable).{0,60}(residential real estate|housing demand|home[- ]buying demand)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(residential real estate|housing demand).{0,60}(collaps|plung|crash)"
+   ],
+   "quote": "Despite higher mortgage rates, demand for residential real estate remained steady, although sales were constrained by low inventories.",
+   "paraphrases": [
+    "Housing demand held steady even with higher mortgage rates.",
+    "Residential real estate demand stayed steady despite elevated mortgage rates.",
+    "Home-buying demand was resilient against higher rates."
+   ],
+   "decoys": [
+    "Residential real estate demand collapsed as mortgage rates rose.",
+    "Sales were constrained by low inventories, though demand trends were unclear."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Home sales were constrained by low inventories",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(sales|closings).{0,60}(constrain|limit|cap).{0,40}(low )?inventor|(low )?inventor.{0,60}(constrain|limit|cap).{0,40}(sales|closings)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(low )?inventor.{0,60}(no longer|did not|didn't) (constrain|limit)"
+   ],
+   "quote": "Despite higher mortgage rates, demand for residential real estate remained steady, although sales were constrained by low inventories.",
+   "paraphrases": [
+    "Low inventory limited home sales.",
+    "Thin inventory constrained closings.",
+    "Sales were capped by low housing inventories."
+   ],
+   "decoys": [
+    "Abundant, growing housing inventories supported strong sales.",
+    "Demand for residential real estate remained steady despite higher mortgage rates."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Outlook: expectations for coming months continued to call for slow growth",
+   "tier": "should",
+   "kind": "phrase",
+   "patterns": [
+    "(expect|outlook|expectation).{0,60}(call for )?slow growth|slow growth.{0,60}(expect|outlook|expectation)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(expect|outlook|expectation).{0,60}(rapid acceleration|sharp recession|rapid growth)"
+   ],
+   "quote": "Overall economic expectations for the coming months generally continued to call for slow growth.",
+   "paraphrases": [
+    "The outlook for coming months continued to point to slow growth.",
+    "Forward-looking expectations still called for slow growth ahead.",
+    "Contacts generally expected only slow growth in the months ahead."
+   ],
+   "decoys": [
+    "Overall economic expectations for the coming months called for a rapid acceleration in growth.",
+    "Contacts expected a sharp recession within the next quarter."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Atlanta Fed survey: year-over-year unit cost growth was 3.1% in June, down from 3.5% in May",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)3\\.1(?!\\d).{0,10}(percent|%).{0,80}(down|decreas|eas|fell|lower)|(down|decreas|eas|fell|lower).{0,80}(?<!\\d)3\\.1(?!\\d).{0,10}(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)3\\.5(?!\\d).{0,10}(percent|%).{0,40}(june|up|rose|increas)"
+   ],
+   "quote": "The Atlanta Fed's Business Inflation Expectations survey showed year-over-year unit cost growth was 3.1 percent, on average, in June, down significantly from 3.5 percent in May.",
+   "paraphrases": [
+    "Atlanta Fed survey: unit cost growth eased to 3.1% y/y in June from 3.5% in May.",
+    "Unit costs rose 3.1% year-over-year in June, down from 3.5% previously.",
+    "The Business Inflation Expectations survey showed unit cost growth down to 3.1% from 3.5%."
+   ],
+   "decoys": [
+    "The survey showed unit cost growth accelerating to 3.5 percent in June from 3.1 percent in May.",
+    "Firms' year-ahead inflation expectations fell to 2.7 percent from 2.9 percent."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Firms' year-ahead inflation expectations decreased to 2.7% in June from 2.9% in May",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)2\\.7(?!\\d).{0,10}(percent|%).{0,80}(down|decreas|eas|fell|lower)|(down|decreas|eas|fell|lower).{0,80}(?<!\\d)2\\.7(?!\\d).{0,10}(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)2\\.9(?!\\d).{0,10}(percent|%).{0,40}(june|up|rose|increas)"
+   ],
+   "quote": "Firms' year-ahead inflation expectations also decreased in June to 2.7 percent, on average, from 2.9 percent in May.",
+   "paraphrases": [
+    "Year-ahead inflation expectations fell to 2.7% from 2.9%.",
+    "Firms' inflation expectations for the year ahead decreased to 2.7 percent in June.",
+    "The survey showed year-ahead inflation expectations down to 2.7% from 2.9% in May."
+   ],
+   "decoys": [
+    "Firms' year-ahead inflation expectations rose to 2.9 percent in June from 2.7 percent in May.",
+    "Unit cost growth was 3.1 percent in June, down from 3.5 percent in May."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Philadelphia (Third District) business activity continued to decline slightly, a laggard versus most other Districts",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "(philadelphia|third district).{0,80}(declin|fell)|(declin|fell).{0,80}(philadelphia|third district)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(philadelphia|third district).{0,80}(accelerat|surg|strongly)"
+   ],
+   "quote": "On balance, business activity in the Third District continued to decline slightly.",
+   "paraphrases": [
+    "Philadelphia's Third District reported business activity continuing to decline slightly.",
+    "The Philadelphia Fed said regional business activity kept declining modestly.",
+    "Third District (Philadelphia) activity fell slightly again this period."
+   ],
+   "decoys": [
+    "Philadelphia's Third District reported business activity accelerating strongly this period.",
+    "New York's Second District reported business activity declining slightly."
+   ]
+  }
+ ]
+}

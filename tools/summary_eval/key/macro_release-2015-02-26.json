@@ -1,0 +1,305 @@
+{
+ "doc_id": "macro_release-2015-02-26",
+ "doc_type": "macro_release",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "number",
+   "point": "Headline CPI-U fell 0.7% month-over-month in January (seasonally adjusted).",
+   "patterns": [
+    "(?:cpi(?:-u)?|consumer price index|headline (?:cpi|inflation)|all[\\s-]?items index).{0,80}(?:(?<!\\d)0\\.?7(?!\\d)\\s*(?:percent|%))",
+    "(?:(?<!\\d)0\\.?7(?!\\d)\\s*(?:percent|%)).{0,80}(?:cpi(?:-u)?|consumer price index|headline (?:cpi|inflation)|all[\\s-]?items index)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:rose|rising|increased|climbed|risen|up|gained).{0,40}(?<!\\d)0\\.?7(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)0\\.?7(?!\\d)\\s*(?:percent|%).{0,40}(?:rose|rising|increased|climbed|risen|up|gained)"
+   ],
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) declined 0.7 percent in January on a seasonally adjusted basis",
+   "paraphrases": [
+    "Headline CPI fell 0.7% m/m in January (seasonally adjusted).",
+    "CPI-U dropped 0.7 percent for the month, on a seasonally adjusted basis.",
+    "January headline inflation fell 0.7% MoM, seasonally adjusted."
+   ],
+   "decoys": [
+    "Headline CPI fell 0.1 percent in January.",
+    "Headline CPI rose 0.7 percent in January."
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "must",
+   "kind": "number",
+   "point": "Core CPI (all items less food and energy) rose 1.6% year-over-year.",
+   "patterns": [
+    "(?:core (?:cpi|inflation)|all items less food and energy|ex(?:cluding)?[\\s-]food and energy).{0,80}(?<!\\d)1\\.?6(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)1\\.?6(?!\\d)\\s*(?:percent|%).{0,80}(?:core (?:cpi|inflation)|all items less food and energy|ex(?:cluding)?[\\s-]food and energy)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:fell|declin\\w*|decreas\\w*|down|negative).{0,40}(?<!\\d)1\\.?6(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)1\\.?6(?!\\d)\\s*(?:percent|%).{0,40}(?:fell|declin\\w*|decreas\\w*|down|negative)"
+   ],
+   "quote": "The index for all items less food and energy has risen 1.6 percent over the past 12 months",
+   "paraphrases": [
+    "Core CPI (ex food & energy) rose 1.6% y/y in January.",
+    "Core inflation held at 1.6 percent over the past 12 months.",
+    "Year-over-year core CPI rose to 1.6%, unchanged from December."
+   ],
+   "decoys": [
+    "Core CPI rose 1.9 percent year-over-year in January.",
+    "Core CPI fell 1.6 percent over the past 12 months."
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "number",
+   "point": "Core CPI rose 0.2% month-over-month in January.",
+   "patterns": [
+    "(core (cpi|inflation|prices?)|all items less food and energy|ex[\\s-]?(cluding)?[\\s-]?food[\\s-]and[\\s-]energy).{0,60}(?<!\\d)0\\.?2(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)0\\.?2(?!\\d)\\s*(percent|%).{0,60}(core (cpi|inflation|prices?)|all items less food and energy|ex[\\s-]?(cluding)?[\\s-]?food[\\s-]and[\\s-]energy)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:fell|declin\\w*|decreas\\w*|down|negative).{0,40}(?<!\\d)0\\.?2(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)0\\.?2(?!\\d)\\s*(?:percent|%).{0,40}(?:fell|declin\\w*|decreas\\w*|down|negative)"
+   ],
+   "quote": "The index for all items less food and energy rose 0.2 percent in January.",
+   "paraphrases": [
+    "Core CPI rose 0.2% m/m in January.",
+    "Ex-food-and-energy prices increased 0.2 percent for the month.",
+    "January core inflation ticked up 0.2%, in line with recent trend."
+   ],
+   "decoys": [
+    "Core CPI rose 0.6 percent in January.",
+    "Core CPI fell 0.2 percent in January."
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "must",
+   "kind": "number",
+   "point": "Energy index fell 9.7% in January.",
+   "patterns": [
+    "energy.{0,80}(?<!\\d)9\\.?7(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)9\\.?7(?!\\d)\\s*(?:percent|%).{0,80}energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "energy.{0,40}(?:rose|rising|increased|climbed|risen|up|gained).{0,20}(?<!\\d)9\\.?7(?!\\d)",
+    "(?<!\\d)9\\.?7(?!\\d)\\s*(?:percent|%).{0,40}(?:rose|rising|increased|climbed|risen|up|gained).{0,20}energy"
+   ],
+   "quote": "The energy index fell 9.7 percent as the gasoline index fell 18.7 percent in January, the sharpest in a series of seven consecutive declines.",
+   "paraphrases": [
+    "Energy prices dropped 9.7% in January.",
+    "The energy index fell 9.7 percent for the month.",
+    "January energy costs sank 9.7%."
+   ],
+   "decoys": [
+    "Energy prices fell 6.7 percent in January.",
+    "Energy prices rose 9.7 percent in January."
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "should",
+   "kind": "number",
+   "point": "Gasoline index fell 18.7% in January, driving the energy decline (the sharpest of seven straight monthly drops).",
+   "patterns": [
+    "gasoline.{0,80}(?<!\\d)18\\.?7(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)18\\.?7(?!\\d)\\s*(?:percent|%).{0,80}gasoline"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "gasoline.{0,40}(?:rose|rising|increased|climbed|risen|up|gained|rebound\\w*).{0,20}(?<!\\d)18\\.?7(?!\\d)",
+    "(?<!\\d)18\\.?7(?!\\d)\\s*(?:percent|%).{0,40}(?:rose|rising|increased|climbed|risen|up|gained|rebound\\w*).{0,20}gasoline"
+   ],
+   "quote": "The energy index fell 9.7 percent as the gasoline index fell 18.7 percent in January, the sharpest in a series of seven consecutive declines.",
+   "paraphrases": [
+    "Gasoline prices plunged 18.7% in January, leading the energy decline.",
+    "The gasoline index fell 18.7 percent for the month, the sharpest of seven straight declines.",
+    "Gasoline costs dropped 18.7% in January."
+   ],
+   "decoys": [
+    "Gasoline prices fell 12.7 percent in January.",
+    "Gasoline prices rose 18.7 percent in January."
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "concept",
+   "point": "Food-at-home prices fell in January, the first monthly decline since May 2013.",
+   "patterns": [
+    "(?:food[\\s-]at[\\s-]home|grocery|at-home food).{0,60}(?:fell|falling|declin\\w*|dropped|turned down|negative)",
+    "first.{0,30}since.{0,15}may.{0,10}(?<!\\d)2013(?!\\d)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(?:food[\\s-]at[\\s-]home|grocery|at-home food).{0,60}(?:rose|rising|increased|climbed|up)",
+    "(?:rose|rising|increased|climbed|up).{0,60}(?:food[\\s-]at[\\s-]home|grocery|at-home food)"
+   ],
+   "quote": "The food index was unchanged in January, with the food at home index falling for the first time since May 2013.",
+   "paraphrases": [
+    "Food-at-home prices fell in January, the first monthly decline since May 2013.",
+    "Grocery prices turned negative in January, the first drop since May 2013.",
+    "At-home food costs declined in January for the first time since May 2013."
+   ],
+   "decoys": [
+    "Food-at-home prices rose in January for the first time since May 2013.",
+    "Food away from home fell in January, the first decline since 2013."
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "concept",
+   "point": "The overall food index was unchanged in January (even as food-at-home fell).",
+   "patterns": [
+    "(food index|food prices|overall food).{0,40}(unchanged|flat|steady|no change)",
+    "(unchanged|flat|steady|no change).{0,40}(food index|food prices|overall food)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(food index|food prices|overall food).{0,40}(rose|rising|increased|climbed|fell|falling|declin\\w*)",
+    "(rose|rising|increased|climbed|fell|falling|declin\\w*).{0,40}(food index|food prices|overall food)"
+   ],
+   "quote": "The food index was unchanged in January, with the food at home index falling for the first time since May 2013.",
+   "paraphrases": [
+    "The overall food index was unchanged in January.",
+    "Food prices held steady for the month, even as food-at-home costs fell.",
+    "The food index showed no change in January."
+   ],
+   "decoys": [
+    "The food index rose in January.",
+    "The energy index was unchanged in January."
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "number",
+   "point": "The all-items CPI fell 0.1% over the last 12 months (NSA).",
+   "patterns": [
+    "(all items index|headline (cpi|inflation)|\\bcpi\\b).{0,90}-?(?<!\\d)0\\.?1(?!\\d)\\s*(percent|%).{0,60}((?<!\\d)12(?!\\d)[\\s-]months?|year|annual)",
+    "((?<!\\d)12(?!\\d)[\\s-]months?|year-over-year|annual).{0,60}(all items index|headline (cpi|inflation)|\\bcpi\\b)?.{0,40}-?(?<!\\d)0\\.?1(?!\\d)\\s*(percent|%)",
+    "(fell|declin\\w*|negative|-)\\s*(?<!\\d)0\\.?1(?!\\d)\\s*(percent|%).{0,60}((?<!\\d)12(?!\\d)[\\s-]months?|year)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:rose|rising|increased|climbed|risen|up|positive).{0,40}(?<!\\d)0\\.?1(?!\\d)\\s*(?:percent|%).{0,60}(?:(?<!\\d)12(?!\\d)[\\s-]months?|year|annual)",
+    "(?<!\\d)0\\.?1(?!\\d)\\s*(?:percent|%).{0,60}(?:rose|rising|increased|climbed|risen|up|positive).{0,60}(?:(?<!\\d)12(?!\\d)[\\s-]months?|year|annual)"
+   ],
+   "quote": "The all items index declined 0.1 percent over the last 12 months, the first negative 12-month change since the period ending October 2009.",
+   "paraphrases": [
+    "Headline CPI fell 0.1% over the past 12 months.",
+    "12-month CPI inflation was -0.1%.",
+    "Year-over-year CPI declined 0.1%."
+   ],
+   "decoys": [
+    "Headline CPI rose 0.1% over the past 12 months.",
+    "Headline CPI fell 1.1 percent over the past 12 months."
+   ]
+  },
+  {
+   "id": "p9",
+   "tier": "should",
+   "kind": "concept",
+   "point": "The -0.1% 12-month CPI reading was the first negative annual print since October 2009.",
+   "patterns": [
+    "first.{0,30}(negative|decline|drop).{0,40}since.{0,30}october.{0,10}(?<!\\d)2009(?!\\d)",
+    "october.{0,10}(?<!\\d)2009(?!\\d).{0,60}first.{0,30}(negative|decline|drop)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "first.{0,30}positive.{0,40}since.{0,30}october.{0,10}(?<!\\d)2009(?!\\d)"
+   ],
+   "quote": "The all items index declined 0.1 percent over the last 12 months, the first negative 12-month change since the period ending October 2009.",
+   "paraphrases": [
+    "This was the first negative 12-month CPI reading since October 2009.",
+    "Headline inflation posted its first annual decline since October 2009.",
+    "It marked the first negative 12-month change since the period ending October 2009."
+   ],
+   "decoys": [
+    "Headline CPI was up 0.1% year-over-year, the first positive reading since October 2009.",
+    "Headline CPI's first negative annual reading was since October 2008."
+   ]
+  },
+  {
+   "id": "p10",
+   "tier": "should",
+   "kind": "number",
+   "point": "Shelter index rose 0.3% in January.",
+   "patterns": [
+    "shelter.{0,60}(?<!\\d)0\\.?3(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)0\\.?3(?!\\d)\\s*(?:percent|%).{0,60}shelter"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "shelter.{0,40}(?:fell|falling|declin\\w*|decreas\\w*|down).{0,20}(?<!\\d)0\\.?3(?!\\d)",
+    "(?<!\\d)0\\.?3(?!\\d)\\s*(?:percent|%).{0,40}(?:fell|falling|declin\\w*|decreas\\w*|down).{0,20}shelter"
+   ],
+   "quote": "The shelter index increased 0.3 percent, with the rent and owners' equivalent rent indexes both rising 0.2 percent",
+   "paraphrases": [
+    "Shelter costs rose 0.3% in January.",
+    "The shelter index increased 0.3 percent for the month.",
+    "Shelter inflation climbed 0.3% month-over-month in January."
+   ],
+   "decoys": [
+    "Shelter costs fell 0.3 percent in January.",
+    "Shelter costs rose 0.8 percent in January."
+   ]
+  },
+  {
+   "id": "p11",
+   "tier": "should",
+   "kind": "number",
+   "point": "Shelter index rose 2.9% over the past 12 months.",
+   "patterns": [
+    "shelter.{0,60}(?<!\\d)2\\.?9(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)2\\.?9(?!\\d)\\s*(?:percent|%).{0,60}shelter"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "shelter.{0,40}(?:fell|falling|declin\\w*|decreas\\w*|down).{0,20}(?<!\\d)2\\.?9(?!\\d)",
+    "(?<!\\d)2\\.?9(?!\\d)\\s*(?:percent|%).{0,40}(?:fell|falling|declin\\w*|decreas\\w*|down).{0,20}shelter"
+   ],
+   "quote": "The index for shelter has risen 2.9 percent over the span, and the indexes for medical care, for new vehicles, and for alcoholic beverages are among those that have also increased.",
+   "paraphrases": [
+    "Shelter costs rose 2.9% over the past 12 months.",
+    "The shelter index climbed 2.9 percent year-over-year.",
+    "Annual shelter inflation was 2.9%."
+   ],
+   "decoys": [
+    "Shelter costs fell 2.9 percent over the past 12 months.",
+    "Medical care costs rose 2.9 percent over the past 12 months."
+   ]
+  },
+  {
+   "id": "p12",
+   "tier": "should",
+   "kind": "concept",
+   "point": "The gasoline price decline was the overwhelming driver of the headline drop; excluding gasoline, the all-items index would have risen 0.1%.",
+   "patterns": [
+    "gasoline.{0,100}(?:risen|increased|up|higher).{0,40}(?<!\\d)0\\.?1(?!\\d)\\s*(?:percent|%)",
+    "(?<!\\d)0\\.?1(?!\\d)\\s*(?:percent|%).{0,100}(?:risen|increased|up|higher).{0,40}gasoline"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "gasoline.{0,100}(?:little effect|no impact|did not (?:drive|cause))"
+   ],
+   "quote": "The gasoline decrease was overwhelmingly the cause of the decline in the all items index, which would have risen 0.1 percent had the gasoline index been unchanged.",
+   "paraphrases": [
+    "Gasoline alone drove the headline decline; excluding it, CPI would have risen 0.1% in January.",
+    "The drop in gasoline prices was the overwhelming cause of the CPI decline; ex-gasoline, the index would have been up 0.1%.",
+    "Absent the gasoline price fall, the all-items index would have increased 0.1 percent instead of falling."
+   ],
+   "decoys": [
+    "Gasoline had little effect on the CPI decline in January.",
+    "Excluding gasoline, the all-items index would have risen 0.7 percent."
+   ]
+  }
+ ]
+}

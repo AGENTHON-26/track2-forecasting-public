@@ -1,0 +1,305 @@
+{
+ "doc_id": "cftc_cot_japanese_2024",
+ "doc_type": "positioning_report",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Latest net short yen position is -107,108 contracts (week of 2024-07-23)",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(net short|short yen|yen short).{0,60}(?<!\\d)107,?108(?!\\d)",
+    "(?<!\\d)107,?108(?!\\d).{0,60}(net short|short yen|yen short)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(net long|long yen).{0,40}(?<!\\d)107,?108(?!\\d)",
+    "(?<!\\d)107,?108(?!\\d).{0,40}(net long|long yen)"
+   ],
+   "quote": "2024-07-23 307183 64390 171498 -107108",
+   "paraphrases": [
+    "Net short yen position was -107,108 contracts as of July 23.",
+    "Speculators were net short 107,108 yen contracts in the latest week.",
+    "Non-commercial net short yen: 107,108 contracts (week of July 23)."
+   ],
+   "decoys": [
+    "Net long yen position of 107,108 contracts.",
+    "Net short yen position of 170,108 contracts."
+   ],
+   "source_pattern": [
+    "(?<!\\d)107,?108(?!\\d)"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Net short yen positioning started H1 2024 at -57,195 contracts (week of 2024-01-02)",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(net short|short yen|yen short).{0,60}(?<!\\d)57,?195(?!\\d)",
+    "(?<!\\d)57,?195(?!\\d).{0,60}(net short|short yen|yen short)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(net long|long yen).{0,40}(?<!\\d)57,?195(?!\\d)",
+    "(?<!\\d)57,?195(?!\\d).{0,40}(net long|long yen)"
+   ],
+   "quote": "2024-01-02 184042 33585 90780 -57195",
+   "paraphrases": [
+    "Net short yen positioning started H1 2024 at -57,195 contracts.",
+    "Speculators were net short just 57,195 yen contracts in early January.",
+    "The yen net short began the year at -57,195 contracts (week of Jan 2)."
+   ],
+   "decoys": [
+    "Net long yen position of 57,195 contracts.",
+    "Net short yen position of 75,195 contracts."
+   ],
+   "source_pattern": [
+    "(?<!\\d)57,?195(?!\\d)"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Net short yen positioning deepened steadily through H1 2024, reaching a period-deepest -184,223 by 2024-07-02 -- a growing short, not a decrease",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?<!\\d)184,?223(?!\\d).{0,80}(grew|grow|increas|widen|deepen|extend|added|rose|climb|expand|larger|deeper|built|build)",
+    "(grew|grow|increas|widen|deepen|extend|added|rose|climb|expand|larger|deeper|built|build).{0,80}(?<!\\d)184,?223(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)184,?223(?!\\d).{0,80}(decreas|reduc|shrank|shrink|shrunk|narrow|fell|fall|fallen|drop|declin|small|less|cover)",
+    "(decreas|reduc|shrank|shrink|shrunk|narrow|fell|fall|fallen|drop|declin|small|less|cover).{0,80}(?<!\\d)184,?223(?!\\d)"
+   ],
+   "quote": "2024-07-02 349817 36714 220937 -184223",
+   "paraphrases": [
+    "Net short yen positioning deepened steadily through H1 2024, widening to a period-low -184,223 by early July.",
+    "Speculators grew increasingly bearish on the yen, with the net short expanding to 184,223 contracts by July 2.",
+    "The yen net short position increased throughout the first half of 2024, reaching -184,223 contracts in early July."
+   ],
+   "decoys": [
+    "Net short yen positioning narrowed steadily through H1 2024, shrinking to -184,223 contracts by early July.",
+    "Net short yen positioning deepened steadily through H1 2024, widening to a period-low -174,223 contracts by early July."
+   ],
+   "source_pattern": [
+    "(?<!\\d)184,?223(?!\\d)",
+    "(?<!\\d)57,?195(?!\\d)"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Net short yen positioning then narrowed sharply, from the -184,223 peak (2024-07-02) to -107,108 by 2024-07-23 -- a short-covering rally, not a further widening",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?<!\\d)107,?108(?!\\d).{0,80}(narrow|shrank|shrink|shrunk|declin|fell|fall|fallen|drop|dropped|reduc|cover|eas|small)",
+    "(narrow|shrank|shrink|shrunk|declin|fell|fall|fallen|drop|dropped|reduc|cover|eas|small).{0,80}(?<!\\d)107,?108(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)107,?108(?!\\d).{0,80}(widen|deepen|grew|grow|increas|expand|larger|deeper|extend)",
+    "(widen|deepen|grew|grow|increas|expand|larger|deeper|extend).{0,80}(?<!\\d)107,?108(?!\\d)"
+   ],
+   "quote": "2024-07-16 307205 47356 198428 -151072 2024-07-23 307183 64390 171498 -107108",
+   "paraphrases": [
+    "Yen shorts were covered sharply, with the net short narrowing from -184,223 in early July to -107,108 by July 23.",
+    "Speculators pared back bearish yen bets, and the net short fell to 107,108 contracts, its smallest since April.",
+    "The net short yen position declined nearly 80,000 contracts over three weeks to -107,108 by late July."
+   ],
+   "decoys": [
+    "Yen shorts deepened further, with the net short widening from -184,223 in early July to -107,108 by July 23.",
+    "Yen shorts were covered sharply, with the net short narrowing from -184,223 in early July to -117,108 by July 23."
+   ],
+   "source_pattern": [
+    "(?<!\\d)107,?108(?!\\d)",
+    "(?<!\\d)184,?223(?!\\d)"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Gross long yen positions were 64,390 contracts by 2024-07-23",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(gross long|noncomm long|\\blongs?\\b).{0,60}(?<!\\d)64,?390(?!\\d)",
+    "(?<!\\d)64,?390(?!\\d).{0,60}(\\blongs?\\b|contracts long)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(gross short|short position|shorts?\\b).{0,40}(?<!\\d)64,?390(?!\\d)"
+   ],
+   "quote": "2024-07-23 307183 64390",
+   "paraphrases": [
+    "Gross long yen positions were 64,390 contracts by July 23.",
+    "Speculators' long yen holdings stood at 64,390 contracts in the latest week.",
+    "The long side of the yen book stood at 64,390 contracts."
+   ],
+   "decoys": [
+    "Gross short yen positions were 64,390 contracts by July 23.",
+    "Gross long yen positions were 63,490 contracts by July 23."
+   ],
+   "source_pattern": [
+    "(?<!\\d)64,?390(?!\\d)"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Gross long yen positions jumped up sharply from 47,356 contracts the prior week (2024-07-16)",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(up.{0,15}from|rose.{0,15}from|climbed.{0,15}from|jumped.{0,15}from|higher than).{0,40}(?<!\\d)47,?356(?!\\d)",
+    "(?<!\\d)47,?356(?!\\d).{0,60}(prior week|previous week|week earlier|2024-07-16|July 16)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(down.{0,15}from|fell.{0,15}from|lower than).{0,40}(?<!\\d)47,?356(?!\\d)",
+    "(?<!\\d)47,?356(?!\\d).{0,40}(down.{0,15}from|fell.{0,15}from|lower than)"
+   ],
+   "quote": "2024-07-16 307205 47356 198428 -151072 2024-07-23 307183 64390 171498 -107108",
+   "paraphrases": [
+    "That's up sharply from 47,356 contracts the prior week.",
+    "Gross long yen positions climbed from 47,356 in mid-July to 64,390 a week later.",
+    "Long yen holdings rose from 47,356 the previous week."
+   ],
+   "decoys": [
+    "That's down sharply from 47,356 contracts the prior week.",
+    "Gross long yen positions were roughly unchanged from 44,356 contracts the prior week."
+   ],
+   "source_pattern": [
+    "(?<!\\d)47,?356(?!\\d)"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Gross short yen positions were 171,498 contracts by 2024-07-23",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(gross short|noncomm short|\\bshorts?\\b).{0,60}(?<!\\d)171,?498(?!\\d)",
+    "(?<!\\d)171,?498(?!\\d).{0,60}(\\bshorts?\\b|contracts short)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(gross long|long position|longs).{0,40}(?<!\\d)171,?498(?!\\d)"
+   ],
+   "quote": "2024-07-23 307183 64390 171498",
+   "paraphrases": [
+    "Gross short yen positions were 171,498 contracts by July 23.",
+    "Speculators' short yen holdings stood at 171,498 contracts in the latest week.",
+    "The short side of the yen book stood at 171,498 contracts."
+   ],
+   "decoys": [
+    "Gross long yen positions were 171,498 contracts by July 23.",
+    "Gross short yen positions were 191,498 contracts by July 23."
+   ],
+   "source_pattern": [
+    "(?<!\\d)171,?498(?!\\d)"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Gross short yen positions eased down from 198,428 contracts the prior week (2024-07-16)",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(down.{0,15}from|fell.{0,15}from|eased.{0,15}from|lower than).{0,40}(?<!\\d)198,?428(?!\\d)",
+    "(?<!\\d)198,?428(?!\\d).{0,60}(prior week|previous week|week earlier|2024-07-16|July 16)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(up.{0,15}from|rose.{0,15}from|higher than).{0,40}(?<!\\d)198,?428(?!\\d)",
+    "(?<!\\d)198,?428(?!\\d).{0,40}(up.{0,15}from|rose.{0,15}from|higher than)"
+   ],
+   "quote": "2024-07-16 307205 47356 198428 -151072 2024-07-23 307183 64390 171498 -107108",
+   "paraphrases": [
+    "That's down from 198,428 contracts the prior week.",
+    "Gross short yen positions eased from 198,428 in mid-July to 171,498 a week later.",
+    "Short yen holdings fell from 198,428 the previous week."
+   ],
+   "decoys": [
+    "That's up from 198,428 contracts the prior week.",
+    "Gross short yen positions were roughly unchanged from 170,428 contracts the prior week."
+   ],
+   "source_pattern": [
+    "(?<!\\d)198,?428(?!\\d)"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Open interest slipped to 307,183 contracts in the latest week",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(open interest).{0,60}(?<!\\d)307,?183(?!\\d)",
+    "(?<!\\d)307,?183(?!\\d).{0,60}(open interest)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)307,?183(?!\\d).{0,60}(rose|rise|risen|increased|higher|climbed)",
+    "(rose|rise|risen|increased|higher|climbed).{0,60}(?<!\\d)307,?183(?!\\d)"
+   ],
+   "quote": "2024-07-23 307183",
+   "paraphrases": [
+    "Open interest in yen futures slipped to 307,183 contracts in the latest week.",
+    "Total open interest eased to 307,183 contracts.",
+    "Yen futures open interest declined to 307,183 contracts."
+   ],
+   "decoys": [
+    "Open interest in yen futures rose to 307,183 contracts in the latest week.",
+    "Open interest in yen futures slipped to 317,183 contracts in the latest week."
+   ],
+   "source_pattern": [
+    "(?<!\\d)307,?183(?!\\d)"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Open interest is down from a period peak of 349,817 on 2024-07-02",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(peak|highest|high|record).{0,60}(?<!\\d)349,?817(?!\\d)",
+    "(?<!\\d)349,?817(?!\\d).{0,60}(peak|highest|high|record)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(low|lowest|trough|bottom).{0,60}(?<!\\d)349,?817(?!\\d)",
+    "(?<!\\d)349,?817(?!\\d).{0,60}(low|lowest|trough|bottom)"
+   ],
+   "quote": "2024-07-02 349817 36714 220937 -184223",
+   "paraphrases": [
+    "That's down from a period peak of 349,817 on July 2.",
+    "Open interest had peaked at 349,817 contracts on July 2, before easing.",
+    "The July 2 high of 349,817 contracts marked the period's open-interest peak."
+   ],
+   "decoys": [
+    "That's down from a period peak of 339,817 on July 2.",
+    "Open interest bottomed at 349,817 contracts on July 2."
+   ],
+   "source_pattern": [
+    "(?<!\\d)349,?817(?!\\d)"
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "The sharp two-week reversal in yen positioning (large short covering into July 23) suggests speculative conviction in yen weakness was fading right at the end of the sample",
+   "tier": "should",
+   "kind": "judge_only",
+   "patterns": [],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "2024-07-16 307205 47356 198428 -151072 2024-07-23 307183 64390 171498 -107108",
+   "paraphrases": [
+    "The rapid unwind of yen shorts in late July hints that bearish yen conviction was already cracking.",
+    "Heavy short covering into July 23 could be an early sign of a turn in USD/JPY momentum.",
+    "Speculative yen bearishness appears to have peaked in early July and faded quickly thereafter."
+   ],
+   "decoys": [
+    "The rapid buildup of yen shorts in late July confirms bearish yen conviction was strengthening.",
+    "Positioning in the yen market showed no meaningful change into the end of the sample."
+   ]
+  }
+ ]
+}

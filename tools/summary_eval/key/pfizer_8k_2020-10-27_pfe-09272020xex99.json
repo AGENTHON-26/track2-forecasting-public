@@ -1,0 +1,273 @@
+{
+ "doc_id": "pfizer_8k_2020-10-27_pfe-09272020xex99",
+ "doc_type": "corporate_8k",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "number",
+   "point": "Q3 2020 revenue was $12.1 billion",
+   "patterns": [
+    "(revenue|top line|sales).{0,80}(?<!\\d)12\\.1(?!\\d)\\s?(billion|bn|b)\\b|(?<!\\d)12\\.1(?!\\d)\\s?(billion|bn|b)\\b.{0,80}(revenue|top line|sales)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)12\\.1(?!\\d)\\s?(billion|bn|b)\\b.{0,80}(increase|grew|rose|grow|higher|\\bup\\b)",
+    "(increase|grew|rose|grow|higher|\\bup\\b).{0,80}(?<!\\d)12\\.1(?!\\d)\\s?(billion|bn|b)\\b"
+   ],
+   "quote": "Third-quarter 2020 revenues totaled $12.1 billion, a decrease of $549 million, or 4%, compared to the prior-year quarter",
+   "paraphrases": [
+    "Pfizer reported Q3 2020 revenue of $12.1 billion.",
+    "Third-quarter revenues came in at $12.1B.",
+    "Pfizer's Q3'20 top line was $12.1 billion amid COVID-19 headwinds."
+   ],
+   "decoys": [
+    "Pfizer reported Q3 2020 revenue of $10.2 billion.",
+    "Pfizer reported Q3 2020 revenue of $14.1 billion."
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "must",
+   "kind": "number",
+   "point": "Q3 2020 revenue declined 4% year-over-year",
+   "patterns": [
+    "(revenue|top line|sales).{0,80}(decreas|declin|down|fell|fall).{0,40}(?<!\\d)4(?!\\d)\\s?%",
+    "(?<!\\d)4(?!\\d)\\s?%.{0,40}(decreas|declin|down|fell|fall).{0,80}(revenue|top line|sales)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(revenue|top line|sales).{0,80}(increas|grow|grew|ros|higher).{0,40}(?<!\\d)4(?!\\d)\\s?%",
+    "(?<!\\d)4(?!\\d)\\s?%.{0,40}(increas|grow|grew|ros|higher).{0,80}(revenue|top line|sales)"
+   ],
+   "quote": "Third-quarter 2020 revenues totaled $12.1 billion, a decrease of $549 million, or 4%, compared to the prior-year quarter",
+   "paraphrases": [
+    "Pfizer's Q3 2020 revenue declined 4% year-over-year.",
+    "Third-quarter revenue fell 4% versus the prior-year quarter.",
+    "Pfizer's top line was down 4% year-over-year in Q3 2020."
+   ],
+   "decoys": [
+    "Pfizer's Q3 2020 revenue grew 4% year-over-year.",
+    "Pfizer's Q3 2020 revenue declined 14% year-over-year."
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "number",
+   "point": "Pfizer updated its 2020 total-company revenue guidance to $48.8 to $49.5 billion",
+   "patterns": [
+    "(?<!\\d)48\\.8(?!\\d).{0,20}(to|-|–).{0,5}(?<!\\d)49\\.5(?!\\d)|(?<!\\d)49\\.5(?!\\d).{0,20}(to|-|–).{0,5}(?<!\\d)48\\.8(?!\\d)",
+    "(revenue|guidance).{0,80}(?<!\\d)48\\.8(?!\\d)|(?<!\\d)48\\.8(?!\\d).{0,80}(revenue|guidance)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "Revenues $48.8 to $49.5 billion (previously $48.6 to $50.6 billion)",
+   "paraphrases": [
+    "Pfizer's updated 2020 total-company revenue guidance is $48.8-$49.5 billion.",
+    "Updated full-year revenue guidance is now $48.8 to $49.5 billion.",
+    "Pfizer narrowed its 2020 revenue outlook to a $48.8B-$49.5B range."
+   ],
+   "decoys": [
+    "Pfizer cut its 2020 total-company revenue guidance to $38.8 to $39.5 billion.",
+    "Pfizer withdrew its 2020 total-company revenue guidance entirely, citing COVID-19 uncertainty."
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "should",
+   "kind": "number",
+   "point": "Pfizer's prior 2020 total-company revenue guidance was $48.6 to $50.6 billion",
+   "patterns": [
+    "(?<!\\d)48\\.6(?!\\d).{0,20}(to|-|–).{0,5}(?<!\\d)50\\.6(?!\\d)",
+    "(?<!\\d)50\\.6(?!\\d).{0,20}(to|-|–).{0,5}(?<!\\d)48\\.6(?!\\d)",
+    "previously.{0,40}(?<!\\d)48\\.6(?!\\d)",
+    "(?<!\\d)48\\.6(?!\\d).{0,40}previously"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Revenues $48.8 to $49.5 billion (previously $48.6 to $50.6 billion)",
+   "paraphrases": [
+    "Pfizer's prior 2020 revenue guidance was $48.6 to $50.6 billion.",
+    "The previous full-year revenue outlook was $48.6-$50.6 billion.",
+    "Guidance was previously set at $48.6 billion to $50.6 billion for 2020 revenue."
+   ],
+   "decoys": [
+    "Pfizer's prior 2020 revenue guidance was $38.6 to $40.6 billion.",
+    "Pfizer's prior 2020 revenue guidance was $48.8 to $49.5 billion."
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "must",
+   "kind": "number",
+   "point": "Pfizer raised its 2020 Adjusted Diluted EPS guidance to $2.88-$2.93",
+   "patterns": [
+    "(eps).{0,80}(?<!\\d)2\\.88(?!\\d)|(?<!\\d)2\\.88(?!\\d).{0,80}(eps)",
+    "(?<!\\d)2\\.93(?!\\d)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "eps.{0,80}\\bbillion\\b",
+    "\\bbillion\\b.{0,80}eps",
+    "(2\\.8[0-9]|2\\.9[0-9])\\s?billion"
+   ],
+   "quote": "Adjusted Diluted EPS (2) $2.88 to $2.93 (previously $2.85 to $2.95)",
+   "paraphrases": [
+    "Pfizer's updated 2020 adjusted diluted EPS guidance is $2.88-$2.93.",
+    "Updated adjusted EPS guidance is now $2.88 to $2.93 per share.",
+    "Full-year adjusted diluted EPS is now guided at $2.88-$2.93."
+   ],
+   "decoys": [
+    "Pfizer raised its 2020 adjusted diluted EPS guidance to $2.88 billion to $2.93 billion.",
+    "Pfizer cut its 2020 adjusted diluted EPS guidance to $2.28-$2.38."
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "number",
+   "point": "Pfizer's prior 2020 Adjusted Diluted EPS guidance was $2.85-$2.95",
+   "patterns": [
+    "(?<!\\d)2\\.85(?!\\d).{0,80}(?<!\\d)2\\.95(?!\\d)",
+    "(?<!\\d)2\\.95(?!\\d).{0,80}(?<!\\d)2\\.85(?!\\d)",
+    "previously.{0,40}(?<!\\d)2\\.85(?!\\d)",
+    "(?<!\\d)2\\.85(?!\\d).{0,40}previously"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "eps.{0,80}\\bbillion\\b",
+    "\\bbillion\\b.{0,80}eps",
+    "(2\\.8[0-9]|2\\.9[0-9])\\s?billion"
+   ],
+   "quote": "Adjusted Diluted EPS (2) $2.88 to $2.93 (previously $2.85 to $2.95)",
+   "paraphrases": [
+    "Pfizer's prior 2020 adjusted EPS guidance was $2.85 to $2.95.",
+    "The previous adjusted diluted EPS outlook was $2.85-$2.95.",
+    "EPS guidance was previously $2.85 to $2.95 for full-year 2020."
+   ],
+   "decoys": [
+    "Pfizer's prior 2020 adjusted EPS guidance was $1.85 to $1.95.",
+    "Pfizer's prior 2020 adjusted EPS guidance was $2.88 to $2.93."
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "number",
+   "point": "Q3 2020 Reported Diluted EPS was $0.39",
+   "patterns": [
+    "(reported|gaap).{0,45}(?<!\\d)0\\.39(?!\\d)|(?<!\\d)0\\.39(?!\\d).{0,45}(reported|gaap)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(reported|gaap) (diluted )?eps.{0,30}(?<!\\d)0\\.72(?!\\d)"
+   ],
+   "quote": "Reported Diluted EPS (1) of $0.39, Adjusted Diluted EPS (2) of $0.72",
+   "paraphrases": [
+    "Pfizer's Q3 2020 reported diluted EPS was $0.39.",
+    "Reported EPS came in at $0.39 per share.",
+    "Q3'20 GAAP EPS was $0.39."
+   ],
+   "decoys": [
+    "Pfizer's Q3 2020 reported diluted EPS was $0.72.",
+    "Pfizer's Q3 2020 reported diluted EPS was $0.49."
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "number",
+   "point": "Q3 2020 Adjusted Diluted EPS was $0.72",
+   "patterns": [
+    "adjusted.{0,45}(?<!\\d)0\\.72(?!\\d)|(?<!\\d)0\\.72(?!\\d).{0,45}adjusted"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "adjusted (diluted )?eps.{0,30}(?<!\\d)0\\.39(?!\\d)"
+   ],
+   "quote": "Reported Diluted EPS (1) of $0.39, Adjusted Diluted EPS (2) of $0.72",
+   "paraphrases": [
+    "Pfizer's Q3 2020 adjusted diluted EPS was $0.72.",
+    "Adjusted EPS was $0.72 per share in Q3 2020.",
+    "Q3'20 adjusted EPS was $0.72."
+   ],
+   "decoys": [
+    "Pfizer's Q3 2020 adjusted diluted EPS was $0.39.",
+    "Pfizer's Q3 2020 adjusted diluted EPS was $0.82."
+   ]
+  },
+  {
+   "id": "p9",
+   "tier": "should",
+   "kind": "number",
+   "point": "Pfizer paid $6.3 billion of dividends during the first nine months of 2020",
+   "patterns": [
+    "(dividend).{0,60}(?<!\\d)6\\.3(?!\\d)\\s?(billion|bn|b)\\b|(?<!\\d)6\\.3(?!\\d)\\s?(billion|bn|b)\\b.{0,60}(dividend)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "dividend.{0,60}(suspend|cut|eliminat)",
+    "(suspend|cut|eliminat).{0,60}dividend"
+   ],
+   "quote": "During the first nine months of 2020, Pfizer paid $6.3 billion of dividends, composed of dividends of $0.38 per share of common stock in each of the first, second and third quarters of 2020.",
+   "paraphrases": [
+    "Pfizer paid $6.3 billion in dividends during the first nine months of 2020.",
+    "Dividend payments totaled $6.3B for the nine-month period, at $0.38 per share each quarter.",
+    "Pfizer distributed roughly $6.3 billion to shareholders via dividends through Q3 2020."
+   ],
+   "decoys": [
+    "Pfizer suspended its dividend during the first nine months of 2020.",
+    "Pfizer paid $3.6 billion in dividends during the first nine months of 2020."
+   ]
+  },
+  {
+   "id": "p10",
+   "tier": "should",
+   "kind": "concept",
+   "point": "No share repurchases have been completed or are currently planned in 2020",
+   "patterns": [
+    "no share repurchase|no stock buyback|has not repurchased|have not repurchased|zero (share )?repurchase|repurchases? (have|has) not been (completed|made)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)2019(?!\\d)"
+   ],
+   "quote": "No share repurchases have been completed to date in 2020. As of October 27, 2020, Pfizer’s remaining share repurchase authorization was $5.3 billion. No share repurchases are currently planned in 2020.",
+   "paraphrases": [
+    "Pfizer has not repurchased any shares in 2020 and has none currently planned.",
+    "No stock buybacks were made through Q3 2020.",
+    "Pfizer completed zero share repurchases in 2020 and does not plan any."
+   ],
+   "decoys": [
+    "Pfizer repurchased $2 billion of shares in the first nine months of 2020.",
+    "Pfizer has not repurchased any shares in 2019 and has none planned."
+   ]
+  },
+  {
+   "id": "p11",
+   "tier": "should",
+   "kind": "number",
+   "point": "$5.3 billion of share repurchase authorization remained as of October 27, 2020",
+   "patterns": [
+    "(?<!\\d)5\\.3(?!\\d)\\s?(billion|bn|b)\\b.{0,60}(repurchase|authorization|buyback)",
+    "(repurchase|authorization|buyback).{0,60}(?<!\\d)5\\.3(?!\\d)\\s?(billion|bn|b)\\b"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "dividend.{0,30}(?<!\\d)5\\.3(?!\\d)",
+    "(?<!\\d)5\\.3(?!\\d).{0,30}dividend"
+   ],
+   "quote": "No share repurchases have been completed to date in 2020. As of October 27, 2020, Pfizer’s remaining share repurchase authorization was $5.3 billion. No share repurchases are currently planned in 2020.",
+   "paraphrases": [
+    "$5.3 billion of share repurchase authorization remained as of October 27, 2020.",
+    "Pfizer had $5.3 billion of unused buyback authorization.",
+    "The company's remaining share repurchase capacity was $5.3 billion."
+   ],
+   "decoys": [
+    "Pfizer had $3.5 billion of unused buyback authorization.",
+    "Pfizer had $5.3 billion of unused dividend authorization."
+   ]
+  }
+ ]
+}

@@ -47,3 +47,101 @@ Open:
    "can be patient" on t2-F1-patient-dropped-2015, 3/3).
 3. Landmark allows only one quote (misses Powell's "sufficiently restrictive", 3/3).
 4. Random misses: a per-field form with a code check for empty fields, instead of free bullets.
+
+## Summary-coverage eval (2026-09-22/23)
+
+A fixed answer key says what each document's important points are, so a summary run can be scored
+for **zero tokens** and the same way every time. Built once by Sonnet subagents, then hardened.
+Everything lives in `tools/summary_eval/` — see its README for the format and the pattern rules.
+
+- **58 documents** (~8 per doc_type across the size range, including the 16 old FACTS docs),
+  **594 points**, 0 validator errors. One point = one fact.
+- Each point carries 3 paraphrases and 2 decoys. The validator proves the patterns catch the
+  paraphrases, reject the decoys and match the source, so a key change cannot quietly rot.
+- `tools/eval_summaries.py` scores against the key (must-recall, per-kind, per-run stability,
+  `--misses`, `--json`). The old 2-facts-x-16-docs FACTS table is gone (it lives in the key now).
+
+**Is a keyword check trustworthy?** Measured, not assumed: readers graded 221 points on real
+summaries by meaning, blind to the patterns. Regex vs reader agreement **98%** (number 98, concept
+98, name 100, phrase 100), 1 too loose / 3 too strict. It was 84% before two fixes that mattered:
+1. **Compound points** — "4.0% y/y, the smallest since March 2021" scored full credit for half the
+   fact. Split into atomic points (441 -> 594); every "too loose" case came from these.
+2. **`not_patterns` leaked across bullets** — "downside risks to growth. - Inflation has remained
+   elevated" tripped an inflation guard. `covers()` now judges one bullet at a time.
+   Also: `[^.]{0,60}` windows die at the first decimal (262 patterns), and bare numbers need
+   `(?<!\d)` guards or "5 billion" matches inside "15 billion".
+
+**Baseline of the stage-1 prompts as of 4b591e6** (58 docs x 3 runs): must-recall **74%**, all-point
+66%. fomc_statement 97, macro_release 93, landmark 81, corporate_8k 80, beige_book 73,
+positioning 60, cb_speech 59, **fomc_minutes 41**. By kind: phrase 70, number 68, concept 65,
+**name 51** — dissenters and named districts are dropped far more often than numbers.
+
+### Prompt changes made against it
+
+**fomc_minutes 41% -> 78% must-recall, 33% -> 78% all-point** (8 docs x 3 runs). Not a length
+problem: the 94k-char minutes produced 14 bullets and the 49k one produced 6. The old checklist
+asked only for discussion (participants' views, staff outlook, risks) and the model obeyed —
+the May 2022 summary never stated the 50bp hike. Rebuilt decision-first like the statement
+checklist, then added the figures (PCE, unemployment, payrolls), operations with amounts, named
+causes, non-rate dissents and market pricing. Numbers went 59% -> 91%.
+**Generalization check** (`tools/probe_minutes.py`, key-free probes derived from each source): on
+10 minutes the key never saw, v1 -> new: rate level 38 -> 57%, dissenter named 11 -> 50%, PCE figure
+0 -> 67%, unemployment figure 10 -> 100%, no invented numbers.
+
+**Quote length rule** (shared frame): "quote exactly" made the model paste whole statement
+paragraphs; replies of 9k chars tripped the 8k runaway guard and whole summaries were discarded.
+"A phrase, never a whole paragraph" fixed most of it, not all: with the final prompt
+`fomc-minutes-20150917` still comes back at 8.2-9.7k chars in 3 of 3 runs and is thrown away
+(the guard's error says "reasoning leaked"; it is long bullets). Final minutes numbers, 8 docs x
+3 runs, `out/min_final_r*.json`: **82% must, 80% all-point** (85/81/81), 7/8 docs per run.
+
+**Thinking off everywhere** (was on for landmark). House rule: at most 4,000 output tokens per
+request, reasoning included; landmark thinking needed 16,000. At 4,000 with thinking on, 4 of 8
+landmark docs came back empty. Thinking off: landmark **81% -> 76%**, the loss all in names (BoE
+5-3-1 split 3/3 -> 1/3) — the landmark checklist has no line asking for the vote.
+
+### Second pass, 2026-09-24 — all types, with a dev/test split
+
+`tools/summary_eval/split.json` halves the key by doc_type (hash of doc_id). Tuning looked only at
+dev-half misses; the test half was scored once per version. Final = 58 docs x 3 runs
+(`out/v6_r*.json`, scores in `out/eval_v6.json`; CFTC rows are the computed output).
+
+| | before (committed) | final | test half before -> after |
+|---|---|---|---|
+| **overall must-recall** | 77% | **83%** (84/80/83) | 77 -> 83% |
+| beige_book | 73 | **84** | 72 -> 89 |
+| landmark | 76 | **86** | 76 -> 78 (dev 77 -> 95) |
+| positioning_report | 60 | **88** | 72 -> 83 |
+| fomc_minutes | 82 | 83 | 94 -> 93 |
+| macro_release | 93 | 95 | 93 -> 91 |
+| fomc_statement | 97 | 94 | 100 -> 100 |
+| cb_speech | 59 | 56 (reverted) | 44 -> 58, dev 76 -> 52 |
+| corporate_8k | 80 | 72 (reverted) | 67 -> 57, dev 88 -> 82 |
+
+What changed and stayed:
+- **CFTC is computed, not summarized** (`cot_summary()`): latest net/long/short/OI, week-over-week
+  move with its direction, gross moves, window extremes, largest one-week swing. Deterministic,
+  zero tokens, sign always right — the model wrote a deepening net short as "a decrease of 883".
+  88% must vs the model's 60%. The checklist is only the fallback if a table fails to parse.
+- **landmark**: the vote line (every dissent named + preferred action) and the decision level.
+  76 -> 86% with thinking OFF — above the 81% thinking-on figure.
+- **beige_book**: District counts, survey figures with their source, Districts named as diverging.
+  Numbers had 14% recall; 73 -> 84%.
+- **Runaway guard 8k -> 12k chars** (~3k tokens, inside the 4,000 cap). Zero failures in 174
+  calls; largest legitimate reply 9,842 chars would have been discarded before.
+- **Tried and dropped**: a 40-words-per-bullet bound (fixed the guard problem but cost minutes
+  94 -> 80 and macro 93 -> 82 on the test half — number-dense bullets need the room); the cb_speech
+  and corporate_8k checklist additions (no gain / a loss, see table). Both reverted to the text
+  that was measured.
+
+Open (prompt work):
+1. **cb_speech 56%** is the one unsolved type. Speeches are the least uniform class (some carry
+   no policy content); a checklist tweak did not move it. Next idea: a two-line classifier pass
+   (policy speech vs not) before the checklist, or a `default`-style short list for non-policy ones.
+2. **corporate_8k** has 5 docs / 21 test points — one miss is 5 points. Needs more keyed docs
+   before any conclusion.
+3. Guard label was "reasoning leaked"; it is now "runaway reply". The one real leak seen (29k
+   chars) was with thinking ON, which is now off everywhere.
+4. 3 runs, always. Per-pass overall was 84/80/83 on identical inputs.
+5. Higher recall has not yet been shown to move the composite score — run the scorer old vs new
+   over the 90 realized units next.

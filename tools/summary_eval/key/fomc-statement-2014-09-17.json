@@ -1,0 +1,253 @@
+{
+ "doc_id": "fomc-statement-2014-09-17",
+ "doc_type": "fomc_statement",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "name",
+   "match": "any",
+   "point": "Fisher dissented, believing improving growth and signs of financial excess warrant an earlier reduction in accommodation than the guidance suggests",
+   "quote": "President Fisher believed that the continued strengthening of the real economy, improved outlook for\nlabor utilization and for general price stability, and continued signs of financial market excess, will likely warrant an earlier reduction in monetary accommodation than is suggested by the Committee's stated forward guidance.",
+   "paraphrases": [
+    "Fisher dissented, arguing improving growth and signs of financial excess warrant earlier tightening.",
+    "Dallas Fed's Fisher voted against, wanting to reduce accommodation sooner than the guidance implies.",
+    "Fisher dissented, favoring an earlier start to policy normalization."
+   ],
+   "decoys": [
+    "Plosser dissented, arguing for earlier tightening due to financial market excess.",
+    "Fisher dissented, believing the Committee should maintain accommodation longer than guided."
+   ],
+   "patterns": [
+    "Fisher.{0,80}(dissent\\w*|voting against|voted against)",
+    "(dissent\\w*|voting against|voted against).{0,80}Fisher"
+   ],
+   "not_patterns": [
+    "Fisher.{0,80}(longer|extend\\w*|maintain accommodation)",
+    "(longer|extend\\w*|maintain accommodation).{0,80}Fisher"
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "must",
+   "kind": "name",
+   "match": "any",
+   "point": "Plosser dissented, objecting to the 'considerable time' guidance as too time-dependent and not reflecting economic progress",
+   "quote": "President Plosser objected to the guidance indicating that it likely will be appropriate to maintain the current target\nrange for the federal funds rate for \"a considerable\ntime after the asset purchase program ends,\" because such language is time dependent and does not reflect the considerable economic progress that has been made toward the Committee's goals.",
+   "paraphrases": [
+    "Plosser dissented, objecting to the time-dependent 'considerable time' language.",
+    "Philadelphia Fed's Plosser voted against, saying the 'considerable time' guidance ignores economic progress.",
+    "Plosser dissented over the considerable-time wording, calling it too time-dependent."
+   ],
+   "decoys": [
+    "Fisher dissented, objecting to the 'considerable time' language as too time-dependent.",
+    "Plosser dissented, arguing the Committee should keep the 'considerable time' language longer."
+   ],
+   "patterns": [
+    "Plosser.{0,80}(dissent\\w*|voting against|voted against)",
+    "(dissent\\w*|voting against|voted against).{0,80}Plosser"
+   ],
+   "not_patterns": [
+    "Plosser.{0,80}(keep|retain)",
+    "(keep|retain).{0,80}Plosser"
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "phrase",
+   "match": "any",
+   "point": "Committee retained the 'considerable time' language: near-zero rates likely appropriate for a considerable time after asset purchases end",
+   "quote": "the Committee continues to anticipate, based on its assessment of these factors, that it likely will be appropriate to maintain the current target\nrange for the federal funds rate for a considerable time after the asset purchase program ends",
+   "paraphrases": [
+    "Fed retained the 'considerable time' guidance for keeping rates near zero after QE ends.",
+    "FOMC kept the 'considerable time' language on maintaining near-zero rates post-taper.",
+    "Statement reiterates rates likely stay low for a considerable time after asset purchases end."
+   ],
+   "decoys": [
+    "The Committee dropped the 'considerable time' language from the statement.",
+    "The Committee said it will maintain the target range for a considerable time before the asset purchase program ends."
+   ],
+   "patterns": [
+    "considerable time.{0,80}(asset purchase program ends|after.{0,20}(purchase|QE)|QE ends|purchases? end|post[\\-\\s]?taper)",
+    "(asset purchase program ends|after.{0,20}(purchase|QE)|QE ends|purchases? end|post[\\-\\s]?taper).{0,80}considerable time"
+   ],
+   "not_patterns": [
+    "(drop\\w*|remov\\w*|eliminat\\w*).{0,80}considerable time",
+    "considerable time.{0,80}before.{0,20}(asset purchase|program)"
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "should",
+   "kind": "number",
+   "match": "any",
+   "point": "MBS purchases cut to $5 billion per month, from $10 billion",
+   "quote": "the Committee will add to its holdings of agency mortgage-backed securities at a pace of $5 billion per month rather than $10 billion per month, and will add to its holdings of longer-term Treasury securities at a pace of $10 billion per month rather than $15 billion per month",
+   "paraphrases": [
+    "MBS purchases cut to $5 billion per month.",
+    "Agency MBS buying reduced to $5bn monthly.",
+    "The Fed will now buy $5 billion of MBS per month."
+   ],
+   "decoys": [
+    "The Committee will reduce MBS purchases to $15 billion per month.",
+    "Treasury purchases cut to $10 billion per month."
+   ],
+   "patterns": [
+    "(mortgage[\\-\\s]?backed|MBS).{0,80}(?<!\\d)\\$?(?<!\\d)5(?!\\d)\\s?(?:billion|bn|b\\b)",
+    "(?<!\\d)\\$?(?<!\\d)5(?!\\d)\\s?(?:billion|bn|b\\b).{0,80}(mortgage[\\-\\s]?backed|MBS)"
+   ],
+   "not_patterns": [
+    "MBS.{0,80}(?<!\\d)\\$?(?<!\\d)15(?!\\d)\\s?(?:billion|bn|b\\b)",
+    "(?<!\\d)\\$?(?<!\\d)15(?!\\d)\\s?(?:billion|bn|b\\b).{0,80}MBS"
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "should",
+   "kind": "number",
+   "match": "any",
+   "point": "Treasury purchases cut to $10 billion per month, from $15 billion",
+   "quote": "the Committee will add to its holdings of agency mortgage-backed securities at a pace of $5 billion per month rather than $10 billion per month, and will add to its holdings of longer-term Treasury securities at a pace of $10 billion per month rather than $15 billion per month",
+   "paraphrases": [
+    "Treasury purchases cut to $10 billion per month.",
+    "Longer-term Treasury buying reduced to $10bn monthly.",
+    "The Fed will now buy $10 billion of Treasuries per month."
+   ],
+   "decoys": [
+    "The Committee will reduce Treasury purchases to $20 billion per month.",
+    "MBS purchases cut to $5 billion per month."
+   ],
+   "patterns": [
+    "treasur\\w*.{0,80}(?<!\\d)\\$?(?<!\\d)10(?!\\d)\\s?(?:billion|bn|b\\b)",
+    "(?<!\\d)\\$?(?<!\\d)10(?!\\d)\\s?(?:billion|bn|b\\b).{0,80}treasur\\w*"
+   ],
+   "not_patterns": [
+    "treasur\\w*.{0,80}(?<!\\d)\\$?(?<!\\d)20(?!\\d)\\s?(?:billion|bn|b\\b)",
+    "(?<!\\d)\\$?(?<!\\d)20(?!\\d)\\s?(?:billion|bn|b\\b).{0,80}treasur\\w*"
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "phrase",
+   "match": "any",
+   "point": "Asset purchase program set to end at the next (October) meeting",
+   "quote": "the Committee will end its current program of asset purchases at its next meeting",
+   "paraphrases": [
+    "The Fed will end its asset purchase program at the next meeting.",
+    "QE is set to conclude at the October meeting.",
+    "Asset purchases will stop after this next meeting."
+   ],
+   "decoys": [
+    "The Committee will add to its holdings of agency mortgage-backed securities at a pace of $5 billion per month, with no plan to end the program soon.",
+    "The Committee will continue asset purchases indefinitely, with no end date set."
+   ],
+   "patterns": [
+    "(end\\w*|stop\\w*|conclud\\w*|halt\\w*).{0,80}(asset purchase|program|QE|purchases).{0,80}(next meeting|october meeting)",
+    "(asset purchase|program|QE|purchases).{0,80}(end\\w*|stop\\w*|conclud\\w*|halt\\w*).{0,80}(next meeting|october meeting)"
+   ],
+   "not_patterns": [
+    "no plan to end",
+    "no end date"
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Unemployment rate little changed",
+   "quote": "the unemployment rate is little changed and a range of labor market indicators suggests that there remains significant underutilization of labor resources",
+   "paraphrases": [
+    "Unemployment rate little changed.",
+    "Jobless rate roughly steady.",
+    "Unemployment little changed since the prior meeting."
+   ],
+   "decoys": [
+    "The unemployment rate declined sharply.",
+    "There remains significant underutilization of labor resources."
+   ],
+   "patterns": [
+    "(?:(?:unemployment|jobless).{0,80}(?:little changed|roughly steady|unchanged)|(?:little changed|roughly steady|unchanged).{0,80}(?:unemployment|jobless))"
+   ],
+   "not_patterns": [
+    "(unemployment|jobless).{0,80}(declin\\w* sharply|fell sharply|dropped sharply)"
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Significant underutilization of labor resources remains",
+   "quote": "the unemployment rate is little changed and a range of labor market indicators suggests that there remains significant underutilization of labor resources",
+   "paraphrases": [
+    "Significant slack remains in the labor market.",
+    "Labor market underutilization is still significant.",
+    "Labor market slack remains significant."
+   ],
+   "decoys": [
+    "Labor market slack has been largely eliminated.",
+    "Unemployment rate little changed."
+   ],
+   "patterns": [
+    "(?:(?:underutilization|slack).{0,80}(?:significant|remains|persist\\w*)|(?:significant|remains|persist\\w*).{0,80}(?:underutilization|slack))"
+   ],
+   "not_patterns": [
+    "(underutilization|slack).{0,80}(diminish\\w*|eliminat\\w*|largely gone|reduced significantly)",
+    "(diminish\\w*|eliminat\\w*|largely gone|reduced significantly).{0,80}(underutilization|slack)"
+   ]
+  },
+  {
+   "id": "p9",
+   "tier": "should",
+   "kind": "concept",
+   "match": "all",
+   "point": "Likelihood of inflation running persistently below 2 percent has diminished somewhat since early in the year",
+   "quote": "the likelihood of inflation running persistently below 2 percent has diminished somewhat since early this year",
+   "paraphrases": [
+    "Fed said the risk of persistently low inflation has diminished somewhat since early in the year.",
+    "Committee judged that the chance of inflation staying below 2% for long has lessened.",
+    "Likelihood of persistently sub-2% inflation seen as diminished somewhat versus early 2014."
+   ],
+   "decoys": [
+    "The Committee judges that the likelihood of inflation running persistently below 2 percent has increased since early this year.",
+    "The Committee judges that the likelihood of inflation running persistently above 2 percent has diminished somewhat."
+   ],
+   "patterns": [
+    "(?:(?:likelihood|chance|risk).{0,80}(?:persistently below|below (?<!\\d)2(?!\\d) percent|sub[\\-\\s]?(?<!\\d)2(?!\\d)|staying below|below target|persistently low|too low)|(?:persistently below|below (?<!\\d)2(?!\\d) percent|sub[\\-\\s]?(?<!\\d)2(?!\\d)|staying below|below target|persistently low|too low).{0,80}(?:likelihood|chance|risk))",
+    "(?:(?:likelihood|chance|risk).{0,80}(?:diminish\\w*|lessen\\w*|decreas\\w*|less\\w* likely)|(?:diminish\\w*|lessen\\w*|decreas\\w*|less\\w* likely).{0,80}(?:likelihood|chance|risk))"
+   ],
+   "not_patterns": [
+    "(likelihood|chance|risk).{0,80}(increas\\w*|ris\\w*|greater)",
+    "(increas\\w*|ris\\w*|greater).{0,80}(likelihood|chance|risk)",
+    "persistently above|above (?<!\\d)2(?!\\d) percent"
+   ]
+  },
+  {
+   "id": "p10",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Committee sees risks to the outlook for economic activity and the labor market as nearly balanced",
+   "quote": "The Committee sees the risks to the outlook for\neconomic activity and the labor market as nearly balanced",
+   "paraphrases": [
+    "Fed sees risks to activity and labor market outlook as nearly balanced.",
+    "Committee judges risks to growth and jobs outlook nearly balanced.",
+    "Risks to the economic and labor market outlook seen as nearly balanced."
+   ],
+   "decoys": [
+    "The Committee sees the risks to the outlook as tilted to the downside.",
+    "The Committee sees the risks to the outlook as slightly skewed but broadly balanced."
+   ],
+   "patterns": [
+    "risk\\w*.{0,80}(nearly balanced|roughly balanced)",
+    "(nearly balanced|roughly balanced).{0,80}risk\\w*"
+   ],
+   "not_patterns": [
+    "(tilt\\w*|skew\\w*).{0,80}(downside|upside)"
+   ]
+  }
+ ]
+}

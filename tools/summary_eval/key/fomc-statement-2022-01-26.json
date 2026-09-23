@@ -1,0 +1,190 @@
+{
+ "doc_id": "fomc-statement-2022-01-26",
+ "doc_type": "fomc_statement",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "number",
+   "match": "any",
+   "point": "Committee kept the federal funds target range unchanged at 0 to 1/4 percent (still near zero)",
+   "quote": "the Committee decided to keep the target range for the federal funds rate at 0 to 1/4 percent",
+   "paraphrases": [
+    "FOMC held the fed funds target range at 0-1/4%.",
+    "Rates kept near zero, target range still 0 to 0.25 percent.",
+    "No hike yet: target range remains 0 to 1/4 percent."
+   ],
+   "decoys": [
+    "The Committee decided to raise the target range for the federal funds rate to 1/4 to 1/2 percent.",
+    "The Committee decided to keep the target range for the federal funds rate at 1/4 to 1/2 percent."
+   ],
+   "patterns": [
+    "(target range|federal funds rate).{0,80}((?<!\\d)0(?!\\d) to (?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0(?!\\d)-(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0(?!\\d) to (?<!\\d)0\\.25(?!\\d)|(?<!\\d)0(?!\\d)-(?<!\\d)0\\.25(?!\\d)|zero to (?:(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0\\.25(?!\\d)))",
+    "((?<!\\d)0(?!\\d) to (?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0(?!\\d)-(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0(?!\\d) to (?<!\\d)0\\.25(?!\\d)|(?<!\\d)0(?!\\d)-(?<!\\d)0\\.25(?!\\d)|zero to (?:(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)0\\.25(?!\\d))).{0,80}(target range|federal funds rate)"
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "must",
+   "kind": "phrase",
+   "match": "all",
+   "point": "Fed signaled it will 'soon be appropriate' to raise the target range (liftoff signal)",
+   "quote": "the Committee expects it will soon be appropriate to raise the target range for the federal funds rate",
+   "paraphrases": [
+    "Fed signaled it will soon be appropriate to start hiking rates.",
+    "FOMC opened the door to a March liftoff, saying a hike will soon be appropriate.",
+    "Statement flags that raising the target range will soon be warranted."
+   ],
+   "decoys": [
+    "The Committee expects it will soon be appropriate to lower the target range for the federal funds rate.",
+    "The Committee expects it will soon be appropriate to raise its longer-run inflation target."
+   ],
+   "patterns": [
+    "(?:(?:soon|shortly).{0,60}(?:appropriate|warranted)|(?:appropriate|warranted).{0,60}(?:soon|shortly))",
+    "(?:hik\\w*|liftoff|raising|raise the target range|raise rates)"
+   ],
+   "not_patterns": [
+    "soon be appropriate to (lower|cut|reduce)"
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "concept",
+   "match": "any",
+   "point": "Inflation elevated due to pandemic-related supply and demand imbalances and reopening of the economy",
+   "quote": "Supply and demand imbalances related to the pandemic and the reopening of the economy have continued to contribute to elevated levels of inflation.",
+   "paraphrases": [
+    "Pandemic-related supply-demand imbalances continue to drive elevated inflation.",
+    "Inflation remains elevated as reopening-related supply and demand mismatches persist.",
+    "Supply and demand imbalances from the pandemic keep inflation elevated."
+   ],
+   "decoys": [
+    "Inflation has returned to the Committee's 2 percent objective as imbalances fade.",
+    "Elevated inflation is attributed mainly to a surge in energy exports."
+   ],
+   "patterns": [
+    "(?:supply.{0,20}demand.{0,20}(?:imbalances|mismatch\\w*)|imbalances|mismatch\\w*).{0,120}(?:elevated|inflation)",
+    "(?:elevated|inflation).{0,120}(?:supply.{0,20}demand.{0,20}(?:imbalances|mismatch\\w*)|imbalances|mismatch\\w*)"
+   ],
+   "not_patterns": [
+    "return\\w*.{0,80}(?<!\\d)2(?!\\d)\\s?percent objective",
+    "energy exports"
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "should",
+   "kind": "number",
+   "match": "any",
+   "point": "From February, Fed tapers to $20 billion/month Treasury purchases",
+   "quote": "Beginning in February, the Committee will increase its holdings of Treasury securities by at least $20 billion per month and of agency mortgage‑backed securities by at least $10 billion per month.",
+   "paraphrases": [
+    "From February, Fed slows Treasury purchases to $20B/month.",
+    "Treasury purchases tapered to $20 billion per month starting in February.",
+    "Asset purchases reduced to $20 billion in Treasuries monthly."
+   ],
+   "decoys": [
+    "Beginning in February, the Committee will increase its holdings of Treasury securities by at least $40 billion per month.",
+    "From February, Fed tapers MBS purchases to $10 billion per month."
+   ],
+   "patterns": [
+    "treasur\\w*.{0,80}(?<!\\d)\\$?(?<!\\d)20(?!\\d)\\s?(?:billion|bn|b\\b)",
+    "(?<!\\d)\\$?(?<!\\d)20(?!\\d)\\s?(?:billion|bn|b\\b).{0,80}treasur\\w*"
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "should",
+   "kind": "number",
+   "match": "any",
+   "point": "From February, Fed tapers to $10 billion/month agency MBS purchases",
+   "quote": "Beginning in February, the Committee will increase its holdings of Treasury securities by at least $20 billion per month and of agency mortgage‑backed securities by at least $10 billion per month.",
+   "paraphrases": [
+    "From February, Fed slows MBS purchases to $10B/month.",
+    "Agency MBS purchases tapered to $10 billion per month starting in February.",
+    "Asset purchases reduced to $10 billion in MBS monthly."
+   ],
+   "decoys": [
+    "Beginning in February, the Committee will increase its holdings of agency MBS by at least $20 billion per month.",
+    "From February, Fed tapers Treasury purchases to $20 billion per month."
+   ],
+   "patterns": [
+    "(mortgage[\\-\\s]?backed|MBS|agency mbs).{0,80}(?<!\\d)\\$?(?<!\\d)10(?!\\d)\\s?(?:billion|bn|b\\b)",
+    "(?<!\\d)\\$?(?<!\\d)10(?!\\d)\\s?(?:billion|bn|b\\b).{0,80}(mortgage[\\-\\s]?backed|MBS|agency mbs)"
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Job gains have been solid in recent months",
+   "quote": "Job gains have been solid in recent months, and the unemployment rate has declined substantially.",
+   "paraphrases": [
+    "Job gains have been solid recently.",
+    "Hiring remained solid in recent months.",
+    "Job growth was solid lately."
+   ],
+   "decoys": [
+    "Job gains have been weak in recent months.",
+    "The unemployment rate has declined substantially."
+   ],
+   "patterns": [
+    "(?:(?:job gains|hiring|job growth).{0,80}(?:solid|strong|robust)|(?:solid|strong|robust).{0,80}(?:job gains|hiring|job growth))"
+   ],
+   "not_patterns": [
+    "(job gains|hiring).{0,80}(weak\\w*|soft\\w*|slow\\w*)"
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "The unemployment rate has declined substantially",
+   "quote": "Job gains have been solid in recent months, and the unemployment rate has declined substantially.",
+   "paraphrases": [
+    "The unemployment rate has declined substantially.",
+    "Jobless rate fell sharply.",
+    "Unemployment is down a lot."
+   ],
+   "decoys": [
+    "Job gains have been solid in recent months.",
+    "The unemployment rate has declined slightly."
+   ],
+   "patterns": [
+    "(unemployment|jobless).{0,80}(declin\\w*|fell|fallen|down).{0,80}(substantial\\w*|sharply|significantly|a lot)"
+   ],
+   "not_patterns": [
+    "(unemployment|jobless).{0,80}(ris\\w*|rose|higher|increas\\w*)",
+    "(declin\\w*|fell|fallen|down).{0,40}(slightly|modestly|a little|a bit)"
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Risks to the outlook include new variants of the virus",
+   "quote": "Risks to the economic outlook remain, including from new variants of the virus.",
+   "paraphrases": [
+    "Fed flagged risks from new COVID variants to the outlook.",
+    "New virus variants seen as a risk to the economic outlook.",
+    "Outlook risks include potential new coronavirus variants."
+   ],
+   "decoys": [
+    "The Committee said risks to the outlook have diminished as the pandemic recedes.",
+    "Risks to the outlook include a possible government shutdown."
+   ],
+   "patterns": [
+    "risk\\w*.{0,80}(new variants?|virus variants?|covid variants?)",
+    "(new variants?|virus variants?|covid variants?).{0,80}risk\\w*"
+   ],
+   "not_patterns": [
+    "risks?.{0,80}(diminish\\w*|reced\\w*|abate\\w*)",
+    "government shutdown"
+   ]
+  }
+ ]
+}

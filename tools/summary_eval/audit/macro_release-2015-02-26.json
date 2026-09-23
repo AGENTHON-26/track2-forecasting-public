@@ -1,0 +1,22 @@
+{
+ "doc_id": "macro_release-2015-02-26",
+ "labels": {
+  "p1": true,
+  "p2": true,
+  "p3": true,
+  "p4": true,
+  "p5": false,
+  "p6": false,
+  "p7": true,
+  "p8": true,
+  "p9": false,
+  "p10": true,
+  "p11": true,
+  "p12": false
+ },
+ "notes": {
+  "p5": "-18.7% is given; the 'sharpest of seven straight drops' half is not",
+  "p6": "food-at-home decline given; 'first since May 2013' missing",
+  "p12": "no ex-gasoline counterfactual"
+ }
+}

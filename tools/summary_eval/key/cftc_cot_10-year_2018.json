@@ -1,0 +1,282 @@
+{
+ "doc_id": "cftc_cot_10-year_2018",
+ "doc_type": "positioning_report",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Latest net short 10-year Treasury position is a record -756,316 contracts (week of 2018-09-25), the deepest of the period",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(net short|short position|noncomm net).{0,60}(?<!\\d)756,?316(?!\\d)",
+    "(?<!\\d)756,?316(?!\\d).{0,60}(net short|short position)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(net long|long position).{0,40}(?<!\\d)756,?316(?!\\d)",
+    "(?<!\\d)756,?316(?!\\d).{0,40}(net long|long position)"
+   ],
+   "quote": "2018-09-25 4035499 483500 1239816 -756316",
+   "paraphrases": [
+    "Net short 10-year Treasury position hit a record -756,316 contracts as of Sept 25.",
+    "Speculators were net short 756,316 10-year note contracts in the latest report, the deepest of the period.",
+    "Non-commercial net short: 756,316 contracts (week of Sept 25)."
+   ],
+   "decoys": [
+    "Net long 10-year Treasury position of 756,316 contracts.",
+    "Net short 10-year Treasury position of 756,136 contracts."
+   ],
+   "source_pattern": [
+    "(?<!\\d)756,?316(?!\\d)"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Net short in 10-year Treasury futures started 2018 at -75,840 contracts (week of 2018-01-02)",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(net short|short position|noncomm net).{0,60}(?<!\\d)75,?840(?!\\d)",
+    "(?<!\\d)75,?840(?!\\d).{0,60}(net short|short position)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(net long|long position).{0,40}(?<!\\d)75,?840(?!\\d)",
+    "(?<!\\d)75,?840(?!\\d).{0,40}(net long|long position)"
+   ],
+   "quote": "2018-01-02 3255430 660245 736085 -75840",
+   "paraphrases": [
+    "Net short in 10-year Treasury futures started 2018 at -75,840 contracts.",
+    "Speculators were net short just 75,840 contracts in early January.",
+    "The 10-year net short began the year at -75,840 contracts (week of Jan 2)."
+   ],
+   "decoys": [
+    "Net long 10-year Treasury position of 75,840 contracts.",
+    "Net short 10-year Treasury position of 78,840 contracts."
+   ],
+   "source_pattern": [
+    "(?<!\\d)75,?840(?!\\d)"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "The net short in 10-year Treasury futures grew through 2018, reaching a record -756,316 by late September -- a sustained buildup of bearish rate bets, not a decrease",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?<!\\d)756,?316(?!\\d).{0,80}(grew|grow|increas|widen|deepen|extend|added|rose|climb|expand|larger|deeper|built|build|record)",
+    "(grew|grow|increas|widen|deepen|extend|added|rose|climb|expand|larger|deeper|built|build).{0,80}(?<!\\d)756,?316(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)756,?316(?!\\d).{0,80}(decreas|reduc|shrank|shrink|shrunk|narrow|fell|fall|fallen|drop|declin|small|less|cover)",
+    "(decreas|reduc|shrank|shrink|shrunk|narrow|fell|fall|fallen|drop|declin|small|less|cover).{0,80}(?<!\\d)756,?316(?!\\d)"
+   ],
+   "quote": "2018-09-25 4035499 483500 1239816 -756316",
+   "paraphrases": [
+    "Net short 10-year Treasury positioning grew steadily through 2018, from -75,840 in January to a record -756,316 by late September.",
+    "Speculators built an increasingly large short in 10-year notes over the year, widening to 756,316 contracts by Sept 25.",
+    "The net short in 10-year Treasury futures expanded roughly tenfold in 2018, reaching a record -756,316 contracts."
+   ],
+   "decoys": [
+    "Net short 10-year Treasury positioning shrank steadily through 2018, narrowing to a record -756,316 by late September.",
+    "Net short 10-year Treasury positioning grew steadily through 2018, from -75,840 in January to a record -746,316 by late September."
+   ],
+   "source_pattern": [
+    "(?<!\\d)756,?316(?!\\d)",
+    "(?<!\\d)75,?840(?!\\d)"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Net short in 10-year Treasuries was -700,514 in the week of 2018-08-21",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(net short|short position|noncomm net).{0,60}(?<!\\d)700,?514(?!\\d)",
+    "(?<!\\d)700,?514(?!\\d).{0,60}(net short|short position)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(net long|long position).{0,40}(?<!\\d)700,?514(?!\\d)",
+    "(?<!\\d)700,?514(?!\\d).{0,40}(net long|long position)"
+   ],
+   "quote": "2018-08-21 4123752 503734 1204248 -700514",
+   "paraphrases": [
+    "Net short in 10-year Treasuries was -700,514 in the week of Aug 21.",
+    "Speculators were net short 700,514 contracts as of August 21.",
+    "The 10-year net short stood at 700,514 contracts ahead of the covering rally."
+   ],
+   "decoys": [
+    "Net long 10-year Treasury position of 700,514 contracts.",
+    "Net short 10-year Treasury position of 710,514 contracts."
+   ],
+   "source_pattern": [
+    "(?<!\\d)700,?514(?!\\d)"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Net short narrowed sharply to -529,820 in the week of 2018-08-28, a one-week short-covering (not further widening)",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?<!\\d)529,?820(?!\\d).{0,80}(narrow|shrank|shrink|shrunk|declin|fell|fall|fallen|drop|dropped|reduc|cover|eas|small)",
+    "(narrow|shrank|shrink|shrunk|declin|fell|fall|fallen|drop|dropped|reduc|cover|eas|small).{0,80}(?<!\\d)529,?820(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)529,?820(?!\\d).{0,80}(widen|deepen|grew|grow|increas|expand|larger|deeper|extend|record)",
+    "(widen|deepen|grew|grow|increas|expand|larger|deeper|extend|record).{0,80}(?<!\\d)529,?820(?!\\d)"
+   ],
+   "quote": "2018-08-21 4123752 503734 1204248 -700514 2018-08-28 4134502 573951 1103771 -529820",
+   "paraphrases": [
+    "The 10-year net short was covered sharply, narrowing from -700,514 to -529,820 in the week of Aug 28.",
+    "Speculators briefly covered Treasury shorts, and the net short fell to -529,820 contracts in late August.",
+    "Net short 10-year positioning eased to -529,820 contracts in late August, down from over 700,000 the prior week."
+   ],
+   "decoys": [
+    "The 10-year net short widened further from -700,514 to -529,820 in the week of Aug 28.",
+    "The 10-year net short briefly narrowed from -700,514 to -539,820 in the week of Aug 28."
+   ],
+   "source_pattern": [
+    "(?<!\\d)529,?820(?!\\d)",
+    "(?<!\\d)700,?514(?!\\d)"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "The net short then quickly re-widened past -680,000 the following week (2018-09-04)",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?<!\\d)682,?757(?!\\d).{0,60}(widen|deepen|grew|grow|increas|expand|larger|deeper|re-widen\\w*|rebound\\w*|revers\\w*)",
+    "(widen|deepen|grew|grow|increas|expand|larger|deeper|re-widen\\w*|rebound\\w*|revers\\w*).{0,60}(?<!\\d)682,?757(?!\\d)",
+    "(re-widen\\w*|widen\\w* again|rebound\\w*|rebuilt\\w*|snapped back|reversed|push\\w*.{0,15}back|back (above|past)).{0,60}(?<!\\d)680,?000(?!\\d)",
+    "(?<!\\d)680,?000(?!\\d).{0,60}(re-widen\\w*|widen\\w* again|rebound\\w*|rebuilt\\w*|snapped back|reversed|push\\w*.{0,15}back|back (above|past))"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)682,?757(?!\\d).{0,60}(narrow|shrank|shrink|continu\\w*.{0,15}(narrow|cover)|remain\\w*.{0,10}(narrow|low))",
+    "(narrow|shrank|shrink|continu\\w*.{0,15}(narrow|cover)|remain\\w*.{0,10}(narrow|low)).{0,60}(?<!\\d)682,?757(?!\\d)"
+   ],
+   "quote": "2018-08-28 4134502 573951 1103771 -529820 2018-09-04 3991152 424804 1107561 -682757",
+   "paraphrases": [
+    "The net short quickly re-widened to -682,757 the following week.",
+    "Speculators rebuilt their Treasury short within a week, pushing the net short back past -680,000.",
+    "The brief covering reversed fast: net short widened again to roughly 682,757 contracts by Sept 4."
+   ],
+   "decoys": [
+    "The net short continued to narrow further, falling to -400,000 the following week.",
+    "The net short stayed near -529,820 for several more weeks before eventually widening."
+   ],
+   "source_pattern": [
+    "(?<!\\d)682,?757(?!\\d)"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Gross short 10-year positions also hit a period record of 1,239,816 contracts in the latest week (2018-09-25)",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(gross short|noncomm short|\\bshorts?\\b).{0,60}(?<!\\d)1,?239,?816(?!\\d)",
+    "(?<!\\d)1,?239,?816(?!\\d).{0,60}(\\bshorts?\\b|contracts short)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(gross long|long position|longs).{0,40}(?<!\\d)1,?239,?816(?!\\d)"
+   ],
+   "quote": "2018-09-25 4035499 483500 1239816 -756316",
+   "paraphrases": [
+    "Gross short 10-year Treasury positions hit a record 1,239,816 contracts in the latest week.",
+    "Speculators' short Treasury holdings reached an all-time high of 1,239,816 contracts.",
+    "The short side of the 10-year book totaled 1,239,816 contracts, a new period peak."
+   ],
+   "decoys": [
+    "Gross long 10-year Treasury positions hit a record 1,239,816 contracts in the latest week.",
+    "Gross short 10-year Treasury positions hit a record 1,229,816 contracts in the latest week."
+   ],
+   "source_pattern": [
+    "(?<!\\d)1,?239,?816(?!\\d)"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Open interest peaked at 4,134,502 contracts in late August",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(peak|highest|high|record).{0,60}(?<!\\d)4,?134,?502(?!\\d)",
+    "(?<!\\d)4,?134,?502(?!\\d).{0,60}(peak|highest|high|record)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(low|lowest|trough|bottom).{0,60}(?<!\\d)4,?134,?502(?!\\d)",
+    "(?<!\\d)4,?134,?502(?!\\d).{0,60}(low|lowest|trough|bottom)"
+   ],
+   "quote": "2018-08-28 4134502 573951 1103771 -529820",
+   "paraphrases": [
+    "Open interest in 10-year Treasury futures peaked at 4,134,502 contracts in late August.",
+    "Total open interest hit a period high of roughly 4,134,502 contracts on Aug 28.",
+    "10-year futures open interest reached its highest point of the year, 4,134,502 contracts, in late August."
+   ],
+   "decoys": [
+    "Open interest in 10-year Treasury futures bottomed at 4,134,502 contracts in late August.",
+    "Open interest in 10-year Treasury futures peaked at 4,144,502 contracts in late August."
+   ],
+   "source_pattern": [
+    "(?<!\\d)4,?134,?502(?!\\d)"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Open interest eased slightly to 4,035,499 contracts by the latest week, down from the late-August peak",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(open interest).{0,60}(?<!\\d)4,?035,?499(?!\\d)",
+    "(?<!\\d)4,?035,?499(?!\\d).{0,60}(open interest)",
+    "(eas\\w*|declin\\w*|fell|lower|dipped|slipped).{0,60}(?<!\\d)4,?035,?499(?!\\d)",
+    "(?<!\\d)4,?035,?499(?!\\d).{0,60}(eas\\w*|declin\\w*|fell|lower|dipped|slipped)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)4,?035,?499(?!\\d).{0,60}(peak|record|highest|high\\b)",
+    "(peak|record|highest|high\\b).{0,60}(?<!\\d)4,?035,?499(?!\\d)"
+   ],
+   "quote": "2018-09-25 4035499 483500 1239816 -756316",
+   "paraphrases": [
+    "Open interest eased slightly to 4,035,499 contracts by the latest week.",
+    "Total open interest slipped to about 4,035,499 contracts as of Sept 25.",
+    "By the most recent report, open interest had eased to 4,035,499 contracts."
+   ],
+   "decoys": [
+    "Open interest rose to 4,035,499 contracts, a new high.",
+    "Open interest eased to 3,035,499 contracts by the latest week."
+   ],
+   "source_pattern": [
+    "(?<!\\d)4,?035,?499(?!\\d)"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "The relentless buildup of speculative net shorts in 10-year Treasury futures through 2018 -- interrupted only briefly by short covering in late August -- left positioning unusually stretched heading into Q4 2018, raising the risk of a sharp short-covering rally if yields reversed",
+   "tier": "should",
+   "kind": "judge_only",
+   "patterns": [],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "2018-09-25 4035499 483500 1239816 -756316",
+   "paraphrases": [
+    "Record speculative shorts in 10-year notes left positioning stretched and vulnerable to a squeeze if yields fell.",
+    "The aggressive, mostly uninterrupted build in Treasury shorts through 2018 reflects a strong bearish rates consensus.",
+    "Extreme short positioning heading into Q4 2018 raises the odds of a violent short-covering rally on any yield reversal."
+   ],
+   "decoys": [
+    "Record speculative longs in 10-year notes left positioning stretched heading into Q4 2018.",
+    "Positioning in 10-year Treasury futures was balanced and unremarkable heading into Q4 2018."
+   ]
+  }
+ ]
+}

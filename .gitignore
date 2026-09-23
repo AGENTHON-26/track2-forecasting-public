@@ -34,3 +34,7 @@ proprietary-DO-NOT-PUSH/
 
 # local model credentials, never commit
 .env
+
+# derived: wrapped copies of unit text for the summary-coverage eval (rebuild: python3 tools/summary_key.py)
+tools/summary_eval/src/
+tools/summary_eval/audit_tasks/

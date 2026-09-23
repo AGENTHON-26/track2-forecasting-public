@@ -1,0 +1,466 @@
+[
+ {
+  "doc_id": "beige_book-2023-05-31",
+  "unit": "t2-F1-cpi-glidepath-2023",
+  "file": "beigebook_202305.txt",
+  "doc_type": "beige_book",
+  "timestamp": "2023-05-31",
+  "chars": 17539
+ },
+ {
+  "doc_id": "beige_book-2018-07-31",
+  "unit": "t2-F1-ust-positioning-2018",
+  "file": "beigebook_201807.txt",
+  "doc_type": "beige_book",
+  "timestamp": "2018-07-31",
+  "chars": 111704
+ },
+ {
+  "doc_id": "beige_book-2018-12-31",
+  "unit": "t2-F2-powell-pivot-2019",
+  "file": "beigebook_201812.txt",
+  "doc_type": "beige_book",
+  "timestamp": "2018-12-31",
+  "chars": 114998
+ },
+ {
+  "doc_id": "beige_book-2022-07-31",
+  "unit": "t2-F2-some-pain-2022",
+  "file": "beigebook_202207.txt",
+  "doc_type": "beige_book",
+  "timestamp": "2022-07-31",
+  "chars": 119751
+ },
+ {
+  "doc_id": "beige_book-2023-07-31",
+  "unit": "t2-F2-higher-for-longer-2023",
+  "file": "beigebook_202307.txt",
+  "doc_type": "beige_book",
+  "timestamp": "2023-07-31",
+  "chars": 120817
+ },
+ {
+  "doc_id": "beige_book-2013-03-31",
+  "unit": "t2-F4-taper-warning-2013",
+  "file": "beigebook_201303.txt",
+  "doc_type": "beige_book",
+  "timestamp": "2013-03-31",
+  "chars": 127522
+ },
+ {
+  "doc_id": "beige_book-2024-04-30",
+  "unit": "t2-F1-ai-mom-2024",
+  "file": "beigebook_202404.txt",
+  "doc_type": "beige_book",
+  "timestamp": "2024-04-30",
+  "chars": 234160
+ },
+ {
+  "doc_id": "beige_book-2024-11-30",
+  "unit": "t2-F1-hawkish-cut-2024",
+  "file": "beigebook_202411.txt",
+  "doc_type": "beige_book",
+  "timestamp": "2024-11-30",
+  "chars": 235424
+ },
+ {
+  "doc_id": "bis_ueda_2024-07-03",
+  "unit": "t2-F3-funding-flip-2024",
+  "file": "bis_ueda_2024-07-03.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2024-07-03",
+  "chars": 1970
+ },
+ {
+  "doc_id": "ecb_trichet_2008-06-03",
+  "unit": "t2-F2-trichet-alertness-2008",
+  "file": "ecb_trichet_2008-06-03.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2008-06-03",
+  "chars": 10878
+ },
+ {
+  "doc_id": "bis_c\u0153ur\u00e9_2018-03-12",
+  "unit": "t2-F2-cnh-tradewar-2018",
+  "file": "bis_c\u0153ur\u00e9_2018-03-12.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2018-03-12",
+  "chars": 16422
+ },
+ {
+  "doc_id": "bis_bernanke_2008-07-15",
+  "unit": "t2-F4-aud-gfc-2008",
+  "file": "bis_bernanke_2008-07-15.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2008-07-15",
+  "chars": 19926
+ },
+ {
+  "doc_id": "bis_wilkins_2014-11-13",
+  "unit": "t2-F2-opec-cad-2014",
+  "file": "bis_wilkins_2014-11-13.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2014-11-13",
+  "chars": 23550
+ },
+ {
+  "doc_id": "bis_dudley_2018-03-01",
+  "unit": "t2-F2-cnh-tradewar-2018",
+  "file": "bis_dudley_2018-03-01.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2018-03-01",
+  "chars": 31088
+ },
+ {
+  "doc_id": "bis_gieve_2009-02-19",
+  "unit": "t2-F4-momentum-reversal-2009",
+  "file": "bis_gieve_2009-02-19.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2009-02-19",
+  "chars": 51957
+ },
+ {
+  "doc_id": "bis_shirakawa_2012-11-12",
+  "unit": "t2-F2-abenomics-2012",
+  "file": "bis_shirakawa_2012-11-12.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2012-11-12",
+  "chars": 60133
+ },
+ {
+  "doc_id": "svb_8k_2023-03-08_d430920dex991",
+  "unit": "t2-F4-svb-whiplash-2023",
+  "file": "svb_8k_2023-03-08_d430920dex991.txt",
+  "doc_type": "corporate_8k",
+  "timestamp": "2023-03-08",
+  "chars": 6191
+ },
+ {
+  "doc_id": "apple_8k_2020-02-18_d845033dex991",
+  "unit": "t2-F4-covid-mkt-2020",
+  "file": "apple_8k_2020-02-18_d845033dex991.txt",
+  "doc_type": "corporate_8k",
+  "timestamp": "2020-02-18",
+  "chars": 8037
+ },
+ {
+  "doc_id": "moderna_8k_2020-10-29_d134701dex991",
+  "unit": "t2-F3-vaccine-rotation-2020",
+  "file": "moderna_8k_2020-10-29_d134701dex991.txt",
+  "doc_type": "corporate_8k",
+  "timestamp": "2020-10-29",
+  "chars": 33166
+ },
+ {
+  "doc_id": "svb_8k_2023-03-08_d430920dex992",
+  "unit": "t2-F4-svb-whiplash-2023",
+  "file": "svb_8k_2023-03-08_d430920dex992.txt",
+  "doc_type": "corporate_8k",
+  "timestamp": "2023-03-08",
+  "chars": 44717
+ },
+ {
+  "doc_id": "pfizer_8k_2020-10-27_pfe-09272020xex99",
+  "unit": "t2-F3-vaccine-rotation-2020",
+  "file": "pfizer_8k_2020-10-27_pfe-09272020xex99.txt",
+  "doc_type": "corporate_8k",
+  "timestamp": "2020-10-27",
+  "chars": 150454
+ },
+ {
+  "doc_id": "fomc-minutes-2024-05-22",
+  "unit": "t2-EXAMPLE-ust-curve-1m",
+  "file": "fomc_minutes_excerpt_2024_05_22.txt",
+  "doc_type": "fomc_minutes",
+  "timestamp": "2024-05-22",
+  "chars": 1269
+ },
+ {
+  "doc_id": "fomc-minutes-20130501",
+  "unit": "t2-F2-fragile-five-brl-2013",
+  "file": "fomc_minutes_20130501_released_2013-05-22.txt",
+  "doc_type": "fomc_minutes",
+  "timestamp": "2013-05-22",
+  "chars": 45266
+ },
+ {
+  "doc_id": "fomc-minutes-20150917",
+  "unit": "t2-F1-liftoff-telegraph-2015",
+  "file": "fomc_minutes_20150917_released_2015-10-08.txt",
+  "doc_type": "fomc_minutes",
+  "timestamp": "2015-10-08",
+  "chars": 49454
+ },
+ {
+  "doc_id": "fomc-minutes-20220504",
+  "unit": "t2-F3-bear-flattener-2022",
+  "file": "fomc_minutes_20220504_released_2022-05-25.txt",
+  "doc_type": "fomc_minutes",
+  "timestamp": "2022-05-25",
+  "chars": 52438
+ },
+ {
+  "doc_id": "fomc-minutes-20190619",
+  "unit": "t2-F2-trade-war-escalation-2019",
+  "file": "fomc_minutes_20190619_released_2019-07-10.txt",
+  "doc_type": "fomc_minutes",
+  "timestamp": "2019-07-10",
+  "chars": 55127
+ },
+ {
+  "doc_id": "fomc-minutes-20191211",
+  "unit": "t2-F4-covid-mkt-2020",
+  "file": "fomc_minutes_20191211_released_2020-01-03.txt",
+  "doc_type": "fomc_minutes",
+  "timestamp": "2020-01-03",
+  "chars": 57079
+ },
+ {
+  "doc_id": "fomc-minutes-20200129",
+  "unit": "t2-F3-covid-curve-2020",
+  "file": "fomc_minutes_20200129_released_2020-02-19.txt",
+  "doc_type": "fomc_minutes",
+  "timestamp": "2020-02-19",
+  "chars": 88059
+ },
+ {
+  "doc_id": "fomc-minutes-20150128",
+  "unit": "t2-F1-patient-dropped-2015",
+  "file": "fomc_minutes_20150128_released_2015-02-18.txt",
+  "doc_type": "fomc_minutes",
+  "timestamp": "2015-02-18",
+  "chars": 94815
+ },
+ {
+  "doc_id": "fomc-statement-2007-08-10",
+  "unit": "t2-F2-credit-crunch-2007",
+  "file": "fomc_statement_20070810.txt",
+  "doc_type": "fomc_statement",
+  "timestamp": "2007-08-10",
+  "chars": 689
+ },
+ {
+  "doc_id": "fomc-statement-2004-11-10",
+  "unit": "t2-F1-conundrum-2005",
+  "file": "fomc_statement_20041110.txt",
+  "doc_type": "fomc_statement",
+  "timestamp": "2004-11-10",
+  "chars": 1757
+ },
+ {
+  "doc_id": "fomc-statement-2024-01-31",
+  "unit": "t2-F1-greater-confidence-2024",
+  "file": "fomc_statement_20240131.txt",
+  "doc_type": "fomc_statement",
+  "timestamp": "2024-01-31",
+  "chars": 2376
+ },
+ {
+  "doc_id": "fomc-statement-2024-07-31",
+  "unit": "t2-F1-sahm-watch-2024",
+  "file": "fomc_statement_20240731.txt",
+  "doc_type": "fomc_statement",
+  "timestamp": "2024-07-31",
+  "chars": 2505
+ },
+ {
+  "doc_id": "fomc-statement-2022-01-26",
+  "unit": "t2-F3-bear-flattener-2022",
+  "file": "fomc_statement_20220126.txt",
+  "doc_type": "fomc_statement",
+  "timestamp": "2022-01-26",
+  "chars": 2898
+ },
+ {
+  "doc_id": "fomc-statement-2016-01-27",
+  "unit": "t2-F2-nirp-paradox-2016",
+  "file": "fomc_statement_20160127.txt",
+  "doc_type": "fomc_statement",
+  "timestamp": "2016-01-27",
+  "chars": 3859
+ },
+ {
+  "doc_id": "fomc-statement-2013-12-18",
+  "unit": "t2-F2-taper-begins-2013",
+  "file": "fomc_statement_20131218.txt",
+  "doc_type": "fomc_statement",
+  "timestamp": "2013-12-18",
+  "chars": 6000
+ },
+ {
+  "doc_id": "fomc-statement-2014-09-17",
+  "unit": "t2-F1-qe3-end-2014",
+  "file": "fomc_statement_20140917.txt",
+  "doc_type": "fomc_statement",
+  "timestamp": "2014-09-17",
+  "chars": 6261
+ },
+ {
+  "doc_id": "fomc_statement_20211215",
+  "unit": "t2-F3-bear-flattener-2022",
+  "file": "fomc_statement_20211215.txt",
+  "doc_type": "landmark",
+  "timestamp": "2021-12-15",
+  "chars": 3522
+ },
+ {
+  "doc_id": "fomc_statement_20200315",
+  "unit": "t2-F4-covid-nfp-2020",
+  "file": "fomc_statement_20200315.txt",
+  "doc_type": "landmark",
+  "timestamp": "2020-03-15",
+  "chars": 4728
+ },
+ {
+  "doc_id": "draghi_whatever_it_takes_2012",
+  "unit": "t2-F2-whatever-it-takes-2012",
+  "file": "draghi_whatever_it_takes_2012.txt",
+  "doc_type": "landmark",
+  "timestamp": "2012-07-26",
+  "chars": 8207
+ },
+ {
+  "doc_id": "powell_jackson_hole_2022",
+  "unit": "t2-F2-some-pain-2022",
+  "file": "powell_jackson_hole_2022.txt",
+  "doc_type": "landmark",
+  "timestamp": "2022-08-26",
+  "chars": 9283
+ },
+ {
+  "doc_id": "boj_ycc_20240731",
+  "unit": "t2-F4-jpy-crowding-2024",
+  "file": "boj_ycc_20240731.txt",
+  "doc_type": "landmark",
+  "timestamp": "2024-07-31",
+  "chars": 9985
+ },
+ {
+  "doc_id": "boj_ycc_20240319",
+  "unit": "t2-F3-funding-flip-2024",
+  "file": "boj_ycc_20240319.txt",
+  "doc_type": "landmark",
+  "timestamp": "2024-03-19",
+  "chars": 10899
+ },
+ {
+  "doc_id": "bernanke_jec_testimony_2013",
+  "unit": "t2-F2-aud-taper-2013",
+  "file": "bernanke_jec_testimony_2013.txt",
+  "doc_type": "landmark",
+  "timestamp": "2013-05-22",
+  "chars": 13265
+ },
+ {
+  "doc_id": "boe_mpc_statement_20220922",
+  "unit": "t2-F3-scandies-stress-2022",
+  "file": "boe_mpc_statement_20220922.txt",
+  "doc_type": "landmark",
+  "timestamp": "2022-09-22",
+  "chars": 40752
+ },
+ {
+  "doc_id": "cpi_2021-06-10",
+  "unit": "t2-F4-cpi-vintage-2022",
+  "file": "cpi_2021-06-10.txt",
+  "doc_type": "macro_release",
+  "timestamp": "2021-06-10",
+  "chars": 22895
+ },
+ {
+  "doc_id": "cpi_2022-11-10",
+  "unit": "t2-F1-cpi-glidepath-2023",
+  "file": "cpi_2022-11-10.txt",
+  "doc_type": "macro_release",
+  "timestamp": "2022-11-10",
+  "chars": 120778
+ },
+ {
+  "doc_id": "macro_release-2024-10-10",
+  "unit": "t2-F3-election-2024-joint",
+  "file": "cpi_2024-10-10.txt",
+  "doc_type": "macro_release",
+  "timestamp": "2024-10-10",
+  "chars": 135975
+ },
+ {
+  "doc_id": "macro_release-2022-05-11",
+  "unit": "t2-F4-cpi-friday-2022",
+  "file": "cpi_2022-05-11.txt",
+  "doc_type": "macro_release",
+  "timestamp": "2022-05-11",
+  "chars": 136575
+ },
+ {
+  "doc_id": "macro_release-2023-06-13",
+  "unit": "t2-F1-cpi-glidepath-2023",
+  "file": "cpi_2023-06-13.txt",
+  "doc_type": "macro_release",
+  "timestamp": "2023-06-13",
+  "chars": 136732
+ },
+ {
+  "doc_id": "macro_release-2015-10-15",
+  "unit": "t2-F1-liftoff-telegraph-2015",
+  "file": "cpi_2015-10-15.txt",
+  "doc_type": "macro_release",
+  "timestamp": "2015-10-15",
+  "chars": 138256
+ },
+ {
+  "doc_id": "macro_release-2020-02-07",
+  "unit": "t2-F4-covid-nfp-2020",
+  "file": "empsit_2020-02-07.txt",
+  "doc_type": "macro_release",
+  "timestamp": "2020-02-07",
+  "chars": 142394
+ },
+ {
+  "doc_id": "macro_release-2015-02-26",
+  "unit": "t2-F1-patient-dropped-2015",
+  "file": "cpi_2015-02-26.txt",
+  "doc_type": "macro_release",
+  "timestamp": "2015-02-26",
+  "chars": 142627
+ },
+ {
+  "doc_id": "cftc_cot_10-year_2018",
+  "unit": "t2-F1-ust-positioning-2018",
+  "file": "cftc_cot_10-year_2018.txt",
+  "doc_type": "positioning_report",
+  "timestamp": "2018-09-28",
+  "chars": 2931
+ },
+ {
+  "doc_id": "cftc_cot_japanese_2024",
+  "unit": "t2-F3-funding-flip-2024",
+  "file": "cftc_cot_japanese_2024.txt",
+  "doc_type": "positioning_report",
+  "timestamp": "2024-07-26",
+  "chars": 3192
+ },
+ {
+  "doc_id": "cftc_cot_japanese_2007",
+  "unit": "t2-F4-jpy-carry-2007",
+  "file": "cftc_cot_japanese_2007.txt",
+  "doc_type": "positioning_report",
+  "timestamp": "2007-07-20",
+  "chars": 3399
+ },
+ {
+  "doc_id": "cftc_cot_crude_2020",
+  "unit": "t2-F4-nok-covid-2020",
+  "file": "cftc_cot_crude_2020.txt",
+  "doc_type": "positioning_report",
+  "timestamp": "2020-02-28",
+  "chars": 4914
+ },
+ {
+  "doc_id": "cftc_cot_crude_2014",
+  "unit": "t2-F2-opec-cad-2014",
+  "file": "cftc_cot_crude_2014.txt",
+  "doc_type": "positioning_report",
+  "timestamp": "2014-11-28",
+  "chars": 7881
+ }
+]

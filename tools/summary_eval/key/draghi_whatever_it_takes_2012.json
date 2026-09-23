@@ -1,0 +1,206 @@
+{
+ "doc_id": "draghi_whatever_it_takes_2012",
+ "doc_type": "landmark",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Draghi pledged the ECB would do \"whatever it takes\" to preserve the euro",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "whatever it takes"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Within our mandate, the ECB is ready to do whatever it takes to preserve the euro.",
+   "paraphrases": [
+    "Draghi pledged the ECB would do 'whatever it takes' to preserve the euro.",
+    "The ECB is ready to do whatever it takes to save the single currency, Draghi said.",
+    "Draghi vowed the ECB is ready to do 'whatever it takes' within its mandate to save the euro."
+   ],
+   "decoys": [
+    "Draghi said the ECB would do everything possible, within reason, to support growth.",
+    "Trichet said the ECB stood ready to act decisively to defend the euro."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Draghi added \"believe me, it will be enough\", underscoring the ECB's resolve",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "believe me.{0,30}(it will be enough|\\benough\\b)",
+    "(it will be enough|\\benough\\b).{0,30}believe me"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "And believe me, it will be enough.",
+   "paraphrases": [
+    "Draghi added, 'And believe me, it will be enough,' underscoring ECB resolve.",
+    "He stressed that the ECB's commitment would be enough, saying 'believe me.'",
+    "Draghi capped the pledge with 'believe me, it will be enough.'"
+   ],
+   "decoys": [
+    "Draghi said the measures might not be enough given the scale of the crisis.",
+    "Bernanke said, 'believe me, the recovery is on track.'"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Draghi declared the euro is irreversible",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(euro|single currency).{0,40}irreversible",
+    "irreversible.{0,40}(euro|single currency)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "we think the euro is irreversible",
+   "paraphrases": [
+    "Draghi declared that the euro is irreversible.",
+    "He said the ECB views the single currency as irreversible.",
+    "Draghi asserted that the euro's future is irreversible."
+   ],
+   "decoys": [
+    "Draghi acknowledged the euro's fate remained uncertain and reversible.",
+    "Draghi said the EU's expansion plans were irreversible."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Draghi said investors had retreated within their national boundaries amid financial fragmentation",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "investor\\w*.{0,60}(retreat\\w*|pull\\w*\\s+back|withdr\\w*|retrench\\w*).{0,60}national",
+    "national.{0,60}(retreat\\w*|pull\\w*\\s+back|withdr\\w*|retrench\\w*).{0,60}investor\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the financial fragmentation that has taken place in the euro area. Investors retreated within their national boundaries. The interbank market is not functioning.",
+   "paraphrases": [
+    "Investors retreated within their national borders, Draghi said.",
+    "He noted investors had pulled back behind national lines amid the crisis.",
+    "Draghi said investors were retrenching within national boundaries."
+   ],
+   "decoys": [
+    "Draghi said cross-border investment flows had increased sharply across the euro area.",
+    "Draghi said the interbank market was functioning normally across countries."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Draghi said the interbank market is not functioning across countries",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "interbank.{0,60}(not functioning|malfunctioning|frozen|broken|stopped functioning|not working)",
+    "(not functioning|malfunctioning|frozen|broken|stopped functioning|not working).{0,60}interbank"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the financial fragmentation that has taken place in the euro area. Investors retreated within their national boundaries. The interbank market is not functioning.",
+   "paraphrases": [
+    "He said the interbank market had stopped functioning across euro-area countries.",
+    "Draghi noted the interbank market was essentially frozen across borders.",
+    "The interbank market was not working across countries, Draghi said."
+   ],
+   "decoys": [
+    "Draghi said the interbank market was functioning smoothly across the euro area.",
+    "Draghi said retail bank lending to households had slowed sharply."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "The ECB's two big LTROs injected half a trillion euros of net liquidity into euro-area banks",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(LTROs?|long-term refinancing).{0,80}(half a trillion|€?(?<!\\d)500(?!\\d)\\s*(billion|bn))",
+    "(half a trillion|€?(?<!\\d)500(?!\\d)\\s*(billion|bn)).{0,80}(LTROs?|long-term refinancing)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "we took care of that with the two big LTROs where we injected half a trillion of net liquidity into the euro area banks",
+   "paraphrases": [
+    "The ECB's two LTROs injected roughly €500 billion of net liquidity into euro-area banks.",
+    "Draghi noted the two big LTROs added half a trillion euros in liquidity to the banking system.",
+    "Around €500bn was injected via the ECB's twin LTRO operations, Draghi said."
+   ],
+   "decoys": [
+    "The ECB's single LTRO injected about €100 billion into banks.",
+    "The Fed's QE program injected half a trillion dollars into markets."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Draghi argued sovereign bond risk premia tied to convertibility risk fall within the ECB's mandate",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(sovereign|convertibility).{0,150}(mandate|remit)",
+    "(mandate|remit).{0,150}(sovereign|convertibility)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(outside|not part of|no role|excluded from).{0,80}(mandate|remit)",
+    "(mandate|remit).{0,80}(outside|not part of|no role|excluded from)"
+   ],
+   "quote": "to the extent that the size of these sovereign premia hampers the functioning of the monetary policy transmission channel, they come within our mandate.",
+   "paraphrases": [
+    "Draghi said sovereign bond risk premia tied to convertibility fears fall within the ECB's mandate.",
+    "He argued that addressing convertibility-risk premia on government bonds is within the ECB's remit.",
+    "Draghi signaled the ECB could act on sovereign spreads driven by redenomination risk, calling it part of its mandate."
+   ],
+   "decoys": [
+    "Draghi said sovereign debt levels were purely a fiscal matter, outside the ECB's remit.",
+    "Draghi noted convertibility concerns affect emerging-market central banks' reserve policies."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Draghi highlighted remarkable progress on deficit control across the euro area",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "deficit control.{0,60}(progress|remarkable)",
+    "(progress|remarkable).{0,60}deficit control"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the progress in undertaking deficit control, structural reforms has been remarkable",
+   "paraphrases": [
+    "Draghi highlighted remarkable progress on deficit control across the euro area.",
+    "He said progress on deficit control had been remarkable in recent months.",
+    "Draghi pointed to strong progress in deficit control among peripheral countries."
+   ],
+   "decoys": [
+    "Draghi said deficit control efforts had stalled across the euro area.",
+    "Draghi praised progress on trade policy across the euro area."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Draghi highlighted remarkable progress on structural reforms across the euro area",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "structural[\\s-]+reforms?.{0,60}(progress|remarkable|converg\\w*)",
+    "(progress|remarkable|converg\\w*).{0,60}structural[\\s-]+reforms?"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the progress in undertaking deficit control, structural reforms has been remarkable",
+   "paraphrases": [
+    "Draghi highlighted remarkable progress on structural reforms across the euro area.",
+    "He said peripheral countries had made real progress on structural reforms.",
+    "Draghi pointed to significant structural-reform progress in Portugal, Ireland, Spain and Italy."
+   ],
+   "decoys": [
+    "Draghi admitted structural reforms had stalled across the euro area.",
+    "Draghi praised structural reforms undertaken in the United States."
+   ]
+  }
+ ]
+}

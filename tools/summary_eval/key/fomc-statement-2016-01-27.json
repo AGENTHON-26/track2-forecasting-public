@@ -1,0 +1,216 @@
+{
+ "doc_id": "fomc-statement-2016-01-27",
+ "doc_type": "fomc_statement",
+ "points": [
+  {
+   "id": "p1",
+   "tier": "must",
+   "kind": "number",
+   "match": "any",
+   "point": "Committee maintained the federal funds target range at 1/4 to 1/2 percent (first hold after December liftoff)",
+   "quote": "the Committee decided to maintain the target range for the federal funds rate at 1/4 to 1/2 percent",
+   "paraphrases": [
+    "FOMC held the fed funds target range at 1/4 to 1/2 percent.",
+    "Rates kept unchanged at 0.25-0.50% after December's liftoff.",
+    "Target range steady at 25-50bp this meeting."
+   ],
+   "decoys": [
+    "The Committee decided to raise the target range for the federal funds rate to 1/2 to 3/4 percent.",
+    "The Committee decided to maintain the target range for the federal funds rate at 0 to 1/4 percent."
+   ],
+   "patterns": [
+    "(?:target range|federal funds rate|rates?|range).{0,80}(?:1/4 to 1/2|0\\.25\\s?(?:to|-)\\s?0\\.5\\d?\\s?%?|25\\s?(?:to|-)\\s?50\\s?(?:bp|basis points))",
+    "(?:1/4 to 1/2|0\\.25\\s?(?:to|-)\\s?0\\.5\\d?\\s?%?|25\\s?(?:to|-)\\s?50\\s?(?:bp|basis points)).{0,80}(?:target range|federal funds rate|rates?|range)"
+   ]
+  },
+  {
+   "id": "p2",
+   "tier": "must",
+   "kind": "phrase",
+   "match": "any",
+   "point": "Statement added that the Committee is closely monitoring global economic and financial developments (China/global-market turmoil risk)",
+   "quote": "The Committee is closely monitoring global economic and financial developments and is assessing their implications for the labor market and inflation, and for the balance of risks to the outlook.",
+   "paraphrases": [
+    "Fed said it is closely monitoring global economic and financial developments.",
+    "FOMC flagged global market turmoil, watching international developments closely.",
+    "Statement adds language on closely watching global financial conditions."
+   ],
+   "decoys": [
+    "The Committee said global economic and financial conditions no longer warrant close monitoring.",
+    "The Committee is closely monitoring domestic fiscal policy developments."
+   ],
+   "patterns": [
+    "(monitor\\w*|watch\\w*).{0,80}global",
+    "global.{0,80}(monitor\\w*|watch\\w*)"
+   ],
+   "not_patterns": [
+    "no longer.{0,80}(monitor\\w*|warrant)"
+   ]
+  },
+  {
+   "id": "p3",
+   "tier": "must",
+   "kind": "concept",
+   "match": "any",
+   "point": "Inflation continued to run below the Committee's 2 percent objective",
+   "quote": "Inflation has continued to run below the Committee's 2 percent longer-run objective, partly reflecting declines in energy prices and in prices of non-energy imports.",
+   "paraphrases": [
+    "Inflation remains below the Fed's 2% goal.",
+    "Price gains still under the 2 percent target.",
+    "Inflation continued running below objective."
+   ],
+   "decoys": [
+    "Inflation has risen above the Committee's 2 percent longer-run objective.",
+    "Inflation has returned to the Committee's 2 percent objective."
+   ],
+   "patterns": [
+    "(?:(?:inflation|price gains|price pressures).{0,80}(?:below|under).{0,80}(?:(?<!\\d)2(?!\\d)\\s?(?:percent|%)|objective|target)|(?:(?<!\\d)2(?!\\d)\\s?(?:percent|%)|objective|target).{0,80}(?:below|under).{0,80}(?:inflation|price gains|price pressures))"
+   ],
+   "not_patterns": [
+    "(?:(?:inflation|price gains|price pressures).{0,80}(?:above|exceed\\w*|over).{0,80}(?:(?<!\\d)2(?!\\d)\\s?(?:percent|%)|objective|target)|(?:above|exceed\\w*|over).{0,80}(?:(?<!\\d)2(?!\\d)\\s?(?:percent|%)|objective|target).{0,80}(?:inflation|price gains|price pressures))"
+   ]
+  },
+  {
+   "id": "p4",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "The inflation shortfall was partly due to declining energy and import prices",
+   "quote": "Inflation has continued to run below the Committee's 2 percent longer-run objective, partly reflecting declines in energy prices and in prices of non-energy imports.",
+   "paraphrases": [
+    "The shortfall was partly due to declining energy and import prices.",
+    "Falling energy and import prices kept inflation below target.",
+    "Cheaper energy and imports weighed on inflation."
+   ],
+   "decoys": [
+    "Inflation has continued to run below the Committee's 2 percent objective, mainly due to weak wage growth.",
+    "Inflation remains below the Fed's 2% goal."
+   ],
+   "patterns": [
+    "(declin\\w*|falling|lower|cheaper).{0,40}(energy|import)",
+    "(energy|import).{0,40}(declin\\w*|falling|lower|cheaper)"
+   ],
+   "not_patterns": [
+    "wage growth"
+   ]
+  },
+  {
+   "id": "p5",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Labor market conditions improved further",
+   "quote": "labor market conditions improved further even as economic growth slowed late last year",
+   "paraphrases": [
+    "Labor market kept improving.",
+    "Job market strengthened further.",
+    "Labor market conditions continued to improve."
+   ],
+   "decoys": [
+    "Labor market conditions weakened.",
+    "Economic growth slowed late last year."
+   ],
+   "patterns": [
+    "(?:(?:labor market|job market).{0,80}(?:improv\\w*|strengthen\\w*)|(?:improv\\w*|strengthen\\w*).{0,80}(?:labor market|job market))"
+   ],
+   "not_patterns": [
+    "(labor market|job market).{0,80}(weaken\\w*|worsen\\w*|deteriorat\\w*)"
+   ]
+  },
+  {
+   "id": "p6",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Economic growth slowed late last year",
+   "quote": "labor market conditions improved further even as economic growth slowed late last year",
+   "paraphrases": [
+    "Economic growth slowed late last year.",
+    "Growth slowed in late 2015.",
+    "Economic activity slowed toward the end of last year."
+   ],
+   "decoys": [
+    "Labor market conditions improved further.",
+    "Economic growth slowed early this year."
+   ],
+   "patterns": [
+    "(?:(?:growth|economic activity).{0,60}slow\\w*.{0,60}(?:late last year|late in (?:the year|201\\d)|late 201\\d|end of (?:last year|the year)|toward(?:s)? the end of (?:last year|the year))|slow\\w*.{0,60}(?:growth|economic activity).{0,60}(?:late last year|late in (?:the year|201\\d)|late 201\\d|end of (?:last year|the year)|toward(?:s)? the end of (?:last year|the year))|(?:late last year|late in (?:the year|201\\d)|late 201\\d|end of (?:last year|the year)|toward(?:s)? the end of (?:last year|the year)).{0,60}slow\\w*.{0,60}(?:growth|economic activity))"
+   ],
+   "not_patterns": [
+    "(growth|economic activity).{0,80}(accelerat\\w*|pick\\w* up)",
+    "slow\\w*.{0,40}(early this year|earlier this year|start of the year)"
+   ]
+  },
+  {
+   "id": "p7",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Market-based measures of inflation compensation declined further",
+   "quote": "Market-based measures of inflation compensation declined further; survey-based measures of\nlonger-term inflation expectations are little changed, on balance, in recent months.",
+   "paraphrases": [
+    "Market-based inflation compensation fell further.",
+    "Breakeven inflation measures declined again.",
+    "Market inflation compensation moved lower."
+   ],
+   "decoys": [
+    "Market-based measures of inflation compensation rose further.",
+    "Survey-based measures of longer-term inflation expectations were little changed."
+   ],
+   "patterns": [
+    "(?:(?:market[\\-\\s]based|breakeven|market inflation compensation).{0,80}(?:declin\\w*|fell|lower|fall\\w*)|(?:declin\\w*|fell|lower|fall\\w*).{0,80}(?:market[\\-\\s]based|breakeven|market inflation compensation))"
+   ],
+   "not_patterns": [
+    "(market[\\-\\s]based|breakeven).{0,80}(ris\\w*|increas\\w*|higher)"
+   ]
+  },
+  {
+   "id": "p8",
+   "tier": "should",
+   "kind": "concept",
+   "match": "any",
+   "point": "Survey-based longer-term inflation expectations were little changed",
+   "quote": "Market-based measures of inflation compensation declined further; survey-based measures of\nlonger-term inflation expectations are little changed, on balance, in recent months.",
+   "paraphrases": [
+    "Survey-based long-term inflation expectations were little changed.",
+    "Survey measures of long-run inflation expectations stayed stable.",
+    "Longer-term inflation expectations, per surveys, were roughly steady."
+   ],
+   "decoys": [
+    "Survey-based measures of longer-term inflation expectations declined sharply.",
+    "Market-based measures of inflation compensation declined further."
+   ],
+   "patterns": [
+    "(?:(?:survey[\\-\\s]based|survey).{0,80}(?:little changed|stable|steady|unchanged)|(?:little changed|stable|steady|unchanged).{0,80}(?:survey[\\-\\s]based|survey))"
+   ],
+   "not_patterns": [
+    "(survey[\\-\\s]based|survey).{0,80}(declin\\w*|fell|sharply)"
+   ]
+  },
+  {
+   "id": "p9",
+   "tier": "should",
+   "kind": "phrase",
+   "match": "any",
+   "point": "Committee expects only gradual increases in the federal funds rate going forward",
+   "quote": "The Committee expects that economic conditions will evolve in a manner that will warrant only gradual increases in the federal funds rate",
+   "paraphrases": [
+    "Fed said future rate hikes are expected to be gradual.",
+    "FOMC reiterated only gradual increases in the federal funds rate are warranted.",
+    "Statement signals a gradual pace for further rate increases."
+   ],
+   "decoys": [
+    "The Committee expects that economic conditions will warrant rapid increases in the federal funds rate.",
+    "The Committee expects only gradual decreases in the federal funds rate."
+   ],
+   "patterns": [
+    "gradual.{0,80}(increases?|rate hikes?|tightening)",
+    "(increases?|rate hikes?|tightening).{0,80}gradual"
+   ],
+   "not_patterns": [
+    "(rapid\\w*|swift\\w*|aggressive\\w*).{0,80}increases?",
+    "gradual.{0,80}decreas\\w*"
+   ]
+  }
+ ]
+}

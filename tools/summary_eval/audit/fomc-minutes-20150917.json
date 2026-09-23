@@ -1,0 +1,20 @@
+{
+ "doc_id": "fomc-minutes-20150917",
+ "labels": {
+  "p1": true,
+  "p2": true,
+  "p3": false,
+  "p4": false,
+  "p5": false,
+  "p6": false,
+  "p7": true,
+  "p8": true,
+  "p9": false,
+  "p10": false
+ },
+ "notes": {
+  "p1": "the hold is clear ('did not warrant an increase'); the 0 to 1/4 level is never given",
+  "p4": "'global economic and financial developments' only; China is not named",
+  "p5": "market volatility not mentioned"
+ }
+}

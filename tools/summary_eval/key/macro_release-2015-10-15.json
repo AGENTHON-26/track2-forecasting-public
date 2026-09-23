@@ -1,0 +1,310 @@
+{
+ "doc_id": "macro_release-2015-10-15",
+ "doc_type": "macro_release",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Headline CPI was essentially unchanged (0.0%) year-over-year in September",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The all items index was essentially unchanged for the 12 months ending September after posting a 0.2 percent increase for the 12 months ending August.",
+   "paraphrases": [
+    "Headline CPI was flat year-over-year in September.",
+    "Headline inflation was essentially unchanged over the past 12 months.",
+    "All items CPI printed 0.0% y/y in September."
+   ],
+   "decoys": [
+    "Headline CPI rose 1.9% year-over-year in September.",
+    "Core CPI was essentially unchanged year-over-year in September."
+   ],
+   "patterns": [
+    "(headline|all items).{0,60}(essentially unchanged|flat|(?<!\\d)0\\.0(?!\\d)\\s?(percent|%))",
+    "(essentially unchanged|flat|(?<!\\d)0\\.0(?!\\d)\\s?(percent|%)).{0,60}(headline|all items|(?<!\\d)12(?!\\d) months|year)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,30}(essentially unchanged|flat|(?<!\\d)0\\.0(?!\\d)\\s?(percent|%))",
+    "(essentially unchanged|flat|(?<!\\d)0\\.0(?!\\d)\\s?(percent|%)).{0,30}core"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "August's year-over-year headline CPI was +0.2%, so September's essentially-unchanged reading was a slowdown",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The all items index was essentially unchanged for the 12 months ending September after posting a 0.2 percent increase for the 12 months ending August.",
+   "paraphrases": [
+    "Headline CPI was flat in September, down from +0.2% in August.",
+    "August's year-over-year headline CPI was 0.2%, before slowing to flat in September.",
+    "The 12-month change eased from 0.2% in August to 0.0% in September."
+   ],
+   "decoys": [
+    "Headline CPI was flat in September, unchanged from August's flat reading.",
+    "Headline CPI was 0.2% in September, up from August's flat reading."
+   ],
+   "patterns": [
+    "(?<!\\d)0\\.2(?!\\d)\\s?(percent|%).{0,50}august",
+    "august.{0,50}(?<!\\d)0\\.2(?!\\d)\\s?(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,20}(?<!\\d)0\\.2(?!\\d).{0,50}august",
+    "september('s)?\\s*(?<!\\d)0\\.2(?!\\d)",
+    "(?<!\\d)0\\.2(?!\\d)\\s?(percent|%)\\s*(in|during|for)?\\s*september"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Core CPI (all items less food and energy) rose 1.9% year-over-year in September",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The index for all items less food and energy has risen 1.9 percent over the past 12 months; this is a slight increase from the 1.8 percent rise for the 12 months ending August and is the highest 12-month change since July 2014.",
+   "paraphrases": [
+    "Core CPI rose 1.9% year-over-year in September.",
+    "Core inflation was 1.9% y/y in September.",
+    "Core prices, excluding food and energy, climbed 1.9 percent from a year earlier."
+   ],
+   "decoys": [
+    "Core CPI slowed to 1.8% year-over-year in September.",
+    "Headline CPI rose 1.9% year-over-year in September."
+   ],
+   "patterns": [
+    "core.{0,60}(?<!\\d)1\\.9(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)1\\.9(?!\\d)\\s?(percent|%).{0,60}core",
+    "less food and energy.{0,60}(?<!\\d)1\\.9(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)1\\.9(?!\\d)\\s?(percent|%).{0,60}less food and energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)1\\.9(?!\\d)",
+    "(?<!\\d)1\\.9(?!\\d).{0,20}headline"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "September's 1.9% year-over-year core CPI increase was the highest 12-month change since July 2014",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The index for all items less food and energy has risen 1.9 percent over the past 12 months; this is a slight increase from the 1.8 percent rise for the 12 months ending August and is the highest 12-month change since July 2014.",
+   "paraphrases": [
+    "Core CPI's annual increase was the highest since July 2014.",
+    "Core inflation rose at its fastest 12-month pace since July 2014.",
+    "This was the highest 12-month core change since July 2014."
+   ],
+   "decoys": [
+    "Core inflation rose at its fastest 12-month pace since 2013.",
+    "Headline CPI's annual increase was the highest since July 2014."
+   ],
+   "patterns": [
+    "(highest|largest|biggest|fastest).{0,100}july.{0,10}(?<!\\d)2014(?!\\d)",
+    "july.{0,10}(?<!\\d)2014(?!\\d).{0,100}(highest|largest|biggest|fastest)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,80}july.{0,10}(?<!\\d)2014(?!\\d)",
+    "july.{0,10}(?<!\\d)2014(?!\\d).{0,80}headline"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Headline CPI fell 0.2% month-over-month in September, pulled down by energy",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) decreased 0.2 percent in September on a seasonally adjusted basis",
+   "paraphrases": [
+    "Headline CPI fell 0.2% m/m in September on soft energy prices.",
+    "Monthly headline inflation declined 0.2 percent in September.",
+    "All items CPI decreased 0.2% for the month."
+   ],
+   "decoys": [
+    "Headline CPI rose 0.2% month-over-month in September.",
+    "Core CPI fell 0.2% month-over-month in September."
+   ],
+   "patterns": [
+    "(headline|all items|cpi-?u?|consumer price index).{0,60}(decreas\\w*|fell|fall|declin\\w*|down).{0,20}(?<!\\d)0\\.2(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.2(?!\\d)\\s?(percent|%).{0,60}(headline|all items|cpi-?u?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(headline|all items|cpi-?u?).{0,60}(ros\\w*|increas\\w*|up).{0,20}(?<!\\d)0\\.2(?!\\d)\\s?(percent|%)",
+    "(core|all items less food and energy).{0,30}(ros\\w*|increas\\w*|fell|fall|declin\\w*|decreas\\w*).{0,20}(?<!\\d)0\\.2(?!\\d)"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "The 18.4% year-over-year drop in energy prices offset gains in food and core, holding headline near zero",
+   "tier": "must",
+   "kind": "number",
+   "quote": "The 18.4 percent decline in the energy index over the past year offset increases in the indexes for food (up 1.6 percent) and all items less food and energy (up 1.9 percent).",
+   "paraphrases": [
+    "Energy prices plunged 18.4% year-over-year, masking gains in food and core.",
+    "The energy index fell 18.4 percent over the past 12 months, offsetting increases elsewhere.",
+    "A steep 18.4% annual decline in energy held down the headline number."
+   ],
+   "decoys": [
+    "Energy prices rose 18.4% year-over-year in September.",
+    "Food prices fell 18.4% year-over-year in September."
+   ],
+   "patterns": [
+    "energy.{0,40}(decreas\\w*|fell|fall|declin\\w*|down|drop\\w*|plunge\\w*).{0,20}(?<!\\d)18\\.4(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)18\\.4(?!\\d)\\s?(percent|%).{0,40}energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "energy.{0,40}(ros\\w*|ris\\w*|increas\\w*|up).{0,20}(?<!\\d)18\\.4(?!\\d)",
+    "food.{0,30}(?<!\\d)18\\.4(?!\\d)"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Gasoline prices fell 9.0% in September",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The gasoline index declined 9.0 percent following a 4.1 percent decrease in August.",
+   "paraphrases": [
+    "Gasoline prices dropped 9.0% m/m in September.",
+    "The gasoline index fell 9.0 percent in September.",
+    "Pump prices declined 9.0% for the month of September."
+   ],
+   "decoys": [
+    "Gasoline prices jumped 9.0% in September.",
+    "Gasoline prices fell 9.0% in August."
+   ],
+   "patterns": [
+    "(gasoline|pump price).{0,60}(fell|fall|declin\\w*|drop\\w*|decreas\\w*).{0,20}(?<!\\d)9\\.0(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)9\\.0(?!\\d)\\s?(percent|%).{0,60}(gasoline|pump price)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(gasoline|pump price).{0,60}(ros\\w*|climb\\w*|jump\\w*|increas\\w*|surg\\w*).{0,20}(?<!\\d)9\\.0(?!\\d)",
+    "august.{0,30}(?<!\\d)9\\.0(?!\\d).{0,30}(gasoline|pump price)",
+    "(gasoline|pump price).{0,60}(?<!\\d)9\\.0(?!\\d)\\s?(percent|%).{0,10}in august"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "August's gasoline decline was 4.1%, smaller than September's 9.0% drop",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The gasoline index declined 9.0 percent following a 4.1 percent decrease in August.",
+   "paraphrases": [
+    "Gasoline fell 9.0% in September, following a 4.1% decline in August.",
+    "August's gasoline index had dropped 4.1%, before September's steeper 9.0% fall.",
+    "The 4.1 percent August gasoline decrease was smaller than September's 9.0 percent drop."
+   ],
+   "decoys": [
+    "Gasoline fell 9.0% in September, following a 4.1% increase in August.",
+    "Gasoline rose 4.1% in August."
+   ],
+   "patterns": [
+    "(?<!\\d)4\\.1(?!\\d)\\s?(percent|%).{0,50}august",
+    "august.{0,50}(?<!\\d)4\\.1(?!\\d)\\s?(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(ros\\w*|increas\\w*).{0,20}(?<!\\d)4\\.1(?!\\d).{0,30}august",
+    "august.{0,20}(ros\\w*|increas\\w*).{0,30}(?<!\\d)4\\.1(?!\\d)",
+    "(?<!\\d)4\\.1(?!\\d)\\s?(percent|%).{0,20}(ros\\w*|increas\\w*).{0,30}august"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Shelter costs rose 3.2% year-over-year, with rent up 3.7%, a persistently firm and gradually trending-up component",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The shelter index has increased 3.2 percent over the past 12 months with the rent index up 3.7 percent; these figures have been gradually trending upward.",
+   "paraphrases": [
+    "Shelter costs rose 3.2% y/y, with rent up 3.7% and still trending higher.",
+    "The shelter index climbed 3.2 percent over the past year, driven by a 3.7 percent rent increase.",
+    "Housing costs increased 3.2% year-over-year, remaining a firm, gradually rising component."
+   ],
+   "decoys": [
+    "Shelter costs fell 3.2% year-over-year in September.",
+    "Medical care costs rose 3.2% year-over-year in September."
+   ],
+   "patterns": [
+    "(shelter|housing cost).{0,40}(?<!\\d)3\\.2(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)3\\.2(?!\\d)\\s?(percent|%).{0,40}(shelter|housing cost)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "medical.{0,30}(?<!\\d)3\\.2(?!\\d)",
+    "(shelter|housing cost).{0,40}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)3\\.2(?!\\d)"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "The food index rose 0.4% in September",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The food index rose 0.4 percent, its largest increase since May 2014.",
+   "paraphrases": [
+    "Food prices rose 0.4% m/m in September.",
+    "The food index increased 0.4 percent in September.",
+    "Consumer food prices climbed 0.4% for the month of September."
+   ],
+   "decoys": [
+    "The food index fell 0.4% in September.",
+    "The food index rose 0.4% in August."
+   ],
+   "patterns": [
+    "food.{0,40}(ros\\w*|increas\\w*|climb\\w*|up).{0,20}(?<!\\d)0\\.4(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.4(?!\\d)\\s?(percent|%).{0,40}food"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "food.{0,40}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)0\\.4(?!\\d)",
+    "august.{0,30}(?<!\\d)0\\.4(?!\\d).{0,30}food",
+    "food.{0,60}(?<!\\d)0\\.4(?!\\d)\\s?(percent|%).{0,20}august"
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "September's 0.4% food increase was the largest monthly increase since May 2014",
+   "tier": "should",
+   "kind": "number",
+   "quote": "The food index rose 0.4 percent, its largest increase since May 2014.",
+   "paraphrases": [
+    "September's food increase was the largest since May 2014.",
+    "Food prices rose at their fastest monthly pace since May 2014.",
+    "This was the biggest monthly food increase since May 2014."
+   ],
+   "decoys": [
+    "Food prices rose at their fastest monthly pace since May 2013.",
+    "The energy index rose at its fastest monthly pace since May 2014."
+   ],
+   "patterns": [
+    "food.{0,60}(largest|biggest|fastest|highest).{0,40}may.{0,10}(?<!\\d)2014(?!\\d)",
+    "(largest|biggest|fastest|highest).{0,40}may.{0,10}(?<!\\d)2014(?!\\d).{0,60}food",
+    "(largest|biggest|fastest|highest).{0,20}food.{0,40}may.{0,10}(?<!\\d)2014(?!\\d)"
+   ],
+   "match": "any",
+   "not_patterns": []
+  },
+  {
+   "id": "p12",
+   "point": "Underlying inflation (core and food) accelerated even as energy declines pulled the headline down, a broadening firmness the Fed was watching ahead of liftoff",
+   "tier": "should",
+   "kind": "concept",
+   "quote": "In contrast to the energy declines, the indexes for food and for all items less food and energy both accelerated in September.",
+   "paraphrases": [
+    "Ex-energy prices firmed even as energy weighed on the headline number.",
+    "Core and food inflation picked up pace in September, offsetting energy's drag.",
+    "Excluding energy, underlying price pressure kept building even though the headline print looked muted."
+   ],
+   "decoys": [
+    "Ex-energy prices cooled further in September, reinforcing the soft headline print.",
+    "Energy prices accelerated sharply in September, pushing headline CPI higher."
+   ],
+   "patterns": [
+    "(core|food|underlying|ex.{0,3}energy|excluding energy).{0,80}(accelerat\\w*|pick\\w* up|firm\\w*|building)",
+    "(accelerat\\w*|pick\\w* up|firm\\w*|building).{0,80}(core|food|underlying|ex.{0,3}energy|excluding energy)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(core|food|underlying|ex.{0,3}energy|excluding energy).{0,80}(cool\\w*|soft\\w*|declin\\w*|weak\\w*|slow\\w*)",
+    "(cool\\w*|soft\\w*|declin\\w*|weak\\w*|slow\\w*).{0,80}(core|food|underlying|ex.{0,3}energy|excluding energy)"
+   ]
+  }
+ ]
+}

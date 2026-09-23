@@ -1,0 +1,20 @@
+{
+ "doc_id": "fomc-minutes-20130501",
+ "labels": {
+  "p1": true,
+  "p2": true,
+  "p3": false,
+  "p4": false,
+  "p5": false,
+  "p6": true,
+  "p7": true,
+  "p8": false,
+  "p9": true
+ },
+ "notes": {
+  "p3": "a dissent is reported but the dissenter is never named",
+  "p4": "dissent is described as concern about accommodation, not a taper preference",
+  "p5": "guidance thresholds are mentioned without the 6-1/2 percent number",
+  "p9": "'fiscal policy restraint' is stated; sequestration is not named"
+ }
+}

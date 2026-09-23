@@ -1,0 +1,21 @@
+{
+ "doc_id": "beige_book-2024-04-30",
+ "labels": {
+  "p1": true,
+  "p2": true,
+  "p3": false,
+  "p4": false,
+  "p5": false,
+  "p6": true,
+  "p7": true,
+  "p8": true,
+  "p9": true,
+  "p10": false,
+  "p11": false,
+  "p12": true
+ },
+ "notes": {
+  "p3": "'up from 8' comparison absent",
+  "p4": "consumer spending not mentioned at all"
+ }
+}

@@ -1,0 +1,312 @@
+{
+ "doc_id": "macro_release-2024-10-10",
+ "doc_type": "macro_release",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Headline CPI rose 0.2% month-over-month in September",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(headline|all items).{0,60}(?<!\\d)0\\.2(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.2(?!\\d)\\s?(percent|%).{0,60}(headline|all items)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,20}(?<!\\d)0\\.2(?!\\d)",
+    "(?<!\\d)0\\.2(?!\\d).{0,20}core"
+   ],
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.2 percent on a seasonally adjusted basis, the same increase as in August and July",
+   "paraphrases": [
+    "Headline CPI rose 0.2% m/m in September.",
+    "Monthly headline inflation was 0.2% in September.",
+    "All items CPI increased 0.2 percent in September."
+   ],
+   "decoys": [
+    "Headline CPI accelerated to 0.4% month-over-month in September.",
+    "Core CPI rose 0.2% month-over-month in September."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "September's 0.2% headline CPI increase matched August and July's pace, a third straight month at that rate",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(same|match\\w*|equal\\w*|identical|unchanged).{0,40}(august|july)",
+    "(august|july).{0,40}(same|match\\w*|equal\\w*|identical|unchanged)",
+    "(third|3rd) (straight|consecutive|consec\\w*).{0,20}month"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,60}(august|july)",
+    "(august|july).{0,60}core"
+   ],
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.2 percent on a seasonally adjusted basis, the same increase as in August and July",
+   "paraphrases": [
+    "September's 0.2% CPI increase matched August and July's pace.",
+    "Monthly headline inflation held at 0.2% for a third straight month.",
+    "Headline CPI matched August and July's pace, unchanged at 0.2%."
+   ],
+   "decoys": [
+    "Headline CPI accelerated to 0.4% in September, above August's pace.",
+    "Core CPI matched August and July's pace in September."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Headline CPI rose 2.4% year-over-year in September",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(headline|all items).{0,60}(?<!\\d)2\\.4(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)2\\.4(?!\\d)\\s?(percent|%).{0,60}(headline|all items)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,80}(?<!\\d)2\\.4(?!\\d)",
+    "(?<!\\d)2\\.4(?!\\d).{0,80}core"
+   ],
+   "quote": "The all items index rose 2.4 percent for the 12 months ending September, the smallest 12-month increase since February 2021.",
+   "paraphrases": [
+    "Headline CPI rose 2.4% year-over-year in September.",
+    "All items CPI increased 2.4 percent over the past year.",
+    "Annual headline inflation was 2.4% in September."
+   ],
+   "decoys": [
+    "Core CPI rose 2.4% year-over-year in September.",
+    "Headline CPI rose 2.6% year-over-year in September."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "September's 2.4% year-over-year headline CPI increase was the smallest 12-month increase since February 2021",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(smallest|slowest|softest|lowest).{0,100}february.{0,10}(?<!\\d)2021(?!\\d)",
+    "february.{0,10}(?<!\\d)2021(?!\\d).{0,100}(smallest|slowest|softest|lowest)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,80}february.{0,10}(?<!\\d)2021(?!\\d)",
+    "february.{0,10}(?<!\\d)2021(?!\\d).{0,80}core"
+   ],
+   "quote": "The all items index rose 2.4 percent for the 12 months ending September, the smallest 12-month increase since February 2021.",
+   "paraphrases": [
+    "Headline CPI's annual increase was the smallest since February 2021.",
+    "Headline inflation slowed to its softest pace since February 2021.",
+    "The 12-month change was the smallest since February 2021."
+   ],
+   "decoys": [
+    "Headline inflation slowed to its softest pace since February 2015.",
+    "Core CPI's annual increase was the smallest since February 2021."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Core CPI rose 0.3% month-over-month in September",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "core.{0,60}(?<!\\d)0\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.3(?!\\d)\\s?(percent|%).{0,60}core",
+    "less food and energy.{0,60}(?<!\\d)0\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.3(?!\\d)\\s?(percent|%).{0,60}less food and energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)0\\.3(?!\\d)",
+    "(?<!\\d)0\\.3(?!\\d).{0,20}headline"
+   ],
+   "quote": "The index for all items less food and energy rose 0.3 percent in September, as it did the preceding month.",
+   "paraphrases": [
+    "Core CPI (ex food & energy) rose 0.3% m/m in September.",
+    "Core inflation was 0.3 percent in September.",
+    "All items less food and energy index increased 0.3% in September."
+   ],
+   "decoys": [
+    "Core CPI accelerated to 0.5% month-over-month in September.",
+    "Headline CPI rose 0.3% month-over-month in September."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "September's 0.3% core CPI increase matched August's pace, a second straight month at that rate",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(core|less food and energy).{0,80}(preceding|prior|previous) month",
+    "(core|less food and energy).{0,60}(same|match\\w*|equal\\w*|identical|unchanged).{0,20}august",
+    "(second|2nd) (straight|consecutive|consec\\w*).{0,20}month"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,80}(preceding|prior|previous) month",
+    "headline.{0,60}(same|match\\w*|equal\\w*|identical|unchanged).{0,20}august"
+   ],
+   "quote": "The index for all items less food and energy rose 0.3 percent in September, as it did the preceding month.",
+   "paraphrases": [
+    "Core CPI held at 0.3% in September, matching August's pace.",
+    "Monthly core inflation stayed at 0.3 percent for a second straight month.",
+    "Core CPI rose 0.3% in September, the same as the preceding month."
+   ],
+   "decoys": [
+    "Core CPI accelerated to 0.5% in September, above August's pace.",
+    "Headline CPI matched August's pace in September at 0.3%."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Core CPI rose 3.3% year-over-year in September",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "core.{0,60}(?<!\\d)3\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)3\\.3(?!\\d)\\s?(percent|%).{0,60}core",
+    "less food and energy.{0,60}(?<!\\d)3\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)3\\.3(?!\\d)\\s?(percent|%).{0,60}less food and energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)3\\.3(?!\\d)",
+    "(?<!\\d)3\\.3(?!\\d).{0,20}headline"
+   ],
+   "quote": "The all items less food and energy index rose 3.3 percent over the last 12 months.",
+   "paraphrases": [
+    "Core CPI rose 3.3% year-over-year in September.",
+    "Core inflation was 3.3% y/y in September.",
+    "All items less food and energy climbed 3.3 percent over the past year."
+   ],
+   "decoys": [
+    "Core CPI eased to 3.1% year-over-year in September.",
+    "Headline CPI rose 3.3% year-over-year in September."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Shelter (+0.2%) and food (+0.4%) together drove over 75% of September's headline CPI increase",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "shelter.{0,150}food.{0,150}(?<!\\d)75(?!\\d)\\s?(percent|%)",
+    "food.{0,150}shelter.{0,150}(?<!\\d)75(?!\\d)\\s?(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "energy.{0,100}(?<!\\d)75(?!\\d)\\s?(percent|%).{0,100}(shelter|food)"
+   ],
+   "quote": "The index for shelter rose 0.2 percent in September, and the index for food increased 0.4 percent. Together, these two indexes contributed over 75 percent of the monthly all items increase.",
+   "paraphrases": [
+    "Shelter and food combined accounted for more than 75% of September's headline CPI increase.",
+    "Rising shelter (+0.2%) and food (+0.4%) prices drove over 75% of the monthly all-items gain.",
+    "Shelter and food together made up over 75 percent of the month's total CPI increase."
+   ],
+   "decoys": [
+    "Shelter and food together accounted for less than 25% of September's headline increase.",
+    "Energy and food together contributed over 75% of September's headline increase."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Energy index fell 1.9% in September",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "energy.{0,60}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)1\\.9(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)1\\.9(?!\\d)\\s?(percent|%).{0,60}energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "energy.{0,60}(ros\\w*|increas\\w*|climb\\w*|advanc\\w*).{0,20}(?<!\\d)1\\.9(?!\\d)",
+    "food.{0,30}(?<!\\d)1\\.9(?!\\d)"
+   ],
+   "quote": "The energy index fell 1.9 percent in September, after declining 0.8 percent in August.",
+   "paraphrases": [
+    "The energy index fell 1.9% m/m in September.",
+    "Energy prices declined 1.9 percent in September.",
+    "Energy costs dropped 1.9% for the month of September."
+   ],
+   "decoys": [
+    "The energy index rose 1.9% in September.",
+    "The food index fell 1.9% in September."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "August's energy decline was 0.8%, smaller than September's 1.9% drop",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)0\\.8(?!\\d)\\s?(percent|%)\\s*(in|during|for)?\\s*august",
+    "august('s)?\\s*(?<!\\d)0\\.8(?!\\d)\\s?(percent|%)",
+    "august.{0,30}(fell|falling|declin\\w*|drop\\w*|decreas\\w*).{0,15}(?<!\\d)0\\.8(?!\\d)",
+    "(?<!\\d)0\\.8(?!\\d)\\s?(percent|%).{0,30}(declin\\w*|drop\\w*|decreas\\w*).{0,10}august"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(ros\\w*|increas\\w*).{0,20}(?<!\\d)0\\.8(?!\\d).{0,15}august",
+    "august.{0,20}(ros\\w*|increas\\w*).{0,15}(?<!\\d)0\\.8(?!\\d)"
+   ],
+   "quote": "The energy index fell 1.9 percent in September, after declining 0.8 percent in August.",
+   "paraphrases": [
+    "Energy fell 1.9% in September, following a 0.8% decline in August.",
+    "August's energy index had dropped 0.8%, before September's steeper 1.9% fall.",
+    "The 0.8 percent August energy decline was smaller than September's 1.9 percent drop."
+   ],
+   "decoys": [
+    "Energy fell 1.9% in September, following a 0.8% increase in August.",
+    "Energy rose 0.8% in August."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Shelter index rose 4.9% year-over-year in September, over 65% of core CPI's annual increase",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(shelter|housing cost).{0,60}(?<!\\d)4\\.9(?!\\d)\\s?(percent|%).{0,150}(?<!\\d)65(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)65(?!\\d)\\s?(percent|%).{0,150}(?<!\\d)4\\.9(?!\\d)\\s?(percent|%).{0,60}(shelter|housing cost)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(shelter|housing cost).{0,60}(fell|declin\\w*|drop\\w*).{0,20}(?<!\\d)4\\.9(?!\\d)"
+   ],
+   "quote": "The shelter index increased 4.9 percent over the last year, accounting for over 65 percent of the total 12-month increase in the all items less food and energy index.",
+   "paraphrases": [
+    "Shelter costs rose 4.9% year-over-year in September, over 65% of the core annual increase.",
+    "The shelter index climbed 4.9 percent y/y, accounting for more than 65 percent of core CPI's 12-month gain.",
+    "Shelter prices increased 4.9% over the past year, driving over 65% of core inflation's annual rise."
+   ],
+   "decoys": [
+    "Shelter costs rose 4.9% year-over-year in September, accounting for less than 20% of the core annual increase.",
+    "Rent costs rose 4.9% year-over-year in September."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Motor vehicle insurance rose 16.3% year-over-year in September, among the largest core CPI gainers",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(motor vehicle insurance|car insurance|auto insurance).{0,40}(?<!\\d)16\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)16\\.3(?!\\d)\\s?(percent|%).{0,40}(motor vehicle insurance|car insurance|auto insurance)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(motor vehicle insurance|car insurance|auto insurance).{0,40}(fell|declin\\w*|drop\\w*).{0,20}(?<!\\d)16\\.3(?!\\d)",
+    "medical care.{0,30}(?<!\\d)16\\.3(?!\\d)"
+   ],
+   "quote": "motor vehicle insurance (+16.3 percent)",
+   "paraphrases": [
+    "Motor vehicle insurance costs surged 16.3% year-over-year in September.",
+    "Car insurance premiums rose 16.3 percent over the past 12 months.",
+    "Auto insurance costs were up +16.3% y/y, among the biggest core CPI gainers."
+   ],
+   "decoys": [
+    "Motor vehicle insurance costs fell 16.3% year-over-year in September.",
+    "Medical care costs rose 16.3% year-over-year in September."
+   ]
+  }
+ ]
+}

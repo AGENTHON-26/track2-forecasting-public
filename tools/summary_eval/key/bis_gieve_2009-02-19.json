@@ -1,0 +1,286 @@
+{
+ "doc_id": "bis_gieve_2009-02-19",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Gieve says it is not safe to rely on being able to 'mop up' after a financial bubble bursts",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(mop\\w*[- ]?up).{0,120}(not (?:at all |)safe|not work|failed|stored up (?:more )?trouble|can'?t be (?:counted on|relied (?:on|upon))|cannot be relied (?:on|upon))|(not (?:at all |)safe|not work|failed|stored up (?:more )?trouble|can'?t be (?:counted on|relied (?:on|upon))|cannot be relied (?:on|upon)).{0,120}(mop\\w*[- ]?up)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(mop(?:ping)? up).{0,100}(is safe|works? well|proven (?:effective|reliable))|(is safe|works? well|proven (?:effective|reliable)).{0,100}(mop(?:ping)? up)"
+   ],
+   "quote": "It is evidently not safe to rely on being able to mop up after the crash.",
+   "paraphrases": [
+    "Gieve: relying on 'mopping up' after a bubble bursts is evidently not safe",
+    "Post-2000 rate cuts likely fueled an even bigger bubble, so the mopping-up strategy can't be counted on, Gieve says",
+    "The BoE's Gieve argues the mop-up-after approach to bubbles has failed and cannot be relied upon"
+   ],
+   "decoys": [
+    "Gieve says the mopping-up strategy has worked well and can safely be relied upon again",
+    "Gieve says pre-emptively bursting bubbles, not mopping up afterward, has always been the BoE's approach"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "The large, coordinated interest-rate cuts at the start of the 2000s almost certainly fed the build-up of an even larger bubble",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(rate cuts?|interest rates?).{0,100}(contribut\\w*|fed|fuel\\w*|build.?up|help\\w*|inflat\\w*).{0,60}(bubble)|(bubble).{0,100}(rate cuts?|interest rates?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(rate cuts?|interest rates?).{0,80}(prevent\\w*|avoid\\w*|did not contribute|had no effect).{0,40}bubble",
+    "not (?:the )?rate cuts?|fiscal stimulus.{0,60}(?:fed|contribut\\w*|fuel\\w*)"
+   ],
+   "quote": "The large and coordinated cut in interest rates at the start of this decade almost certainly contributed to the build-up of an ever larger bubble.",
+   "paraphrases": [
+    "Post-2000 rate cuts likely fed the build-up of an even bigger bubble, Gieve says",
+    "The coordinated rate cuts early in the decade almost certainly helped inflate a larger bubble",
+    "Gieve: aggressive interest-rate cuts around 2000 probably contributed to a bigger subsequent bubble"
+   ],
+   "decoys": [
+    "Gieve says the post-2000 rate cuts had no effect on the size of the later bubble",
+    "Gieve says it was fiscal stimulus, not rate cuts, that fed the bubble"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Gieve argues policymakers must be willing to 'lean against the wind' of asset-price booms and credit expansion, tolerating somewhat weaker growth and employment",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "lean against the wind"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:not|never|won'?t|reluctant to) lean against the wind",
+    "(fiscal policy|treasury).{0,80}lean against the wind|lean against the wind.{0,80}(fiscal policy|treasury)"
+   ],
+   "quote": "We must be willing to 'lean against the wind' of asset price booms and credit expansion and to tolerate somewhat weaker growth and lower employment in doing so.",
+   "paraphrases": [
+    "Gieve: policymakers must lean against the wind of asset-price and credit booms, even at the cost of weaker growth",
+    "BoE's Gieve says central banks should lean against the wind on asset bubbles, accepting some growth/employment cost",
+    "Central banks must be willing to lean against the wind of credit and asset-price booms, Gieve argues"
+   ],
+   "decoys": [
+    "Gieve says central banks should never lean against the wind of asset-price booms",
+    "Gieve says fiscal policy, not monetary policy, should lean against the wind of credit booms"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Gieve backs counter-cyclical capital requirements as a major part of the answer, alongside options like dynamic provisioning, varying capital floors, and loan-to-value limits",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "counter[ -]?cyclical.{0,40}capital (?:requirements?|rules).{0,80}(large|major|big) (?:part|piece).{0,20}(answer|solution|fix)|(large|major|big) (?:part|piece).{0,20}(answer|solution|fix).{0,80}counter[ -]?cyclical.{0,40}capital (?:requirements?|rules)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "counter[- ]?cyclical capital requirements? (?:are|is) (?:not|no) (?:part of|the) (?:the )?answer"
+   ],
+   "quote": "I am clear that counter cyclical capital requirements are a large part of the answer but I would be inclined to keep a number of other options open too.",
+   "paraphrases": [
+    "Gieve says counter-cyclical capital requirements are a big part of the answer to smoothing the credit cycle",
+    "Counter-cyclical capital rules are a major piece of the solution, Gieve argues, alongside other tools like dynamic provisioning",
+    "BoE's Gieve backs counter-cyclical capital requirements as a large part of the fix, while keeping other instruments in reserve"
+   ],
+   "decoys": [
+    "Gieve says counter-cyclical capital requirements are not part of the answer",
+    "Gieve says higher policy rates, not capital requirements, are the main tool needed"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Gieve says risk management cannot be left to individual banks alone",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(cannot|can'?t|should not|shouldn'?t).{0,80}(leave|trust|rely (?:on|upon)|be left).{0,60}(banks?|firms?)|(banks?|firms?).{0,60}(cannot|can'?t|should not|shouldn'?t).{0,80}(leave|trust|rely (?:on|upon)|be left)",
+    "risk management"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(can|should) (?:safely |)(?:be )?left to (?:the )?banks.{0,60}risk management|risk management.{0,80}(can|should) (?:safely |)(?:be )?left to (?:the )?banks"
+   ],
+   "quote": "So one lesson we have learned from this crisis is that we cannot leave risk management to the banks.",
+   "paraphrases": [
+    "Gieve: risk management cannot be left to individual banks",
+    "A key lesson is that banks can't be trusted alone with risk management, Gieve says",
+    "BoE's Gieve concludes risk management cannot be left solely to banks"
+   ],
+   "decoys": [
+    "Gieve says risk management can safely be left entirely to individual banks",
+    "Gieve says regulators, not banks, caused the crisis by mismanaging risk"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "That's because banks' risk systems are geared to competitive advantage, not to protecting the system as a whole",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "competitive advantage.{0,80}(not motivated|not in a position|system as a whole|not protect\\w*|wider financial system)|(not motivated|not in a position|system as a whole|not protect\\w*|wider financial system).{0,80}competitive advantage"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(motivated to protect|focused on).{0,60}system as a whole"
+   ],
+   "quote": "directed at their competitive advantage and they are not motivated or in a position to look after the system as a whole.",
+   "paraphrases": [
+    "Banks' risk systems are geared to their own competitive advantage, not to safeguarding the system as a whole, Gieve says",
+    "Banks aren't motivated or positioned to look after the system as a whole, since their focus is competitive advantage",
+    "Gieve: individual banks' incentives point to competitive advantage, not protecting the wider financial system"
+   ],
+   "decoys": [
+    "Gieve says banks are well motivated and positioned to protect the system as a whole",
+    "Gieve says regulators, not banks, are focused on competitive advantage"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "The new Banking Act creates a Special Resolution Regime giving the Bank of England new powers to resolve failing banks and protect depositors",
+   "tier": "must",
+   "kind": "name",
+   "patterns": [
+    "(banking act|special resolution regime).{0,120}(resolve|resolution|failing banks?)|(resolve|resolution|failing banks?).{0,120}(banking act|special resolution regime)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(strips?|removes?|takes? away|denies).{0,80}(resolv\\w*|resolution)|(resolv\\w*|resolution).{0,80}(strips?|removes?|takes? away|denies)"
+   ],
+   "quote": "At the heart of the Act is the creation of a Special Resolution Regime for UK banks and building societies.",
+   "paraphrases": [
+    "New UK Banking Act creates a Special Resolution Regime, giving the BoE powers to resolve failing banks",
+    "Gieve: the Banking Act's Special Resolution Regime lets the Bank of England wind up or transfer failing banks",
+    "Under the new Banking Act, the Bank of England gains resolution powers to handle failing banks and protect depositors"
+   ],
+   "decoys": [
+    "The new Banking Act strips the Bank of England of any role in resolving failing banks",
+    "The FSA, not the Bank of England, gains new bank-resolution powers under the Act"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Gieve notes that had rates been higher over the last couple of years, growth would have been weaker, inflation would have undershot more, and sterling would likely have risen",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "rates?.{0,60}higher|higher.{0,60}rates?",
+    "growth would have been weaker|weaker growth|growth would.{0,10}be(?:en)? weaker|cost(?:ing)? growth|growth.{0,20}weaker",
+    "inflation would have undershot|inflation.{0,20}(?:undershoot|undershot|lower|below target)|lower inflation|an inflation undershoot|pushed inflation.{0,30}below",
+    "sterling would.{0,20}risen|stronger (?:pound|sterling)|(?:sterling|pound).{0,15}stronger|lifted sterling|pound.{0,20}risen"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "growth would (?:have |)(?:be |)boost\\w*|boosted growth",
+    "sterling.{0,30}(weaken\\w*|fall\\w*|drop\\w*)|(weaken\\w*|fall\\w*|drop\\w*).{0,30}sterling"
+   ],
+   "quote": "Growth would have been weaker. Inflation would have undershot the target by even more than it did. Sterling would likely have risen, putting our export sector under particular strain.",
+   "paraphrases": [
+    "Had rates been much higher, Gieve says growth would have been weaker, inflation lower, and sterling stronger, hurting exporters",
+    "Gieve: significantly higher rates over the past couple years would have meant weaker growth, an inflation undershoot, and a stronger pound",
+    "Materially higher interest rates would have cost growth, pushed inflation further below target, and lifted sterling, Gieve argues"
+   ],
+   "decoys": [
+    "Higher rates would have boosted growth and weakened sterling, Gieve argues",
+    "Gieve says rates were already too high over the last couple of years"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Gieve notes DSGE-style macro models largely leave banks out altogether",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "banks?.{0,30}(?:absent|left out|omitted|missing)|(?:absent|left out|omitted|missing).{0,30}banks?|leav\\w*.{0,15}banks?.{0,15}out|banks?.{0,20}(?:left|leave\\w*) out"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "banks? (?:are |)(?:not |)(?:typically |)(?:present|included|central)"
+   ],
+   "quote": "The treatment of financial markets and their interaction with the real economy is little more than a side-show. Banks are typically absent altogether.",
+   "paraphrases": [
+    "Gieve: standard macro models treat banks as largely absent",
+    "Mainstream DSGE models leave banks out almost entirely, missing the financial buildup to the crisis, Gieve says",
+    "BoE's Gieve criticizes macro models with banks typically absent altogether"
+   ],
+   "decoys": [
+    "Gieve praises standard macro models for fully capturing banks",
+    "Gieve says it was fiscal, not macro, models that failed to include banks"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Those models also treat financial markets and their interaction with the real economy as little more than a side-show",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "financial markets.{0,80}side.?show|side.?show.{0,80}financial markets"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "financial markets.{0,80}(central|core|key) (?:feature|part|role)"
+   ],
+   "quote": "The treatment of financial markets and their interaction with the real economy is little more than a side-show. Banks are typically absent altogether.",
+   "paraphrases": [
+    "Standard macro models treat financial markets as little more than a side-show, Gieve says",
+    "In mainstream DSGE models, financial markets and their link to the real economy are treated as a side-show",
+    "Gieve criticizes macro models for relegating financial markets to a side-show"
+   ],
+   "decoys": [
+    "Gieve says financial markets are treated as central to standard macro models",
+    "Gieve says it's the labor market, not financial markets, that gets side-lined in macro models"
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "The Spanish dynamic-provisioning system requires banks to build reserves in the upswing (over 1% of total assets) that cushion losses in the downswing",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(dynamic provisioning|spanish)",
+    "(?<!\\d)1(?!\\d)\\s*(?:per ?cent|%).{0,40}total assets|total assets.{0,40}(?<!\\d)1(?!\\d)\\s*(?:per ?cent|%)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "not spanish|(?:uk|u\\.k\\.|british) banks"
+   ],
+   "quote": "calling on these general provisions which amounted to over 1% of total assets",
+   "paraphrases": [
+    "Spain's dynamic provisioning built bank reserves worth over 1% of total assets, cushioning losses in the downturn",
+    "Gieve notes Spanish banks' dynamic-provisioning reserves topped 1% of total assets ahead of the bust",
+    "Under Spain's dynamic provisioning, general reserves exceeded 1% of total assets, helping banks survive the bust"
+   ],
+   "decoys": [
+    "Spain's dynamic provisioning built bank reserves worth over 10% of total assets",
+    "Gieve says UK banks, not Spanish banks, built reserves worth over 1% of total assets"
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Gieve says the exact boundary between the Bank and the FSA is less important than ensuring cooperation between the regulator, central bank, and Finance Ministry in a crisis",
+   "tier": "should",
+   "kind": "judge_only",
+   "patterns": [],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Whatever the boundaries, in a crisis like today's I am sure that cooperation between the regulator, Central Bank, and Finance Ministry would be essential.",
+   "paraphrases": [
+    "Gieve: regardless of regulatory boundaries, cooperation between the regulator, central bank, and Treasury is essential in a crisis",
+    "Whatever the institutional split, close cooperation between the FSA, BoE, and Treasury matters most in a crisis, Gieve says",
+    "Gieve argues the precise Bank/FSA boundary matters less than ensuring the three authorities cooperate during crises"
+   ],
+   "decoys": [
+    "Gieve says the exact regulatory boundary matters far more than any cooperation between authorities",
+    "Gieve says the Treasury should have no role in crisis management going forward"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,276 @@
+{
+ "doc_id": "beige_book-2023-05-31",
+ "doc_type": "beige_book",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Overall economic activity was little changed in April and early May",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(economic activity|the economy|activity).{0,60}(little change|little changed|\\bflat\\b|roughly flat)|(little change|little changed|\\bflat\\b|roughly flat).{0,60}(economic activity|the economy|activity)",
+    "(april|early may)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "Economic activity was little changed overall in April and early May.",
+   "paraphrases": [
+    "Overall economic activity was little changed in April and early May.",
+    "Activity was roughly flat nationwide through April and early May.",
+    "The economy showed little change overall from April into early May."
+   ],
+   "decoys": [
+    "Economic activity picked up sharply in April and early May.",
+    "Economic activity was little changed overall in February and March."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "The labor market cooled some, with easier hiring in construction, transportation, and finance",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(labor market|job market).{0,80}(cool|soften|eas(e|ed|ing)|easier hiring)|(cool|soften|eas(e|ed|ing)|easier hiring).{0,80}(labor market|job market)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(labor market|job market).{0,80}(tighten|heat(ed)? up|strengthen(ed)?|red hot)|(tighten|heat(ed)? up|strengthen(ed)?|red hot).{0,80}(labor market|job market)"
+   ],
+   "quote": "contacts across Districts also noted that the labor market had cooled some, highlighting easier hiring in construction, transportation, and finance.",
+   "paraphrases": [
+    "The labor market cooled somewhat, with hiring easing in construction, transportation, and finance.",
+    "Contacts said hiring conditions eased a bit, signaling some cooling in the labor market.",
+    "Job market tightness eased slightly, especially in construction, transportation, and finance."
+   ],
+   "decoys": [
+    "The labor market tightened further, with hiring accelerating across most sectors.",
+    "Contacts said the housing market had cooled some, particularly in construction lending."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Employment increased in most Districts, though at a slower pace than in previous reports",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(employment|job gains|hiring|payrolls).{0,60}(slower pace|slower than|slowed|more slowly)|(slower pace|slower than|slowed|more slowly).{0,60}(employment|job gains|hiring|payrolls)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "employment.{0,60}(faster pace|accelerat\\w*|picked up)"
+   ],
+   "quote": "Employment increased in most Districts, though at a slower pace than in previous reports.",
+   "paraphrases": [
+    "Employment growth was slower than in previous reports.",
+    "Job gains continued but at a slower pace than earlier reports.",
+    "Employment increased in most Districts, though more slowly than before."
+   ],
+   "decoys": [
+    "Employment growth accelerated compared with previous reports.",
+    "The labor market cooled some, with easier hiring in construction, transportation, and finance."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Prices rose moderately over the reporting period",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "price.{0,60}moderat|moderat.{0,60}price"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Prices rose moderately over the reporting period, though the rate of increase slowed in many Districts.",
+   "paraphrases": [
+    "Prices rose moderately over the reporting period.",
+    "Price growth stayed moderate overall.",
+    "Moderate price gains continued across Districts."
+   ],
+   "decoys": [
+    "Prices fell across most Districts, extending recent declines.",
+    "The rate of price increase slowed in many Districts, even as the overall level was unclear."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "The pace of price increases slowed in many Districts",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(pace|rate) of (price )?increases?.{0,60}(slow|slower|slowing|eas(e|ed|ing)|decelerat)|(slow|slower|slowing|eas(e|ed|ing)|decelerat).{0,60}(pace|rate) of (price )?increases?",
+    "price growth.{0,60}(eas\\w*|slow\\w*|decelerat\\w*)|(eas\\w*|slow\\w*|decelerat\\w*).{0,60}price growth"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(pace|rate) of (price )?increases?.{0,60}(accelerat|pick(ed)? up|quicken)"
+   ],
+   "quote": "Prices rose moderately over the reporting period, though the rate of increase slowed in many Districts.",
+   "paraphrases": [
+    "The pace of price increases slowed in many Districts.",
+    "Price growth eased in a number of Districts.",
+    "The rate of increase decelerated across several Districts."
+   ],
+   "decoys": [
+    "The pace of price increases picked up sharply in many Districts.",
+    "Prices rose moderately over the reporting period."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Contacts described transportation demand as being in a \"freight recession\"",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "freight recession"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Demand for transportation services was down, especially in trucking, where contacts reported there was a \"freight recession.\"",
+   "paraphrases": [
+    "Trucking demand was weak enough that contacts described a 'freight recession.'",
+    "Transportation demand fell, with contacts calling it a freight recession.",
+    "A pullback in trucking activity prompted contacts to describe conditions as a freight recession."
+   ],
+   "decoys": [
+    "Contacts said trucking demand was booming, calling it a freight boom.",
+    "Contacts in the retail sector described conditions as a 'holiday recession.'"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Contacts worried about the debt ceiling standoff",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "debt ceiling.{0,80}(worr|concern)|(worr|concern).{0,80}debt ceiling"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "debt ceiling.{0,80}(not a concern|no concern|not worried|unrelated)|(not a concern|no concern|not worried|unrelated).{0,80}debt ceiling"
+   ],
+   "quote": "Contacts worried about the debt ceiling and bank failures but maintained positive expectations for growth over the next six months.",
+   "paraphrases": [
+    "Contacts flagged worries over the debt ceiling standoff.",
+    "The debt ceiling impasse was cited as a concern by several contacts.",
+    "Some Districts' contacts were concerned about the debt ceiling fight."
+   ],
+   "decoys": [
+    "Contacts said the debt ceiling standoff was not a concern for their outlook.",
+    "Contacts worried about recent bank failures affecting deposit flows."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Contacts also worried about recent bank failures",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "bank failures.{0,60}(worr|concern)|(worr|concern).{0,60}bank failures"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "bank failures.{0,60}(not a concern|no concern|not worried|unrelated)"
+   ],
+   "quote": "Contacts worried about the debt ceiling and bank failures but maintained positive expectations for growth over the next six months.",
+   "paraphrases": [
+    "Contacts also flagged concerns about recent bank failures.",
+    "Bank failures were cited as a worry alongside the debt ceiling standoff.",
+    "Some contacts were concerned about the recent spate of bank failures."
+   ],
+   "decoys": [
+    "Contacts said recent bank failures were not a concern for their outlook.",
+    "Contacts worried about the debt ceiling standoff."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Commercial real estate activity decreased overall",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "commercial (real estate|construction).{0,60}(decreas\\w*|declin\\w*|fell|weaken\\w*)|(decreas\\w*|declin\\w*|fell|weaken\\w*).{0,60}commercial (real estate|construction)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "commercial (real estate|construction).{0,60}(increas\\w*|grew|grow|expand\\w*|strengthen\\w*)"
+   ],
+   "quote": "Commercial construction and real estate activity decreased overall, with the office segment continuing to be a weak spot.",
+   "paraphrases": [
+    "Commercial real estate activity decreased overall.",
+    "Commercial construction and real estate activity fell broadly.",
+    "Overall commercial real estate activity declined."
+   ],
+   "decoys": [
+    "Commercial real estate activity increased overall.",
+    "The office segment continued to be a weak spot within commercial real estate."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "The office segment continued to be a weak spot within commercial real estate",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "office.{0,80}(weak spot|weak point|soft spot|weaken|soften|declin)|(weak spot|weak point|soft spot|weaken|soften|declin).{0,80}office"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "not office|other than office|excluding office"
+   ],
+   "quote": "Commercial construction and real estate activity decreased overall, with the office segment continuing to be a weak spot.",
+   "paraphrases": [
+    "Office space continued to underperform as a particular weak spot.",
+    "The office segment stayed a soft spot within commercial real estate.",
+    "Office demand remained a continuing weak point."
+   ],
+   "decoys": [
+    "Office demand rebounded strongly, outperforming the rest of commercial real estate.",
+    "The retail segment was the weak spot within commercial real estate, not office."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Consumer loan delinquencies rose in several Districts",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "delinquenc.{0,80}(rise|rising|rose|increas|climb|tick(ed)? up)|(rise|rising|rose|increas|climb|tick(ed)? up).{0,80}delinquenc"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Contacts in several Districts noted a rise in consumer loan delinquencies, which were returning closer to pre-pandemic levels.",
+   "paraphrases": [
+    "Consumer loan delinquencies rose in several Districts.",
+    "Delinquencies on consumer loans increased in a number of Districts.",
+    "Several Districts reported climbing consumer loan delinquency rates."
+   ],
+   "decoys": [
+    "Consumer loan delinquencies fell in most Districts.",
+    "Delinquencies were nearing pre-pandemic levels after years of low readings."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Delinquencies were returning closer to pre-pandemic levels",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "delinquenc\\w*.{0,80}pre-?pandemic|pre-?pandemic.{0,80}delinquenc\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "delinquenc\\w*.{0,80}(well below|far below|nowhere near) pre-?pandemic"
+   ],
+   "quote": "Contacts in several Districts noted a rise in consumer loan delinquencies, which were returning closer to pre-pandemic levels.",
+   "paraphrases": [
+    "Delinquencies were nearing pre-pandemic levels.",
+    "Consumer loan delinquency rates approached pre-pandemic norms.",
+    "Delinquencies edged back toward pre-pandemic levels."
+   ],
+   "decoys": [
+    "Delinquencies remained far below pre-pandemic levels.",
+    "Consumer loan delinquencies rose in several Districts."
+   ]
+  }
+ ]
+}

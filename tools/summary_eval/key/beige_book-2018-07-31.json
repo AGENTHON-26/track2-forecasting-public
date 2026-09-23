@@ -1,0 +1,279 @@
+{
+ "doc_id": "beige_book-2018-07-31",
+ "doc_type": "beige_book",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Nationwide activity kept expanding, with 10 of the 12 Districts reporting moderate or modest growth",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "((?<!\\d)10(?!\\d)|ten)\\s+of\\s+(the\\s+)?((?<!\\d)12(?!\\d)|twelve).{0,60}district|district.{0,60}((?<!\\d)10(?!\\d)|ten)\\s+of\\s+(the\\s+)?((?<!\\d)12(?!\\d)|twelve)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Economic activity continued to expand across the United States, with 10 of the 12 Federal Reserve Districts reporting moderate or modest growth.",
+   "paraphrases": [
+    "The economy kept expanding nationwide, with 10 of 12 Fed districts posting moderate-to-modest growth.",
+    "Growth continued across most Districts; 10 of 12 districts saw moderate or modest expansion.",
+    "Nationwide activity kept growing, with most districts (10 of 12) reporting modest-to-moderate gains."
+   ],
+   "decoys": [
+    "Economic activity contracted across most Districts in July.",
+    "8 of the 12 Districts reported moderate or modest growth."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Dallas was the standout district, with strong growth driven by the energy sector",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "Dallas.{0,80}(strong|energy)|(strong|energy).{0,80}Dallas"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The outliers were the Dallas District, which reported strong growth driven in part by the energy sector",
+   "paraphrases": [
+    "Dallas stood out with strong growth, boosted by the energy sector.",
+    "The Dallas District posted the strongest growth, tied to energy activity.",
+    "Energy-driven strength made Dallas the fastest-growing district."
+   ],
+   "decoys": [
+    "Dallas reported the weakest growth among all districts.",
+    "Kansas City reported strong growth driven by the energy sector."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Manufacturers in all Districts expressed concern about tariffs",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "manufactur\\w*.{0,80}all districts?.{0,60}tariff|tariff.{0,60}all districts?.{0,80}manufactur\\w*",
+    "manufactur\\w*.{0,80}(concern|worr).{0,40}tariff|tariff.{0,40}(concern|worr).{0,80}manufactur\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "tariff.{0,80}(no measurable impact|no impact|no effect|little impact|did not affect|unaffected|negligible)|(no measurable impact|no impact|no effect|little impact|did not affect|unaffected|negligible).{0,80}tariff"
+   ],
+   "quote": "Manufacturers in all Districts expressed concern about tariffs and in many Districts reported higher prices and supply disruptions that they attributed to the new trade policies.",
+   "paraphrases": [
+    "Manufacturers in every District voiced concern about tariffs.",
+    "All Districts' manufacturers cited worries over tariffs.",
+    "Tariff concerns were widespread among manufacturers across all Districts."
+   ],
+   "decoys": [
+    "Manufacturers said tariffs have had no measurable impact on their business.",
+    "Manufacturers in many Districts reported higher prices and supply disruptions this quarter."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Several Districts linked tariffs to higher prices and supply disruptions",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(tariff|trade polic|trade war).{0,80}(higher price|price increase|disrupt|cost)|(higher price|price increase|disrupt|cost).{0,80}(tariff|trade polic|trade war)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(tariff|trade polic|trade war).{0,80}(no impact|no effect|little impact|did not affect|unaffected)|(no impact|no effect|little impact|did not affect|unaffected).{0,80}(tariff|trade polic|trade war)"
+   ],
+   "quote": "Manufacturers in all Districts expressed concern about tariffs and in many Districts reported higher prices and supply disruptions that they attributed to the new trade policies.",
+   "paraphrases": [
+    "Several Districts tied tariffs to higher prices and supply-chain disruptions.",
+    "Tariffs were blamed for rising prices and supply disruptions in a number of Districts.",
+    "New trade policies led to higher prices and disruptions in several Districts' supply chains."
+   ],
+   "decoys": [
+    "Manufacturers in all Districts expressed concern about tariffs.",
+    "Tariffs led to lower prices and smoother supply chains in several Districts."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Labor markets were tight in all Districts",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "all districts?.{0,60}labor market\\w*.{0,40}tight|labor market\\w*.{0,60}tight.{0,60}all districts?",
+    "labor market\\w*.{0,50}tight|tight.{0,50}labor market\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "labor market\\w*.{0,50}(loosen|eas(e|ed|ing)|slack|abundant|ample)|(loosen|eas(e|ed|ing)|slack|abundant|ample).{0,50}labor market\\w*"
+   ],
+   "quote": "All Districts reported that labor markets were tight and many said that the inability to find workers constrained growth.",
+   "paraphrases": [
+    "Labor markets stayed tight across all Districts.",
+    "Every District reported a tight labor market.",
+    "Labor market conditions remained tight nationwide."
+   ],
+   "decoys": [
+    "Labor markets loosened across most Districts.",
+    "Many said the inability to find workers constrained growth this quarter."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "The inability to find workers constrained growth in many Districts",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(inability to find workers|worker shortage\\w*|difficulty finding workers|scarc\\w* (of )?workers).{0,60}(constrain\\w*|held back|holding back|limit\\w*|hamper\\w*|weigh\\w* on).{0,40}growth|growth.{0,40}(constrain\\w*|held back|holding back|limit\\w*|hamper\\w*|weigh\\w* on).{0,60}(inability to find workers|worker shortage\\w*|difficulty finding workers|scarc\\w* (of )?workers)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(labor|workers?).{0,60}(no longer|did not|didn't) constrain"
+   ],
+   "quote": "All Districts reported that labor markets were tight and many said that the inability to find workers constrained growth.",
+   "paraphrases": [
+    "Worker shortages held back growth in many Districts.",
+    "Many Districts said an inability to find workers was constraining growth.",
+    "Difficulty finding workers limited growth across a number of Districts."
+   ],
+   "decoys": [
+    "Labor markets were tight in all Districts.",
+    "Worker availability improved, removing a constraint on growth in many Districts."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Prices rose at a modest-to-moderate pace overall",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "price.{0,70}modest[ -]to[ -]moderate|modest[ -]to[ -]moderate.{0,70}price"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(price|inflation).{0,80}(fell|falling|declin|eased sharply|plunge|drop)|(fell|falling|declin|eased sharply|plunge|drop).{0,80}(price|inflation)"
+   ],
+   "quote": "Prices increased in all Districts at a pace that was modest to moderate on average; reports showed upticks in inflation in several Districts.",
+   "paraphrases": [
+    "Prices rose at a modest-to-moderate pace overall across Districts.",
+    "Overall price growth stayed modest to moderate.",
+    "Nationwide, prices increased at a modest-to-moderate clip."
+   ],
+   "decoys": [
+    "Prices fell across most Districts as inflationary pressures eased sharply.",
+    "Reports showed upticks in inflation in several Districts, though the national pace was untouched."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Inflation upticks were noted in several Districts",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(uptick\\w*|tick(?:ed|ing)? up|edged? higher).{0,60}inflation|inflation.{0,60}(uptick\\w*|tick(?:ed|ing)? up|edged? higher)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "inflation.{0,60}(cooled|eased|declined|slowed) in (several|some) districts"
+   ],
+   "quote": "Prices increased in all Districts at a pace that was modest to moderate on average; reports showed upticks in inflation in several Districts.",
+   "paraphrases": [
+    "Several Districts saw inflation tick up.",
+    "A few Districts reported upticks in inflation.",
+    "Inflation edged higher in several Districts."
+   ],
+   "decoys": [
+    "Inflation eased in several Districts.",
+    "Prices rose at a modest-to-moderate pace overall across Districts."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Six Districts flagged trucking capacity constraints tied to a shortage of commercial drivers",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(six|(?<!\\d)6(?!\\d)).{0,40}district.{0,60}(trucking|driver)|(trucking|driver).{0,60}(six|(?<!\\d)6(?!\\d)).{0,40}district"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Six Districts specifically mentioned trucking capacity as an issue and attributed it to a shortage of commercial drivers.",
+   "paraphrases": [
+    "Six Districts flagged trucking capacity constraints tied to a driver shortage.",
+    "A shortage of commercial truck drivers strained trucking capacity in six Districts.",
+    "Trucking bottlenecks, driven by a lack of drivers, were cited by 6 of the Districts."
+   ],
+   "decoys": [
+    "Two Districts noted trucking capacity issues linked to fuel costs, not driver shortages.",
+    "Trucking capacity improved in most Districts as new drivers entered the workforce."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Consumer spending was up in all Districts",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(consumer )?spending.{0,60}(rose|increased|rising|up|grew|higher|expanded).{0,40}(all districts|every district|nationwide|broadly)",
+    "(all districts|every district).{0,40}(consumer )?spending.{0,60}(rose|increased|rising|up|grew|higher|expanded)",
+    "(all districts|every district).{0,40}(rose|increased|rising|up|grew|higher|greater|more).{0,20}(consumer )?spending"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "consumer spending.{0,60}(fell|falling|weak|declin|down)|(fell|falling|weak|declin|down).{0,60}consumer spending"
+   ],
+   "quote": "Consumer spending was up in all Districts with particular strength in Dallas and Richmond.",
+   "paraphrases": [
+    "Consumer spending rose across all Districts.",
+    "Every District reported higher consumer spending.",
+    "Spending increased nationwide, in all Districts."
+   ],
+   "decoys": [
+    "Consumer spending fell in most Districts.",
+    "Particular strength in Dallas and Richmond boosted local consumer spending this period."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Consumer spending showed particular strength in Dallas and Richmond",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "(Dallas|Richmond).{0,80}(spending|consumer)|(spending|consumer).{0,80}(Dallas|Richmond)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(Dallas|Richmond).{0,80}(fell|falling|weak|declin|down)|(fell|falling|weak|declin|down).{0,80}(Dallas|Richmond)"
+   ],
+   "quote": "Consumer spending was up in all Districts with particular strength in Dallas and Richmond.",
+   "paraphrases": [
+    "Dallas and Richmond stood out with particularly strong consumer spending.",
+    "Spending gains were most notable in Dallas and Richmond.",
+    "Dallas and Richmond saw the strongest consumer spending gains."
+   ],
+   "decoys": [
+    "Consumer spending was strongest in Boston and Cleveland.",
+    "Consumer spending was up in all Districts this period."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Existing home sales growth slowed, but contacts were not overly concerned about rising interest rates",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(existing )?home sales?.{0,80}(slow|slowing|slowed|cool)|(slow|slowing|slowed|cool).{0,80}(existing )?home sales?",
+    "(not|n't).{0,40}(concern|worr).{0,80}rate|rate.{0,80}(not|n't).{0,40}(concern|worr)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "Contacts in several Districts reported slow growth in existing home sales but were not overly concerned about rising interest rates.",
+   "paraphrases": [
+    "Existing-home sales growth slowed, but contacts weren't overly worried about rising rates.",
+    "Home sales cooled somewhat, though rising interest rates weren't seen as a major concern.",
+    "Slower growth in existing home sales didn't stoke much worry about higher rates among contacts."
+   ],
+   "decoys": [
+    "Existing home sales accelerated sharply as interest rates fell.",
+    "Contacts in several Districts said rising interest rates were their top concern for housing."
+   ]
+  }
+ ]
+}

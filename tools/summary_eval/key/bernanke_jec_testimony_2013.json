@@ -1,0 +1,298 @@
+{
+ "doc_id": "bernanke_jec_testimony_2013",
+ "doc_type": "landmark",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Q1 2013 GDP grew at a 2-1/2 percent annual rate",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(GDP|gross domestic product|growth).{0,100}((?<!\\d)2(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)\\s*percent|(?<!\\d)2\\.5(?!\\d)\\s*(%|percent))",
+    "((?<!\\d)2(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)\\s*percent|(?<!\\d)2\\.5(?!\\d)\\s*(%|percent)).{0,100}(GDP|gross domestic product|growth)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(GDP|gross domestic product|growth).{0,40}(fell|declin\\w*|contract\\w*|shrink\\w*|shrank)",
+    "(fell|declin\\w*|contract\\w*|shrink\\w*|shrank).{0,40}(GDP|gross domestic product|growth)"
+   ],
+   "quote": "Real gross domestic product (GDP) is estimated to have risen at an annual rate of 2-1/2 percent in the first quarter after increasing 1-3/4 percent during 2012.",
+   "paraphrases": [
+    "Q1 GDP grew at a 2.5% annual rate.",
+    "Real GDP rose 2-1/2 percent in Q1.",
+    "Growth picked up to a 2.5% annualized rate in the first quarter."
+   ],
+   "decoys": [
+    "Q1 GDP grew at a 1.5 percent annual rate.",
+    "Real GDP fell at a 2-1/2 percent annual rate in the first quarter."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "GDP growth accelerated from 1-3/4 percent in 2012",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "((?<!\\d)1(?!\\d)[\\s-]?(?<!\\d)3(?!\\d)/(?<!\\d)4(?!\\d)\\s*percent|(?<!\\d)1\\.75(?!\\d)\\s*(%|percent)).{0,100}(2012|prior year|previous year)",
+    "(2012|prior year|previous year).{0,100}((?<!\\d)1(?!\\d)[\\s-]?(?<!\\d)3(?!\\d)/(?<!\\d)4(?!\\d)\\s*percent|(?<!\\d)1\\.75(?!\\d)\\s*(%|percent))",
+    "(up from|accelerat\\w*|faster than|quickened).{0,60}((?<!\\d)1(?!\\d)[\\s-]?(?<!\\d)3(?!\\d)/(?<!\\d)4(?!\\d)\\s*percent|(?<!\\d)1\\.75(?!\\d)\\s*(%|percent))"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(down from|decelerat\\w*|slower than).{0,60}((?<!\\d)1(?!\\d)[\\s-]?(?<!\\d)3(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)1\\.75(?!\\d))",
+    "((?<!\\d)1(?!\\d)[\\s-]?(?<!\\d)3(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)1\\.75(?!\\d)).{0,60}(down from|decelerat\\w*|slower than)"
+   ],
+   "quote": "Real gross domestic product (GDP) is estimated to have risen at an annual rate of 2-1/2 percent in the first quarter after increasing 1-3/4 percent during 2012.",
+   "paraphrases": [
+    "That's up from 1.75% growth in 2012.",
+    "Q1 growth of 2.5% marked an acceleration from 2012's 1-3/4 percent pace.",
+    "GDP growth quickened compared with the 1.75 percent rate seen in 2012."
+   ],
+   "decoys": [
+    "That's down from 3-1/4 percent growth in 2012.",
+    "GDP growth in 2012 was also 2-1/2 percent, unchanged from Q1."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Unemployment rate fell to 7.5 percent in April",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(unemployment( rate)?|jobless( rate)?).{0,80}(?<!\\d)7\\.5(?!\\d)\\s*(percent|%)",
+    "(?<!\\d)7\\.5(?!\\d)\\s*(percent|%).{0,80}(unemployment( rate)?|jobless( rate)?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(unemployment( rate)?|jobless( rate)?).{0,40}(rose|rising|climb\\w*|increas\\w*|jumped|surged)",
+    "(rose|rising|climb\\w*|increas\\w*|jumped|surged).{0,40}(unemployment( rate)?|jobless( rate)?)"
+   ],
+   "quote": "The unemployment rate, at 7.5 percent in April, has declined more than 1/2 percentage point since last summer.",
+   "paraphrases": [
+    "Jobless rate fell to 7.5% in April.",
+    "Unemployment dropped to 7.5 percent in April.",
+    "The unemployment rate declined to 7.5% as of April."
+   ],
+   "decoys": [
+    "The unemployment rate rose to 7.5 percent in April.",
+    "The unemployment rate fell to 6.5 percent in April."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Payrolls averaged over 200,000/month over the past six months, up from under 140,000/month before",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "((?<!\\d)200,?000(?!\\d)|(?<!\\d)200(?!\\d)\\s*k\\b).{0,100}(payroll|jobs|job gains)|(payroll|jobs|job gains).{0,100}((?<!\\d)200,?000(?!\\d)|(?<!\\d)200(?!\\d)\\s*k\\b)",
+    "(less than|under|below).{0,30}((?<!\\d)140,?000(?!\\d)|(?<!\\d)140(?!\\d)\\s*k\\b)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "Moreover, gains in total nonfarm payroll employment have averaged more than 200,000 jobs per month over the past six months, compared with average monthly gains of less than 140,000 during the prior six months.",
+   "paraphrases": [
+    "Payrolls averaged over 200,000 a month for six months, up from under 140,000 before.",
+    "Monthly job gains topped 200,000 over the past six months, versus under 140,000 in the prior six months.",
+    "Nonfarm payrolls averaged +200,000/month over the past six months, up from below 140,000 previously."
+   ],
+   "decoys": [
+    "Payrolls averaged only 140,000 per month over the past six months, matching the prior period.",
+    "Payrolls averaged over 200,000 a month for six months, roughly the same as before."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "FOMC made clear it is prepared to increase or reduce the pace of asset purchases depending on the outlook",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(increase|reduce|adjust\\w*).{0,40}(the )?pace.{0,60}(asset purchases|purchases|bond buying)",
+    "taper\\w*.{0,100}(purchases|QE|asset)",
+    "(purchases|QE|asset).{0,100}taper\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Committee made clear that it is prepared to increase or reduce the pace of its asset purchases to ensure that the stance of monetary policy remains appropriate as the outlook for the labor market or inflation changes",
+   "paraphrases": [
+    "Bernanke said the Fed is prepared to increase or reduce the pace of asset purchases as conditions warrant.",
+    "The FOMC signaled flexibility to taper or expand QE depending on the labor market and inflation outlook.",
+    "Bernanke opened the door to adjusting (up or down) the pace of bond buying based on incoming data."
+   ],
+   "decoys": [
+    "Bernanke said the pace of asset purchases would remain fixed regardless of the outlook.",
+    "Bernanke said the Fed had already ended its asset purchase program."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Current QE pace is $45 billion/month in Treasuries and $40 billion/month in agency MBS",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "\\$?(?<!\\d)45(?!\\d)\\s*(?:billion|bn|b)\\b.{0,25}(?:treasury|treasuries)",
+    "\\$?(?<!\\d)40(?!\\d)\\s*(?:billion|bn|b)\\b.{0,25}(?:mbs|mortgage-backed)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "source_pattern": [
+    "treasur\\w*.{0,60}\\$?(?<!\\d)45(?!\\d)\\s*(?:billion|bn|b)\\b",
+    "(?:mbs|mortgage-backed).{0,60}\\$?(?<!\\d)40(?!\\d)\\s*(?:billion|bn|b)\\b"
+   ],
+   "quote": "the FOMC has been buying longer-term Treasury securities at a pace of $45 billion per month and agency MBS at a pace of $40 billion per month",
+   "paraphrases": [
+    "The Fed is buying $45bn/month in Treasuries and $40bn/month in agency MBS.",
+    "Current QE pace: $45 billion Treasury purchases and $40 billion MBS purchases monthly.",
+    "The FOMC's asset purchases run at $45B Treasuries plus $40B MBS per month."
+   ],
+   "decoys": [
+    "The Fed is buying $85 billion/month in Treasuries and no MBS.",
+    "Current QE pace is $40 billion Treasuries and $45 billion MBS monthly."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "PCE inflation rose only 1 percent over the 12 months to March",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(PCE|personal consumption expenditures).{0,100}\\b(?<!\\d)1(?!\\d)\\s*(percent|%)",
+    "\\b(?<!\\d)1(?!\\d)\\s*(percent|%).{0,100}(PCE|personal consumption expenditures)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The price index for personal consumption expenditures rose only 1 percent over the 12 months ending in March, down from about 2-1/4 percent during the previous 12 months.",
+   "paraphrases": [
+    "PCE inflation slowed to just 1% over the year to March.",
+    "The PCE price index rose only 1 percent in the 12 months through March.",
+    "Headline PCE inflation ran at a mere 1% through March."
+   ],
+   "decoys": [
+    "PCE inflation rose to 3 percent over the 12 months ending in March.",
+    "Core CPI inflation rose 1 percent over the 12 months ending in March."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "PCE inflation was down from about 2-1/4 percent the prior year",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "((?<!\\d)2(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)\\s*percent|(?<!\\d)2\\.25(?!\\d)\\s*(%|percent)).{0,80}(prior year|previous year|previous 12 months|a year earlier)",
+    "(prior year|previous year|previous 12 months|a year earlier).{0,80}((?<!\\d)2(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)\\s*percent|(?<!\\d)2\\.25(?!\\d)\\s*(%|percent))",
+    "(down from|decelerat\\w*|slow\\w*).{0,60}((?<!\\d)2(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)\\s*percent|(?<!\\d)2\\.25(?!\\d)\\s*(%|percent))"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(up from|accelerat\\w*|rising from|ris\\w*\\s+from).{0,60}((?<!\\d)2(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)2\\.25(?!\\d))",
+    "((?<!\\d)2(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)4(?!\\d)|(?<!\\d)2\\.25(?!\\d)).{0,60}(up from|accelerat\\w*|rising from|ris\\w*\\s+from)"
+   ],
+   "quote": "The price index for personal consumption expenditures rose only 1 percent over the 12 months ending in March, down from about 2-1/4 percent during the previous 12 months.",
+   "paraphrases": [
+    "That's down from about 2.25% inflation the previous year.",
+    "PCE inflation decelerated sharply from roughly 2-1/4 percent a year earlier.",
+    "Inflation slowed markedly versus the 2.25 percent pace seen the prior 12 months."
+   ],
+   "decoys": [
+    "That's up from about 2.25% inflation the previous year.",
+    "That's down from about 4 percent inflation the previous year."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Forward guidance ties liftoff to unemployment remaining above 6-1/2 percent",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "((?<!\\d)6(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)\\s*percent|(?<!\\d)6\\.5(?!\\d)\\s*(%|percent)).{0,150}(unemployment|jobless\\w*)",
+    "(unemployment|jobless\\w*).{0,150}((?<!\\d)6(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)\\s*percent|(?<!\\d)6\\.5(?!\\d)\\s*(%|percent))"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "its current target range for the federal funds rate, 0 to 1/4 percent, will be appropriate \"at least as long as the unemployment rate remains above 6-1/2 percent, inflation between one and two years ahead is projected to be no more than a half percentage point above the Committee's 2 percent longer-run goal, and longer-term inflation expectations continue to be well anchored.\"",
+   "paraphrases": [
+    "The Fed's guidance ties liftoff to unemployment staying above 6.5%.",
+    "Rates will stay near zero at least until joblessness falls to 6-1/2 percent, per the Evans rule.",
+    "Forward guidance keeps the funds rate near zero as long as unemployment exceeds 6.5%."
+   ],
+   "decoys": [
+    "The Fed's guidance ties liftoff to unemployment falling below 5 percent.",
+    "The Fed said it would raise rates once unemployment topped 8 percent."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Forward guidance also conditioned on inflation (1-2 years ahead) projected no more than half a percentage point above the 2 percent goal",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "inflation.{0,150}(half a percentage point|half percentage point|half a point|half point|0\\.5(?!\\d)\\s*(percentage point|pp)).{0,60}(2 percent|2%)",
+    "(half a percentage point|half percentage point|half a point|half point|0\\.5(?!\\d)\\s*(percentage point|pp)).{0,60}(2 percent|2%).{0,150}inflation",
+    "(2 percent|2%).{0,100}(half a percentage point|half percentage point|half a point|half point|0\\.5(?!\\d)\\s*(percentage point|pp))",
+    "(half a percentage point|half percentage point|half a point|half point|0\\.5(?!\\d)\\s*(percentage point|pp)).{0,100}(2 percent|2%)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "inflation between one and two years ahead is projected to be no more than a half percentage point above the Committee's 2 percent longer-run goal, and longer-term inflation expectations continue to be well anchored.",
+   "paraphrases": [
+    "The guidance also requires inflation projections to stay within half a point of the Fed's 2% goal.",
+    "Liftoff also depends on inflation 1-2 years out being no more than 0.5 percentage point above the 2% target.",
+    "The Fed's forward guidance conditions liftoff on inflation projections staying close to the 2 percent objective, within half a point."
+   ],
+   "decoys": [
+    "The guidance requires inflation to be at least 2 percentage points above the 2% goal before liftoff.",
+    "The Fed's guidance made no reference to an inflation threshold, only unemployment."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Federal fiscal tightening (sequestration, tax increases) seen cutting 2013 GDP growth by about 1-1/2 percentage points",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "((?<!\\d)1(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)\\s*(percentage )?points?|(?<!\\d)1\\.5(?!\\d)\\s*(percentage )?points?).{0,100}(GDP|growth)",
+    "(GDP|growth).{0,100}((?<!\\d)1(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)\\s*(percentage )?points?|(?<!\\d)1\\.5(?!\\d)\\s*(percentage )?points?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "add\\w*.{0,60}((?<!\\d)1(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)1\\.5(?!\\d))\\s*(percentage )?points?",
+    "((?<!\\d)1(?!\\d)[\\s-]?(?<!\\d)1(?!\\d)/(?<!\\d)2(?!\\d)|(?<!\\d)1\\.5(?!\\d))\\s*(percentage )?points?.{0,60}add\\w*"
+   ],
+   "quote": "The Congressional Budget Office (CBO) estimates that the deficit reduction policies in current law will slow the pace of real GDP growth by about 1-1/2 percentage points during 2013, relative to what it would have been otherwise.",
+   "paraphrases": [
+    "CBO estimates fiscal tightening will shave about 1.5 percentage points off 2013 GDP growth.",
+    "Sequestration and tax hikes are seen cutting roughly 1-1/2 points from this year's growth.",
+    "Fiscal drag is expected to reduce 2013 real GDP growth by around 1.5 percentage points."
+   ],
+   "decoys": [
+    "CBO estimates fiscal tightening will add about 1.5 percentage points to 2013 GDP growth.",
+    "CBO estimates fiscal tightening will shave about 3 percentage points off 2013 GDP growth."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Bernanke warned that maintaining very low rates too long could undermine financial stability via reach-for-yield behavior",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "reach\\w*.{0,20}(for )?yield",
+    "yield[\\s-]?seeking",
+    "(low|too low).{0,80}rates?.{0,150}financial stability",
+    "financial stability.{0,150}(low|too low).{0,80}rates?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "no\\s+risk"
+   ],
+   "quote": "very low interest rates, if maintained too long, could undermine financial stability. For example, investors or portfolio managers dissatisfied with low returns may \"reach for yield\" by taking on more credit risk, duration risk, or leverage.",
+   "paraphrases": [
+    "Bernanke warned that prolonged low rates could threaten financial stability as investors reach for yield.",
+    "He flagged a risk that ultra-low rates push investors to reach for yield, taking on more credit and duration risk.",
+    "Bernanke cautioned that keeping rates too low for too long risks financial-stability problems from yield-seeking behavior."
+   ],
+   "decoys": [
+    "Bernanke said low rates posed no risk to financial stability.",
+    "Bernanke said aggressive risk-taking by banks had nothing to do with the level of interest rates."
+   ]
+  }
+ ]
+}

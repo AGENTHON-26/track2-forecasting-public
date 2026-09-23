@@ -1,0 +1,313 @@
+{
+ "doc_id": "cpi_2021-06-10",
+ "doc_type": "macro_release",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Headline CPI rose 0.6% month-over-month in May",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(headline|all items|cpi-u|consumer price)\\w*.{0,60}(?<!\\d)0\\.6(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.6(?!\\d)\\s?(percent|%).{0,60}(headline|all items|cpi-u|consumer price)\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,20}(?<!\\d)0\\.6(?!\\d)",
+    "(?<!\\d)0\\.6(?!\\d).{0,20}core"
+   ],
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.6 percent in May on a seasonally adjusted basis after rising 0.8 percent in April",
+   "paraphrases": [
+    "Headline CPI rose 0.6% m/m in May.",
+    "The all items CPI-U index increased 0.6 percent for the month of May.",
+    "Consumer prices rose 0.6% month-over-month in May."
+   ],
+   "decoys": [
+    "Headline CPI rose 0.8% month-over-month in May.",
+    "Core CPI rose 0.6% month-over-month in May."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "April's month-over-month headline CPI increase was 0.8%, making May's 0.6% gain a deceleration",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)0\\.8(?!\\d)\\s?(percent|%)\\s*(in|during|for)?\\s*april",
+    "april('s)?\\s*(?<!\\d)0\\.8(?!\\d)\\s?(percent|%)",
+    "april.{0,15}(rose|rising|increased?|gain(ed)?|climb(ed)?|up)\\s*(?<!\\d)0\\.8(?!\\d)",
+    "(?<!\\d)0\\.8(?!\\d)\\s?(percent|%).{0,15}(rise|rising|increase[d]?|gain(ed)?).{0,10}april"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,20}(?<!\\d)0\\.8(?!\\d)",
+    "(?<!\\d)0\\.8(?!\\d).{0,20}core"
+   ],
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.6 percent in May on a seasonally adjusted basis after rising 0.8 percent in April",
+   "paraphrases": [
+    "Headline CPI rose 0.6% in May, down from 0.8% in April.",
+    "May's monthly increase decelerated from April's 0.8% pace.",
+    "The 0.6 percent May reading followed a 0.8 percent gain in April."
+   ],
+   "decoys": [
+    "Headline CPI rose 0.8% month-over-month in May.",
+    "CPI rose 0.8% in May, down from April's 0.6%."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Headline CPI rose 5.0% year-over-year in May",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?<!\\d)5\\.0(?!\\d)\\s?(percent|%).{0,60}(year-over-year|y/y|12.month|12 month|annual|over the (last|past) (12 months|year))",
+    "(year-over-year|y/y|12.month|12 month|annual|over the (last|past) (12 months|year)).{0,60}(?<!\\d)5\\.0(?!\\d)\\s?(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,40}(?<!\\d)5\\.0(?!\\d)",
+    "(?<!\\d)5\\.0(?!\\d).{0,40}core"
+   ],
+   "quote": "the all items index increased 5.0 percent before seasonal adjustment; this was the largest 12-month increase since a 5.4-percent increase for the period ending August 2008.",
+   "paraphrases": [
+    "Headline CPI rose 5.0% year-over-year in May.",
+    "Annual inflation held at 5.0 percent in the 12 months through May.",
+    "The all items index increased 5.0% over the past year."
+   ],
+   "decoys": [
+    "Headline CPI rose 5.0% month-over-month in May.",
+    "Core CPI rose 5.0% year-over-year in May."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "May's 5.0% year-over-year headline CPI increase was the largest 12-month gain since 2008",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(largest|biggest|fastest|highest|steepest).{0,100}(?<!\\d)2008(?!\\d)",
+    "(?<!\\d)2008(?!\\d).{0,100}(largest|biggest|fastest|highest|steepest)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,100}(?<!\\d)2008(?!\\d)",
+    "(?<!\\d)2008(?!\\d).{0,100}core"
+   ],
+   "quote": "the all items index increased 5.0 percent before seasonal adjustment; this was the largest 12-month increase since a 5.4-percent increase for the period ending August 2008.",
+   "paraphrases": [
+    "May's annual CPI increase was the largest since 2008.",
+    "Headline inflation rose at its fastest pace since 2008.",
+    "The 12-month change was the biggest annual gain since August 2008."
+   ],
+   "decoys": [
+    "Headline inflation rose at its fastest pace since 1992.",
+    "Core CPI's increase was the largest since 2008."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Core CPI (all items less food and energy) rose 0.7% month-over-month in May",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "core.{0,60}(?<!\\d)0\\.7(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.7(?!\\d)\\s?(percent|%).{0,60}core",
+    "less food and energy.{0,60}(?<!\\d)0\\.7(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.7(?!\\d)\\s?(percent|%).{0,60}less food and energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)0\\.7(?!\\d)",
+    "(?<!\\d)0\\.7(?!\\d).{0,20}headline"
+   ],
+   "quote": "The index for all items less food and energy rose 0.7 percent in May after increasing 0.9 percent in April.",
+   "paraphrases": [
+    "Core CPI rose 0.7% m/m in May.",
+    "The core index (all items less food and energy) increased 0.7 percent for the month.",
+    "Core inflation, which excludes food and energy, rose 0.7% in May."
+   ],
+   "decoys": [
+    "Core CPI rose 0.9% month-over-month in May.",
+    "Headline CPI rose 0.7% month-over-month in May."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "April's month-over-month core CPI increase was 0.9%, making May's 0.7% gain a deceleration",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "core.{0,60}(?<!\\d)0\\.9(?!\\d)\\s?(percent|%).{0,20}april",
+    "core.{0,60}april.{0,20}(?<!\\d)0\\.9(?!\\d)\\s?(percent|%)",
+    "less food and energy.{0,60}(?<!\\d)0\\.9(?!\\d)\\s?(percent|%).{0,20}april",
+    "less food and energy.{0,60}april.{0,20}(?<!\\d)0\\.9(?!\\d)\\s?(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "recreation.{0,40}(?<!\\d)0\\.9(?!\\d)",
+    "(?<!\\d)0\\.9(?!\\d).{0,40}recreation"
+   ],
+   "quote": "The index for all items less food and energy rose 0.7 percent in May after increasing 0.9 percent in April.",
+   "paraphrases": [
+    "Core CPI's April increase was 0.9%, faster than May's 0.7% pace.",
+    "Core inflation rose 0.9 percent in April, more than May's later 0.7% gain.",
+    "The core index (all items less food and energy) increased 0.9% in April before easing to 0.7% in May."
+   ],
+   "decoys": [
+    "The index for recreation rose 0.2 percent in May following a 0.9-percent increase in April.",
+    "Core CPI rose 0.9 percent in May."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Core CPI rose 3.8% year-over-year in May",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "core.{0,60}(?<!\\d)3\\.8(?!\\d)\\s?(percent|%).{0,40}(year|12.month|12 month|annual|last 12 months|past 12 months)",
+    "less food and energy.{0,60}(?<!\\d)3\\.8(?!\\d)\\s?(percent|%).{0,40}(year|12.month|12 month|annual|last 12 months|past 12 months)",
+    "(year-over-year|y/y|12.month|12 month|annual|over the (last|past) 12 months).{0,60}(?<!\\d)3\\.8(?!\\d)\\s?(percent|%).{0,40}(core|less food and energy)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,40}(?<!\\d)3\\.8(?!\\d)",
+    "(?<!\\d)3\\.8(?!\\d).{0,40}headline"
+   ],
+   "quote": "The index for all items less food and energy rose 3.8 percent over the last 12-months, the largest 12-month increase since the period ending June 1992.",
+   "paraphrases": [
+    "Core CPI rose 3.8% year-over-year in May.",
+    "Core inflation (ex food and energy) increased 3.8 percent over the past 12 months.",
+    "The all items less food and energy index climbed 3.8% annually."
+   ],
+   "decoys": [
+    "Headline CPI rose 3.8% year-over-year in May.",
+    "Core CPI rose 1.8% year-over-year in May."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Core CPI's 3.8% year-over-year increase in May was the largest since June 1992",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(largest|biggest|fastest|highest|steepest).{0,100}(?<!\\d)1992(?!\\d)",
+    "(?<!\\d)1992(?!\\d).{0,100}(largest|biggest|fastest|highest|steepest)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,60}(?<!\\d)1992(?!\\d)",
+    "(?<!\\d)1992(?!\\d).{0,60}headline"
+   ],
+   "quote": "The index for all items less food and energy rose 3.8 percent over the last 12-months, the largest 12-month increase since the period ending June 1992.",
+   "paraphrases": [
+    "Core CPI's annual increase was the largest since June 1992.",
+    "Core inflation rose at its fastest pace since 1992.",
+    "The 3.8% annual core gain was the biggest since mid-1992."
+   ],
+   "decoys": [
+    "Core inflation rose at its fastest pace since 2008.",
+    "Headline CPI's annual increase was the largest since June 1992."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Used cars and trucks index rose 7.3% in May, accounting for about one-third of the headline increase",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "used (car|vehicle).{0,60}(?<!\\d)7\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)7\\.3(?!\\d)\\s?(percent|%).{0,60}used (car|vehicle)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "used (car|vehicle).{0,60}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)7\\.3(?!\\d)",
+    "new vehicle.{0,30}(?<!\\d)7\\.3(?!\\d)"
+   ],
+   "quote": "The index for used cars and trucks continued to rise sharply, increasing 7.3 percent in May. This increase accounted for about one-third of the seasonally adjusted all items increase.",
+   "paraphrases": [
+    "Used car and truck prices jumped 7.3% m/m in May, about a third of the total CPI increase.",
+    "The used vehicles index rose 7.3 percent for the month, driving roughly one-third of the headline gain.",
+    "Used cars and trucks prices climbed 7.3% in May, the single largest contributor to the monthly CPI rise."
+   ],
+   "decoys": [
+    "Used car and truck prices fell 7.3% in May.",
+    "New vehicle prices rose 7.3% in May."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Energy index was unchanged in May, as a decline in gasoline offset gains in electricity and natural gas",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "energy.{0,80}(unchanged|flat|steady|no change)",
+    "(unchanged|flat|steady|no change).{0,80}energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "energy.{0,60}(jump\\w*|surg\\w*|spik\\w*|rose sharply)",
+    "(jump\\w*|surg\\w*|spik\\w*|rose sharply).{0,60}energy"
+   ],
+   "quote": "The energy index was unchanged in May, with a decline in the gasoline index again offsetting increases in the electricity and natural gas indexes.",
+   "paraphrases": [
+    "The energy index was flat in May as falling gasoline prices offset gains in electricity and natural gas.",
+    "Energy prices held steady in May, with cheaper gasoline offsetting higher electricity and gas.",
+    "Overall energy costs were unchanged for the month, gasoline down but electricity and natural gas up."
+   ],
+   "decoys": [
+    "The energy index rose sharply in May as gasoline prices jumped.",
+    "The food index was unchanged in May."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Food index rose 0.4% in May, the same increase as in April",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "food.{0,60}(?<!\\d)0\\.4(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.4(?!\\d)\\s?(percent|%).{0,60}food"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "food.{0,60}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)0\\.4(?!\\d)",
+    "(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)0\\.4(?!\\d).{0,60}food",
+    "energy.{0,30}(?<!\\d)0\\.4(?!\\d)"
+   ],
+   "quote": "The food index increased 0.4 percent in May, the same increase as in April.",
+   "paraphrases": [
+    "Food prices rose 0.4% m/m in May, unchanged from April's pace.",
+    "The food index increased 0.4 percent for the second straight month.",
+    "Grocery and food-away-from-home prices combined rose 0.4% in May, matching April."
+   ],
+   "decoys": [
+    "Food prices fell 0.4% in May.",
+    "Energy prices rose 0.4% in May."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Airline fares rose 7.0% in May, moderating from a 10.2% jump in April",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(airline fare|airfare|airline ticket).{0,60}(?<!\\d)7\\.0(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)7\\.0(?!\\d)\\s?(percent|%).{0,60}(airline fare|airfare|airline ticket)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(airline fare|airfare|airline ticket).{0,60}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)7\\.0(?!\\d)"
+   ],
+   "quote": "The index for airline fares continued to increase, rising 7.0 percent in May after increasing 10.2 percent the prior month.",
+   "paraphrases": [
+    "Airline fares rose 7.0% m/m in May, following a 10.2% jump in April.",
+    "The airfare index increased 7.0 percent for the month, moderating from April's 10.2% spike.",
+    "Airline ticket prices climbed 7.0% in May after a 10.2 percent gain in April."
+   ],
+   "decoys": [
+    "Airline fares fell 7.0% in May.",
+    "Airline fares rose 10.2% in May."
+   ]
+  }
+ ]
+}

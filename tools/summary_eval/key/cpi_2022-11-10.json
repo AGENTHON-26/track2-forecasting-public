@@ -1,0 +1,305 @@
+{
+ "doc_id": "cpi_2022-11-10",
+ "doc_type": "macro_release",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Headline CPI rose 0.4% month-over-month in October",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(headline|all items).{0,60}(?<!\\d)0\\.4(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.4(?!\\d)\\s?(percent|%).{0,60}(headline|all items)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,20}(?<!\\d)0\\.4(?!\\d)",
+    "(?<!\\d)0\\.4(?!\\d).{0,20}core"
+   ],
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 0.4 percent in October on a seasonally adjusted basis, the same increase as in September",
+   "paraphrases": [
+    "Headline CPI rose 0.4% m/m in October.",
+    "Monthly headline inflation was 0.4% in October.",
+    "All items CPI increased 0.4 percent for the month of October."
+   ],
+   "decoys": [
+    "Headline CPI accelerated to 0.6% month-over-month in October.",
+    "Core CPI rose 0.4% month-over-month in October."
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "October's 0.4% headline CPI increase matched September's pace",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(same|match\\w*|equal\\w*|identical|unchanged).{0,30}september",
+    "september.{0,30}(same|match\\w*|equal\\w*|identical|unchanged)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,60}september",
+    "september.{0,60}core"
+   ],
+   "quote": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 0.4 percent in October on a seasonally adjusted basis, the same increase as in September",
+   "paraphrases": [
+    "October's 0.4% matched September's pace.",
+    "Monthly headline inflation held at 0.4% in October, unchanged from September.",
+    "All items CPI rose 0.4 percent in October, identical to September's reading."
+   ],
+   "decoys": [
+    "Headline CPI rose 0.6% in October, up from September's 0.4%.",
+    "Core CPI rose 0.3% in October, the same as September's 0.6%."
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Headline CPI rose 7.7% year-over-year in October",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(headline|all items).{0,60}(?<!\\d)7\\.7(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)7\\.7(?!\\d)\\s?(percent|%).{0,60}(headline|all items)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,80}(?<!\\d)7\\.7(?!\\d)",
+    "(?<!\\d)7\\.7(?!\\d).{0,80}core"
+   ],
+   "quote": "The all items index increased 7.7 percent for the 12 months ending October, this was the smallest 12-month increase since the period ending January 2022.",
+   "paraphrases": [
+    "Headline CPI rose 7.7% year-over-year in October.",
+    "All items CPI increased 7.7 percent over the 12 months ending October.",
+    "Annual headline inflation was 7.7% in October."
+   ],
+   "decoys": [
+    "Core CPI rose 7.7% year-over-year in October.",
+    "Headline CPI rose 7.3% year-over-year in October."
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "October's 7.7% year-over-year headline CPI increase was the smallest 12-month increase since January 2022",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(smallest|slowest|softest|lowest).{0,100}january.{0,10}(?<!\\d)2022(?!\\d)",
+    "january.{0,10}(?<!\\d)2022(?!\\d).{0,100}(smallest|slowest|softest|lowest)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "core.{0,80}january.{0,10}(?<!\\d)2022(?!\\d)",
+    "january.{0,10}(?<!\\d)2022(?!\\d).{0,80}core"
+   ],
+   "quote": "The all items index increased 7.7 percent for the 12 months ending October, this was the smallest 12-month increase since the period ending January 2022.",
+   "paraphrases": [
+    "October's annual CPI increase was the smallest since January 2022.",
+    "Headline inflation grew at its slowest pace since January 2022.",
+    "The 12-month change was the smallest since the period ending January 2022."
+   ],
+   "decoys": [
+    "Headline inflation grew at its slowest pace since January 2021.",
+    "Core CPI's annual increase was the smallest since January 2022."
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Core CPI rose 0.3% month-over-month in October",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "core.{0,60}(?<!\\d)0\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.3(?!\\d)\\s?(percent|%).{0,60}core",
+    "less food and energy.{0,60}(?<!\\d)0\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)0\\.3(?!\\d)\\s?(percent|%).{0,60}less food and energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)0\\.3(?!\\d)",
+    "(?<!\\d)0\\.3(?!\\d).{0,20}headline"
+   ],
+   "quote": "The index for all items less food and energy rose 0.3 percent in October, after rising 0.6 percent in September.",
+   "paraphrases": [
+    "Core CPI (ex food & energy) rose 0.3% m/m in October.",
+    "Core inflation was 0.3 percent in October.",
+    "All items less food and energy index increased 0.3% for the month of October."
+   ],
+   "decoys": [
+    "Core CPI accelerated to 0.6% month-over-month in October.",
+    "Headline CPI rose 0.3% month-over-month in October."
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "September's month-over-month core CPI increase was 0.6%, double October's 0.3% pace",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "core.{0,60}(?<!\\d)0\\.6(?!\\d)\\s?(percent|%).{0,20}september",
+    "core.{0,60}september.{0,20}(?<!\\d)0\\.6(?!\\d)\\s?(percent|%)",
+    "less food and energy.{0,60}(?<!\\d)0\\.6(?!\\d)\\s?(percent|%).{0,20}september",
+    "less food and energy.{0,60}september.{0,20}(?<!\\d)0\\.6(?!\\d)\\s?(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)0\\.6(?!\\d).{0,20}september",
+    "(?<!\\d)0\\.6(?!\\d).{0,20}september.{0,20}headline"
+   ],
+   "quote": "The index for all items less food and energy rose 0.3 percent in October, after rising 0.6 percent in September.",
+   "paraphrases": [
+    "Core CPI's September increase was 0.6%, faster than October's 0.3% pace.",
+    "Core inflation had risen 0.6 percent in September before slowing to 0.3% in October.",
+    "The core index (less food and energy) climbed 0.6% in September, double October's 0.3% gain."
+   ],
+   "decoys": [
+    "Core CPI rose 0.6 percent in October.",
+    "The food index rose 0.6 percent in September."
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Core CPI rose 6.3% year-over-year in October",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "core.{0,60}(?<!\\d)6\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)6\\.3(?!\\d)\\s?(percent|%).{0,60}core",
+    "less food and energy.{0,60}(?<!\\d)6\\.3(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)6\\.3(?!\\d)\\s?(percent|%).{0,60}less food and energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "headline.{0,20}(?<!\\d)6\\.3(?!\\d)",
+    "(?<!\\d)6\\.3(?!\\d).{0,20}headline"
+   ],
+   "quote": "The index for all items less food and energy rose 6.3 percent over the past 12 months.",
+   "paraphrases": [
+    "Core CPI rose 6.3% year-over-year in October.",
+    "Core inflation was 6.3% y/y in October.",
+    "All items less food and energy climbed 6.3 percent over the past year."
+   ],
+   "decoys": [
+    "Core CPI eased to 5.9% year-over-year in October.",
+    "Headline CPI rose 6.3% year-over-year in October."
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Shelter index rose 0.8% in October",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(shelter|housing cost).{0,60}(?<!\\d)0\\.8(?!\\d)\\s?(percent|%)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(shelter|housing cost).{0,60}(fell|declin\\w*|drop\\w*).{0,30}(?<!\\d)0\\.8(?!\\d)"
+   ],
+   "quote": "The shelter index continued to increase, rising 0.8 percent in October, the largest monthly increase in that index since August 1990.",
+   "paraphrases": [
+    "Shelter costs rose 0.8% m/m in October.",
+    "The shelter index climbed 0.8 percent in October.",
+    "Housing costs increased 0.8% for the month."
+   ],
+   "decoys": [
+    "Shelter costs fell 0.8% in October.",
+    "Shelter costs rose 0.6% in October."
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Shelter's 0.8% October increase was the largest monthly increase since August 1990",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(shelter|housing cost).{0,120}(largest|biggest|fastest|highest|steepest).{0,60}(?<!\\d)1990(?!\\d)",
+    "(largest|biggest|fastest|highest|steepest).{0,60}(?<!\\d)1990(?!\\d).{0,60}(shelter|housing cost)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The shelter index continued to increase, rising 0.8 percent in October, the largest monthly increase in that index since August 1990.",
+   "paraphrases": [
+    "Shelter's 0.8% October gain was the largest monthly increase since August 1990.",
+    "The shelter index rose at its fastest monthly pace since 1990.",
+    "Housing costs posted their biggest monthly increase since August 1990."
+   ],
+   "decoys": [
+    "The shelter index rose at its fastest monthly pace since 1980.",
+    "The energy index rose at its fastest monthly pace since August 1990."
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Used cars and trucks index fell 2.4% in October, extending September's 1.1% decline",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "used (car|vehicle).{0,60}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)2\\.4(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)2\\.4(?!\\d)\\s?(percent|%).{0,60}used (car|vehicle)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "used (car|vehicle).{0,60}(ros\\w*|climb\\w*|jump\\w*|increas\\w*|surg\\w*).{0,20}(?<!\\d)2\\.4(?!\\d)",
+    "new vehicle.{0,30}(?<!\\d)2\\.4(?!\\d)"
+   ],
+   "quote": "the index for used cars and trucks, which fell 2.4 percent in October after decreasing 1.1 percent in September.",
+   "paraphrases": [
+    "Used car and truck prices fell 2.4% m/m in October, extending September's 1.1% decline.",
+    "The used vehicles index dropped 2.4 percent in October, a second straight monthly decline.",
+    "Used cars and trucks prices fell 2.4% for the month after a 1.1% drop in September."
+   ],
+   "decoys": [
+    "Used car and truck prices rose 2.4% in October.",
+    "New vehicle prices fell 2.4% in October."
+   ]
+  },
+  {
+   "id": "p11",
+   "point": "Energy index rose 1.8% in October, ending three straight monthly declines",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "energy.{0,60}(ros\\w*|increas\\w*|climb\\w*|advanc\\w*|rebound\\w*).{0,20}(?<!\\d)1\\.8(?!\\d)\\s?(percent|%)",
+    "(?<!\\d)1\\.8(?!\\d)\\s?(percent|%).{0,60}energy"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "energy.{0,60}(fell|fall|declin\\w*|drop\\w*).{0,20}(?<!\\d)1\\.8(?!\\d)",
+    "food.{0,30}(?<!\\d)1\\.8(?!\\d)"
+   ],
+   "quote": "The energy index increased 1.8 percent in October after falling in the preceding three months.",
+   "paraphrases": [
+    "The energy index rose 1.8% m/m in October, its first increase in four months.",
+    "Energy prices increased 1.8 percent in October after three straight monthly declines.",
+    "Energy costs rebounded 1.8% for the month following three months of decreases."
+   ],
+   "decoys": [
+    "The energy index fell 1.8% in October.",
+    "The food index rose 1.8% in October."
+   ]
+  },
+  {
+   "id": "p12",
+   "point": "Medical care index fell 0.5% in October, reversing a 0.8% rise in September",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "medical care.{0,80}(fell|fall|declin\\w*|drop\\w*).{0,40}(?<!\\d)0\\.5(?!\\d)\\s?(percent|%).{0,40}october"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "medical care.{0,80}(ros\\w*|increas\\w*|climb\\w*|advanc\\w*).{0,40}(?<!\\d)0\\.5(?!\\d)\\s?(percent|%).{0,40}october"
+   ],
+   "quote": "the medical care index fell 0.5 percent in October after rising 0.8 percent in September.",
+   "paraphrases": [
+    "The medical care index fell 0.5% m/m in October, reversing a 0.8% rise in September.",
+    "Medical care costs declined 0.5 percent in October after increasing 0.8 percent in September.",
+    "Medical care prices dropped 0.5% in October, snapping a run of monthly gains."
+   ],
+   "decoys": [
+    "The medical care index rose 0.5% in October.",
+    "The medical care index fell 0.5% in September."
+   ]
+  }
+ ]
+}
