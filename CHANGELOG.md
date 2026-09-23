@@ -126,12 +126,14 @@ unchanged.
   "How an upload is made" and README checklist step 8. Scoring unaffected.
 - **Scale-commitment check on the official scoring path.** `score_roster` now reads every card's
   `reference/ref_scale.json` once, before any participant gate, checks those bytes against the
-  evaluation plan's `ref_scale_commitment`, and scores from the verified bytes. A missing, linked
-  or mismatched scale file aborts the run as an organizer fault. For a valid organizer bundle
-  nothing changes: the same bytes are parsed by the same rules and the scoring arithmetic is
-  untouched. This was checked by re-scoring synthetic evaluations with the scorer before and
-  after the change (identical results), and the regression suite's pinned composites are
-  unchanged; that is a check, not a proof for every input. Package version stays `3.1.0`.
+  evaluation plan's `ref_scale_commitment`, and scores from the verified bytes. A missing,
+  linked, malformed or mismatched scale file, a set of reference directories that differs from
+  the plan's roster, or a plan without an expanded `ref_scale` normalization aborts the run as
+  an organizer fault. For a valid organizer bundle nothing changes: the same bytes are parsed by
+  the same rules and the scoring arithmetic is untouched. This was checked by re-scoring
+  synthetic evaluations with the scorer before and after the change (identical results), and the
+  regression suite's pinned composites are unchanged; that is a check, not a proof for every
+  input. Package version stays `3.1.0`.
 - **Opt-in candidate forecast-resolution API** (`qfbench2_track_forecasting.resolution`,
   `docs/FORECAST-RESOLUTION-CANDIDATE.md`), with opt-in precise-cutoff and strict-coverage
   options in `cutoff.py` that only this module uses. Nothing on the live scoring path imports
