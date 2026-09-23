@@ -1,0 +1,1248 @@
+{
+  "generated_at": "2026-09-23T00:42:24.168951+00:00",
+  "label": "stage2 thinking-on, throttled+logged, real (non-rate-limited) sweep 2026-09-22",
+  "gates_only_mode": false,
+  "total_units": 103,
+  "status_counts": {
+    "gates_only": 13,
+    "scored": 90
+  },
+  "units_with_text_signal_issues": 50,
+  "family_summary": {
+    "T2-F1": {
+      "n": 18,
+      "mean": 0.3686893671177121,
+      "min": 0.01243538327684264,
+      "max": 2.88102228331977
+    },
+    "T2-F2": {
+      "n": 23,
+      "mean": 1.2208926732570722,
+      "min": 0.012515713147908529,
+      "max": 8.58924016453982
+    },
+    "T2-F3": {
+      "n": 20,
+      "mean": 1.11455463371511,
+      "min": 0.2531637183449672,
+      "max": 3.0321558621638904
+    },
+    "T2-F4": {
+      "n": 29,
+      "mean": 0.45054518659233256,
+      "min": 0.005261276765577036,
+      "max": 4.059650250485449
+    }
+  },
+  "units": {
+    "t2-F1-ai-mom-2024": {
+      "unit_id": "t2-F1-ai-mom-2024",
+      "status": "gates_only",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2024-04-30 (beige_book) failed: reply too long (85217 chars): reasoning leaked",
+        "[text_signal] doc bis_ueda_2024-03-06 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-aud-on-hold-2016": {
+      "unit_id": "t2-F1-aud-on-hold-2016",
+      "status": "scored",
+      "composite": 0.01243538327684264,
+      "marginal_crps": 0.02078002069180565,
+      "joint_variogram": 0.004192364288170586,
+      "tail_penalty": 0.003938318222443197,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": []
+    },
+    "t2-F1-cad-boc-2017": {
+      "unit_id": "t2-F1-cad-boc-2017",
+      "status": "scored",
+      "composite": 0.03709644641960225,
+      "marginal_crps": 0.026784901776918304,
+      "joint_variogram": 0.07605570378680412,
+      "tail_penalty": 0.004436421975509288,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc bis_poloz_2017-07-12 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc bis_wilkins_2017-06-12 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-chf-highly-valued-2021": {
+      "unit_id": "t2-F1-chf-highly-valued-2021",
+      "status": "scored",
+      "composite": 0.018482097316002876,
+      "marginal_crps": 0.014040558174960971,
+      "joint_variogram": 0.0362550911019576,
+      "tail_penalty": 0.0029264544896755616,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2021-04-30 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-conflicting-texts-2024": {
+      "unit_id": "t2-F1-conflicting-texts-2024",
+      "status": "gates_only",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc fomc-minutes-20240501 (fomc_minutes) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-considerable-period-2003": {
+      "unit_id": "t2-F1-considerable-period-2003",
+      "status": "scored",
+      "composite": 0.14398781882758496,
+      "marginal_crps": 0.2645260566955935,
+      "joint_variogram": 0.00858330319895236,
+      "tail_penalty": 0.045748997600512466,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": []
+    },
+    "t2-F1-conundrum-2005": {
+      "unit_id": "t2-F1-conundrum-2005",
+      "status": "scored",
+      "composite": 0.17205853665707554,
+      "marginal_crps": 0.19056603875297748,
+      "joint_variogram": 0.2308237172795998,
+      "tail_penalty": 0.037642010483534244,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": []
+    },
+    "t2-F1-cpi-glidepath-2023": {
+      "unit_id": "t2-F1-cpi-glidepath-2023",
+      "status": "gates_only",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc macro_release-2023-06-13 (macro_release) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-dkk-peg-2019": {
+      "unit_id": "t2-F1-dkk-peg-2019",
+      "status": "scored",
+      "composite": 0.10882471767154495,
+      "marginal_crps": 0.14669397102158657,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.014151584296440882,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc ecb_draghi_2019-01-28 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-eur-range-2017": {
+      "unit_id": "t2-F1-eur-range-2017",
+      "status": "scored",
+      "composite": 0.014075704468387535,
+      "marginal_crps": 0.02591214384174348,
+      "joint_variogram": 0.001169945957401093,
+      "tail_penalty": 0.0038432438014773347,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2017-07-31 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-fed-put-2019": {
+      "unit_id": "t2-F1-fed-put-2019",
+      "status": "scored",
+      "composite": 0.032654545559389354,
+      "marginal_crps": 0.04219563276174068,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.008801827553511036,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc bis_clarida_2019-05-30 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-greater-confidence-2024": {
+      "unit_id": "t2-F1-greater-confidence-2024",
+      "status": "scored",
+      "composite": 0.7815699572310348,
+      "marginal_crps": 0.3258798305380579,
+      "joint_variogram": 2.0260481691525603,
+      "tail_penalty": 0.0540779560811891,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc macro_release-2024-01-11 (macro_release) failed: HTTP 503: {\"error\":{\"message\":\"Service temporarily overloaded\",\"type\":\"Service Unavailable\",\"code\":503}}"
+      ]
+    },
+    "t2-F1-hawkish-cut-2024": {
+      "unit_id": "t2-F1-hawkish-cut-2024",
+      "status": "gates_only",
+      "category": "T2-F1",
+      "text_signal_issues": []
+    },
+    "t2-F1-jpy-ycc-flex-2018": {
+      "unit_id": "t2-F1-jpy-ycc-flex-2018",
+      "status": "scored",
+      "composite": 2.88102228331977,
+      "marginal_crps": 1.857999561218755,
+      "joint_variogram": 6.304520854709528,
+      "tail_penalty": 0.3033312314876719,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2018-05-31 (beige_book) failed: HTTP 503: {\"error\":{\"message\":\"Service temporarily overloaded\",\"type\":\"Service Unavailable\",\"code\":503}}"
+      ]
+    },
+    "t2-F1-liftoff-telegraph-2015": {
+      "unit_id": "t2-F1-liftoff-telegraph-2015",
+      "status": "scored",
+      "composite": 0.1245642919243549,
+      "marginal_crps": 0.12428356941798906,
+      "joint_variogram": 0.1920775905562031,
+      "tail_penalty": 0.023996150242497297,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc fomc-minutes-20150729 (fomc_minutes) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc fomc-statement-2015-03-18 (fomc_statement) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc fomc-statement-2015-01-28 (fomc_statement) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-measured-pace-2004": {
+      "unit_id": "t2-F1-measured-pace-2004",
+      "status": "scored",
+      "composite": 0.2009913588125333,
+      "marginal_crps": 0.35841627424535405,
+      "joint_variogram": 0.04020803750794152,
+      "tail_penalty": 0.04860405218736912,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": []
+    },
+    "t2-F1-normalization-2017": {
+      "unit_id": "t2-F1-normalization-2017",
+      "status": "scored",
+      "composite": 0.10170813095425811,
+      "marginal_crps": 0.1327413102410775,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.024125182737209653,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2017-05-31 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-patient-dropped-2015": {
+      "unit_id": "t2-F1-patient-dropped-2015",
+      "status": "scored",
+      "composite": 0.09270995480715337,
+      "marginal_crps": 0.12323863377905928,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.016388257377388582,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": []
+    },
+    "t2-F1-pause-2006": {
+      "unit_id": "t2-F1-pause-2006",
+      "status": "scored",
+      "composite": 0.7065508178797761,
+      "marginal_crps": 0.13244612435599168,
+      "joint_variogram": 2.1155577653025466,
+      "tail_penalty": 0.028302130555081254,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": []
+    },
+    "t2-F1-qe3-end-2014": {
+      "unit_id": "t2-F1-qe3-end-2014",
+      "status": "scored",
+      "composite": 0.20013345705893318,
+      "marginal_crps": 0.15700093251602068,
+      "joint_variogram": 0.38685826472175777,
+      "tail_penalty": 0.02787755692197755,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc fomc-statement-2014-10-29 (fomc_statement) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-sahm-watch-2024": {
+      "unit_id": "t2-F1-sahm-watch-2024",
+      "status": "gates_only",
+      "category": "T2-F1",
+      "text_signal_issues": [
+        "[text_signal] doc bis_bowman_2024-06-25 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F1-third-cut-2019": {
+      "unit_id": "t2-F1-third-cut-2019",
+      "status": "scored",
+      "composite": 0.6872810419691493,
+      "marginal_crps": 1.0102602447298394,
+      "joint_variogram": 0.5289465931027896,
+      "tail_penalty": 0.11733470836696375,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": []
+    },
+    "t2-F1-ust-positioning-2018": {
+      "unit_id": "t2-F1-ust-positioning-2018",
+      "status": "scored",
+      "composite": 0.3202620639654246,
+      "marginal_crps": 0.6155953675620822,
+      "joint_variogram": 0.001477071440261997,
+      "tail_penalty": 0.060106293761524626,
+      "tail_metric": "pinball",
+      "category": "T2-F1",
+      "text_signal_issues": []
+    },
+    "t2-F2-abenomics-2012": {
+      "unit_id": "t2-F2-abenomics-2012",
+      "status": "scored",
+      "composite": 6.420602299674913,
+      "marginal_crps": 8.08312902517727,
+      "joint_variogram": 0.0,
+      "tail_penalty": 2.264285485919021,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": [
+        "[text_signal] doc bis_shirakawa_2012-10-14 (cb_speech) failed: HTTP 503: {\"error\":{\"message\":\"Service temporarily overloaded\",\"type\":\"Service Unavailable\",\"code\":503}}"
+      ]
+    },
+    "t2-F2-act-as-appropriate-2019": {
+      "unit_id": "t2-F2-act-as-appropriate-2019",
+      "status": "scored",
+      "composite": 0.06912801325183428,
+      "marginal_crps": 0.09015135528554016,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.016569658167569556,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": [
+        "[text_signal] doc fomc-minutes-20190501 (fomc_minutes) failed: TimeoutError: The read operation timed out"
+      ]
+    },
+    "t2-F2-aud-taper-2013": {
+      "unit_id": "t2-F2-aud-taper-2013",
+      "status": "scored",
+      "composite": 0.049507950558761366,
+      "marginal_crps": 0.06528826899007786,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.01005715448047013,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-boj-thin-signal-2014": {
+      "unit_id": "t2-F2-boj-thin-signal-2014",
+      "status": "scored",
+      "composite": 5.753064711456525,
+      "marginal_crps": 7.397339328539962,
+      "joint_variogram": 0.0,
+      "tail_penalty": 1.6423781687479335,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-cnh-stress-2015": {
+      "unit_id": "t2-F2-cnh-stress-2015",
+      "status": "gates_only",
+      "category": "T2-F2",
+      "text_signal_issues": [
+        "[text_signal] doc fomc-statement-2015-07-29 (fomc_statement) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc bis_nakaso_2015-07-27 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc bis_kuroda_2015-07-21 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc beige_book-2015-06-30 (beige_book) failed: reply too long (76868 chars): reasoning leaked",
+        "[text_signal] doc bis_hu_2010-07-22 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc bis_hu_2010-07-15 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F2-cnh-tradewar-2018": {
+      "unit_id": "t2-F2-cnh-tradewar-2018",
+      "status": "gates_only",
+      "category": "T2-F2",
+      "text_signal_issues": [
+        "[text_signal] doc bis_gang_2018-06-14 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc beige_book-2018-05-31 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F2-considerable-removal-2004": {
+      "unit_id": "t2-F2-considerable-removal-2004",
+      "status": "scored",
+      "composite": 0.1707736555826628,
+      "marginal_crps": 0.2289645075393833,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.02529652569086148,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-credit-crunch-2007": {
+      "unit_id": "t2-F2-credit-crunch-2007",
+      "status": "scored",
+      "composite": 0.368741846440665,
+      "marginal_crps": 0.5011875239636558,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.03762765263318777,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2007-07-25 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F2-cut-sizing-2024": {
+      "unit_id": "t2-F2-cut-sizing-2024",
+      "status": "scored",
+      "composite": 0.26660536857232636,
+      "marginal_crps": 0.45565156919296534,
+      "joint_variogram": 0.10908203244330222,
+      "tail_penalty": 0.030274871214265035,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-draghi-precommit-2014": {
+      "unit_id": "t2-F2-draghi-precommit-2014",
+      "status": "scored",
+      "composite": 0.01396056203297426,
+      "marginal_crps": 0.018393270020870066,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.002878792063234743,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-ecb-qe-telegraph-2014": {
+      "unit_id": "t2-F2-ecb-qe-telegraph-2014",
+      "status": "scored",
+      "composite": 0.07127577868282514,
+      "marginal_crps": 0.09280180265944526,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.017460718741274833,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": [
+        "[text_signal] doc ecb_draghi_2014-10-09 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F2-eur-parity-2022": {
+      "unit_id": "t2-F2-eur-parity-2022",
+      "status": "scored",
+      "composite": 0.046227330511707215,
+      "marginal_crps": 0.062082086548684884,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.006590440419263048,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-fragile-five-brl-2013": {
+      "unit_id": "t2-F2-fragile-five-brl-2013",
+      "status": "gates_only",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-fragile-five-inr-2013": {
+      "unit_id": "t2-F2-fragile-five-inr-2013",
+      "status": "gates_only",
+      "category": "T2-F2",
+      "text_signal_issues": [
+        "[text_signal] doc fomc-minutes-20130501 (fomc_minutes) failed: reply too long (89157 chars): reasoning leaked"
+      ]
+    },
+    "t2-F2-higher-for-longer-2023": {
+      "unit_id": "t2-F2-higher-for-longer-2023",
+      "status": "scored",
+      "composite": 0.25872123893854193,
+      "marginal_crps": 0.34759212658814553,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.03654401981453296,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-nirp-paradox-2016": {
+      "unit_id": "t2-F2-nirp-paradox-2016",
+      "status": "scored",
+      "composite": 8.58924016453982,
+      "marginal_crps": 11.351698035936908,
+      "joint_variogram": 0.0,
+      "tail_penalty": 1.683095486047103,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-opec-cad-2014": {
+      "unit_id": "t2-F2-opec-cad-2014",
+      "status": "scored",
+      "composite": 0.0475321055475953,
+      "marginal_crps": 0.06354111951544585,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.007509570627968946,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-powell-pivot-2019": {
+      "unit_id": "t2-F2-powell-pivot-2019",
+      "status": "scored",
+      "composite": 0.25413016853276527,
+      "marginal_crps": 0.3473523099248944,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.021074815052442474,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-qe2-jackson-hole-2010": {
+      "unit_id": "t2-F2-qe2-jackson-hole-2010",
+      "status": "scored",
+      "composite": 0.40927438583972153,
+      "marginal_crps": 0.5622144104675773,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.026924324270082192,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": [
+        "[text_signal] doc fomc-minutes-20100810 (fomc_minutes) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F2-shunto-nirp-exit-2024": {
+      "unit_id": "t2-F2-shunto-nirp-exit-2024",
+      "status": "scored",
+      "composite": 3.942079056205445,
+      "marginal_crps": 5.356216896243988,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.406734456109085,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-some-pain-2022": {
+      "unit_id": "t2-F2-some-pain-2022",
+      "status": "scored",
+      "composite": 0.1467607461127984,
+      "marginal_crps": 0.1931670935270579,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.03074487757714966,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-taper-begins-2013": {
+      "unit_id": "t2-F2-taper-begins-2013",
+      "status": "scored",
+      "composite": 0.16588355401484617,
+      "marginal_crps": 0.2194602672162972,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.03194177101121864,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-taper-testimony-2013": {
+      "unit_id": "t2-F2-taper-testimony-2013",
+      "status": "scored",
+      "composite": 0.49359383670501084,
+      "marginal_crps": 0.6501414126410051,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.10222489686502514,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": [
+        "[text_signal] doc fomc-minutes-20130501 (fomc_minutes) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F2-time-has-come-2024": {
+      "unit_id": "t2-F2-time-has-come-2024",
+      "status": "scored",
+      "composite": 0.3443633215730692,
+      "marginal_crps": 0.4704249547305995,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.029209238679243337,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-trade-war-escalation-2019": {
+      "unit_id": "t2-F2-trade-war-escalation-2019",
+      "status": "scored",
+      "composite": 0.08113593457160595,
+      "marginal_crps": 0.10664067441237021,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.017374084969695267,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F2-trichet-alertness-2008": {
+      "unit_id": "t2-F2-trichet-alertness-2008",
+      "status": "scored",
+      "composite": 0.10541374241833586,
+      "marginal_crps": 0.13899585346096727,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.02145846481175729,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": [
+        "[text_signal] doc ecb_trichet_2008-05-16 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F2-whatever-it-takes-2012": {
+      "unit_id": "t2-F2-whatever-it-takes-2012",
+      "status": "scored",
+      "composite": 0.012515713147908529,
+      "marginal_crps": 0.01637844643648846,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0028588799264586975,
+      "tail_metric": "pinball",
+      "category": "T2-F2",
+      "text_signal_issues": []
+    },
+    "t2-F3-bear-flattener-2022": {
+      "unit_id": "t2-F3-bear-flattener-2022",
+      "status": "scored",
+      "composite": 1.959498456767935,
+      "marginal_crps": 0.20275089874484478,
+      "joint_variogram": 6.1702997742794174,
+      "tail_penalty": 0.03516537555843667,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-boj-ust-channel-2023": {
+      "unit_id": "t2-F3-boj-ust-channel-2023",
+      "status": "scored",
+      "composite": 2.3056224354218213,
+      "marginal_crps": 3.083125656155661,
+      "joint_variogram": 2.3969935582587203,
+      "tail_penalty": 0.22480769933187533,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-brexit-joint-2016": {
+      "unit_id": "t2-F3-brexit-joint-2016",
+      "status": "scored",
+      "composite": 0.42163052792491146,
+      "marginal_crps": 0.40699583887509033,
+      "joint_variogram": 0.6792329820991001,
+      "tail_penalty": 0.07181356928818124,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2016-04-30 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F3-conundrum-joint-2005": {
+      "unit_id": "t2-F3-conundrum-joint-2005",
+      "status": "scored",
+      "composite": 2.1523356491833114,
+      "marginal_crps": 0.18104091878816814,
+      "joint_variogram": 6.848822050231884,
+      "tail_penalty": 0.035842873598310995,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-covid-curve-2020": {
+      "unit_id": "t2-F3-covid-curve-2020",
+      "status": "scored",
+      "composite": 1.4101501205448148,
+      "marginal_crps": 0.6133062415649224,
+      "joint_variogram": 3.6004893244613076,
+      "tail_penalty": 0.116751012119807,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-cpi-shock-cross-2022": {
+      "unit_id": "t2-F3-cpi-shock-cross-2022",
+      "status": "scored",
+      "composite": 0.33986618090020454,
+      "marginal_crps": 0.0361466270600007,
+      "joint_variogram": 1.0677110617800385,
+      "tail_penalty": 0.007397744180963369,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-divergence-2014": {
+      "unit_id": "t2-F3-divergence-2014",
+      "status": "scored",
+      "composite": 3.0321558621638904,
+      "marginal_crps": 1.9793566316638593,
+      "joint_variogram": 6.68034249194123,
+      "tail_penalty": 0.1918739937479602,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": [
+        "[text_signal] doc bis_fischer_2014-08-11 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc beige_book-2014-07-31 (beige_book) failed: reply too long (79092 chars): reasoning leaked"
+      ]
+    },
+    "t2-F3-dollar-squeeze-2020": {
+      "unit_id": "t2-F3-dollar-squeeze-2020",
+      "status": "scored",
+      "composite": 1.2051505931637725,
+      "marginal_crps": 0.161764806359136,
+      "joint_variogram": 3.731098258854093,
+      "tail_penalty": 0.024693561639882622,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-dollar-vortex-2022": {
+      "unit_id": "t2-F3-dollar-vortex-2022",
+      "status": "scored",
+      "composite": 0.9257733563368823,
+      "marginal_crps": 0.6900141208812872,
+      "joint_variogram": 1.8811258449069417,
+      "tail_penalty": 0.08214271212078121,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-dots-vs-oil-2014": {
+      "unit_id": "t2-F3-dots-vs-oil-2014",
+      "status": "scored",
+      "composite": 0.3682731846480478,
+      "marginal_crps": 0.13260271823421985,
+      "joint_variogram": 0.9936915325329272,
+      "tail_penalty": 0.0193218288552987,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-election-2024-joint": {
+      "unit_id": "t2-F3-election-2024-joint",
+      "status": "gates_only",
+      "category": "T2-F3",
+      "text_signal_issues": [
+        "[text_signal] doc bis_adachi_2024-10-16 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F3-fragile-five-joint-2013": {
+      "unit_id": "t2-F3-fragile-five-joint-2013",
+      "status": "gates_only",
+      "category": "T2-F3",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2013-04-30 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F3-funding-flip-2024": {
+      "unit_id": "t2-F3-funding-flip-2024",
+      "status": "scored",
+      "composite": 0.8068992819620345,
+      "marginal_crps": 0.8801813462307745,
+      "joint_variogram": 1.1580970492069782,
+      "tail_penalty": 0.09689747042276949,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-hiking-year-curve-2018": {
+      "unit_id": "t2-F3-hiking-year-curve-2018",
+      "status": "scored",
+      "composite": 0.9202338607844284,
+      "marginal_crps": 0.09299564223596726,
+      "joint_variogram": 2.900944855910574,
+      "tail_penalty": 0.017262914466362942,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-inversion-persistence-2019": {
+      "unit_id": "t2-F3-inversion-persistence-2019",
+      "status": "scored",
+      "composite": 0.2531637183449672,
+      "marginal_crps": 0.1472945311478143,
+      "joint_variogram": 0.5847258171251452,
+      "tail_penalty": 0.020493538167582363,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-oil-fx-split-2022": {
+      "unit_id": "t2-F3-oil-fx-split-2022",
+      "status": "scored",
+      "composite": 0.3700600707591365,
+      "marginal_crps": 0.1447252215220732,
+      "joint_variogram": 0.9843699756632465,
+      "tail_penalty": 0.011932336495629707,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-rates-into-factors-2022": {
+      "unit_id": "t2-F3-rates-into-factors-2022",
+      "status": "scored",
+      "composite": 0.5182473394291797,
+      "marginal_crps": 0.06038494291145368,
+      "joint_variogram": 1.620696228272792,
+      "tail_penalty": 0.009229997458076874,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-safe-haven-paradox-2011": {
+      "unit_id": "t2-F3-safe-haven-paradox-2011",
+      "status": "scored",
+      "composite": 1.6541620946146678,
+      "marginal_crps": 0.7743135045566539,
+      "joint_variogram": 4.162486130203545,
+      "tail_penalty": 0.09129751637638613,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": [
+        "[text_signal] doc bis_bernanke_2011-06-14 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F3-scandies-stress-2022": {
+      "unit_id": "t2-F3-scandies-stress-2022",
+      "status": "scored",
+      "composite": 0.457919831520998,
+      "marginal_crps": 0.2496341557900746,
+      "joint_variogram": 1.0962148331093857,
+      "tail_penalty": 0.02119151846572494,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2022-07-31 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F3-taper-steepener-2013": {
+      "unit_id": "t2-F3-taper-steepener-2013",
+      "status": "scored",
+      "composite": 1.1206299687025818,
+      "marginal_crps": 0.4248579671100692,
+      "joint_variogram": 2.992104204392051,
+      "tail_penalty": 0.052848619149659604,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F3-term-premium-steepener-2023": {
+      "unit_id": "t2-F3-term-premium-steepener-2023",
+      "status": "scored",
+      "composite": 1.158048620090291,
+      "marginal_crps": 0.3205217666538879,
+      "joint_variogram": 3.3044189314716297,
+      "tail_penalty": 0.03231028660929117,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": [
+        "[text_signal] doc fomc-minutes-20230726 (fomc_minutes) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F3-vaccine-rotation-2020": {
+      "unit_id": "t2-F3-vaccine-rotation-2020",
+      "status": "scored",
+      "composite": 0.9112715210383237,
+      "marginal_crps": 0.03752730777361767,
+      "joint_variogram": 2.969980465416297,
+      "tail_penalty": 0.007568637633128282,
+      "tail_metric": "pinball",
+      "category": "T2-F3",
+      "text_signal_issues": []
+    },
+    "t2-F4-aud-gfc-2008": {
+      "unit_id": "t2-F4-aud-gfc-2008",
+      "status": "scored",
+      "composite": 0.07347592714951637,
+      "marginal_crps": 0.09456163704437306,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.020761652412374643,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-chf-floor-strain-2015": {
+      "unit_id": "t2-F4-chf-floor-strain-2015",
+      "status": "scored",
+      "composite": 0.08170094873880346,
+      "marginal_crps": 0.09989895743319704,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.03620592700281948,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2014-10-31 (beige_book) failed: reply too long (86481 chars): reasoning leaked"
+      ]
+    },
+    "t2-F4-china-panic-2016": {
+      "unit_id": "t2-F4-china-panic-2016",
+      "status": "scored",
+      "composite": 0.01392671848065468,
+      "marginal_crps": 0.018054676903471574,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0036068224236124454,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-china-stress-mkt-2015": {
+      "unit_id": "t2-F4-china-stress-mkt-2015",
+      "status": "scored",
+      "composite": 0.011093453199880077,
+      "marginal_crps": 0.014416130278022472,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.002786760504524084,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc bis_stevens_2015-07-22 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc bis_yellen_2015-07-15 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F4-covid-mkt-2020": {
+      "unit_id": "t2-F4-covid-mkt-2020",
+      "status": "scored",
+      "composite": 0.012807368716114518,
+      "marginal_crps": 0.016592103971252097,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0033455305782705705,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-covid-nfp-2020": {
+      "unit_id": "t2-F4-covid-nfp-2020",
+      "status": "gates_only",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-covid-rates-2020": {
+      "unit_id": "t2-F4-covid-rates-2020",
+      "status": "scored",
+      "composite": 0.30802869282579703,
+      "marginal_crps": 0.40592442112260785,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.06328937208376985,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-cpi-friday-2022": {
+      "unit_id": "t2-F4-cpi-friday-2022",
+      "status": "scored",
+      "composite": 0.0818385661625844,
+      "marginal_crps": 0.10860354199759034,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.014926126575069556,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-cpi-vintage-2022": {
+      "unit_id": "t2-F4-cpi-vintage-2022",
+      "status": "gates_only",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc macro_release-2022-05-11 (macro_release) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F4-eur-warnings-2022": {
+      "unit_id": "t2-F4-eur-warnings-2022",
+      "status": "scored",
+      "composite": 0.011064778712953385,
+      "marginal_crps": 0.015020343084189704,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0011758677848625841,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-factor-stress-2008": {
+      "unit_id": "t2-F4-factor-stress-2008",
+      "status": "scored",
+      "composite": 0.026944765494813918,
+      "marginal_crps": 0.047912849355160346,
+      "joint_variogram": 0.00755125374689775,
+      "tail_penalty": 0.00361482346582211,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-funding-stress-10y-2008": {
+      "unit_id": "t2-F4-funding-stress-10y-2008",
+      "status": "scored",
+      "composite": 0.15522967601590668,
+      "marginal_crps": 0.20878662681179164,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.021337299026194332,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc bis_bernanke_2008-07-15 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F4-funding-stress-2y-2008": {
+      "unit_id": "t2-F4-funding-stress-2y-2008",
+      "status": "scored",
+      "composite": 0.7404651359177694,
+      "marginal_crps": 1.0024247672749258,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0855660575248786,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2008-09-03 (beige_book) failed: TimeoutError: The read operation timed out",
+        "[text_signal] doc bis_hoenig_2008-09-01 (cb_speech) failed: TimeoutError: The read operation timed out",
+        "[text_signal] doc fomc-minutes-20080805 (fomc_minutes) failed: TimeoutError: The read operation timed out",
+        "[text_signal] doc macro_release-2008-08-14 (macro_release) failed: TimeoutError: The read operation timed out",
+        "[text_signal] doc bis_bernanke_2008-07-15 (cb_speech) failed: TimeoutError: The read operation timed out",
+        "[text_signal] doc bis_bernanke_2008-07-08 (cb_speech) failed: TimeoutError: The read operation timed out"
+      ]
+    },
+    "t2-F4-gbp-brexit-2016": {
+      "unit_id": "t2-F4-gbp-brexit-2016",
+      "status": "scored",
+      "composite": 0.06105742653330739,
+      "marginal_crps": 0.07965032532890888,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.014575179544303657,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2016-04-30 (beige_book) failed: TimeoutError: The read operation timed out",
+        "[text_signal] doc fomc-statement-2016-04-27 (fomc_statement) failed: TimeoutError: The read operation timed out",
+        "[text_signal] doc bis_cunliffe_2016-04-26 (cb_speech) failed: TimeoutError: The read operation timed out",
+        "[text_signal] doc bis_c\u0153ur\u00e9_2016-03-30 (cb_speech) failed: TimeoutError: The read operation timed out"
+      ]
+    },
+    "t2-F4-gbp-conference-2016": {
+      "unit_id": "t2-F4-gbp-conference-2016",
+      "status": "scored",
+      "composite": 0.041583120300006236,
+      "marginal_crps": 0.056882535696451395,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.003334581808893344,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2016-07-31 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F4-hike-cycle-2021Q4b": {
+      "unit_id": "t2-F4-hike-cycle-2021Q4b",
+      "status": "scored",
+      "composite": 1.5267531485462587,
+      "marginal_crps": 1.8438873688935047,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.7339175976781432,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2021-10-31 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F4-hml-covid-2020": {
+      "unit_id": "t2-F4-hml-covid-2020",
+      "status": "scored",
+      "composite": 0.006833822187690188,
+      "marginal_crps": 0.008831650704066479,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0018392508967494602,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2020-01-31 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F4-jpy-carry-2007": {
+      "unit_id": "t2-F4-jpy-carry-2007",
+      "status": "scored",
+      "composite": 4.059650250485449,
+      "marginal_crps": 5.260173620140847,
+      "joint_variogram": 0.0,
+      "tail_penalty": 1.0583418263469517,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-jpy-crowding-2024": {
+      "unit_id": "t2-F4-jpy-crowding-2024",
+      "status": "scored",
+      "composite": 2.4639099857955484,
+      "marginal_crps": 3.3693609946918075,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.20028246355490115,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] adjustment call failed: HTTP 503: {\"error\":{\"message\":\"Service temporarily overloaded\",\"type\":\"Service Unavailable\",\"code\":503}}; neutral"
+      ]
+    },
+    "t2-F4-mkt-selloff-2011": {
+      "unit_id": "t2-F4-mkt-selloff-2011",
+      "status": "scored",
+      "composite": 0.014447148055986824,
+      "marginal_crps": 0.018667639818519113,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0038959186496561006,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc fomc-statement-2011-06-22 (fomc_statement) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc bis_bernanke_2011-06-14 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F4-momentum-reversal-2009": {
+      "unit_id": "t2-F4-momentum-reversal-2009",
+      "status": "scored",
+      "composite": 0.055493824242253846,
+      "marginal_crps": 0.07218952547510188,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.01375457116013377,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2009-03-04 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F4-nok-covid-2020": {
+      "unit_id": "t2-F4-nok-covid-2020",
+      "status": "scored",
+      "composite": 0.8322073169354962,
+      "marginal_crps": 1.0122031011715427,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.38221785634537997,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-powell-december-2018": {
+      "unit_id": "t2-F4-powell-december-2018",
+      "status": "scored",
+      "composite": 0.01563340766147592,
+      "marginal_crps": 0.02028105051097167,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.004014300537736553,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-qe1-expansion-2009": {
+      "unit_id": "t2-F4-qe1-expansion-2009",
+      "status": "scored",
+      "composite": 0.34929938133674365,
+      "marginal_crps": 0.4748313735195905,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.03546940087962655,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc macro_release-2009-01-16 (macro_release) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F4-quant-crowding-2007": {
+      "unit_id": "t2-F4-quant-crowding-2007",
+      "status": "scored",
+      "composite": 0.005261276765577036,
+      "marginal_crps": 0.005401770829312532,
+      "joint_variogram": 0.008128143247544546,
+      "tail_penalty": 0.0006097418832870358,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc beige_book-2007-07-25 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      ]
+    },
+    "t2-F4-short-vol-2018": {
+      "unit_id": "t2-F4-short-vol-2018",
+      "status": "scored",
+      "composite": 0.0103968481545801,
+      "marginal_crps": 0.01379764605559122,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.001894853402052303,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": []
+    },
+    "t2-F4-svb-whiplash-2023": {
+      "unit_id": "t2-F4-svb-whiplash-2023",
+      "status": "scored",
+      "composite": 0.7978253792545212,
+      "marginal_crps": 1.0112613509917225,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.26423544991151804,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] adjustment call failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}; neutral"
+      ]
+    },
+    "t2-F4-taper-warning-2013": {
+      "unit_id": "t2-F4-taper-warning-2013",
+      "status": "scored",
+      "composite": 0.5952237674035217,
+      "marginal_crps": 0.7583785466657682,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.18733681924790524,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc macro_release-2013-04-16 (macro_release) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc fomc-minutes-20130320 (fomc_minutes) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc beige_book-2013-03-31 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc fomc-statement-2013-03-20 (fomc_statement) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc fomc-statement-2013-01-30 (fomc_statement) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] no usable summaries; neutral"
+      ]
+    },
+    "t2-F4-ust-downgrade-watch-2011": {
+      "unit_id": "t2-F4-ust-downgrade-watch-2011",
+      "status": "scored",
+      "composite": 0.5604973420081063,
+      "marginal_crps": 0.7176927076280339,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.16750892795828712,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc bis_trichet_2011-07-19 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc macro_release-2011-07-15 (macro_release) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc bis_smaghi_2011-07-08 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc beige_book-2011-06-30 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc bis_fisher_2011-06-29 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc fomc-statement-2011-06-22 (fomc_statement) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc bis_bernanke_2011-06-14 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] no usable summaries; neutral"
+      ]
+    },
+    "t2-F4-ust10y-supply-2023": {
+      "unit_id": "t2-F4-ust10y-supply-2023",
+      "status": "scored",
+      "composite": 0.13206227907857213,
+      "marginal_crps": 0.17778814754969754,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.017747607900758574,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc macro_release-2023-09-13 (macro_release) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc bis_powell_2023-08-25 (cb_speech) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc fomc-minutes-20230726 (fomc_minutes) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc beige_book-2023-07-31 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] adjustment call failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}; neutral"
+      ]
+    },
+    "t2-F4-vaccine-timeline-2020": {
+      "unit_id": "t2-F4-vaccine-timeline-2020",
+      "status": "scored",
+      "composite": 0.0210986550177559,
+      "marginal_crps": 0.027376928676429983,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.005402970871070679,
+      "tail_metric": "pinball",
+      "category": "T2-F4",
+      "text_signal_issues": [
+        "[text_signal] doc moderna_8k_2020-10-29_d134701dex991 (corporate_8k) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc pfizer_8k_2020-10-27_pfe-09272020xex99 (corporate_8k) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc beige_book-2020-09-30 (beige_book) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] doc fomc-statement-2020-09-16 (fomc_statement) failed: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+        "[text_signal] no usable summaries; neutral"
+      ]
+    }
+  }
+}

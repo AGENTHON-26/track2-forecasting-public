@@ -210,6 +210,50 @@ something about the rate limit itself — either throttle Stage 1's 8-worker poo
 hard failure in `run_eval.py` (nonzero exit) instead of a silent degrade, so sweeps at least fail
 loudly instead of quietly measuring the wrong thing. Neither built yet.
 
+## Measured 2026-09-22 (evening) — first sweep with the throttle + issue logging: real, and worse
+
+Full 103-unit sweep, `--concurrency 1`, throttle in place, thinking still forced on
+(`eval_reports/stage2-thinking-throttled-live.json`). **7h39m total, ~4.45 min/unit average** —
+much slower than the 29 s/unit pre-thinking baseline, consistent with thinking's known ~4-5x
+per-call cost stacking across Stage 1's batch + Stage 2's own call.
+
+**The throttle helped but didn't fix it.** 50/103 units (48.5%) still logged a `text_signal_issue`
+— down from the earlier ~67% silent-neutral rate, but still roughly half the sweep. New failure
+modes showed up that a request-rate throttle can't touch:
+- `HTTP 503: Service temporarily overloaded` — a capacity problem, not a quota problem.
+- `reply too long (85217 chars): reasoning leaked` — thinking leaking into the reply instead of
+  stopping at `</think>`, the exact failure mode Nish's own notes already measured (~1/16 calls)
+  with thinking on. Real evidence, not just her prior finding, that thinking's failure mode
+  recurs at scale.
+
+Likely explanation for the residual 429s: the House quota may be shared across the whole team (or
+even the whole competition, if it's one endpoint per Nemotron deployment), so no amount of
+in-process throttling on our side alone can guarantee staying under it. Filed as a GitHub issue
+asking the organizers to confirm the actual limit and its scope (per-team vs. per-container).
+
+**The comparison, now with real visibility into which units are contaminated:**
+
+| subset | n | mean(live − baseline) | better | worse | same |
+|---|---|---|---|---|---|
+| all scored units | 90 | +0.0423 | 28 | 52 | 10 |
+| "clean" only (zero logged issues) | 50 | +0.0869 | 18 | 31 | 1 |
+
+Lower composite is better, so a positive mean diff means text is making things worse on average —
+in both the full set and the clean subset. Only 10/90 scored units are byte-identical to the
+text-blind baseline this time (vs. 67% before), so the throttle+logging did make this a much more
+honest measurement than the three earlier sweeps. **Caveat on "clean": it means no logged
+failure, not confirmed successful/informative signal** — a unit with no error could still have
+gotten a genuinely-neutral reply from the model itself, that's a different thing from a
+rate-limited fallback but still not evidence the text signal helped.
+
+**Read on this measurement**: even under the cleanest conditions achieved so far, stage 2's text
+adjustment underperforms the text-blind baseline on average. Before concluding this is real
+(rather than another confound — thinking's failure modes, or the 50% of units still losing their
+signal to 429/503), the two most useful next moves are (a) revert `_THINKING`/`_STAGE2_THINKING`
+to `False` and re-measure, since thinking is currently costing both time and a leaked-reasoning
+failure mode with no demonstrated benefit, and (b) get the organizers' answer on the real rate
+limit so the residual 48.5% contamination can actually be fixed rather than guessed at.
+
 ## Open
 
 1. **Highest priority: fix the silent rate-limit fallback and log raw model replies / derived
