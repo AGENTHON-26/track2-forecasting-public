@@ -69,9 +69,14 @@ def main() -> int:
     ap.add_argument("runs", nargs="+")
     ap.add_argument("--misses", action="store_true")
     ap.add_argument("--json", type=pathlib.Path)
+    ap.add_argument("--split", choices=["dev", "test"],
+                    help="score only this half of tools/summary_eval/split.json (tune on dev, report test once)")
     a = ap.parse_args()
 
     keys = load_keys()
+    if a.split:
+        split = json.loads((ROOT / "tools" / "summary_eval" / "split.json").read_text())
+        keys = {d: k for d, k in keys.items() if split.get(d) == a.split}
     runs = [load_run(r) for r in a.runs]
     doc_ids = [d for d in keys if any(d in run for run in runs)]
     absent = sorted(set(keys) - set(doc_ids))

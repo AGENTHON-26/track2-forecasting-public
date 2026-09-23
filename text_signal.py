@@ -65,8 +65,10 @@ _THINKING = False
 #: documents came back with no summary at all (17-19k chars of cut-off reasoning in `content`).
 _THINKING_TYPES: set[str] = set()
 _MAX_TOKENS_THINKING = 4_000
-#: A real 12-bullet minutes summary is ~3.5k chars; far past that is not a summary.
-_MAX_SUMMARY_CHARS = 8_000
+#: A real summary is 2-7k chars; the decision-first minutes checklist reaches 9.7k on one doc. A
+#: runaway reply (reasoning looping until the cap) was 29k. 12k chars is ~3k tokens, inside the
+#: 4,000-token cap, so nothing legitimate is discarded and a loop still is.
+_MAX_SUMMARY_CHARS = 12_000
 _TIMEOUT_SEC = 300.0
 #: Seconds to wait before each retry of an overloaded (429 / 5xx) reply.
 _RETRY_WAITS = (2.0, 5.0, 10.0)
@@ -223,6 +225,9 @@ _FOCUS: dict[str, tuple[str, str]] = {
     ),
     "cb_speech": (
         "a central banker's speech",
+        # Tried 2026-09-24: asking for cited figures, dates and institutional commitments moved the
+        # unseen test half 44 -> 58% but the dev half 76 -> 52% (net 59 -> 56 over all eight docs).
+        # No measurable gain, so the original stays. Speeches remain the open problem.
         "- speaker, institution and role (first bullet)\n"
         "- the speaker's stance on the policy path (tighter / easier / on hold) and why\n"
         "- views on inflation, labor market and growth\n"
@@ -232,18 +237,25 @@ _FOCUS: dict[str, tuple[str, str]] = {
     ),
     "landmark": (
         "a landmark policy communication (testimony, key speech or announcement)",
+        # Same spine as the statement checklist: with thinking off, the vote and the names went
+        # missing (BoE 5-3-1 split 3/3 -> 1/3) because nothing asked for them.
         "- who, where and when (first bullet)\n"
+        "- the decision or announcement and the resulting rate, programme or purchase level\n"
+        "- the vote, with every dissent NAMED and the dissenter's preferred action\n"
         "- the single most important policy signal or commitment, quoted exactly\n"
         "- the conditions attached to it\n"
-        "- the economic assessment behind it",
+        "- the economic assessment behind it, with the figures cited",
     ),
     "beige_book": (
         "a Federal Reserve Beige Book (a web page scrape, much of it boilerplate)",
-        "- overall national economic activity and its direction\n"
+        "- overall national economic activity and its direction, with the count of Districts\n"
+        "  reporting growth, no change or decline when the book gives one\n"
         "- employment and wages\n"
         "- prices and input costs\n"
+        "- every figure the book cites (survey readings, inflation expectations, percentages of\n"
+        "  contacts), each with its source District or survey\n"
         "- the outlook and the sources of uncertainty contacts reported\n"
-        "- notable divergences between districts or sectors",
+        "- the Districts NAMED as diverging from the national picture, and how",
     ),
     "macro_release": (
         "an official macroeconomic data release (a web page scrape with tables)",
@@ -265,6 +277,8 @@ _FOCUS: dict[str, tuple[str, str]] = {
         "a corporate 8-K filing / earnings release",
         "- the company and the reporting period\n"
         "- headline results (revenue, EPS) versus the prior period\n"
+        # Tried 2026-09-24: adding management's reasons and capital actions cost 80 -> 72% must-recall
+        # on both halves (more items competing for the same bullets). Reverted.
         "- guidance changes (raised / lowered / reaffirmed) with the numbers\n"
         "- forward-looking remarks and the one or two most material events",
     ),
@@ -325,6 +339,80 @@ def main_contract_rows(text: str) -> str:
 
 _CLEANUP = {"positioning_report": main_contract_rows}
 
+_COT_FULL = re.compile(r"^\s*(\d{4}-\d{2}-\d{2})\s+(\d+)\s+(\d+)\s+(\d+)\s+(-?\d+)\s*$")
+
+
+def cot_summary(text: str) -> str | None:
+    """A CFTC positioning table as bullets, computed rather than asked for.
+
+    The model got the LEVELS right and the DIRECTION wrong: a net short that grew from -125,890 to
+    -126,773 came back as "a decrease of 883" in 3 of 3 runs, and a forecaster acting on that
+    would lean the wrong way. Every fact here is arithmetic on the rows, so the code does it and
+    the sign is always right. None when the table does not parse (the model then gets the text).
+    """
+    rows = [m.groups() for m in map(_COT_FULL.match, main_contract_rows(text).splitlines()) if m]
+    if len(rows) < 2:
+        return None
+    rows = sorted((d, int(oi), int(lg), int(sh), int(net)) for d, oi, lg, sh, net in rows)
+    market = next((ln.strip() for ln in text.splitlines() if ln.lower().startswith("market:")), "")
+    d, oi, lg, sh, net = rows[-1]
+    pd_, poi, _, _, pnet = rows[-2]
+
+    def side(n: int) -> str:
+        return "net short" if n < 0 else "net long"
+
+    def move(a: int, b: int) -> str:
+        if (a < 0) != (b < 0):
+            return f"flipped from {side(a)} to {side(b)}"
+        grew = abs(b) > abs(a)
+        verb = ("deepened" if grew else "narrowed") if b < 0 else ("grew" if grew else "shrank")
+        return f"{side(b)} {verb} by {abs(b - a):,} contracts"
+
+    def gmove(a: int, b: int, what: str) -> str:
+        return f"{what} {'rose' if b > a else 'fell' if b < a else 'was unchanged'} from {a:,} to {b:,}"
+
+    _, _, plg, psh, _ = rows[-2]
+    lo = min(rows, key=lambda r: r[4]); hi = max(rows, key=lambda r: r[4])
+    deepest = f"the deepest net short of the window was {lo[4]:+,} ({lo[0]})" if lo[4] < 0 else ""
+    largest = f"the largest net long of the window was {hi[4]:+,} ({hi[0]})" if hi[4] > 0 else ""
+    extremes = "; ".join(x for x in (deepest, largest) if x) or \
+        f"the net position ranged from {lo[4]:+,} ({lo[0]}) to {hi[4]:+,} ({hi[0]})"
+    jumps = [(abs(b[4] - a[4]), a, b) for a, b in zip(rows, rows[1:])]
+    jsz, ja, jb = max(jumps)
+    ref = lo if net < 0 else hi  # the extreme on the current side, to describe the move since it
+    out = [f"- CFTC Commitments of Traders, {market or 'positioning table'}",
+           f"- Latest report {d}: non-commercial net position {net:+,} contracts ({side(net)}), gross long "
+           f"{lg:,}, gross short {sh:,}, open interest {oi:,}.",
+           f"- Week over week the {move(pnet, net)}, from {pnet:+,} on {pd_} to {net:+,} on {d}.",
+           f"- Week over week {gmove(plg, lg, 'gross long')} and {gmove(psh, sh, 'gross short')}.",
+           f"- Over the {len(rows)}-week window {extremes}.",
+           f"- The largest one-week move was {jsz:,} contracts, from {ja[4]:+,} ({ja[0]}) to {jb[4]:+,} ({jb[0]}), "
+           f"when the {move(ja[4], jb[4])}."]
+    if ref[0] != d:
+        out.append(f"- Since that {'deepest net short' if net < 0 else 'largest net long'} on {ref[0]} the "
+                   f"{move(ref[4], net)} to the latest reading.")
+    else:
+        out.append(f"- The latest reading is the {'deepest net short' if net < 0 else 'largest net long'} of the window.")
+    if net == (min(rows, key=lambda r: abs(r[4]))[4]) and lo[4] * hi[4] > 0:
+        out.append(f"- The latest {side(net)} is the smallest of the window.")
+    if len(rows) >= 5:
+        d4, _, _, _, n4 = rows[-5]
+        out.append(f"- Versus four weeks earlier ({d4}, {n4:+,}) the {move(n4, net)}.")
+    shorts = sum(r[4] < 0 for r in rows)
+    out.append(f"- Non-commercial traders were net short in {shorts} of {len(rows)} weeks and net "
+               f"long in {len(rows) - shorts}." if 0 < shorts < len(rows) else
+               f"- Non-commercial traders were {side(net)} in every one of the {len(rows)} weeks.")
+    first = rows[0]
+    out.append(f"- Since the start of the window ({first[0]}, {first[4]:+,}) the {move(first[4], net)}.")
+    glo = min(rows, key=lambda r: r[2]); ghi = max(rows, key=lambda r: r[2])
+    slo = min(rows, key=lambda r: r[3]); shi = max(rows, key=lambda r: r[3])
+    out.append(f"- Gross long peaked at {ghi[2]:,} ({ghi[0]}) and bottomed at {glo[2]:,} ({glo[0]}); gross short "
+               f"peaked at {shi[3]:,} ({shi[0]}) and bottomed at {slo[3]:,} ({slo[0]}).")
+    olo = min(rows, key=lambda r: r[1]); ohi = max(rows, key=lambda r: r[1])
+    out.append(f"- Open interest peaked at {ohi[1]:,} ({ohi[0]}) and bottomed at {olo[1]:,} ({olo[0]}); the latest "
+               f"{oi:,} is {'up' if oi > poi else 'down'} {abs(oi - poi):,} from {poi:,} the week before.")
+    return "\n".join(out)
+
 
 # ----------------------------------------------------------------------------- the agents
 def summarize_doc(doc: dict[str, Any]) -> dict[str, Any]:
@@ -336,7 +424,13 @@ def summarize_doc(doc: dict[str, Any]) -> dict[str, Any]:
         text = _CLEANUP.get(doc["doc_type"], lambda t: t)(text)
     except Exception:
         pass
-    if len(text) < _PASSTHROUGH_CHARS:
+    computed = None
+    if doc.get("doc_type") == "positioning_report":
+        with contextlib.suppress(Exception):
+            computed = cot_summary(text)
+    if computed is not None:
+        out["summary"], out["summarized"], out["computed"] = computed, True, True
+    elif len(text) < _PASSTHROUGH_CHARS:
         out["summary"] = text.strip()
     else:
         summary, err = None, ""
@@ -357,7 +451,7 @@ def summarize_doc(doc: dict[str, Any]) -> dict[str, Any]:
             if summary is not None and len(summary) > _MAX_SUMMARY_CHARS:
                 # With thinking on, the reasoning can leak into `content` untagged and loop until the
                 # token cap (seen: 29,755 chars of "Also 2000-2008. Also 1971-1979. ...").
-                summary, err = None, f"reply too long ({len(summary)} chars): reasoning leaked"
+                summary, err = None, f"reply too long ({len(summary)} chars): runaway reply"
                 continue
             break
         out["summary"], out["error"], out["summarized"] = summary, err, summary is not None

@@ -100,15 +100,48 @@ request, reasoning included; landmark thinking needed 16,000. At 4,000 with thin
 landmark docs came back empty. Thinking off: landmark **81% -> 76%**, the loss all in names (BoE
 5-3-1 split 3/3 -> 1/3) — the landmark checklist has no line asking for the vote.
 
+### Second pass, 2026-09-24 — all types, with a dev/test split
+
+`tools/summary_eval/split.json` halves the key by doc_type (hash of doc_id). Tuning looked only at
+dev-half misses; the test half was scored once per version. Final = 58 docs x 3 runs
+(`out/v6_r*.json`, scores in `out/eval_v6.json`; CFTC rows are the computed output).
+
+| | before (committed) | final | test half before -> after |
+|---|---|---|---|
+| **overall must-recall** | 77% | **83%** (84/80/83) | 77 -> 83% |
+| beige_book | 73 | **84** | 72 -> 89 |
+| landmark | 76 | **86** | 76 -> 78 (dev 77 -> 95) |
+| positioning_report | 60 | **88** | 72 -> 83 |
+| fomc_minutes | 82 | 83 | 94 -> 93 |
+| macro_release | 93 | 95 | 93 -> 91 |
+| fomc_statement | 97 | 94 | 100 -> 100 |
+| cb_speech | 59 | 56 (reverted) | 44 -> 58, dev 76 -> 52 |
+| corporate_8k | 80 | 72 (reverted) | 67 -> 57, dev 88 -> 82 |
+
+What changed and stayed:
+- **CFTC is computed, not summarized** (`cot_summary()`): latest net/long/short/OI, week-over-week
+  move with its direction, gross moves, window extremes, largest one-week swing. Deterministic,
+  zero tokens, sign always right — the model wrote a deepening net short as "a decrease of 883".
+  88% must vs the model's 60%. The checklist is only the fallback if a table fails to parse.
+- **landmark**: the vote line (every dissent named + preferred action) and the decision level.
+  76 -> 86% with thinking OFF — above the 81% thinking-on figure.
+- **beige_book**: District counts, survey figures with their source, Districts named as diverging.
+  Numbers had 14% recall; 73 -> 84%.
+- **Runaway guard 8k -> 12k chars** (~3k tokens, inside the 4,000 cap). Zero failures in 174
+  calls; largest legitimate reply 9,842 chars would have been discarded before.
+- **Tried and dropped**: a 40-words-per-bullet bound (fixed the guard problem but cost minutes
+  94 -> 80 and macro 93 -> 82 on the test half — number-dense bullets need the room); the cb_speech
+  and corporate_8k checklist additions (no gain / a loss, see table). Both reverted to the text
+  that was measured.
+
 Open (prompt work):
-0. **The 8k-char guard vs long bullets**: one minutes doc loses its whole summary 3/3. Either cap
-   bullet length in the prompt or lift `_MAX_SUMMARY_CHARS` (9.7k chars is ~2.4k tokens, inside
-   the 4k rule) — and rename the "reasoning leaked" error, which is now usually wrong.
-1. **landmark**: add the vote / named-dissent line the statement checklist has; expect the 5 points back.
-2. **cb_speech 59%**: same disease as minutes — no line for the figures a speech cites, nothing
-   forcing the commitment to be quoted.
-3. **positioning 60%**: direction wrong ("decrease of 883" for a net short that grew). Compute CFTC
-   changes in code, not with the model.
-4. 157 of 585 points are never covered in any run (`--misses` lists them with the quote);
-   149 flip between runs. Always compare 3 runs.
-5. Local runs need `--patience` or build.nvidia.com 429s the whole run away.
+1. **cb_speech 56%** is the one unsolved type. Speeches are the least uniform class (some carry
+   no policy content); a checklist tweak did not move it. Next idea: a two-line classifier pass
+   (policy speech vs not) before the checklist, or a `default`-style short list for non-policy ones.
+2. **corporate_8k** has 5 docs / 21 test points — one miss is 5 points. Needs more keyed docs
+   before any conclusion.
+3. Guard label was "reasoning leaked"; it is now "runaway reply". The one real leak seen (29k
+   chars) was with thinking ON, which is now off everywhere.
+4. 3 runs, always. Per-pass overall was 84/80/83 on identical inputs.
+5. Higher recall has not yet been shown to move the composite score — run the scorer old vs new
+   over the 90 realized units next.

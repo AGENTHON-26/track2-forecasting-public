@@ -12,6 +12,7 @@ same answer every time, so prompt changes can be compared without paying for a j
 | `key/<doc_id>.json` | the answer key: the important points of that document, with regex patterns, and the tests that prove the patterns work. |
 | `src/<doc_id>.txt` | derived, gitignored: each document as the summarizer sees it (CFTC reduced to the main contract), wrapped so it can be read in pages. Rebuild with `python3 tools/summary_key.py`. |
 | `audit/<doc_id>.json` | a reader's covered/missed labels for one run, used to measure whether the regex agrees with a human judgement. |
+| `split.json` | dev/test halves by doc_id (half of each doc_type, by hash). Tune on dev; score test once per version with `--split test`. |
 
 ## A point
 
@@ -60,6 +61,7 @@ python3 tools/try_summaries.py --manifest tools/summary_eval/manifest.json \
         --workers 2 --patience --out out/run_r1.json   # summarize the eval set (repeat 3x)
 python3 tools/eval_summaries.py out/run_r1.json out/run_r2.json out/run_r3.json \
         --misses --json out/eval_run.json              # score: must-recall, stability, missed points
+python3 tools/eval_summaries.py out/run_r*.json --split test   # the untouched half, once per version
 
 python3 tools/audit_key.py prepare out/run_r1.json --batches 4   # then a reader labels audit/*.json
 python3 tools/audit_key.py compare out/run_r1.json               # regex vs reader agreement
@@ -73,6 +75,10 @@ prompt change can be tested on documents that have no key.
 
 `--patience` stretches 429 backoff from 17s to minutes: build.nvidia.com throttles hard, and without
 it a whole run silently comes back empty. It is local-dev only and does not touch the scored path.
+
+Positioning reports (CFTC tables) are not summarized by the model: `text_signal.cot_summary()`
+computes the bullets from the rows, so their score is deterministic and their direction is always
+right. The checklist for that type only runs when a table fails to parse.
 
 Run **three** passes and compare. Temperature 0 is not deterministic on this endpoint, and the
 short runs are the ones that drop facts.
