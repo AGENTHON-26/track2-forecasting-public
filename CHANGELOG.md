@@ -11,14 +11,15 @@ follows the organizer announcement in public issue #4.
 **Track scorer code and evaluation cards: unchanged.** These are documentation and build-pin
 corrections. They change no scoring path, no gate, no card and no published number.
 
-- **Toolkit pin moved to `v2.4.3` everywhere.** The 2026-09-18 bump reached the README's install
+- **Toolkit pin moved to `v2.4.4` everywhere.** The 2026-09-18 bump reached the README's install
   commands but not `.github/workflows/ci.yml` or the `Dockerfile`, so CI and the reference
   submission image kept validating against `v2.4.2` — whose category enum still contains
   `byo-large` and `byo-small`, the two values the same ruling withdrew. A descriptor naming one
   of them packs cleanly under `v2.4.2`, is then held at organizer intake and never runs, and
   still costs a Development attempt, with no local signal that anything was wrong. The README
-  prose also still told you to pin `v2.4.2` while the command beside it installed `v2.4.3`. All
-  three now name `v2.4.3`, and a new stdlib-only CI step fails the build if they disagree again.
+  prose also still told you to pin `v2.4.2` while the command beside it installed `v2.4.3`. The
+  2026-09-21 bump to `v2.4.4` fixed `ci.yml` and that prose but again missed the `Dockerfile`. All
+  three now name `v2.4.4`, and a new stdlib-only CI step fails the build if they disagree again.
 - **`README.md` container-environment table corrected.** It described `MODEL_ENDPOINT` as
   already carrying `/v1` and never mentioned `MODEL_TOKEN` at all. `MODEL_ENDPOINT` is the route
   origin with no path, the OpenAI-compatible API is served under `/v1`, and a request without
@@ -45,8 +46,8 @@ the deployed scorer. The local toolkit correction inherited by the pin is noted 
 - **Toolkit installation:** align the reference Docker image, README and CI at `v2.4.2`,
   including the current submission-packaging command and corrected model-free simulation
   fixture. The image previously installed `v2.3.1`, which refuses an empty `models` array even
-  when the evaluation verifier accepts it. (Superseded: see the `v2.4.3` entry above — that
-  alignment reached the README and not `ci.yml` or the `Dockerfile`.) The pin also includes the
+  when the evaluation verifier accepts it. (Superseded: see the `v2.4.4` entry above — the
+  `v2.4.3` bump reached the README and not `ci.yml` or the `Dockerfile`.) The pin also includes the
   local CRPS
   correction already released in toolkit `v2.4.1`: a component with zero weight and exactly
   zero reference scale contributes zero instead of poisoning the composite with `NaN`.

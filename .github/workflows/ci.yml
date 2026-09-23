@@ -36,7 +36,8 @@ env:
   # workflow names one -- every install below reads it, so the jobs cannot drift from each other
   # or from this line. It must also stay the string the README pins and the Dockerfile builds on;
   # the `pin-consistency` step in the firewall job now enforces that rather than trusting this
-  # comment, because the last bump moved the README and left this line behind. Two earlier tags
+  # comment, because the v2.4.3 bump moved the README and left this line behind, and the v2.4.4
+  # bump moved this line and left the Dockerfile behind. Two earlier tags
   # fail in opposite directions: v2.3.1 refuses a descriptor the evaluation verifier accepts (it
   # demands a non-empty `models`), and v2.4.2 ACCEPTS one the verifier no longer does (its
   # category enum still carries `byo-large`/`byo-small`, withdrawn by the 2026-09-18 ruling), so
@@ -68,9 +69,11 @@ jobs:
       # enforced that, and on 2026-09-18 it stopped being true: the bump to v2.4.3 moved the
       # README's install commands and left ci.yml and the Dockerfile on v2.4.2, so for three
       # days CI and the reference image validated descriptors against a withdrawn category
-      # enum. This step is the enforcement the comment assumed. stdlib/shell only, so it runs
-      # even when the toolkit install is broken.
+      # enum. It recurred on 2026-09-21: the bump to v2.4.4 moved ci.yml and the README and
+      # again left the Dockerfile on v2.4.2. This step is the enforcement the comment assumed.
+      # stdlib/shell only, so it runs even when the toolkit install is broken.
       - name: README, Dockerfile and this workflow pin the same toolkit tag
+        id: pin-consistency
         run: |
           set -euo pipefail
           expected='${{ env.TOOLKIT_TAG }}'

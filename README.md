@@ -173,9 +173,9 @@ At scoring time your container receives this environment:
 With the OpenAI client that is
 `OpenAI(base_url=os.environ["MODEL_ENDPOINT"].rstrip("/") + "/v1", api_key=os.environ["MODEL_TOKEN"])`.
 Budget the calls: the House allowance is **25 admitted requests per unit** with at most **4,000
-output tokens per call**, inside an input allowance of **1,000,000 input tokens per unit**. A
-request is charged at admission, so an upstream failure is not refunded and a retry costs another
-slot. This table is a summary; the binding version, with the full charging rules, is
+output tokens per call**; there is no per-unit token allowance. A request is charged at
+admission, so an upstream failure is not refunded and a retry costs another slot. This table is
+a summary; the binding version, with the full charging rules, is
 [`SUBMISSION_CLI.md`](SUBMISSION_CLI.md#container-environment-contract-restricted-mode-set-by-the-harness).
 
 Data and text cutoffs are unchanged: panel and corpus timestamps are enforced by the organizer's staging gates before a unit ships, and gate g2 still binds your declaration to the trusted card. The network
