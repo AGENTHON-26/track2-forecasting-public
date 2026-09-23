@@ -73,6 +73,15 @@ confirmed 25-requests-per-unit House allocation (`SUBMISSION_CLI.md`) with room 
 1's own retry loop (2 attempts per document on a bad reply) could in theory push a doc-heavy
 unit's worst case close to the cap; not something stage 2 introduces, just worth knowing.
 
+**Sharper as of 2026-09-23**: the organizers confirmed directly ([issue #17](https://github.com/Agenthon-2026/track2-forecasting-public/issues/17))
+that the 25-request budget is "charged at admission, so a retry can cost a slot" — only a request
+refused *before* admission (401/403, e.g. a bad token) is free. That means `call_model()`'s own
+retry loop (`_RETRY_WAITS`, up to 3 extra attempts on a 429/5xx) and Stage 1's per-document
+retry-on-bad-reply both spend the *same* unit's 25, not a separate allowance. The 16-requests
+"room to spare" estimate above assumed zero retries; a congested doc-heavy unit that needs even a
+few retries across its calls is meaningfully closer to the cap than that number suggests. Worth
+tightening the worst-case math (see Open) rather than trusting the old headroom estimate.
+
 ## Measured 2026-09-22 — full practice-set sweep vs. the text-blind baseline
 
 `eval_reports/20260915-195357.json` (before) vs `eval_reports/stage2-live.json` (after, one
@@ -249,10 +258,53 @@ rate-limited fallback but still not evidence the text signal helped.
 **Read on this measurement**: even under the cleanest conditions achieved so far, stage 2's text
 adjustment underperforms the text-blind baseline on average. Before concluding this is real
 (rather than another confound — thinking's failure modes, or the 50% of units still losing their
-signal to 429/503), the two most useful next moves are (a) revert `_THINKING`/`_STAGE2_THINKING`
+signal to 429/503), the two most useful next moves were (a) revert `_THINKING`/`_STAGE2_THINKING`
 to `False` and re-measure, since thinking is currently costing both time and a leaked-reasoning
 failure mode with no demonstrated benefit, and (b) get the organizers' answer on the real rate
 limit so the residual 48.5% contamination can actually be fixed rather than guessed at.
+
+**Update 2026-09-23**: (a) done for stage 1 only, per an explicit decision to isolate the two
+stages' thinking settings rather than change both at once -- `_THINKING` reverted to `False`
+(landmark docs still get thinking via `_THINKING_TYPES`, unchanged), `_STAGE2_THINKING` left
+`True` deliberately. A 3-unit smoke run afterward measured ~40 s/unit vs. the ~4.45 min/unit from
+this section's sweep -- consistent with the expected speedup, though 3 units is nowhere near
+enough to re-measure the composite-score comparison itself; that still needs a real sweep. (b) is
+answered -- see the new section below.
+
+## RESOLVED (organizer-confirmed, 2026-09-23): there is no RPM limit at all — the throttle is a Dev-only defensive measure
+
+Filed as [issue #17](https://github.com/Agenthon-2026/track2-forecasting-public/issues/17); the
+organizer's direct reply:
+
+> There is no requests-per-minute limit on the House route. It is the organizer-hosted endpoint
+> described in HOUSE-MODEL.md, not the public NIM API, so the free-tier figure you quoted does
+> not apply to it. The published limits are the whole model budget... 25 admitted requests per
+> unit, at most 4,000 output tokens per request, charged at admission, so a retry can cost a slot
+> and a request refused before admission (401 or 403) does not. [...] (1) no rpm limit; nothing on
+> the route counts per minute. (2) The budget is per unit, not per team. `MODEL_TOKEN` and the
+> proxy login are issued per unit... however many processes or threads you run inside the
+> container, they share that unit's 25. (3) The published allowance is written per unit and is not
+> tied to a phase, but... Development settings do not certify Final resources.
+
+**What this means, reconciled with what we actually measured:**
+
+- **Our 40 rpm assumption was wrong, but the throttle wasn't pointless.** The 429s we measured
+  directly (real, repeated, not imagined) aren't an account-level rate-limit policy — there isn't
+  one. They're almost certainly Development-phase shared-infrastructure congestion: every
+  competing team hits the same organizer-hosted endpoint during Dev, so a burst from us can still
+  get 429/503'd by an overloaded server even with no formal "requests per minute" rule being
+  enforced against us specifically. `_throttle()` in `text_signal.py` (`_RATE_LIMIT_RPM = 36`)
+  still has real defensive value *locally*, for exactly that shared-congestion reason.
+- **It is not required for the real leaderboard submission, and should not be treated as load-
+  bearing there.** Two independent reasons: (1) there is no RPM limit to respect on the real
+  route at all, confirmed directly; (2) each unit's real run is its own isolated container with
+  its own `MODEL_TOKEN` (point 2 above), so there's no possibility of *our own* traffic
+  overlapping across units the way local sweeps can. The one thing genuinely left open is
+  cross-team congestion during the sealed Final run -- the organizer explicitly declined to
+  promise Development-measured behavior carries over ("do not certify Final resources").
+- **The real, binding constraint everywhere (Dev and Final alike) is the 25-admitted-requests-
+  per-unit count**, not a rate — see the sharpened "Request budget" section above for why our
+  retry logic now looks like a bigger risk against that cap than originally estimated.
 
 ## Open
 
@@ -261,17 +313,21 @@ limit so the residual 48.5% contamination can actually be fixed rather than gues
    67% of units in a full sweep silently degrade to neutral on a 429 that `run_eval.py` never
    surfaces. Two parts:
    - (a) **Done, 2026-09-22**: `_throttle()` in `text_signal.py` is a shared, thread-safe
-     sliding-window limiter (`_RATE_LIMIT_RPM = 36`, a margin under the House's confirmed 40
-     rpm) that every `call_model()` attempt (Stage 1's worker pool and Stage 2's own call alike)
-     must pass through before firing. Fixes the in-process case — a single unit, whether run
-     directly or via `run_eval.py --unit`/`--concurrency 1` — for both local eval and the real
-     leaderboard (one unit = one process there too). Tested in `tests/test_text_signal.py`
-     (`TestThrottle`) with a mocked clock, no real sleeping.
-   - (b) **Not done, and intentionally out of scope for now**: this does *not* coordinate across
-     the separate subprocesses `run_eval.py --concurrency > 1` spawns — each gets its own 36 rpm
-     budget, so N of them running together can still jointly exceed 40. Decision: keep
-     `--concurrency 1` for local sweeps until/unless that's needed; a cross-process (file-based)
-     shared bucket would be the fix if concurrency comes back.
+     sliding-window limiter (`_RATE_LIMIT_RPM = 36`, originally set as a margin under an assumed
+     40 rpm NVIDIA-default limit -- since confirmed by the organizers, 2026-09-23, that no such
+     limit actually exists on the House route; see the RPM section below). Still worth keeping as
+     a defensive measure against real, observed Dev-phase server congestion, just not because of
+     any formal rate policy. Every `call_model()` attempt (Stage 1's worker pool and Stage 2's own
+     call alike) passes through it before firing. Tested in `tests/test_text_signal.py`
+     (`TestThrottle`) with a mocked clock, no real sleeping. **Not required for the real
+     leaderboard submission** — confirmed no RPM limit there either, and each unit runs in its own
+     isolated container regardless.
+   - (b) **Not done, and now lower priority than it looked**: this does *not* coordinate across
+     the separate subprocesses `run_eval.py --concurrency > 1` spawns. Originally framed as "N
+     processes could jointly exceed 40 rpm" -- now known (see the RPM section below) there's no
+     40 rpm to exceed; the real reason 429s happen is shared Dev-phase server congestion, which
+     more concurrent local traffic still makes modestly more likely regardless of the (nonexistent)
+     formal limit. Decision unchanged in practice: keep `--concurrency 1` for local sweeps.
    - Still open regardless: making the fallback loud (or at least counted) instead of silent, and
      the raw-reply logging itself. Everything below this item is still blocked on those in
      practice, even where not stated explicitly.
@@ -284,14 +340,20 @@ limit so the residual 48.5% contamination can actually be fixed rather than gues
 4. **`skew` is implemented but disabled** (see "Skew" above) — flip `_SKEW_ENABLED` in
    `forecast_agent.py` once its effect can be measured cleanly (item 1) without rate-limit
    fallback confounding it.
-5. **Thinking forced ON in both stages as of this session** (`_THINKING`, `_STAGE2_THINKING` in
-   `text_signal.py`) — an active, unresolved experiment, not a considered decision. One direct
-   manual test showed it changes the model's raw answer (sign flip on `shift` and `skew` for
-   `t2-F1-cad-boc-2017`); the sweep-level comparison meant to check its aggregate effect is one of
-   the three compromised by the rate-limit issue above, so it hasn't actually been measured yet
-   either. Revert to `False` for both, per Nish's and the removed pipeline's prior findings, if
-   item 1's logging shows this isn't earning its ~4-5x slowdown.
+5. **Thinking: stage 1 reverted, stage 2 still an open experiment.** `_THINKING` back to `False`
+   (2026-09-23) after the real full-sweep measurement above reconfirmed Nish's original finding at
+   scale (4-5x slower, a leaked-reasoning failure mode, worse composite scores especially in F2).
+   `_STAGE2_THINKING` deliberately left `True` — not yet measured cleanly on its own (every sweep
+   so far changed both stages' thinking together, or was contaminated by the rate-limit issue), so
+   whether stage 2's own thinking is earning its cost is still genuinely unknown, not assumed fine.
 6. **No sweep run so far is fully trustworthy.** Even the sweep-1-vs-sweep-2 comparison in
    "Measured 2026-09-22" above (previously the one considered clean) likely has some units
-   silently flipped to neutral on one side or the other. Everything needs item 1 before it means
-   anything.
+   silently flipped to neutral on one side or the other. Everything needs item 1's logging before
+   a comparison actually means anything -- and now that stage 1 thinking is off, a fresh full
+   sweep is needed anyway before drawing further conclusions from any of the numbers above.
+7. **Request-budget worst case needs re-checking now that retries are confirmed to cost a slot**
+   (organizer-confirmed, see "Request budget" and the RPM section above). The old "16 requests,
+   room to spare" estimate assumed zero retries; worth directly computing (or measuring) the
+   worst-case admitted-request count for the heaviest real unit (`t2-F2-ecb-qe-telegraph-2014`,
+   15 documents) assuming every call needs its full retry allowance, to see how close that
+   actually comes to the hard 25 cap. Not done yet.

@@ -91,10 +91,19 @@ up to 32 simultaneous calls, not 4, if a unit-heavy batch lines up).
 Runtime concurrency across units is entirely the organizers' own scoring infrastructure's call:
 each unit is scored as its own `docker run <image> forecast --panels … --asof … --out …`
 (`SUBMISSION_CLI.md`), and nothing in a submission expresses or requests how many of those run at
-once. `--concurrency` is purely a "make our own testing faster" convenience — the concurrency
-question that *does* carry into real scoring is the always-on, in-unit one above (Stage 1's
-8-worker pool), and whether firing several of a unit's 25 allotted requests concurrently is fine
-there is still genuinely undocumented — see `docs/` for what's confirmed vs. open.
+once. `--concurrency` is purely a "make our own testing faster" convenience — **confirmed**, not
+just assumed: each unit's real run is its own isolated container with its own `MODEL_TOKEN`, so
+`--concurrency` has no equivalent in real scoring at all, and no bearing on it either way.
+
+The related concurrency question — whether firing several of a unit's 25 allotted requests
+*concurrently* (Stage 1's always-on 8-worker pool) is fine on the real House route — is now
+answered too, via the organizers directly ([issue #17](https://github.com/Agenthon-2026/track2-forecasting-public/issues/17),
+2026-09-23): **there is no requests-per-minute limit on the House route at all** ("nothing on the
+route counts per minute"); the only published limit is the per-unit budget in `SUBMISSION_CLI.md`
+(25 admitted requests, 4,000 output tokens/request), and it's a straight count, not a rate, so
+firing them concurrently is explicitly fine. See `PUN_TEXT_NOTES.md` for what this means for our
+own client-side throttle (`_RATE_LIMIT_RPM` in `text_signal.py`) and a sharper read on the 25
+budget now that retries are confirmed to cost a slot too.
 
 ---
 
