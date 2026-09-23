@@ -1,0 +1,1003 @@
+{
+  "generated_at": "2026-09-15T23:51:12.815840+00:00",
+  "label": "test auto-remine fallback",
+  "gates_only_mode": false,
+  "total_units": 103,
+  "status_counts": {
+    "gates_only": 13,
+    "scored": 90
+  },
+  "family_summary": {
+    "T2-F1": {
+      "n": 18,
+      "mean": 0.3427972483667691,
+      "min": 0.011072178383117713,
+      "max": 2.5783155617566886
+    },
+    "T2-F2": {
+      "n": 23,
+      "mean": 1.1487014518971193,
+      "min": 0.02262882216116732,
+      "max": 7.4275519926557285
+    },
+    "T2-F3": {
+      "n": 20,
+      "mean": 1.0221640221551966,
+      "min": 0.20056209917234752,
+      "max": 3.521284967146708
+    },
+    "T2-F4": {
+      "n": 29,
+      "mean": 0.45628482921303326,
+      "min": 0.005524461017625266,
+      "max": 4.059650250485449
+    }
+  },
+  "units": {
+    "t2-F1-ai-mom-2024": {
+      "unit_id": "t2-F1-ai-mom-2024",
+      "status": "gates_only",
+      "category": "T2-F1"
+    },
+    "t2-F1-aud-on-hold-2016": {
+      "unit_id": "t2-F1-aud-on-hold-2016",
+      "status": "scored",
+      "composite": 0.011117536849070268,
+      "marginal_crps": 0.01998365348856141,
+      "joint_variogram": 0.001450472863449204,
+      "tail_penalty": 0.003452841228774001,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-cad-boc-2017": {
+      "unit_id": "t2-F1-cad-boc-2017",
+      "status": "scored",
+      "composite": 0.028667782773624112,
+      "marginal_crps": 0.019031155275858337,
+      "joint_variogram": 0.06124765467354748,
+      "tail_penalty": 0.003889543668153495,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-chf-highly-valued-2021": {
+      "unit_id": "t2-F1-chf-highly-valued-2021",
+      "status": "scored",
+      "composite": 0.013852667164153532,
+      "marginal_crps": 0.012478520949385051,
+      "joint_variogram": 0.023810088367483922,
+      "tail_penalty": 0.0023519008960791515,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-conflicting-texts-2024": {
+      "unit_id": "t2-F1-conflicting-texts-2024",
+      "status": "gates_only",
+      "category": "T2-F1"
+    },
+    "t2-F1-considerable-period-2003": {
+      "unit_id": "t2-F1-considerable-period-2003",
+      "status": "scored",
+      "composite": 0.1459293574487548,
+      "marginal_crps": 0.27196071746811534,
+      "joint_variogram": 0.0037496863408007053,
+      "tail_penalty": 0.04412046406228456,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-conundrum-2005": {
+      "unit_id": "t2-F1-conundrum-2005",
+      "status": "scored",
+      "composite": 0.13849069185887908,
+      "marginal_crps": 0.16873391042563746,
+      "joint_variogram": 0.15841120547938617,
+      "tail_penalty": 0.033001875011222453,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-cpi-glidepath-2023": {
+      "unit_id": "t2-F1-cpi-glidepath-2023",
+      "status": "gates_only",
+      "category": "T2-F1"
+    },
+    "t2-F1-dkk-peg-2019": {
+      "unit_id": "t2-F1-dkk-peg-2019",
+      "status": "scored",
+      "composite": 0.10882471767154495,
+      "marginal_crps": 0.14669397102158657,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.014151584296440882,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-eur-range-2017": {
+      "unit_id": "t2-F1-eur-range-2017",
+      "status": "scored",
+      "composite": 0.011072178383117713,
+      "marginal_crps": 0.020759448284209895,
+      "joint_variogram": 6.185637410570923e-05,
+      "tail_penalty": 0.0033694866439052604,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-fed-put-2019": {
+      "unit_id": "t2-F1-fed-put-2019",
+      "status": "scored",
+      "composite": 0.0297115075520172,
+      "marginal_crps": 0.03839544600791098,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.00800166141228276,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-greater-confidence-2024": {
+      "unit_id": "t2-F1-greater-confidence-2024",
+      "status": "scored",
+      "composite": 0.7866148492314631,
+      "marginal_crps": 0.2633885832184124,
+      "joint_variogram": 2.144436721385379,
+      "tail_penalty": 0.05794770603321567,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-hawkish-cut-2024": {
+      "unit_id": "t2-F1-hawkish-cut-2024",
+      "status": "gates_only",
+      "category": "T2-F1"
+    },
+    "t2-F1-jpy-ycc-flex-2018": {
+      "unit_id": "t2-F1-jpy-ycc-flex-2018",
+      "status": "scored",
+      "composite": 2.5783155617566886,
+      "marginal_crps": 1.4966841091990746,
+      "joint_variogram": 5.90488935269859,
+      "tail_penalty": 0.29253350673787093,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-liftoff-telegraph-2015": {
+      "unit_id": "t2-F1-liftoff-telegraph-2015",
+      "status": "scored",
+      "composite": 0.09554793017759323,
+      "marginal_crps": 0.09944890138518614,
+      "joint_variogram": 0.13871950380554612,
+      "tail_penalty": 0.02103814171668169,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-measured-pace-2004": {
+      "unit_id": "t2-F1-measured-pace-2004",
+      "status": "scored",
+      "composite": 0.2545474464870042,
+      "marginal_crps": 0.4851996471567663,
+      "joint_variogram": 0.011416993412252234,
+      "tail_penalty": 0.042612624424727207,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-normalization-2017": {
+      "unit_id": "t2-F1-normalization-2017",
+      "status": "scored",
+      "composite": 0.11643417247256875,
+      "marginal_crps": 0.1533577683667124,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.024125182737209656,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-patient-dropped-2015": {
+      "unit_id": "t2-F1-patient-dropped-2015",
+      "status": "scored",
+      "composite": 0.07526738442730213,
+      "marginal_crps": 0.09881903524726754,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.016388257377388582,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-pause-2006": {
+      "unit_id": "t2-F1-pause-2006",
+      "status": "scored",
+      "composite": 0.6082576944370731,
+      "marginal_crps": 0.14697646564279115,
+      "joint_variogram": 1.765091492724416,
+      "tail_penalty": 0.026210068991763945,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-qe3-end-2014": {
+      "unit_id": "t2-F1-qe3-end-2014",
+      "status": "scored",
+      "composite": 0.1614908377351251,
+      "marginal_crps": 0.13101823847799718,
+      "joint_variogram": 0.3036450037232807,
+      "tail_penalty": 0.024441086895711464,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-sahm-watch-2024": {
+      "unit_id": "t2-F1-sahm-watch-2024",
+      "status": "gates_only",
+      "category": "T2-F1"
+    },
+    "t2-F1-third-cut-2019": {
+      "unit_id": "t2-F1-third-cut-2019",
+      "status": "scored",
+      "composite": 0.7188372940678281,
+      "marginal_crps": 1.1343323943392187,
+      "joint_variogram": 0.36527201192731207,
+      "tail_penalty": 0.21044746660012606,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F1-ust-positioning-2018": {
+      "unit_id": "t2-F1-ust-positioning-2018",
+      "status": "scored",
+      "composite": 0.28737086010803525,
+      "marginal_crps": 0.545615142680469,
+      "joint_variogram": 0.010622193671987221,
+      "tail_penalty": 0.05688315333102304,
+      "tail_metric": "pinball",
+      "category": "T2-F1"
+    },
+    "t2-F2-abenomics-2012": {
+      "unit_id": "t2-F2-abenomics-2012",
+      "status": "scored",
+      "composite": 7.4275519926557285,
+      "marginal_crps": 9.25790366698822,
+      "joint_variogram": 0.0,
+      "tail_penalty": 2.851672806824499,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-act-as-appropriate-2019": {
+      "unit_id": "t2-F2-act-as-appropriate-2019",
+      "status": "scored",
+      "composite": 0.05133018560471835,
+      "marginal_crps": 0.06633904045741584,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.013808048472974632,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-aud-taper-2013": {
+      "unit_id": "t2-F2-aud-taper-2013",
+      "status": "scored",
+      "composite": 0.02965816546753888,
+      "marginal_crps": 0.04063806143731423,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.002208425543100493,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-boj-thin-signal-2014": {
+      "unit_id": "t2-F2-boj-thin-signal-2014",
+      "status": "scored",
+      "composite": 6.622483577514242,
+      "marginal_crps": 8.410902212541595,
+      "joint_variogram": 0.0,
+      "tail_penalty": 2.151436989945859,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-cnh-stress-2015": {
+      "unit_id": "t2-F2-cnh-stress-2015",
+      "status": "gates_only",
+      "category": "T2-F2"
+    },
+    "t2-F2-cnh-tradewar-2018": {
+      "unit_id": "t2-F2-cnh-tradewar-2018",
+      "status": "gates_only",
+      "category": "T2-F2"
+    },
+    "t2-F2-considerable-removal-2004": {
+      "unit_id": "t2-F2-considerable-removal-2004",
+      "status": "scored",
+      "composite": 0.21269871852536706,
+      "marginal_crps": 0.28765959565916926,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.025296525690861476,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-credit-crunch-2007": {
+      "unit_id": "t2-F2-credit-crunch-2007",
+      "status": "scored",
+      "composite": 0.5902426653261523,
+      "marginal_crps": 0.7740709064721187,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.13067206246123603,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-cut-sizing-2024": {
+      "unit_id": "t2-F2-cut-sizing-2024",
+      "status": "scored",
+      "composite": 0.18355610953545287,
+      "marginal_crps": 0.30859511778148574,
+      "joint_variogram": 0.07997785216974923,
+      "tail_penalty": 0.02632597496892613,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-draghi-precommit-2014": {
+      "unit_id": "t2-F2-draghi-precommit-2014",
+      "status": "scored",
+      "composite": 0.02262882216116732,
+      "marginal_crps": 0.03079456885233125,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.00221445543325749,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-ecb-qe-telegraph-2014": {
+      "unit_id": "t2-F2-ecb-qe-telegraph-2014",
+      "status": "scored",
+      "composite": 0.09172307538896879,
+      "marginal_crps": 0.11497554916401566,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.03359189095135162,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-eur-parity-2022": {
+      "unit_id": "t2-F2-eur-parity-2022",
+      "status": "scored",
+      "composite": 0.03452012383230083,
+      "marginal_crps": 0.04667568530779442,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.004131220143566856,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-fragile-five-brl-2013": {
+      "unit_id": "t2-F2-fragile-five-brl-2013",
+      "status": "gates_only",
+      "category": "T2-F2"
+    },
+    "t2-F2-fragile-five-inr-2013": {
+      "unit_id": "t2-F2-fragile-five-inr-2013",
+      "status": "gates_only",
+      "category": "T2-F2"
+    },
+    "t2-F2-higher-for-longer-2023": {
+      "unit_id": "t2-F2-higher-for-longer-2023",
+      "status": "scored",
+      "composite": 0.20726385908580822,
+      "marginal_crps": 0.2779880627819538,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.03045334984544413,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-nirp-paradox-2016": {
+      "unit_id": "t2-F2-nirp-paradox-2016",
+      "status": "scored",
+      "composite": 4.982687166279264,
+      "marginal_crps": 6.704543401846895,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.6780465773601848,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-opec-cad-2014": {
+      "unit_id": "t2-F2-opec-cad-2014",
+      "status": "scored",
+      "composite": 0.06569571726983288,
+      "marginal_crps": 0.08333178055082077,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.021605559067363164,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-powell-pivot-2019": {
+      "unit_id": "t2-F2-powell-pivot-2019",
+      "status": "scored",
+      "composite": 0.32499222030971836,
+      "marginal_crps": 0.4371991048501361,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.04447500895867403,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-qe2-jackson-hole-2010": {
+      "unit_id": "t2-F2-qe2-jackson-hole-2010",
+      "status": "scored",
+      "composite": 0.24868080956277108,
+      "marginal_crps": 0.3387908730894173,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.02340565074615554,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-shunto-nirp-exit-2024": {
+      "unit_id": "t2-F2-shunto-nirp-exit-2024",
+      "status": "scored",
+      "composite": 4.067543377675156,
+      "marginal_crps": 5.558982576708857,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.3389453800909038,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-some-pain-2022": {
+      "unit_id": "t2-F2-some-pain-2022",
+      "status": "scored",
+      "composite": 0.3396814835482174,
+      "marginal_crps": 0.46530578444178783,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.025620731314291385,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-taper-begins-2013": {
+      "unit_id": "t2-F2-taper-begins-2013",
+      "status": "scored",
+      "composite": 0.12596379619451553,
+      "marginal_crps": 0.1657020576685822,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.026618142509348852,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-taper-testimony-2013": {
+      "unit_id": "t2-F2-taper-testimony-2013",
+      "status": "scored",
+      "composite": 0.45746400676615984,
+      "marginal_crps": 0.601209459600003,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.09810037468155187,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-time-has-come-2024": {
+      "unit_id": "t2-F2-time-has-come-2024",
+      "status": "scored",
+      "composite": 0.15301989084712708,
+      "marginal_crps": 0.20360630584807127,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.026553853344766662,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-trade-war-escalation-2019": {
+      "unit_id": "t2-F2-trade-war-escalation-2019",
+      "status": "scored",
+      "composite": 0.056151712141620666,
+      "marginal_crps": 0.07282103534170384,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.014478404141412729,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-trichet-alertness-2008": {
+      "unit_id": "t2-F2-trichet-alertness-2008",
+      "status": "scored",
+      "composite": 0.09990235638083217,
+      "marginal_crps": 0.13026766539605622,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.023989083842772048,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F2-whatever-it-takes-2012": {
+      "unit_id": "t2-F2-whatever-it-takes-2012",
+      "status": "scored",
+      "composite": 0.024693561561086676,
+      "marginal_crps": 0.033141546222292,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0035735999080733693,
+      "tail_metric": "pinball",
+      "category": "T2-F2"
+    },
+    "t2-F3-bear-flattener-2022": {
+      "unit_id": "t2-F3-bear-flattener-2022",
+      "status": "scored",
+      "composite": 1.64764346230346,
+      "marginal_crps": 0.2504003066018297,
+      "joint_variogram": 5.055465361866569,
+      "tail_penalty": 0.02901850221287306,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-boj-ust-channel-2023": {
+      "unit_id": "t2-F3-boj-ust-channel-2023",
+      "status": "scored",
+      "composite": 1.5946223769106807,
+      "marginal_crps": 2.2295526249285316,
+      "joint_variogram": 1.468747334833631,
+      "tail_penalty": 0.19610931998162742,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-brexit-joint-2016": {
+      "unit_id": "t2-F3-brexit-joint-2016",
+      "status": "scored",
+      "composite": 0.3677662984523112,
+      "marginal_crps": 0.36703283105733725,
+      "joint_variogram": 0.5678557139140374,
+      "tail_penalty": 0.06946584374715649,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-conundrum-joint-2005": {
+      "unit_id": "t2-F3-conundrum-joint-2005",
+      "status": "scored",
+      "composite": 1.9604447734606134,
+      "marginal_crps": 0.16669780540168844,
+      "joint_variogram": 6.238586897818571,
+      "tail_penalty": 0.027599007070989855,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-covid-curve-2020": {
+      "unit_id": "t2-F3-covid-curve-2020",
+      "status": "scored",
+      "composite": 1.3220546412882705,
+      "marginal_crps": 0.680910259470411,
+      "joint_variogram": 3.154078560173902,
+      "tail_penalty": 0.17687971750447182,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-cpi-shock-cross-2022": {
+      "unit_id": "t2-F3-cpi-shock-cross-2022",
+      "status": "scored",
+      "composite": 0.2605345250224157,
+      "marginal_crps": 0.028223036651488707,
+      "joint_variogram": 0.8173526182532085,
+      "tail_penalty": 0.0060861061035442495,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-divergence-2014": {
+      "unit_id": "t2-F3-divergence-2014",
+      "status": "scored",
+      "composite": 3.521284967146708,
+      "marginal_crps": 2.720410774288036,
+      "joint_variogram": 6.872140950039757,
+      "tail_penalty": 0.4971864749538164,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-dollar-squeeze-2020": {
+      "unit_id": "t2-F3-dollar-squeeze-2020",
+      "status": "scored",
+      "composite": 0.8659363852929254,
+      "marginal_crps": 0.13017452820537376,
+      "joint_variogram": 2.6559460579950276,
+      "tail_penalty": 0.020326518958651372,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-dollar-vortex-2022": {
+      "unit_id": "t2-F3-dollar-vortex-2022",
+      "status": "scored",
+      "composite": 1.104110736715776,
+      "marginal_crps": 0.7437829971828928,
+      "joint_variogram": 2.3913267070350757,
+      "tail_penalty": 0.07410613006903469,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-dots-vs-oil-2014": {
+      "unit_id": "t2-F3-dots-vs-oil-2014",
+      "status": "scored",
+      "composite": 0.3641957117599574,
+      "marginal_crps": 0.1303047371370282,
+      "joint_variogram": 0.986131100453194,
+      "tail_penalty": 0.016020065277425728,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-election-2024-joint": {
+      "unit_id": "t2-F3-election-2024-joint",
+      "status": "gates_only",
+      "category": "T2-F3"
+    },
+    "t2-F3-fragile-five-joint-2013": {
+      "unit_id": "t2-F3-fragile-five-joint-2013",
+      "status": "gates_only",
+      "category": "T2-F3"
+    },
+    "t2-F3-funding-flip-2024": {
+      "unit_id": "t2-F3-funding-flip-2024",
+      "status": "scored",
+      "composite": 1.2530717117972163,
+      "marginal_crps": 1.1183675078629403,
+      "joint_variogram": 2.2094511419077083,
+      "tail_penalty": 0.15526307646716841,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-hiking-year-curve-2018": {
+      "unit_id": "t2-F3-hiking-year-curve-2018",
+      "status": "scored",
+      "composite": 0.8723945967165055,
+      "marginal_crps": 0.08301191118110979,
+      "joint_variogram": 2.7588929501480846,
+      "tail_penalty": 0.016103780407626597,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-inversion-persistence-2019": {
+      "unit_id": "t2-F3-inversion-persistence-2019",
+      "status": "scored",
+      "composite": 0.20056209917234752,
+      "marginal_crps": 0.11772726174480526,
+      "joint_variogram": 0.4596594238405484,
+      "tail_penalty": 0.01900320573890179,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-oil-fx-split-2022": {
+      "unit_id": "t2-F3-oil-fx-split-2022",
+      "status": "scored",
+      "composite": 0.38989010346274394,
+      "marginal_crps": 0.13563126726509758,
+      "joint_variogram": 1.0668876945861177,
+      "tail_penalty": 0.010040807271799422,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-rates-into-factors-2022": {
+      "unit_id": "t2-F3-rates-into-factors-2022",
+      "status": "scored",
+      "composite": 0.35325038767311234,
+      "marginal_crps": 0.03754356005260169,
+      "joint_variogram": 1.1096923451161746,
+      "tail_penalty": 0.007854520559795374,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-safe-haven-paradox-2011": {
+      "unit_id": "t2-F3-safe-haven-paradox-2011",
+      "status": "scored",
+      "composite": 1.1677497871797786,
+      "marginal_crps": 0.5989382653081748,
+      "joint_variogram": 2.837308002282734,
+      "tail_penalty": 0.08544126920435492,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-scandies-stress-2022": {
+      "unit_id": "t2-F3-scandies-stress-2022",
+      "status": "scored",
+      "composite": 0.3946678908810272,
+      "marginal_crps": 0.21923876607965412,
+      "joint_variogram": 0.9383428991759373,
+      "tail_penalty": 0.017728190442095115,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-taper-steepener-2013": {
+      "unit_id": "t2-F3-taper-steepener-2013",
+      "status": "scored",
+      "composite": 0.8946155704840155,
+      "marginal_crps": 0.3843667742532414,
+      "joint_variogram": 2.3067299795976477,
+      "tail_penalty": 0.05206594739050247,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-term-premium-steepener-2023": {
+      "unit_id": "t2-F3-term-premium-steepener-2023",
+      "status": "scored",
+      "composite": 1.1836909915524567,
+      "marginal_crps": 0.302327518099964,
+      "joint_variogram": 3.424225416549674,
+      "tail_penalty": 0.026298037687862822,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F3-vaccine-rotation-2020": {
+      "unit_id": "t2-F3-vaccine-rotation-2020",
+      "status": "scored",
+      "composite": 0.7247934258316123,
+      "marginal_crps": 0.030201235151326018,
+      "joint_variogram": 2.3614282305285856,
+      "tail_penalty": 0.006321695486867706,
+      "tail_metric": "pinball",
+      "category": "T2-F3"
+    },
+    "t2-F4-aud-gfc-2008": {
+      "unit_id": "t2-F4-aud-gfc-2008",
+      "status": "scored",
+      "composite": 0.07225727469186548,
+      "marginal_crps": 0.09164393746566385,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.02379061775736958,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-chf-floor-strain-2015": {
+      "unit_id": "t2-F4-chf-floor-strain-2015",
+      "status": "scored",
+      "composite": 0.07962895151136158,
+      "marginal_crps": 0.09671809668374938,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.03690608858039211,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-china-panic-2016": {
+      "unit_id": "t2-F4-china-panic-2016",
+      "status": "scored",
+      "composite": 0.011347161365740155,
+      "marginal_crps": 0.014683751770832067,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0030056853530103715,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-china-stress-mkt-2015": {
+      "unit_id": "t2-F4-china-stress-mkt-2015",
+      "status": "scored",
+      "composite": 0.009417523994176981,
+      "marginal_crps": 0.012171166135657198,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0025334186404764396,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-covid-mkt-2020": {
+      "unit_id": "t2-F4-covid-mkt-2020",
+      "status": "scored",
+      "composite": 0.01000140245870179,
+      "marginal_crps": 0.012972569418099253,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.002573485060208131,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-covid-nfp-2020": {
+      "unit_id": "t2-F4-covid-nfp-2020",
+      "status": "gates_only",
+      "category": "T2-F4"
+    },
+    "t2-F4-covid-rates-2020": {
+      "unit_id": "t2-F4-covid-rates-2020",
+      "status": "scored",
+      "composite": 0.3530224363899136,
+      "marginal_crps": 0.4547396426885988,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.09872942064320046,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-cpi-friday-2022": {
+      "unit_id": "t2-F4-cpi-friday-2022",
+      "status": "scored",
+      "composite": 0.19972144351047486,
+      "marginal_crps": 0.27242823637826374,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.01795446134100253,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-cpi-vintage-2022": {
+      "unit_id": "t2-F4-cpi-vintage-2022",
+      "status": "gates_only",
+      "category": "T2-F4"
+    },
+    "t2-F4-eur-warnings-2022": {
+      "unit_id": "t2-F4-eur-warnings-2022",
+      "status": "scored",
+      "composite": 0.014727792460289026,
+      "marginal_crps": 0.020091397931618682,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.001318778781964888,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-factor-stress-2008": {
+      "unit_id": "t2-F4-factor-stress-2008",
+      "status": "scored",
+      "composite": 0.026247213306472582,
+      "marginal_crps": 0.041741729664842006,
+      "joint_variogram": 0.015912926321381866,
+      "tail_penalty": 0.0030123528881850926,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-funding-stress-10y-2008": {
+      "unit_id": "t2-F4-funding-stress-10y-2008",
+      "status": "scored",
+      "composite": 0.15439017585241857,
+      "marginal_crps": 0.2095809234160954,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.016413306943226406,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-funding-stress-2y-2008": {
+      "unit_id": "t2-F4-funding-stress-2y-2008",
+      "status": "scored",
+      "composite": 0.7995153936898821,
+      "marginal_crps": 1.0661328653242088,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.13297171460406548,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-gbp-brexit-2016": {
+      "unit_id": "t2-F4-gbp-brexit-2016",
+      "status": "scored",
+      "composite": 0.06105742653330739,
+      "marginal_crps": 0.07965032532890888,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.014575179544303657,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-gbp-conference-2016": {
+      "unit_id": "t2-F4-gbp-conference-2016",
+      "status": "scored",
+      "composite": 0.03711326826644138,
+      "marginal_crps": 0.050847048303386815,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0027788181740777866,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-hike-cycle-2021Q4b": {
+      "unit_id": "t2-F4-hike-cycle-2021Q4b",
+      "status": "scored",
+      "composite": 1.6263498817501734,
+      "marginal_crps": 1.9496376639220383,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.8181304263205111,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-hml-covid-2020": {
+      "unit_id": "t2-F4-hml-covid-2020",
+      "status": "scored",
+      "composite": 0.006833822187690188,
+      "marginal_crps": 0.008831650704066479,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.0018392508967494602,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-jpy-carry-2007": {
+      "unit_id": "t2-F4-jpy-carry-2007",
+      "status": "scored",
+      "composite": 4.059650250485449,
+      "marginal_crps": 5.260173620140847,
+      "joint_variogram": 0.0,
+      "tail_penalty": 1.0583418263469517,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-jpy-crowding-2024": {
+      "unit_id": "t2-F4-jpy-crowding-2024",
+      "status": "scored",
+      "composite": 2.4639099857955484,
+      "marginal_crps": 3.3693609946918075,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.20028246355490115,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-mkt-selloff-2011": {
+      "unit_id": "t2-F4-mkt-selloff-2011",
+      "status": "scored",
+      "composite": 0.011108169882361442,
+      "marginal_crps": 0.014352693635411834,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.002996860499735462,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-momentum-reversal-2009": {
+      "unit_id": "t2-F4-momentum-reversal-2009",
+      "status": "scored",
+      "composite": 0.03918765940506559,
+      "marginal_crps": 0.05063054742551221,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.010580439353949053,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-nok-covid-2020": {
+      "unit_id": "t2-F4-nok-covid-2020",
+      "status": "scored",
+      "composite": 0.8759764209210629,
+      "marginal_crps": 1.0595130044807526,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.4171349620218384,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-powell-december-2018": {
+      "unit_id": "t2-F4-powell-december-2018",
+      "status": "scored",
+      "composite": 0.01519327559538149,
+      "marginal_crps": 0.020035416437307454,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.00308792349056658,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-qe1-expansion-2009": {
+      "unit_id": "t2-F4-qe1-expansion-2009",
+      "status": "scored",
+      "composite": 0.18333554607386535,
+      "marginal_crps": 0.24248200415156085,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.03546940087962656,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-quant-crowding-2007": {
+      "unit_id": "t2-F4-quant-crowding-2007",
+      "status": "scored",
+      "composite": 0.005524461017625266,
+      "marginal_crps": 0.005928173219186389,
+      "joint_variogram": 0.008159501894850294,
+      "tail_penalty": 0.0005626191978849177,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-short-vol-2018": {
+      "unit_id": "t2-F4-short-vol-2018",
+      "status": "scored",
+      "composite": 0.010035687270219903,
+      "marginal_crps": 0.013418344377623764,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.001579044501710252,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-svb-whiplash-2023": {
+      "unit_id": "t2-F4-svb-whiplash-2023",
+      "status": "scored",
+      "composite": 0.7978253792545212,
+      "marginal_crps": 1.0112613509917225,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.26423544991151804,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-taper-warning-2013": {
+      "unit_id": "t2-F4-taper-warning-2013",
+      "status": "scored",
+      "composite": 0.5952237674035217,
+      "marginal_crps": 0.7583785466657682,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.18733681924790524,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-ust-downgrade-watch-2011": {
+      "unit_id": "t2-F4-ust-downgrade-watch-2011",
+      "status": "scored",
+      "composite": 0.5604973420081063,
+      "marginal_crps": 0.7176927076280339,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.16750892795828712,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-ust10y-supply-2023": {
+      "unit_id": "t2-F4-ust10y-supply-2023",
+      "status": "scored",
+      "composite": 0.13206227907857213,
+      "marginal_crps": 0.17778814754969754,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.017747607900758574,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    },
+    "t2-F4-vaccine-timeline-2020": {
+      "unit_id": "t2-F4-vaccine-timeline-2020",
+      "status": "scored",
+      "composite": 0.0210986550177559,
+      "marginal_crps": 0.027376928676429983,
+      "joint_variogram": 0.0,
+      "tail_penalty": 0.005402970871070679,
+      "tail_metric": "pinball",
+      "category": "T2-F4"
+    }
+  }
+}

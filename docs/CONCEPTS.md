@@ -298,8 +298,9 @@ should be **uniformly distributed** between 0 and 1 across many forecasts. If PI
 cluster near 0 or 1, your distribution is too narrow. If they cluster in the middle, your
 distribution is too wide.
 
-The harness computes PIT for 50 % and 90 % coverage intervals and reports them as diagnostics.
-They do not directly affect the score but help you diagnose calibration problems.
+The scorer does not emit PIT or interval-coverage diagnostics. You can compute these on
+labeled data you are permitted to use to diagnose calibration; they are not additional score
+components.
 
 ### Coverage
 
@@ -443,8 +444,6 @@ Your entry reports the number of cards scored alongside the total, so coverage i
 | `joint_variogram` | Variogram score measuring cross-asset dependence. Measures whether the model got relationships right. |
 | `tail_penalty` | Mean pinball loss at 1%/5%/95%/99% quantiles. Measures tail calibration. |
 | `n_draws` | Number of Monte Carlo samples you submitted. |
-| `pit_50` | Fraction of realized outcomes inside the 50 % prediction interval (should be ~0.50). |
-| `pit_90` | Fraction of realized outcomes inside the 90 % prediction interval (should be ~0.90). |
 | `T2_UNCALIBRATED_MARGINAL` | Gate g3 flag: marginal distribution is degenerate (std ~= 0) or has non-finite values. |
 | `T2_BAD_DEPENDENCE` | Gate g3 flag: cross-asset or cross-horizon dependence is inconsistent with the joint task. |
 | `T2_TAIL_MISCALIBRATION` | Gate g3 flag: 1%/5%/95%/99% coverage is outside tolerance. |

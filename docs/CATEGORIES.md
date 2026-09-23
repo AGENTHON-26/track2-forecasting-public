@@ -144,8 +144,8 @@ its distribution slightly relative to a model that only extrapolated the numeric
    0.05 % of each other, the model is effectively forecasting a single number. Gate g3 will
    flag `T2_UNCALIBRATED_MARGINAL` if the per-asset standard deviation is too small.
 2. **Ignoring the text corpus entirely.** If your agent passes `--text` but never reads the
-   corpus, you will score like a text-blind baseline on F1. Uplift vs. baselines requires
-   actually using the text.
+   corpus, you will score like a text-blind baseline on F1. Any benefit from the text requires
+   actually using it.
 3. **Using stale or revised data.** FRED revises some macro series. Use the vintage available
    on the as-of date, not the current revised values.
 4. **Too-wide intervals "just in case."** Over-dispersed forecasts also score poorly. CRPS
@@ -189,8 +189,8 @@ In F2, the text provides **pivotal leading-indicator signals**. Examples:
 - An ECB speech mentioning "fragmentation risk" — historically a precursor to spread
   widening in peripheral European rates.
 
-A text-blind baseline cannot use any of these signals. This is where the information
-uplift vs. baselines should be largest.
+A text-blind baseline cannot use any of these signals. This is where a controlled text
+ablation should show the largest effect.
 
 ### Which score component is stressed and why
 
@@ -518,11 +518,11 @@ The five files in `baselines/` are **not** that reference point. They are interf
 each one returns a Gaussian random walk regardless of the model it is named after — see
 [`baselines/README.md`](../baselines/README.md). Beating them measures nothing.
 
-The **information uplift** (the best text-blind baseline's score minus yours on the same
-cards — composite scores are lower-better, so positive uplift means you beat the baseline)
-is reported as a diagnostic. It tells you how much value your agent extracted from the text
-corpus. A zero or negative uplift means the text is not helping — review your prompting
-and retrieval strategy.
+The scorer reports the composite and its components only; it does not compute an
+information-uplift or text-ablation metric. To measure what the text contributed, run a
+controlled text ablation yourself on labeled data you are permitted to use (see
+`docs/CONCEPTS.md`, section 5). If that ablation shows no gain, review your prompting and
+retrieval strategy.
 
 ---
 

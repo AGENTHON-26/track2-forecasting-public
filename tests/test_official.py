@@ -34,6 +34,7 @@ from qfbench2_common.contracts import (
 )
 from qfbench2_common.contracts.fixtures import DEV_KEY_ID, DEV_SEED, load_fixture
 
+from qfbench2_track_forecasting.normalization import read_ref_scale_bundle
 from qfbench2_track_forecasting.official import (
     CONTROL_DIR,
     load_plan,
@@ -81,10 +82,6 @@ def build_evaluation(
     ref_root.mkdir(parents=True)
     res_root.mkdir(parents=True)
 
-    plan_body = make_plan(handles, grids=grids)
-    (ref_root / "evaluation_plan.json").write_text(json.dumps(plan_body, indent=2), "utf-8")
-    plan = EvaluationPlan.from_mapping(plan_body)
-
     control = res_root / CONTROL_DIR / "run_records"
     control.mkdir(parents=True)
     for index, handle in enumerate(handles):
@@ -100,8 +97,6 @@ def build_evaluation(
         fault = broken.get(handle)
         if fault == "no_reference":
             (unit / "reference" / "realized.parquet").unlink()
-        elif fault == "no_scale":
-            (unit / "reference" / "ref_scale.json").unlink()
 
         out = res_root / handle
         if fault == "no_output":
@@ -123,6 +118,14 @@ def build_evaluation(
                 centre=1.0 + 0.1 * index,
             )
 
+    plan_body = make_plan(
+        handles, grids=grids, scale_commitment=read_ref_scale_bundle(ref_root, handles).commitment
+    )
+    (ref_root / "evaluation_plan.json").write_text(json.dumps(plan_body, indent=2), "utf-8")
+    plan = EvaluationPlan.from_mapping(plan_body)
+    for handle in handles:
+        if broken.get(handle) == "no_scale":
+            (ref_root / handle / "reference" / "ref_scale.json").unlink()
         (control / f"{handle}.json").write_text(
             json.dumps(
                 _run_record(handle, plan.plan_digest, digest_json(f"synthetic:tree:{handle}")),
