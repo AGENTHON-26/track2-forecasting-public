@@ -184,7 +184,7 @@ are not.
 
 ### Submission categories
 
-A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"` for this non-adapter path; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
+A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"`; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
 
 | Category | What you bundle | Model access |
 |----------|-----------------|--------------|

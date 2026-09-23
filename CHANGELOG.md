@@ -35,7 +35,8 @@ corrections. They change no scoring path, no gate, no card and no published numb
   in `README.md`. This was the last file in the tree carrying the withdrawn regime, and it is the
   file `README.md` designates as the authority on what may be packaged. The permitted-artifact
   table is unchanged; what changes is the description of the regime around it. Policy revision
-  stamp moved to 2026-09-21.1.
+  stamp moved to 2026-09-21.1. The category sentence this file shares with `README.md` and
+  `SUBMISSION_CLI.md` also loses its leftover "for this non-adapter path", in all three files.
 
 ## Published — in public `main` since commit `3760ed0`
 

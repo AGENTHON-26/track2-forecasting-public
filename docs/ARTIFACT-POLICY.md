@@ -14,7 +14,7 @@ and [competition data rules](https://www.agenthon.net/rules/).
 
 ## What you may package
 
-A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"` for this non-adapter path; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
+A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"`; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
 
 For example, an agent may combine the unchanged House model with a fitted linear forecast and
 a covariance estimate. That remains an `api` submission — the only category on this track, since
@@ -30,7 +30,7 @@ bring-your-own models and adapters are not part of this competition (ruling of 2
 
 The language-model path is the House route and nothing else. Language-model weights, adapters
 of any rank, and a participant-run model server are all outside this competition; a submission
-that packages one is invalid, not merely undisclosed. All local artifacts share the task's
+that packages one is not permitted, whether or not it is disclosed. All local artifacts share the task's
 existing resource limits; this policy adds no GPU, disk, memory or network grant. A permitted
 artifact is not a promise that the submission service is open; use the separately announced
 access instructions.

@@ -77,10 +77,12 @@ jobs:
         run: |
           set -euo pipefail
           expected='${{ env.TOOLKIT_TAG }}'
+          # `|| true`: under pipefail a grep with no match would end the step right here, before
+          # the named error below could say why. An empty result still fails, just visibly.
           readme=$(grep -oE 'Agenthon2026-public\.git@v[0-9]+\.[0-9]+\.[0-9]+#subdirectory=common' README.md \
-                   | sed -E 's|.*@(v[0-9.]+)#.*|\1|' | sort -u)
+                   | sed -E 's|.*@(v[0-9.]+)#.*|\1|' | sort -u || true)
           docker=$(grep -oE 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz' Dockerfile \
-                   | sed -E 's|refs/tags/(v[0-9.]+)\.tar\.gz|\1|' | sort -u)
+                   | sed -E 's|refs/tags/(v[0-9.]+)\.tar\.gz|\1|' | sort -u || true)
           echo "ci.yml=$expected  README=[$readme]  Dockerfile=[$docker]"
           if [ -z "$readme" ] || [ -z "$docker" ]; then
             echo "could not find a pinned toolkit install in README.md or Dockerfile" >&2
