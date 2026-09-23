@@ -58,11 +58,13 @@ _WORKERS = 8
 #: A ceiling, not a target: a normal reply is ~400 tokens. Set well above that so a reply that runs
 #: long comes back complete rather than cut off mid-sentence.
 _MAX_TOKENS = 4_000
-#: EXPERIMENTAL 2026-09-22 (Pun): forced ON to test against Nish's 2026-09-20 measurement below,
-#: which found the opposite. Her finding, unchanged, kept for when this reverts:
-#: Off: measured 4-5x slower on (23-30 s vs 6 s per doc) and it leaked its reasoning into the
-#: reply once in 16 calls, looping until the cap. The small quality gain was not worth either.
-_THINKING = True
+#: Reverted 2026-09-23 (Pun) back to Nish's original off, after a real full-sweep measurement with
+#: thinking forced on (see PUN_TEXT_NOTES.md, "throttle helps but doesn't fix it, thinking
+#: underperforms") reconfirmed her 2026-09-20 finding at scale: 4-5x slower (23-30 s vs 6 s per
+#: doc), it leaked its reasoning into the reply once in 16 calls (looping until the cap), and the
+#: sweep's own composite scores came out worse on average with it on, worst of all in the family
+#: (F2) that most needs a committed answer -- consistent with thinking making the model hedge.
+_THINKING = False
 #: Doc types that get thinking ON anyway. Landmarks mix two formats (policy decisions and speeches)
 #: under one label, so the model has to work out which one it is reading. The reasoning is billed
 #: against the same token cap, so these calls get a larger one.
