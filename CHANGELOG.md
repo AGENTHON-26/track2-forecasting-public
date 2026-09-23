@@ -30,8 +30,9 @@ corrections; no scoring path, gate, card or published number changes.
 - **Hub guide links moved to `main`.** The Development runtime guide links in `README.md` and
   `SUBMISSION_CLI.md` pointed at the toolkit's `v2.4.4` copy, which still states the withdrawn
   allowance of 1,000,000 input tokens per unit and lacks the tie-break and `Failed`-upload
-  sentences. The House model guide links in `docs/NVIDIA-STACK.md` pointed at `v2.4.3`, which
-  predates the thinking-controls section the same table describes. All of them now point at the
+  sentences. The House model guide links in `docs/NVIDIA-STACK.md` pointed at `v2.4.3`, whose
+  copy still lists an input-token limit among the House limits and lacks the note that
+  `low_effort` and `reasoning_budget` pass through unchanged. All of them now point at the
   guides' `main` copies, like the submission-limits link already did. The image-submission,
   descriptor and team-claim links stay on `v2.4.4`; those guides have not changed since.
 - **`docs/FORECAST-RESOLUTION-CANDIDATE.md`** said no public toolkit tag carries the module the
@@ -169,7 +170,9 @@ unchanged.
 image, the reference forecast producer, documentation, the four monthly practice specs and
 synthetic regression tests. They did not update the deployed scorer. The local toolkit
 correction inherited by the pin is noted below. The same release also published the Development
-schedule, resource and submission-limit sections of `README.md` and `SUBMISSION_CLI.md`.
+schedule, resource and submission-limit sections of `README.md` and `SUBMISSION_CLI.md`, and
+stated a House input allowance of 1,000,000 input tokens per unit there (withdrawn on
+2026-09-22, see above).
 
 - **Toolkit installation:** align the reference Docker image, README and CI at `v2.4.2`,
   including the current submission-packaging command and corrected model-free simulation
