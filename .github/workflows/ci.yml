@@ -34,10 +34,15 @@ permissions:
 env:
   # The toolkit release this repository is built and tested against, and the SINGLE place this
   # workflow names one -- every install below reads it, so the jobs cannot drift from each other
-  # or from this line. It must also stay the string the README pins: v2.3.1 refuses a descriptor
-  # the evaluation verifier accepts (it demands a non-empty `models`), so testing against it made
-  # a green build mean nothing. Keep this a TAG, never a branch -- a floating ref lets a local
-  # result and a scored result diverge with no diff.
+  # or from this line. It must also stay the string the README pins and the Dockerfile builds on;
+  # the `pin-consistency` step in the firewall job now enforces that rather than trusting this
+  # comment, because the v2.4.3 bump moved the README and left this line behind, and the v2.4.4
+  # bump moved this line and left the Dockerfile behind. Two earlier tags
+  # fail in opposite directions: v2.3.1 refuses a descriptor the evaluation verifier accepts (it
+  # demands a non-empty `models`), and v2.4.2 ACCEPTS one the verifier no longer does (its
+  # category enum still carries `byo-large`/`byo-small`, withdrawn by the 2026-09-18 ruling), so
+  # testing against either made a green build mean nothing. Keep this a TAG, never a branch -- a
+  # floating ref lets a local result and a scored result diverge with no diff.
   TOOLKIT_TAG: v2.4.4
   # Private staging tests the scorer against the PUBLICATION candidate of the toolkit --
   # `Agenthon2026-public-staging` main, the exact tree the next public tag is cut from --
@@ -60,6 +65,36 @@ jobs:
           python-version: "3.13"
       - name: Card, track, split and canary checks
         run: python .github/validate_units.py forecasting --stdlib-only
+      # `TOOLKIT_TAG` above claims it "must also stay the string the README pins". Nothing
+      # enforced that, and on 2026-09-18 it stopped being true: the bump to v2.4.3 moved the
+      # README's install commands and left ci.yml and the Dockerfile on v2.4.2, so for three
+      # days CI and the reference image validated descriptors against a withdrawn category
+      # enum. It recurred on 2026-09-21: the bump to v2.4.4 moved ci.yml and the README and
+      # again left the Dockerfile on v2.4.2. This step is the enforcement the comment assumed.
+      # stdlib/shell only, so it runs even when the toolkit install is broken.
+      - name: README, Dockerfile and this workflow pin the same toolkit tag
+        id: pin-consistency
+        run: |
+          set -euo pipefail
+          expected='${{ env.TOOLKIT_TAG }}'
+          # `|| true`: under pipefail a grep with no match would end the step right here, before
+          # the named error below could say why. An empty result still fails, just visibly.
+          readme=$(grep -oE 'Agenthon2026-public\.git@v[0-9]+\.[0-9]+\.[0-9]+#subdirectory=common' README.md \
+                   | sed -E 's|.*@(v[0-9.]+)#.*|\1|' | sort -u || true)
+          docker=$(grep -oE 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz' Dockerfile \
+                   | sed -E 's|refs/tags/(v[0-9.]+)\.tar\.gz|\1|' | sort -u || true)
+          echo "ci.yml=$expected  README=[$readme]  Dockerfile=[$docker]"
+          if [ -z "$readme" ] || [ -z "$docker" ]; then
+            echo "could not find a pinned toolkit install in README.md or Dockerfile" >&2
+            exit 1
+          fi
+          for got in $readme $docker; do
+            if [ "$got" != "$expected" ]; then
+              echo "toolkit pin disagrees: this workflow installs $expected, a file names $got" >&2
+              exit 1
+            fi
+          done
+          echo "all three pin $expected"
       # A grep, not a promise. Nothing in a public repository may name a reference artifact.
       - name: No reference-side path or filename in the public tree
         run: |
