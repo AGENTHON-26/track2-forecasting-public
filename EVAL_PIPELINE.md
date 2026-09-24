@@ -66,6 +66,7 @@ trust one.
 python eval_pipeline.py                              # everything, default settings
 python eval_pipeline.py --label "after Nish's LLM call"
 python eval_pipeline.py --remine-realized             # only needed after units/ itself changes
+python eval_pipeline.py --concurrency 4               # run 4 units at once instead of 1
 ```
 
 That's it. `realized_vectors/` is committed to the repo and `units/` rarely changes, so
@@ -73,6 +74,36 @@ That's it. `realized_vectors/` is committed to the repo and `units/` rarely chan
 report landed. (Safety net: if `realized_vectors/` is missing or empty — e.g. a very old
 checkout — it mines automatically regardless of the flag, since sweeping with zero ground
 truth would be silently useless.)
+
+**`--concurrency N`** runs N units' `forecast_agent.py` + scoring at once instead of one after
+another (default: 1, sequential) — passed straight through to `run_eval.py`. Each unit is a
+separate subprocess, so this is safe to raise; the only real constraint is how hard several
+units' worth of concurrent model calls hit the shared endpoint. Measured: sequential averages
+~29 s/unit (a full 103-unit sweep in ~50 minutes); `--concurrency 4` measured close to a 4x
+speedup, finishing the same sweep in well under 15 minutes.
+
+One thing this flag is **not**: Stage 1's own per-document summarization (`text_signal.py`,
+`summarize_corpus()`) *already* runs up to 8 documents in parallel **within** a single unit —
+that's separate and always on, `--concurrency` multiplies on top of it (`--concurrency 4` means
+up to 32 simultaneous calls, not 4, if a unit-heavy batch lines up).
+
+**This flag only affects our own local sweeps — it says nothing about the real leaderboard.**
+Runtime concurrency across units is entirely the organizers' own scoring infrastructure's call:
+each unit is scored as its own `docker run <image> forecast --panels … --asof … --out …`
+(`SUBMISSION_CLI.md`), and nothing in a submission expresses or requests how many of those run at
+once. `--concurrency` is purely a "make our own testing faster" convenience — **confirmed**, not
+just assumed: each unit's real run is its own isolated container with its own `MODEL_TOKEN`, so
+`--concurrency` has no equivalent in real scoring at all, and no bearing on it either way.
+
+The related concurrency question — whether firing several of a unit's 25 allotted requests
+*concurrently* (Stage 1's always-on 8-worker pool) is fine on the real House route — is now
+answered too, via the organizers directly ([issue #17](https://github.com/Agenthon-2026/track2-forecasting-public/issues/17),
+2026-09-23): **there is no requests-per-minute limit on the House route at all** ("nothing on the
+route counts per minute"); the only published limit is the per-unit budget in `SUBMISSION_CLI.md`
+(25 admitted requests, 4,000 output tokens/request), and it's a straight count, not a rate, so
+firing them concurrently is explicitly fine. See `PUN_TEXT_NOTES.md` for what this means for our
+own client-side throttle (`_RATE_LIMIT_RPM` in `text_signal.py`) and a sharper read on the 25
+budget now that retries are confirmed to cost a slot too.
 
 ---
 

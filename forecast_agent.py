@@ -29,6 +29,19 @@ import pyarrow.parquet as pq
 DEFAULT_DRAWS = 500
 _ASSET_COLS = ("asset", "asset_id")
 
+#: Off pending a clean, controlled measurement. Two live full-sweep comparisons
+#: (PUN_TEXT_NOTES.md, 2026-09-22) can't isolate skew's real effect from this endpoint's
+#: already-confirmed run-to-run non-determinism: `read_text_signal()` re-calls the live model on
+#: every run with nothing cached, so shift/widen also change between "before" and "after" sweeps,
+#: not just skew. The apparent aggregate regression (F1/F2/F3 worse, F4 flat) is dominated by one
+#: card swinging back almost exactly as far as it swung in the opposite direction the previous
+#: comparison -- a signature of response variance, not a real skew effect either way. The tilt
+#: itself is implemented and unit-tested correctly (`_skew_tilt` below, `tests/test_build_draws.py`)
+#: -- this flag does not undo that work, it just keeps it out of the actual forecast until a
+#: same-inputs, code-path-only comparison (skew forced on vs. off against ONE recorded set of
+#: model adjustments, not two fresh live calls) actually isolates the effect.
+_SKEW_ENABLED = False
+
 
 # ============================================================================
 #  OWNER: NISH  ·  the LLM / text part            branch: feat/llm
@@ -70,8 +83,9 @@ def build_draws(
     """Joint Gaussian random walk, correlated ACROSS assets, with Nish's adjustments applied.
     Returns array of shape (n_draws, n_assets, n_horizons).
 
-    BASELINE: single shared correlated roll per draw (Cholesky). Improve me:
-    real correlation from history, fat tails (Student-t) for shock cards, skew, etc.
+    BASELINE: single shared correlated roll per draw (Cholesky), tilted per-asset by `skew`
+    (see below). Improve me: real correlation from history, fat tails (Student-t) for shock
+    cards, a skew that reaches across assets instead of only within one.
     """
     rng = np.random.default_rng(seed)
     hist = {a: _series(panels, a, asof) for a in assets}
@@ -99,13 +113,50 @@ def build_draws(
     # apply Nish's adjustments per asset
     shift = np.array([adjustments.get(a, {}).get("shift", 0.0) for a in assets])
     widen = np.array([adjustments.get(a, {}).get("widen", 1.0) for a in assets])
+    skew = (
+        np.array([adjustments.get(a, {}).get("skew", 0.0) for a in assets])
+        if _SKEW_ENABLED else np.zeros(len(assets))
+    )
     center = last + shift
 
     out = np.empty((n_draws, len(assets), len(horizons)), dtype=float)
     for hi, h in enumerate(horizons):
         z = rng.standard_normal((n_draws, len(assets))) @ chol.T  # ONE shared correlated roll
-        out[:, :, hi] = center + z * (sd * widen * np.sqrt(h))
+        u = np.abs(rng.standard_normal((n_draws, len(assets))))  # independent per asset -- skew only
+        tilted = _skew_tilt(z, u, skew)
+        out[:, :, hi] = center + tilted * (sd * widen * np.sqrt(h))
     return out
+
+
+#: The skew-normal family's sample skewness is bounded (|.| < ~0.995 as shape -> infinity) and
+#: rises slowly: shape=1 (the top of `skew`'s own [-1,1] contract if used directly) reaches only
+#: ~0.14 sample skewness -- a barely-visible tilt, not the "shock" F4 needs (see NISH_TEXT_NOTES.md
+#: and PUN_TEXT_NOTES.md). Scaling `skew` up to a shape parameter of +-5 at the clamp's edge
+#: reaches ~0.85 instead -- a strong, visibly asymmetric tail without pinning at the family's
+#: near-degenerate ceiling.
+_SKEW_SHAPE_SCALE = 5.0
+
+
+def _skew_tilt(z: np.ndarray, u: np.ndarray, skew: np.ndarray) -> np.ndarray:
+    """Azzalini's skew-normal construction, per asset (last axis of `z`/`u`, matching `skew`).
+
+    Mixes the correlated roll `z` with an independent |normal| term `u`, weighted by `delta`,
+    then recenters and rescales so the result has mean 0 and unit variance for EVERY value of
+    skew -- `shift` and `widen` keep meaning exactly what they already mean upstream, and `skew`
+    changes shape only. At skew=0, delta=0 and this returns `z` exactly (see
+    `test_skew_zero_is_identity`): every card that never asks for a tilt draws identically to
+    before this function existed.
+
+    `u` must be independent PER ASSET, drawn separately from `z` -- it must not touch the
+    cross-asset correlation `chol` already encodes elsewhere, which this leaves untouched. A skew
+    that reaches across assets (e.g. "both legs of this trade break the same way") is real future
+    work, not this.
+    """
+    alpha = skew * _SKEW_SHAPE_SCALE
+    delta = alpha / np.sqrt(1.0 + alpha**2)
+    mean_shift = delta * np.sqrt(2.0 / np.pi)
+    var_scale = np.sqrt(np.clip(1.0 - delta**2 * (2.0 / np.pi), 1e-8, None))
+    return (delta * u + np.sqrt(1.0 - delta**2) * z - mean_shift) / var_scale
 
 
 def _series(panels: dict[str, "pa.Table"], asset: str, asof: str) -> np.ndarray:
@@ -213,7 +264,8 @@ def main(argv: list[str] | None = None) -> int:
     (out_dir / "forecast_rationale.md").write_text(
         f"# Forecast rationale — {unit_id}\n\n"
         f"Joint draws for {', '.join(assets)} at horizons {horizons}, as of {a.asof}.\n"
-        f"Base: correlated Gaussian random walk from panel history.\n"
+        f"Base: correlated Gaussian random walk from panel history "
+        f"(skew implemented but disabled pending measurement -- see _SKEW_ENABLED).\n"
         f"Text used: {'yes' if used_text else 'no (baseline stub)'}.\n"
     )
     print(f"wrote forecast.parquet + sidecars to {out_dir} "

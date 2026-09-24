@@ -14,6 +14,7 @@ import os
 import pathlib
 import sys
 import tempfile
+import threading
 import unittest
 from unittest import mock
 
@@ -96,7 +97,10 @@ class TestAgents(unittest.TestCase):
         with mock.patch.object(ts, "call_model", return_value=("- activity flat", "")) as call:
             out = ts.summarize_doc(doc)
         system, user = call.call_args.args
-        self.assertFalse(call.call_args.kwargs["thinking"])
+        # Checks the OR-combination itself (_THINKING flag or a doc-type carve-out), not a
+        # hardcoded literal -- _THINKING is a live experiment (see its own comment) and this
+        # test should stay meaningful whichever way it's currently set.
+        self.assertEqual(call.call_args.kwargs["thinking"], ts._THINKING or "beige_book" in ts._THINKING_TYPES)
         self.assertTrue(user.startswith(body))  # whole doc, then the format reminder
         self.assertIn("at most 15 bullets", user[len(body):])
         self.assertEqual(system, ts.prompt_for("beige_book", "2024-04-17"))
@@ -351,7 +355,9 @@ class TestReadTextSignalStage2(unittest.TestCase):
         self.assertAlmostEqual(out["UST_2Y"]["shift"], 0.6 * 0.2)
         self.assertAlmostEqual(out["UST_2Y"]["widen"], 1.4)
         self.assertAlmostEqual(out["UST_2Y"]["skew"], 0.2)
-        self.assertFalse(call.call_args.kwargs["thinking"])  # off, per the removed pipeline's finding
+        # Checks it's wired to the named flag, not a hardcoded literal -- _STAGE2_THINKING is a
+        # live experiment (see its own comment) and this test should stay meaningful either way.
+        self.assertEqual(call.call_args.kwargs["thinking"], ts._STAGE2_THINKING)
 
     def test_unparseable_reply_falls_back_to_neutral(self):
         with tempfile.TemporaryDirectory() as d:
@@ -372,6 +378,66 @@ class TestReadTextSignalStage2(unittest.TestCase):
                  mock.patch.object(ts, "call_model", return_value=(None, "HTTP 500")):
                 out = ts.read_text_signal(text, ["UST_2Y"])
         self.assertEqual(out, {"UST_2Y": dict(ts.NEUTRAL)})
+
+
+class TestThrottle(unittest.TestCase):
+    """_throttle() is the shared gate in front of every call_model() attempt -- Stage 1's worker
+    pool and Stage 2's own call all draw from the same budget. See PUN_TEXT_NOTES.md, "silent
+    rate-limit fallback": an unthrottled burst can exhaust the House's 40 rpm quota, and a 429
+    that survives all retries silently degrades the whole card to NEUTRAL with no visible error.
+    """
+
+    def setUp(self):
+        ts._request_times.clear()
+        self._orig_limit = ts._RATE_LIMIT_RPM
+
+    def tearDown(self):
+        ts._RATE_LIMIT_RPM = self._orig_limit
+        ts._request_times.clear()
+
+    def test_admits_up_to_the_limit_without_sleeping(self):
+        ts._RATE_LIMIT_RPM = 3
+        with mock.patch.object(ts.time, "monotonic", return_value=0.0), \
+             mock.patch.object(ts.time, "sleep") as sleep:
+            for _ in range(3):
+                ts._throttle()
+        sleep.assert_not_called()
+        self.assertEqual(len(ts._request_times), 3)
+
+    def test_blocks_until_the_window_clears_once_the_limit_is_hit(self):
+        ts._RATE_LIMIT_RPM = 2
+        clock = {"t": 0.0}
+
+        with mock.patch.object(ts.time, "monotonic", side_effect=lambda: clock["t"]), \
+             mock.patch.object(ts.time, "sleep",
+                                side_effect=lambda s: clock.__setitem__("t", clock["t"] + s)) as sleep:
+            ts._throttle()  # t=0, 1st of 2 admitted
+            ts._throttle()  # t=0, 2nd of 2 admitted -- limit now reached
+            ts._throttle()  # over the limit: must wait for the window to clear
+        sleep.assert_called_once()
+        self.assertEqual(clock["t"], 60.0)
+        self.assertEqual(len(ts._request_times), 1)  # only the 3rd call's timestamp remains
+
+    def test_concurrent_callers_never_jointly_exceed_the_limit_in_one_window(self):
+        ts._RATE_LIMIT_RPM = 4
+        errors: list[BaseException] = []
+
+        def run():
+            try:
+                ts._throttle()
+            except BaseException as exc:  # noqa: BLE001 -- surfacing it is the point
+                errors.append(exc)
+
+        with mock.patch.object(ts.time, "monotonic", return_value=0.0), \
+             mock.patch.object(ts.time, "sleep",
+                                side_effect=AssertionError("exactly at the limit; must not block")):
+            threads = [threading.Thread(target=run) for _ in range(4)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+        self.assertEqual(errors, [])
+        self.assertEqual(len(ts._request_times), 4)
 
 
 if __name__ == "__main__":
