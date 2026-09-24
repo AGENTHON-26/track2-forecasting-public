@@ -16,7 +16,15 @@ public issue #4.
 ## Unreleased
 
 **Track scorer code and evaluation cards: unchanged.** Documentation, link and CI-comment
-corrections; no scoring path, gate, card or published number changes.
+corrections, and one unit document cleaned of later news; no scoring path, gate, card or
+published number changes.
+
+- **`t2-F3-scandies-stress-2022`: a document carried news from after the card's as-of date.**
+  `text/boe_mpc_statement_20220922.txt`, the Bank of England statement of 22 September 2022 on a
+  card whose as-of date is 23 September 2022, ended with a block of site navigation scraped in
+  2026 that listed Bank Rate decisions from 2026. That block is removed and the unit's manifest
+  updated. No realized value, reference or scale changes. The copy evaluated on CodaBench changes
+  at the next Track 2 evaluation update.
 
 - **Last Development runs start by 20:00 UTC on Monday 12 October 2026.** A scheduled
   maintenance window on Tuesday 13 October 2026, 08:00–12:00 UTC stops the evaluation fleet. An
