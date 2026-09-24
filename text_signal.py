@@ -41,6 +41,7 @@ import os
 import pathlib
 import re
 import sys
+import threading
 import time
 import tomllib
 import urllib.error
@@ -72,6 +73,28 @@ _MAX_SUMMARY_CHARS = 12_000
 _TIMEOUT_SEC = 300.0
 #: Seconds to wait before each retry of an overloaded (429 / 5xx) reply.
 _RETRY_WAITS = (2.0, 5.0, 10.0)
+#: House rule: 25 admitted requests per unit, charged on admission -- a retry, a failed call or a
+#: lost response spends a slot too. Stage 1 spends up to one per document (plus retries); stage 2
+#: needs exactly one, so one is held back for it. The busiest unit needs 16 with no retries.
+_REQUEST_BUDGET = 25
+_STAGE2_RESERVE = 1
+
+
+class _Budget:
+    """Admitted-request counter for one unit, shared by the summarizer's worker threads."""
+
+    def __init__(self, total: int = _REQUEST_BUDGET, reserve: int = _STAGE2_RESERVE):
+        self.left, self.reserve, self.spent = total, reserve, 0
+        self._lock = threading.Lock()
+
+    def take(self, reserved: bool = False) -> bool:
+        """Claim one request. Stage 1 may not eat into the reserve; stage 2 (`reserved`) may."""
+        with self._lock:
+            if self.left - (0 if reserved else self.reserve) <= 0:
+                return False
+            self.left -= 1
+            self.spent += 1
+            return True
 
 #: Stage-2 clamps, carried forward from the removed single-shot pipeline (git history before
 #: "feat(text): stage 1" -- the clamps were never the reason it measured net negative; the
@@ -90,14 +113,15 @@ def read_text_signal(
     text_dir = pathlib.Path(text_dir)
     neutral = {a: dict(NEUTRAL) for a in assets}
     try:
-        summaries = [s for s in summarize_corpus(text_dir) if s.get("summary")]
+        budget = _Budget()
+        summaries = [s for s in summarize_corpus(text_dir, budget) if s.get("summary")]
         if not summaries:
             print("[text_signal] no usable summaries; neutral", file=sys.stderr)
             return neutral
 
         ctx = load_context(text_dir, assets)
         system, user = build_adjustment_prompt(summaries, assets, ctx)
-        content, err = call_model(system, user, thinking=False)
+        content, err = call_model(system, user, thinking=False, budget=budget, reserved=True)
         # Thinking OFF here too, for the same reason as the removed pipeline's equivalent call
         # (git history): measured there that thinking ON made the 120B halve its committed
         # adjustments -- more hedging, not better reasoning, for exactly the kind of "commit to a
@@ -114,7 +138,7 @@ def read_text_signal(
 
         adjustments, ledger = to_adjustments(raw, assets, ctx)
         print(f"[text_signal] source=llm family={ctx['family']} docs={len(summaries)} "
-              f"assets={list(adjustments)}", file=sys.stderr)
+              f"requests={budget.spent}/{_REQUEST_BUDGET} assets={list(adjustments)}", file=sys.stderr)
         return adjustments
     except Exception as exc:  # never let the text half fail the card
         print(f"[text_signal] {type(exc).__name__}: {exc}; neutral", file=sys.stderr)
@@ -415,8 +439,8 @@ def cot_summary(text: str) -> str | None:
 
 
 # ----------------------------------------------------------------------------- the agents
-def summarize_doc(doc: dict[str, Any]) -> dict[str, Any]:
-    """One document -> its main points. Never raises."""
+def summarize_doc(doc: dict[str, Any], budget: _Budget | None = None) -> dict[str, Any]:
+    """One document -> its main points. Never raises. `budget`: the unit's request counter."""
     meta = {k: v for k, v in doc.items() if k != "text"}
     text = doc.get("text", "")
     out = {**meta, "full_chars": len(text), "summary": None, "summarized": False, "error": ""}
@@ -442,6 +466,7 @@ def summarize_doc(doc: dict[str, Any]) -> dict[str, Any]:
                     prompt_for(doc["doc_type"], doc["timestamp"]),
                     user,
                     thinking=_THINKING or doc["doc_type"] in _THINKING_TYPES,
+                    budget=budget,
                 )
             except Exception as exc:
                 summary, err = None, f"{type(exc).__name__}: {exc}"
@@ -459,22 +484,30 @@ def summarize_doc(doc: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def summarize_corpus(text_dir: pathlib.Path) -> list[dict[str, Any]]:
-    """Every admissible document summarized, newest first. Runs the calls in parallel."""
+def summarize_corpus(text_dir: pathlib.Path, budget: _Budget | None = None) -> list[dict[str, Any]]:
+    """Every admissible document summarized, newest first. Runs the calls in parallel.
+
+    Newest first also decides who loses when the request budget runs out: the oldest documents.
+    """
+    budget = budget or _Budget()
     try:
         _, docs = load_corpus(text_dir)
         with ThreadPoolExecutor(max_workers=_WORKERS) as pool:
-            return list(pool.map(summarize_doc, docs))
+            return list(pool.map(lambda d: summarize_doc(d, budget), docs))
     except Exception as exc:
         print(f"[text_signal] summarize_corpus failed: {exc}", file=sys.stderr)
         return []
 
 
-def call_model(system: str, user: str, thinking: bool = False) -> tuple[str | None, str]:
+def call_model(
+    system: str, user: str, thinking: bool = False,
+    budget: _Budget | None = None, reserved: bool = False,
+) -> tuple[str | None, str]:
     """(reply text, error). POST $MODEL_ENDPOINT/v1/chat/completions with stdlib urllib only.
 
     The scoring image has no `openai` package. MODEL_TOKEN is the House grant, MODEL_API_KEY
-    the local-dev key. The thinking switch is sent explicitly on every request.
+    the local-dev key. The thinking switch is sent explicitly on every request. Every attempt,
+    retries included, claims one slot from `budget` first; none left means no request is sent.
     """
     endpoint = os.environ.get("MODEL_ENDPOINT", "").strip()
     if not endpoint:
@@ -507,6 +540,8 @@ def call_model(system: str, user: str, thinking: bool = False) -> tuple[str | No
         req.add_header("Authorization", f"Bearer {token}")
     payload = None
     for wait in (*_RETRY_WAITS, None):
+        if budget is not None and not budget.take(reserved):
+            return None, "request budget exhausted"
         try:
             with urllib.request.urlopen(req, timeout=_TIMEOUT_SEC) as resp:
                 payload = json.loads(resp.read().decode("utf-8"))

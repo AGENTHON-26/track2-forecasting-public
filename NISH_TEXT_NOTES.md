@@ -134,6 +134,13 @@ What changed and stayed:
   and corporate_8k checklist additions (no gain / a loss, see table). Both reverted to the text
   that was measured.
 
+**Request budget (2026-09-24).** House rule: **25 admitted requests per unit**, ≤4,000 output
+tokens each, and a failed call or a retry spends a slot too (README "House API allocation";
+CHANGELOG). The busiest unit needs 16 calls with no retries; the old retry logic could spend up
+to 8 per document. `text_signal._Budget` now counts every attempt per unit, stage 1 may not eat
+the one slot reserved for stage 2, and the oldest documents are the ones dropped if it runs out.
+No behaviour change while nothing fails. CFTC (computed) and pass-through docs cost nothing.
+
 Open (prompt work):
 1. **cb_speech 56%** is the one unsolved type. Speeches are the least uniform class (some carry
    no policy content); a checklist tweak did not move it. Next idea: a two-line classifier pass
