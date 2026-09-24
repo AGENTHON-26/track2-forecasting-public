@@ -27,19 +27,16 @@ corrections; no scoring path, gate, card or published number changes.
 - **Final tie-break in `SUBMISSION_CLI.md`.** Its schedule paragraph now carries the sentence the
   README has carried since 2026-09-22: if two Final submissions finish this track with the same
   ranking score, the one uploaded earlier ranks ahead. No rule change.
-- **Hub guide links moved to `main`.** The Development runtime guide links in `README.md` and
-  `SUBMISSION_CLI.md` pointed at the toolkit's `v2.4.4` copy, which still states the withdrawn
-  allowance of 1,000,000 input tokens per unit and lacks the tie-break and `Failed`-upload
-  sentences. The House model guide links in `docs/NVIDIA-STACK.md` pointed at `v2.4.3`, whose
-  copy still lists an input-token limit among the House limits and lacks the note that
-  `low_effort` and `reasoning_budget` pass through unchanged. All of them now point at the
-  guides' `main` copies, like the submission-limits link already did. The image-submission,
+- **Runtime guide links moved to `main`.** The Development runtime guide links in `README.md`
+  and `SUBMISSION_CLI.md` pointed at the toolkit's `v2.4.4` copy, which still states the
+  withdrawn allowance of 1,000,000 input tokens per unit and lacks the tie-break and
+  `Failed`-upload sentences. They now point at the guide's `main` copy, like the
+  submission-limits link and the House model guide links already do. The image-submission,
   descriptor and team-claim links stay on `v2.4.4`; those guides have not changed since.
 - **`docs/FORECAST-RESOLUTION-CANDIDATE.md`** said no public toolkit tag carries the module the
   opt-in candidate API needs. Toolkit `v2.4.4`, which this repository pins, carries
   `qfbench2_common.contracts.forecast_protocol`, and public CI installs `v2.4.4` and runs the
-  candidate's tests. The same outdated statement in a `.github/workflows/ci.yml` comment is
-  corrected. Documentation and comments only.
+  candidate's tests. Documentation only.
 - **`docs/NVIDIA-STACK.md`, "Where the tooling lives":** an "(In review)" line linked two public
   pull requests that are unrelated documentation fixes. It now links the repo-root `Dockerfile`
   (the reference submission image), the README's end-to-end run section and
@@ -56,6 +53,18 @@ corrections; no scoring path, gate, card or published number changes.
   2026-09-23 are added. Two rulings of 2026-09-21 that were filed under the 2026-09-14 baseline
   moved to 2026-09-22, and that baseline's House-allowance entry is restored to its published
   wording. Resolved items are removed from "Still to reconcile".
+
+## 2026-09-24 — public `main` at `8799596`
+
+**Track scorer code and evaluation cards: unchanged.** A CI comment and two documentation links.
+
+- **House model guide links moved to `main`.** The two House model guide links in
+  `docs/NVIDIA-STACK.md` pointed at `v2.4.3`, whose copy still lists an input-token limit among
+  the House limits and lacks the note that `low_effort` and `reasoning_budget` pass through
+  unchanged. They now point at the guide's `main` copy.
+- **`.github/workflows/ci.yml` comment.** It said no released toolkit tag carries
+  `contracts.forecast_protocol`; `v2.4.4`, the pinned tag, does. Comment only; the install is
+  unchanged.
 
 ## 2026-09-23 — public `main` at `f84ad29`
 
