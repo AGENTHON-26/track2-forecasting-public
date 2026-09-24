@@ -162,11 +162,21 @@ At scoring time your container receives this environment:
 
 | Variable | Meaning |
 |----------|---------|
-| `HTTP_PROXY` / `HTTPS_PROXY` | Point at the organizer's audited proxy — all egress goes through it |
-| `MODEL_ENDPOINT` | The organizer-hosted model endpoint (OpenAI-compatible, e.g. `http://model:8000/v1`), when available |
+| `HTTP_PROXY` / `HTTPS_PROXY` | The organizer's audited proxy — all egress goes through it. Read them from the environment; never hardcode a proxy host, the address has changed before |
+| `NO_PROXY` | Hosts that must bypass the proxy |
+| `MODEL_ENDPOINT` | The **origin** of the House route — `scheme://host:port`, **no path**. The OpenAI-compatible API is served under `/v1`: `POST $MODEL_ENDPOINT/v1/chat/completions`. `$MODEL_ENDPOINT/chat/completions` (no `/v1`) is refused with 403 |
+| `MODEL_TOKEN` | The per-unit bearer credential. Send `Authorization: Bearer $MODEL_TOKEN` on every request; without it the route answers 401 |
+| `MODEL_NAME` | The pinned house-model id served at `MODEL_ENDPOINT` — use it in your client calls |
 | `QFBENCH_NETWORK` | `restricted` (or `none` for local smoke runs) |
-| `MODEL_NAME` | The model served at `MODEL_ENDPOINT` |
 | Your API keys | **None exist.** The harness injects no participant API key and there is no mechanism to supply one (policy 2026-08-04) |
+
+With the OpenAI client that is
+`OpenAI(base_url=os.environ["MODEL_ENDPOINT"].rstrip("/") + "/v1", api_key=os.environ["MODEL_TOKEN"])`.
+Budget the calls: the House allowance is **25 admitted requests per unit** with at most **4,000
+output tokens per call**; there is no per-unit token allowance. A request is charged at
+admission, so an upstream failure is not refunded and a retry costs another slot. This table is
+a summary; the binding version, with the full charging rules, is
+[`SUBMISSION_CLI.md`](SUBMISSION_CLI.md#container-environment-contract-restricted-mode-set-by-the-harness).
 
 Data and text cutoffs are unchanged: panel and corpus timestamps are enforced by the organizer's staging gates before a unit ships, and gate g2 still binds your declaration to the trusted card. The network
 contract does not weaken any leakage rule: model APIs are reachable, market data and live text
@@ -174,7 +184,7 @@ are not.
 
 ### Submission categories
 
-A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"` for this non-adapter path; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
+A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"`; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
 
 | Category | What you bundle | Model access |
 |----------|-----------------|--------------|
@@ -556,11 +566,16 @@ repository itself — `pip install .` from the repository root — which is what
 the rest. See the Quick-start checklist, step 0.
 
 **Pin the tag, and pin this one.** `v2.4.4` is the tag whose descriptor contract matches what the
-evaluation verifier accepts. `v2.3.1` carries `qfbench2_common.contracts` — earlier tags predate it
-entirely — but it **refuses a descriptor the verifier accepts**: it demands at least one `models`
-entry, while the current contract allows `"models": []`. Building against it means your own tools
-reject work that would have scored. `v2.4.4` is also the tag `.github/workflows/ci.yml` installs, so what
-you verify locally is what CI verifies.
+evaluation verifier accepts. Two earlier tags fail in opposite directions. `v2.3.1` carries
+`qfbench2_common.contracts` — earlier tags predate it entirely — but it **refuses a descriptor the
+verifier accepts**: it demands at least one `models` entry, while the current contract allows
+`"models": []`. Building against it means your own tools reject work that would have scored.
+`v2.4.2` has the quieter failure: its category enum still contains `byo-large` and `byo-small`, so
+it **packs a descriptor the 2026-09-18 ruling made invalid** — nothing warns you, the upload is
+held at intake, it never runs, and it still costs you one of your Development attempts. `v2.4.4`
+closes that enum to `api` and `simulator`. `v2.4.4` is also the tag `.github/workflows/ci.yml`
+installs and the tag the reference image in `Dockerfile` builds on, so what you verify locally is
+what CI verifies.
 
 Do not install from a branch. An unpinned toolkit is how a local result and a scored result come
 to disagree without either side noticing.
@@ -737,4 +752,5 @@ Registration and Development close together on October 12, 2026 at **23:59 Anywh
 At the participant Development opening, Track 2 allows **5 uploads per team per day**
 and **20 total uploads per team for this track during Development**. Use your team's single
 designated CodaBench account. Local validation and packaging use no attempts; held or cancelled
-uploads still count. See [submission limits](SUBMISSION_CLI.md#development-submission-limits).
+uploads still count. An upload the platform marks `Failed` does not consume an attempt — the platform's
+daily count excludes it. See [submission limits](SUBMISSION_CLI.md#development-submission-limits).

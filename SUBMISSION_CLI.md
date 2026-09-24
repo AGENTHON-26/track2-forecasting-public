@@ -70,14 +70,15 @@ The Team Key never goes into the zip and is never sent to anyone.
 At the participant Development opening, **Track 2 allows 5 uploads per team per day**,
 with **20 total uploads per team for this track during Development**. Upload through your
 team's single designated CodaBench account. Held or cancelled uploads count even when they
-receive no score; local validation and packaging use no attempts. Track 1 has a 1-per-day limit;
+receive no score; local validation and packaging use no attempts. An upload the platform marks
+`Failed` does not consume an attempt — the platform's daily count excludes it. Track 1 has a 1-per-day limit;
 Tracks 2, 3 and 4 retain 5 per day.
 
 Development runs through **October 12, 2026**. The joint **Final + Verification phase runs
 October 13–25, 2026**. Each team makes **one final submission per track**; organizers perform
 verification within that same phase, with no separate participant Verification submission.
 Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates and task/data cutoffs are unchanged.
-See the [Development submission limits](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/DEVELOPMENT-RUNTIME.md#submission-limits-at-the-development-opening).
+See the [Development submission limits](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/DEVELOPMENT-RUNTIME.md#submission-limits-at-the-development-opening).
 
 ## Network modes (per unit card, `[environment].network`)
 
@@ -112,7 +113,7 @@ in both modes — network access is for **model calls only**, never for fetching
 
 ### Submission categories (agent tracks only)
 
-A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"` for this non-adapter path; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
+A Track 2 forecaster may use permitted numerical code without calling the House model. Use `category: "api"`; House calls are optional. Use `models: []` only when the submission contains no learned model. Disclose any packaged fitted model with `access: "local"`, its immutable revision and training cutoff; include the House disclosure when used. The existing artifact, data-cutoff and resource rules still apply.
 
 **Bring-your-own models and adapters are not part of this competition.** Every submission runs against the House model (or calls none); the former `byo-small` / `byo-large` categories are invalid since toolkit 2.4.3, `qfbench2 submission pack` refuses them, and an upload that still carries one is held by the organizer's intake and never run.
 
