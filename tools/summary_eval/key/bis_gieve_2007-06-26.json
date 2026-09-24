@@ -1,0 +1,241 @@
+{
+ "doc_id": "bis_gieve_2007-06-26",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Gieve voted for a further rate increase at the MPC meeting earlier in June 2007",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "vot\\w*.{0,40}(increase|rise|hike|rais\\w*|higher|tighten\\w*)|(back\\w*|favou?r\\w*|support\\w*).{0,20}(?:a |an )?(further|another|additional) (?:rate |interest[- ]rate )?(increase|rise|hike)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "vot\\w*.{0,30}(hold|cut|unchanged|against (?:a |an )?(?:rise|increase|hike))"
+   ],
+   "quote": "I voted for a further increase earlier this month",
+   "paraphrases": [
+    "Gieve voted for a further rate rise at this month's MPC meeting",
+    "BoE's Gieve backed another rate hike in June",
+    "Gieve was among MPC members voting to raise Bank Rate again earlier in June"
+   ],
+   "decoys": [
+    "Gieve voted to hold rates at this month's MPC meeting",
+    "Gieve voted to cut rates at this month's MPC meeting"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Gieve was not convinced current rates would be sufficient to bring credit growth and nominal demand back to a sustainable path",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "credit|nominal (?:demand|spending)",
+    "(rates?\\b|bank rate).{0,80}(not convinced|doubt\\w*|insufficient|not (?:be )?(?:enough|sufficient)|inadequate)|(not convinced|doubt\\w*|insufficient|not (?:be )?(?:enough|sufficient)|inadequate).{0,80}(rates?\\b|bank rate)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "I was not convinced that current rates would be sufficient to bring credit growth and nominal demand back to their long term sustainable path",
+   "paraphrases": [
+    "Gieve was not convinced current rates would be enough to bring credit growth and nominal demand back to a sustainable path",
+    "Gieve doubts existing rates are sufficient to rein in credit growth and nominal demand",
+    "Current Bank Rate may be insufficient to return credit and nominal spending to sustainable trend, Gieve argues"
+   ],
+   "decoys": [
+    "Gieve was convinced current rates are sufficient to bring credit growth back to a sustainable path",
+    "Gieve says current rates are more than enough to restrain credit growth"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Gieve judged the risk of moving too slowly (to the regime's credibility) a greater concern than an unnecessary slowdown",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "too slow\\w*.{0,120}(greater|bigger|more serious|outweigh\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(unnecessary|unneeded) slowdown.{0,30}(greater|bigger|more serious)",
+    "too fast.{0,30}(greater|bigger|more serious)"
+   ],
+   "quote": "the impact of moving too slowly on the credibility of the regime and thus the future prospects for the economy was of greater concern",
+   "paraphrases": [
+    "Gieve judged the risk of moving too slowly, and damaging the regime's credibility, a greater concern than an unnecessary slowdown",
+    "For Gieve, acting too slowly posed a bigger threat to credibility than the risk of an unneeded slowdown",
+    "Gieve: the credibility cost of raising rates too slowly outweighs the risk of an unnecessary slowdown in activity"
+   ],
+   "decoys": [
+    "Gieve judged the risk of an unnecessary slowdown a greater concern than moving too slowly",
+    "Gieve said moving too fast was of greater concern than moving too slowly"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Gieve supported the four interest-rate rises of the past year",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:four|(?<!\\d)4(?!\\d)) (?:rate |interest[- ]rate )?(rises|hikes|increases)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "oppos\\w*|against"
+   ],
+   "quote": "That has been one factor in my support for the four interest rate rises of the last year.",
+   "paraphrases": [
+    "Gieve supported all four rate rises over the past year",
+    "The case for leaning into the wind was one reason Gieve backed the four hikes of the last 12 months",
+    "Gieve has backed 4 interest-rate increases over the past year"
+   ],
+   "decoys": [
+    "Gieve supported the three rate rises of the last year",
+    "Gieve opposed the four rate rises of the last year"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "There may be a case for monetary policy to 'lean into the wind' in a cyclical credit upswing",
+   "tier": "should",
+   "kind": "phrase",
+   "patterns": [
+    "lean\\w* into the wind"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "reject\\w*|(?:not|never) lean|downturn|recession|downswing"
+   ],
+   "quote": "there may be a case for monetary policy to 'lean into the wind' in a cyclical upswing",
+   "paraphrases": [
+    "Gieve: there may be a case for monetary policy to 'lean into the wind' during a cyclical credit upswing",
+    "Monetary policy should lean into the wind of a credit boom, Gieve suggests",
+    "Gieve cites wide acceptance of leaning into the wind in cyclical upswings"
+   ],
+   "decoys": [
+    "Gieve rejects the idea that monetary policy should lean into the wind",
+    "Gieve says monetary policy should lean into the wind in a downturn"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "UK house prices are still rising fast, especially in London",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(house|housing|home).{0,100}pric\\w*.{0,60}(rising|climb\\w*|increas\\w*|rapid|fast|strong|\\bup\\b).{0,60}london|london.{0,40}(house|housing|home) pric\\w*.{0,60}(rising|climb\\w*|increas\\w*|rapid|fast|strong|\\bup\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(except|outside|apart from) london",
+    "(house|housing|home) pric\\w*.{0,40}(fall\\w*|declin\\w*|drop\\w*)"
+   ],
+   "quote": "prices are still rising fast, especially in London",
+   "paraphrases": [
+    "UK house prices are still rising fast, especially in London",
+    "House price inflation remains rapid, particularly in London, and is higher than last autumn in nearly every region",
+    "Gieve notes house prices continue to climb quickly, led by London"
+   ],
+   "decoys": [
+    "UK house prices are now falling, especially in London",
+    "UK house prices are rising fast everywhere except London"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Lending to non-financial companies (PNFCs) is accelerating, with no sign of a slowdown in corporate lending",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(pnfc|corporate|business|compan\\w*|non-?financial).{0,40}(lending|borrowing|credit)|(lending|borrowing|credit).{0,40}(pnfc|corporate|business|compan\\w*|non-?financial)",
+    "accelerat\\w*|pick\\w* up|no sign of (?:a )?slow\\w*"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "\\b(is|are|has been) (slowing|decelerating|weakening|contracting|falling)"
+   ],
+   "quote": "Overall lending to PNFCs is accelerating",
+   "paraphrases": [
+    "Lending to non-financial companies (PNFCs) is accelerating, with no sign of a slowdown in corporate lending",
+    "Corporate lending shows no sign of slowing; PNFC borrowing is picking up",
+    "Gieve: business lending is accelerating"
+   ],
+   "decoys": [
+    "Lending to PNFCs is slowing sharply",
+    "Consumer lending is accelerating"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Even stripping out OFC deposits, money growth has still been strong relative to growth in money spending",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "ofc|other financial compan|financial corporations",
+    "exclud\\w*|strip\\w* out|\\bex-|even without|outside",
+    "strong|outpac\\w*|robust|rapid|exceed\\w*"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "weak|slow\\w*|subdued|all of the"
+   ],
+   "quote": "Even if we strip out all OFC deposits the growth rate of money has still been strong compared with the growth rate of money spending",
+   "paraphrases": [
+    "Even excluding OFC deposits, money growth has been strong relative to growth in nominal spending",
+    "Stripping out other financial companies' deposits, broad money still outpaces money spending, Gieve notes",
+    "Gieve: ex-OFC money growth remains strong versus nominal spending growth"
+   ],
+   "decoys": [
+    "Excluding OFC deposits, money growth has been weak relative to money spending",
+    "Gieve says all of the rapid money growth is explained by OFC deposits"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "US sub-prime problems seem unlikely to have severe knock-on effects on the broader economy",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "sub-? ?prime",
+    "unlikely|not likely|probably (?:won'?t|will not)|limited|contained"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(?<!un)likely to (?:have|cause) (?:severe|major|significant)"
+   ],
+   "quote": "it still seems unlikely that it will have severe knock on effects on the broader economy",
+   "paraphrases": [
+    "Gieve judges US sub-prime problems unlikely to have severe knock-on effects on the broader economy",
+    "Subprime fallout seen as unlikely to spill over severely into the wider economy",
+    "The US subprime saga probably won't cause major spillovers to the broader economy, Gieve says"
+   ],
+   "decoys": [
+    "Gieve warns US sub-prime problems are likely to have severe knock-on effects on the broader economy",
+    "Gieve says UK consumer credit problems are unlikely to have severe knock-on effects"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "UK commercial property looks to be at or close to its peak",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "commercial (?:property|real estate|propert\\w*).{0,60}(peak\\w*|topp?\\w*|near the top)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "trough|bottom"
+   ],
+   "quote": "the commercial property in the UK looks to be at or close to its peak",
+   "paraphrases": [
+    "UK commercial property looks to be at or near its peak",
+    "Gieve: commercial real estate prices appear close to peaking",
+    "Commercial property values seem to have topped out or be near the top"
+   ],
+   "decoys": [
+    "UK commercial property looks to be at or near its trough",
+    "UK housing looks to be at or near its peak"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,192 @@
+{
+ "doc_id": "ecb_draghi_2019-01-15",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Intra-EU exports now equal 20% of EU GDP",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:intra-?EU|intra-?European|within the EU|EU-internal|between EU (?:countries|members)).{0,80}(?:(?<![\\d.])20(?:\\.0)?\\s*(?:%|percent(?!age)|per cent|pct)|(?:a|one) fifth)|(?:(?<![\\d.])20(?:\\.0)?\\s*(?:%|percent(?!age)|per cent|pct)|(?:a|one) fifth).{0,80}(?:intra-?EU|intra-?European|within the EU|EU-internal|between EU (?:countries|members))"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Intra-EU exports rose from 13% of EU GDP in 1992 to 20% today",
+   "paraphrases": [
+    "Intra-EU exports now equal 20% of EU GDP, Draghi notes",
+    "Draghi: exports within the EU have climbed to a fifth of EU GDP",
+    "Intra-EU exports rose from 13 percent of GDP in 1992 to 20 percent today"
+   ],
+   "decoys": [
+    "Intra-EU exports now equal 25% of EU GDP, Draghi notes",
+    "Intra-EU exports have dropped to 13% of EU GDP"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Intra-EU exports were 13% of EU GDP in 1992",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:intra-?EU|intra-?European|within the EU|EU-internal|between EU (?:countries|members)).{0,80}(?:(?<![\\d.])13\\s*(?:%|percent(?!age)|per cent|pct))|(?:(?<![\\d.])13\\s*(?:%|percent(?!age)|per cent|pct)).{0,80}(?:intra-?EU|intra-?European|within the EU|EU-internal|between EU (?:countries|members))",
+    "(?<!\\d)1992(?!\\d)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "Intra-EU exports rose from 13% of EU GDP in 1992",
+   "paraphrases": [
+    "Intra-EU exports were 13% of EU GDP in 1992",
+    "Back in 1992, exports within the EU amounted to just 13 percent of GDP",
+    "Intra-EU exports rose from 13% of GDP in 1992 to 20% today"
+   ],
+   "decoys": [
+    "Intra-EU exports were 18% of EU GDP in 1992",
+    "Intra-EU exports were 13% of EU GDP in 2002"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "The euro has delivered two decades of price stability, including in countries that had long lacked it",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:price stability|stable prices|low inflation).{0,80}(?:two decades|20 years|twenty years|delivered|brought|produced|ensured|secured)|(?:two decades|20 years|twenty years|delivered|brought|produced|ensured|secured).{0,80}(?:price stability|stable prices|low inflation)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:fail\\w*|not deliver\\w*|did not|undermin\\w*|erod\\w*).{0,80}(?:price stability|stable prices)",
+    "(?:price stability|stable prices).{0,80}(?:fail|undermin|erod)"
+   ],
+   "quote": "The euro has produced two decades of price stability also in countries where this was a long lost memory.",
+   "paraphrases": [
+    "Draghi: the euro has delivered two decades of price stability, even in countries that had long lost it",
+    "Euro brought 20 years of stable prices, including to historically high-inflation members",
+    "Single currency has ensured price stability for its first two decades"
+   ],
+   "decoys": [
+    "Draghi says the euro has failed to deliver price stability in several member countries",
+    "Draghi says the euro brought two decades of high inflation to southern members"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Economic and Monetary Union remains incomplete",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:EMU|monetary union).{0,80}(?:incomplete|unfinished|not (?:yet )?(?:complete|finished))",
+    "(?:incomplete|unfinished|not (?:yet )?(?:complete|finished)|(?:need|must|duty) to complete|completing).{0,80}(?:EMU|monetary union)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:EMU|monetary union).{0,80}(?:is now complete|fully complete|has been completed|no further)",
+    "(?:fully complete|now complete).{0,80}(?:EMU|monetary union)"
+   ],
+   "quote": "because the Economic and Monetary Union (EMU) remains incomplete",
+   "paraphrases": [
+    "Draghi says Economic and Monetary Union remains incomplete",
+    "EMU is still unfinished and more work is needed, Draghi says",
+    "Draghi urges completing EMU: the monetary union is not yet complete"
+   ],
+   "decoys": [
+    "Draghi says EMU is now complete and needs no further reform",
+    "Draghi says the banking union has been fully completed"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Reforms at national level are still necessary to produce sustainable growth",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "national.{0,40}reforms?.{0,80}(?:necessary|needed|required|must)",
+    "(?:necessary|needed|required|need).{0,80}national.{0,40}reforms?",
+    "reforms?.{0,40}national level.{0,80}(?:necessary|needed|required)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "no longer (?:necessary|needed|required)|not (?:necessary|needed|required)|unnecessary"
+   ],
+   "quote": "Partly, this is because reforms at national level are necessary",
+   "paraphrases": [
+    "Draghi says national structural reforms are still needed to deliver sustainable growth",
+    "Some countries haven't reaped the euro's full benefits partly because national reforms are necessary",
+    "Reforms at the national level remain necessary under any monetary system, Draghi says"
+   ],
+   "decoys": [
+    "Draghi says national reforms are no longer necessary now that the euro is established",
+    "Draghi says national reforms have been completed across the euro area"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "In some countries not all of the euro's benefits have been realised in full",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:benefits?|gains?).{0,80}(?:not (?:been )?(?:fully|all|in full)|yet to be (?:fully )?(?:realised|realized|reaped)|unrealised|unrealized)",
+    "(?:not all|not (?:fully|yet)|yet to|haven't|have not).{0,80}(?:benefits?|gains?)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "But in some countries, not all of the euro's benefits have been realised in full.",
+   "paraphrases": [
+    "Draghi concedes the euro's benefits have not been fully realised in some countries",
+    "Not all member states have reaped the full benefits of the euro",
+    "In some countries the gains from the single currency have yet to be fully realised"
+   ],
+   "decoys": [
+    "Draghi says all countries have fully realised the euro's benefits",
+    "Draghi says the euro has brought no benefits to any country"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "The single currency gave euro area members monetary policy sovereignty (sovereignty would otherwise be lost)",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:sovereign\\w*).{0,80}(?:gave|given|give|restor\\w*|regain\\w*|retain\\w*|preserv\\w*|strengthen\\w*)|(?:gave|given|give|restor\\w*|regain\\w*|retain\\w*|preserv\\w*|strengthen\\w*).{0,80}(?:sovereign\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:(?<!otherwise be )lost|lose|cost|surrender\\w*|gave up|give up|ced(?:e|ed|ing)).{0,80}sovereign",
+    "sovereign\\w*.{0,40}(?:(?<!otherwise be )lost|surrender|gave up|given up)"
+   ],
+   "quote": "the single currency has given to all members of the euro area their monetary policy sovereignty",
+   "paraphrases": [
+    "Draghi argues the euro gave all euro area members monetary policy sovereignty",
+    "Pooling sovereignty in the single currency restored members' monetary sovereignty versus pre-euro arrangements",
+    "The euro lets member states retain sovereignty that would otherwise be lost in a global world"
+   ],
+   "decoys": [
+    "Draghi says the euro cost member states their monetary policy sovereignty",
+    "Draghi concedes countries lost sovereignty over monetary matters by adopting the euro"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "The euro has safeguarded the integrity of the Single Market",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:safeguard\\w*|protect\\w*|preserv\\w*).{0,80}(?:single market)|(?:single market).{0,80}(?:safeguard\\w*|protect\\w*|preserv\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:fragment\\w*|undermin\\w*|damag\\w*|erod\\w*).{0,80}(?:single market)|(?:single market).{0,80}(?:fragment\\w*|undermin\\w*|damag\\w*|erod\\w*)"
+   ],
+   "quote": "The euro has safeguarded the integrity of the Single Market.",
+   "paraphrases": [
+    "The euro has safeguarded the integrity of the Single Market",
+    "Draghi credits the single currency with protecting the Single Market's integrity",
+    "Euro helped preserve the single market, Draghi says"
+   ],
+   "decoys": [
+    "Draghi says the euro has fragmented the Single Market",
+    "Draghi says the euro undermined the integrity of the Single Market"
+   ]
+  }
+ ]
+}

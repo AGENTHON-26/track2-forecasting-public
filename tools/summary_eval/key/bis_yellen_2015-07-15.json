@@ -1,0 +1,241 @@
+{
+ "doc_id": "bis_yellen_2015-07-15",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "FOMC kept the federal funds target range at 0 to 1/4 percent",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:fed(?:eral)? funds|funds rate|policy rate|target range|FFR).{0,80}(?:(?<![\\d./])0 ?(?:to|-) ?(?:1/4|0?\\.25|25 ?(?:bp|basis))|zero to (?:1/4|0?\\.25|25))|(?:(?<![\\d./])0 ?(?:to|-) ?(?:1/4|0?\\.25|25 ?(?:bp|basis))|zero to (?:1/4|0?\\.25|25)).{0,80}(?:fed(?:eral)? funds|funds rate|policy rate|target range|FFR)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "Libor|SNB|franc"
+   ],
+   "quote": "maintain the target range for the federal funds rate at 0 to 1/4 percent",
+   "paraphrases": [
+    "Fed held the fed funds target range at 0-1/4%",
+    "FOMC keeps federal funds rate target at 0 to 0.25 percent",
+    "Policy rate range unchanged at 0-25bp"
+   ],
+   "decoys": [
+    "Fed raised the fed funds target range to 1/4 to 1/2 percent",
+    "Fed kept the fed funds target range at 0.5 to 0.75 percent"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Yellen: if the economy evolves as expected, a fed funds rate increase will likely be appropriate at some point this year",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:rais\\w*|hik\\w*|increas\\w*|lift-?off|lift\\w*|tighten\\w*|first (?:rate )?(?:hike|increase|move)).{0,80}(?:(?:later |sometime |at some point )?this year|before (?:the )?(?:end of (?:the |this )?year|year-?end|year end)|by (?:year-?end|year end|the end of (?:the |this )?year)|in 2015)|(?:(?:later |sometime |at some point )?this year|before (?:the )?(?:end of (?:the |this )?year|year-?end|year end)|by (?:year-?end|year end|the end of (?:the |this )?year)|in 2015).{0,80}(?:rais\\w*|hik\\w*|increas\\w*|lift-?off|lift\\w*|tighten\\w*|first (?:rate )?(?:hike|increase|move))"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:unlikely|not (?:be )?(?:likely|appropriate)|rules? out|ruled out|won't|will not).{0,40}(?:rais\\w*|hik\\w*|increas\\w*|lift-?off|lift\\w*|tighten\\w*|first (?:rate )?(?:hike|increase|move))|(?:rais\\w*|hik\\w*|increas\\w*|lift-?off|lift\\w*|tighten\\w*|first (?:rate )?(?:hike|increase|move)).{0,40}(?:unlikely|not (?:be )?(?:likely|appropriate)|rules? out|ruled out|won't|will not)"
+   ],
+   "quote": "economic conditions likely would make it appropriate at some point this year to raise the federal funds rate target",
+   "paraphrases": [
+    "Yellen expects it will likely be appropriate to raise rates at some point this year",
+    "Fed liftoff likely later this year if the economy evolves as expected",
+    "Yellen signals first rate hike probably before year-end"
+   ],
+   "decoys": [
+    "Yellen says a rate hike is unlikely this year",
+    "Yellen says it will likely be appropriate to raise rates at some point next year"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Liftoff requires the FOMC to be reasonably confident that inflation will move back to 2 percent over the medium term",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "reasonabl[ey] confiden\\w*.{0,80}(?:(?<![\\d.])2 ?(?:%|percent)|target|objective|goal)",
+    "confiden\\w*.{0,60}inflation.{0,60}(?:mov\\w*|return\\w*|back|head\\w*|ris\\w*).{0,30}(?<![\\d.])2 ?(?:%|percent)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "is reasonably confident that inflation will move back to its 2 percent objective over the medium term",
+   "paraphrases": [
+    "Rate hike requires FOMC to be reasonably confident inflation will return to 2% over the medium term",
+    "Fed to lift rates once reasonably confident inflation moves back to its 2 percent objective",
+    "Liftoff conditional on confidence that inflation will head back to 2%"
+   ],
+   "decoys": [
+    "Fed will raise rates only once inflation has actually reached 2 percent",
+    "Fed will raise rates once reasonably confident inflation will move back to 3 percent"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "The unemployment rate stands at 5.3 percent",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:unemployment|jobless).{0,80}(?:(?<![\\d.])5\\.3 ?(?:%|percent|pct|per cent))|(?:(?<![\\d.])5\\.3 ?(?:%|percent|pct|per cent)).{0,80}(?:unemployment|jobless)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the unemployment rate now stands at 5.3 percent",
+   "paraphrases": [
+    "US unemployment rate at 5.3%",
+    "Jobless rate now 5.3 percent",
+    "Unemployment rate currently 5.3 pct"
+   ],
+   "decoys": [
+    "US unemployment rate at 5.8%",
+    "US unemployment rate at 6.3%"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Labor market still has some slack; conditions not yet consistent with maximum employment",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:slack).{0,80}(?:still|remain\\w*|some|persist\\w*|continu\\w*|lingering|residual)|(?:still|remain\\w*|some|persist\\w*|continu\\w*|lingering|residual).{0,80}(?:slack)",
+    "(?:maximum employment|full employment).{0,80}(?:not yet|short of|not (?:at|consistent)|yet to)|(?:not yet|short of|not (?:at|consistent)|yet to).{0,80}(?:maximum employment|full employment)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "no (?:remaining |more |longer any )?slack",
+    "slack.{0,40}(?:eliminated|gone|absorbed|disappeared)",
+    "(?<!not )(?<!yet )(?:reached|achieved|attained) (?:maximum|full) employment",
+    "(?<!not )(?<!yet )at (?:maximum|full) employment"
+   ],
+   "quote": "there is still some slack in labor markets",
+   "paraphrases": [
+    "Yellen says there is still some slack in the labor market",
+    "Labor market not yet consistent with maximum employment, FOMC judges",
+    "Some labor-market slack remains, e.g. discouraged workers and involuntary part-timers"
+   ],
+   "decoys": [
+    "Yellen says labor market slack has been eliminated",
+    "Yellen says the labor market has reached maximum employment"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Nonfarm payroll gains averaged about 210,000 a month in the first half of 2015",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:payroll|jobs|job gains|job growth|employment|hiring|NFP).{0,80}(?:(?<![\\d.,])210(?:,?000|k| ?thousand))|(?:(?<![\\d.,])210(?:,?000|k| ?thousand)).{0,80}(?:payroll|jobs|job gains|job growth|employment|hiring|NFP)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "210(?:,?000|k| ?thousand)(?: (?:jobs|payrolls))?(?: (?:a|per) month| monthly)? (?:in|during|over|for) 2014"
+   ],
+   "quote": "monthly gains in nonfarm payroll employment averaged about 210,000 over the first half of this year",
+   "paraphrases": [
+    "Nonfarm payroll gains averaged about 210,000 a month in the first half of the year",
+    "Payrolls rose an average 210k per month over H1",
+    "Job growth averaged about 210 thousand monthly in 1H15"
+   ],
+   "decoys": [
+    "Nonfarm payroll gains averaged about 260,000 a month in the first half of the year",
+    "Monthly payroll gains averaged about 210,000 in 2014"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Core PCE inflation was up only 1-1/4 percent over the 12 months ending in May",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:core).{0,80}(?:(?<![\\d/.])(?:1-1/4|1 1/4|1\\.25|1¼) ?(?:%|percent|pct|per cent))|(?:(?<![\\d/.])(?:1-1/4|1 1/4|1\\.25|1¼) ?(?:%|percent|pct|per cent)).{0,80}(?:core)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?<!\\d)2004(?!\\d)|second half of (?:last year|2004)|annuali[sz]ed|annual (?:rate|pace)|\\b2H ?0?4|\\bH2 ?0?4"
+   ],
+   "quote": "the core index, which excludes the volatile food and energy components, up only 1-1/4 percent over the same period",
+   "paraphrases": [
+    "Core PCE inflation up only 1-1/4% over the year to May",
+    "Core PCE prices rose only 1.25 percent y/y through May",
+    "Core PCE (ex food & energy) at 1 1/4 pct"
+   ],
+   "decoys": [
+    "Core PCE inflation up only 1-3/4% over the year to May",
+    "Headline PCE inflation up only 1-1/4% over the year to May"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Recent low inflation readings largely reflect transitory factors (earlier oil and import price declines)",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:inflation|price).{0,80}(?:transitory|temporary|one-off)|(?:transitory|temporary|one-off).{0,80}(?:inflation|price)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "not (?:just |merely |simply )?(?:transitory|temporary)",
+    "(?:inflation).{0,60}(?:persistent|lasting|entrenched|structural)|(?:persistent|lasting|entrenched|structural).{0,60}(?:inflation)"
+   ],
+   "quote": "the recent low readings on total PCE inflation reflect influences that are likely to be transitory",
+   "paraphrases": [
+    "Low PCE inflation largely reflects transitory factors like the oil price drop and cheaper imports",
+    "Yellen attributes soft inflation mainly to transitory influences (energy, non-energy import prices)",
+    "Weak inflation readings seen as temporary, driven by earlier oil and import price declines"
+   ],
+   "decoys": [
+    "Yellen says low inflation reflects persistent, not transitory, forces",
+    "Yellen says weak GDP growth largely reflects transitory factors"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "FOMC expects U.S. GDP growth to strengthen over the remainder of this year",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:GDP|growth|economy|activity).{0,80}(?:strengthen\\w*|pick\\w* up|accelerat\\w*|firm(?:s|ed|ing|er)\\b|rebound\\w*|improv\\w*|stronger)|(?:strengthen\\w*|pick\\w* up|accelerat\\w*|firm(?:s|ed|ing|er)\\b|rebound\\w*|improv\\w*|stronger).{0,80}(?:GDP|growth|economy|activity)",
+    "remainder of|rest of (?:the |this )?(?:year|2015)|second half|\\bH2\\b|\\b2H|later this year|balance of (?:the |this )?year"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(?:GDP|growth|economy)(?: growth)?.{0,30}(?:to|will|would) (?:weaken|slow|decelerate|contract|soften)",
+    "(?:weaker|slower|softer) (?:GDP )?growth"
+   ],
+   "quote": "the FOMC expects U.S. GDP growth to strengthen over the remainder of this year",
+   "paraphrases": [
+    "FOMC expects GDP growth to strengthen over the rest of 2015",
+    "Growth should pick up in H2 as transitory drags fade",
+    "Fed sees U.S. economic growth firming over the remainder of this year"
+   ],
+   "decoys": [
+    "FOMC expects U.S. GDP growth to slow over the remainder of this year",
+    "FOMC expects GDP growth to strengthen in 2016"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Policy is likely to remain highly accommodative for quite some time after the first rate increase",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:accommodat\\w*).{0,80}(?:quite some time|some time after|(?:for )?(?:a long|an extended|a prolonged|some) (?:time|period)|after (?:the )?(?:first|initial) (?:rate )?(?:increase|hike|move)|after lift-?off|even after|beyond lift-?off)|(?:quite some time|some time after|(?:for )?(?:a long|an extended|a prolonged|some) (?:time|period)|after (?:the )?(?:first|initial) (?:rate )?(?:increase|hike|move)|after lift-?off|even after|beyond lift-?off).{0,80}(?:accommodat\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "only (?:briefly|temporarily|for a short)",
+    "quickly (?:turn|become|move)\\w* (?:restrictive|tight)"
+   ],
+   "quote": "the stance of monetary policy will likely remain highly accommodative for quite some time after the first increase in the federal funds rate",
+   "paraphrases": [
+    "Policy likely to stay highly accommodative for quite some time after the first hike",
+    "Even after liftoff, monetary policy will remain highly accommodative for some time",
+    "Yellen: stance to stay accommodative long after the initial rate increase"
+   ],
+   "decoys": [
+    "Yellen says policy will turn restrictive soon after the first rate increase",
+    "Yellen says policy will remain highly accommodative only briefly after the first rate increase"
+   ]
+  }
+ ]
+}

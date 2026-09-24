@@ -1,0 +1,235 @@
+{
+ "doc_id": "bis_carney_2019-06-06",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Keeping one's own house in order (domestic reform) is necessary but no longer sufficient for sustainable capital flows",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(house in order|domestic (?:reform|institution|polic)\\w*|pull factors).{0,80}(not (?:be )?(?:sufficient|enough)|insufficient|won'?t be (?:sufficient|enough)|no longer (?:sufficient|enough)|not enough)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Keeping one's own house in order is necessary but not sufficient for sustainable capital flows in the new world order.",
+   "paraphrases": [
+    "Carney: keeping one's own house in order is necessary but not sufficient for sustainable capital flows",
+    "EMEs putting their house in order won't be enough; the 'neighbourhood' must change too",
+    "Domestic reforms alone are no longer sufficient to secure stable capital flows, Carney argues"
+   ],
+   "decoys": [
+    "Carney: keeping one's own house in order is sufficient for sustainable capital flows",
+    "Carney says domestic reforms are unnecessary for sustainable capital flows"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "The Bank of England is developing a 'Capital Flows-at-Risk' framework built on pull factors, push factors and 'the pipes'",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "(\\bboe\\b|bank of england).{0,60}capital[- ]flows?[- ]at[- ]risk"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the Bank of England is developing a holistic 'Capital Flows-at-Risk' framework",
+   "paraphrases": [
+    "The BoE is developing a 'Capital Flows-at-Risk' framework built on pull, push and pipes",
+    "Carney unveils a Bank of England Capital-Flows-at-Risk model to gauge EM outflow tail risk",
+    "BoE's new capital flows at risk framework assesses push factors, pull factors and the pipes"
+   ],
+   "decoys": [
+    "The IMF is developing a 'Capital Flows-at-Risk' framework",
+    "The BoE is developing a 'GDP-at-Risk' framework for EMEs"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Structural changes (FX debt, market-based finance, investment funds) have raised the sensitivity of Capital Flows-at-Risk to push factors by 50% since the crisis",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(sensitiv\\w*|responsive).{0,80}push|push.{0,80}(sensitiv\\w*|responsive)",
+    "(?<![\\d.])50(?![\\d.])\\s*(?:percent|per cent|%|pct)|by (?:a |one[- ])?half|up (?:by )?(?:a |one[- ])?half"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "\\b(reduc\\w*|lower\\w*|cut|halv\\w*|decreas\\w*)\\b"
+   ],
+   "quote": "have increased the sensitivity of Capital Flows-at-Risk to push factors by 50% since the crisis",
+   "paraphrases": [
+    "Structural changes have raised the sensitivity of capital flows-at-risk to push factors by 50% since the crisis",
+    "FX debt, market-based finance and investment funds have made EM flows 50 percent more sensitive to global push shocks",
+    "Sensitivity of EM capital flows to push shocks up by half since the GFC, largely using up EM self-insurance"
+   ],
+   "decoys": [
+    "Structural changes have raised the sensitivity of capital flows-at-risk to push factors by 15% since the crisis",
+    "Structural changes have reduced the sensitivity of capital flows-at-risk to push factors by 50% since the crisis"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "By 2030 the sensitivity of Capital Flows-at-Risk to push factors could triple",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "sensitiv\\w*",
+    "tripl\\w*|trebl\\w*|three-?fold|\\b3x\\b|three times",
+    "(?<!\\d)2030(?!\\d)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "By 2030, the sensitivity of Capital Flows-at-Risk to push factors could triple",
+   "paraphrases": [
+    "By 2030 the sensitivity of capital flows-at-risk to push factors could triple",
+    "Carney warns EM capital flows' sensitivity to push shocks could treble by 2030",
+    "Push-factor sensitivity of EME capital flows may rise threefold by 2030, cancelling out two decades of reforms"
+   ],
+   "decoys": [
+    "By 2030 the sensitivity of capital flows-at-risk to push factors could double",
+    "By 2020 the sensitivity of capital flows-at-risk to push factors could triple"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Rising capital-flow volatility could take 1.2 percentage points off EME growth by 2030",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(\\beme|emerging|\\bem)\\b.{0,40}growth|growth.{0,60}(\\beme|emerging)",
+    "(?<![\\d.])1\\.2(?!\\d)\\s*(?:percentage points?|pp\\w*|ppts?|pts?|points?|percent|per cent|%)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "\\b(add\\w*|boost\\w*|rais\\w*|lift\\w*)\\b.{0,30}1\\.2"
+   ],
+   "quote": "could take 1.2 percentage points off EME growth by 2030",
+   "paraphrases": [
+    "Higher capital-flow volatility could take 1.2 percentage points off EME growth",
+    "EM growth could be 1.2pp lower by 2030 due to structural changes in the financial system",
+    "Carney: higher flow volatility may cut emerging-market growth by 1.2 ppts by 2030"
+   ],
+   "decoys": [
+    "Higher capital-flow volatility could take 0.2 percentage points off EME growth",
+    "Higher capital-flow volatility could add 1.2 percentage points to EME growth"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Rising spillbacks mean advanced-economy growth could be at least 0.2 percentage points lower",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "advanced|\\baes?\\b|developed",
+    "(?<![\\d.])0\\.2(?!\\d)\\s*(?:percentage points?|pp\\w*|ppts?|pts?|points?|percent|per cent|%)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "Rising 'spillbacks' to advanced economies means growth there could also be at least 0.2 percentage points lower.",
+   "paraphrases": [
+    "Spillbacks mean advanced-economy growth could be at least 0.2 percentage points lower",
+    "AE growth could take a hit of 0.2pp or more from EM spillbacks",
+    "Carney: advanced economies' growth could fall by at least 0.2 ppts through spillbacks"
+   ],
+   "decoys": [
+    "Spillbacks mean advanced-economy growth could be at least 2 percentage points lower",
+    "Spillbacks mean EME growth could be at least 0.2 percentage points lower"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "To self-insure, EMEs would need to add about $9 trillion of reserves (doubling them) over the next 10 years",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "reserve",
+    "(?<![\\d.])9(?![\\d.])\\s*(?:trillion|tn|trn|trl)\\b"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "EMEs would need to double their current level of reserves over the next 10 years - an increase of $9 trillion",
+   "paraphrases": [
+    "EMEs would need $9 trillion more in reserves, doubling current levels, to stay adequately self-insured",
+    "Self-insurance would require EM reserves to double over the next decade, a $9tn increase",
+    "Maintaining reserve adequacy would take an extra $9 trn of EM reserves"
+   ],
+   "decoys": [
+    "EMEs would need $19 trillion more in reserves",
+    "EMEs would need $9 billion more in reserves"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Carney calls for a tripling of IMF resources over the next decade (pooling ~$3tn instead of self-insurance)",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(\\bimf\\b|\\bfund'?s? resources).{0,60}(tripl\\w*|trebl\\w*|three-?fold)|(tripl\\w*|trebl\\w*|three-?fold).{0,60}(\\bimf\\b|\\bfund'?s? resources)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(have|has) (?:more than )?tripled|tripled over the past"
+   ],
+   "quote": "This would imply a tripling in the IMF's resources over the next decade",
+   "paraphrases": [
+    "Carney argues for tripling the IMF's resources over the next decade",
+    "Pooling ~$3tn at the IMF, implying a threefold rise in Fund resources, would be cheaper than self-insurance",
+    "IMF resources should treble over ten years to keep pace with global external liabilities"
+   ],
+   "decoys": [
+    "Carney argues for doubling the IMF's resources over the next decade",
+    "Carney argues for cutting the IMF's resources over the next decade"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "The dollar is as dominant today as it was during the Bretton Woods era",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "dollar|\\busd\\b",
+    "dominan\\w*",
+    "bretton woods"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "less dominant|declin\\w*|\\bfade\\w*|waning|diminish\\w*"
+   ],
+   "quote": "the dollar is as dominant today as it was during the Bretton Woods era",
+   "paraphrases": [
+    "The dollar is as dominant today as it was during Bretton Woods",
+    "Carney: dollar dominance in the international monetary system rivals the Bretton Woods era and is likely to persist",
+    "USD remains as dominant as in the Bretton Woods period"
+   ],
+   "decoys": [
+    "The dollar is far less dominant today than during the Bretton Woods era",
+    "The dollar's dominance is set to fade quickly, Carney says"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "A fifth of all surges in capital flows to EMEs have ended in financial crises",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "surge\\w*.{0,80}(crisis|crises)",
+    "\\b(?:a|one) fifth|one in five|\\b1 in 5\\b|(?<![\\d.])20(?![\\d.])\\s*(?:percent|per cent|%)|(?<![\\d.])1/5(?![\\d.])"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "without|avoid\\w*|\\bno crisis"
+   ],
+   "quote": "a fifth of all surges in capital flows to EMEs have ended in financial crises",
+   "paraphrases": [
+    "A fifth of all surges in capital flows to EMEs have ended in financial crises",
+    "About 20% of EM capital-inflow surges have ended in crisis",
+    "One in five capital flow surges to emerging markets ended in a financial crisis"
+   ],
+   "decoys": [
+    "A third of all surges in capital flows to EMEs have ended in financial crises",
+    "A fifth of all surges in capital flows to EMEs have ended smoothly, without crises"
+   ]
+  }
+ ]
+}

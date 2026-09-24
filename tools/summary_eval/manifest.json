@@ -462,5 +462,101 @@
   "doc_type": "positioning_report",
   "timestamp": "2014-11-28",
   "chars": 7881
+ },
+ {
+  "doc_id": "ecb_draghi_2019-01-15",
+  "unit": "t2-F1-dkk-peg-2019",
+  "file": "ecb_draghi_2019-01-15.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2019-01-15",
+  "chars": 3229
+ },
+ {
+  "doc_id": "ecb_draghi_2014-11-12",
+  "unit": "t2-F2-ecb-qe-telegraph-2014",
+  "file": "ecb_draghi_2014-11-12.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2014-11-12",
+  "chars": 7472
+ },
+ {
+  "doc_id": "bis_jordan_2014-12-01",
+  "unit": "t2-F4-chf-floor-strain-2015",
+  "file": "bis_jordan_2014-12-01.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2014-12-01",
+  "chars": 10143
+ },
+ {
+  "doc_id": "ecb_draghi_2012-06-15",
+  "unit": "t2-F2-whatever-it-takes-2012",
+  "file": "ecb_draghi_2012-06-15.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2012-06-15",
+  "chars": 13209
+ },
+ {
+  "doc_id": "bis_yellen_2015-07-15",
+  "unit": "t2-F2-cnh-stress-2015",
+  "file": "bis_yellen_2015-07-15.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2015-07-15",
+  "chars": 14685
+ },
+ {
+  "doc_id": "bis_kuroda_2014-09-16",
+  "unit": "t2-F2-boj-thin-signal-2014",
+  "file": "bis_kuroda_2014-09-16.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2014-09-16",
+  "chars": 18108
+ },
+ {
+  "doc_id": "bis_greenspan_2005-02-16",
+  "unit": "t2-F1-conundrum-2005",
+  "file": "bis_greenspan_2005-02-16.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2005-02-16",
+  "chars": 21542
+ },
+ {
+  "doc_id": "bis_const\u00e2ncio_2015-11-16",
+  "unit": "t2-F4-china-panic-2016",
+  "file": "bis_const\u00e2ncio_2015-11-16.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2015-11-16",
+  "chars": 24662
+ },
+ {
+  "doc_id": "bis_hoenig_2008-09-01",
+  "unit": "t2-F4-aud-gfc-2008",
+  "file": "bis_hoenig_2008-09-01.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2008-09-01",
+  "chars": 27228
+ },
+ {
+  "doc_id": "bis_gieve_2007-06-26",
+  "unit": "t2-F4-quant-crowding-2007",
+  "file": "bis_gieve_2007-06-26.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2007-06-26",
+  "chars": 31344
+ },
+ {
+  "doc_id": "bis_yellen_2016-06-06",
+  "unit": "t2-F3-brexit-joint-2016",
+  "file": "bis_yellen_2016-06-06.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2016-06-06",
+  "chars": 35309
+ },
+ {
+  "doc_id": "bis_carney_2019-06-06",
+  "unit": "t2-F2-trade-war-escalation-2019",
+  "file": "bis_carney_2019-06-06.txt",
+  "doc_type": "cb_speech",
+  "timestamp": "2019-06-06",
+  "chars": 48587
  }
 ]

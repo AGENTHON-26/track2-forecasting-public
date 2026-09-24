@@ -211,7 +211,8 @@ Only state what the document says. Never add topics, names, causes or numbers it
 and do not write bullets about what the document does NOT say.
 Output bullet points only (lines starting with "- "), one sentence each, at most {bullets} bullets.
 First cover EVERY item in the checklist below, in order, each in its own bullet; skip an item only
-if the document has nothing on it. Then use any remaining bullets for other important points.
+if the document has nothing on it. Then use any remaining bullets for other important points --
+use the full allowance when the document has that much to say; do not stop early.
 Condense, do not copy paragraphs.
 If the document has no monetary-policy or market-relevant content, reply with the single line:
 - no monetary-policy or market-relevant content
@@ -252,12 +253,18 @@ _FOCUS: dict[str, tuple[str, str]] = {
         # Tried 2026-09-24: asking for cited figures, dates and institutional commitments moved the
         # unseen test half 44 -> 58% but the dev half 76 -> 52% (net 59 -> 56 over all eight docs).
         # No measurable gain, so the original stays. Speeches remain the open problem.
+        # Measured 2026-09-24: the body of a speech (the third quarter of the text) had 14% of its
+        # facts covered against 60%+ for the opening and the close, and the old "say so and keep only
+        # the policy-relevant points" exit collapsed non-policy speeches to ~900 chars (Dudley on
+        # trade: 1 of 24 facts). Every section gets covered; non-policy speeches keep their economics.
         "- speaker, institution and role (first bullet)\n"
         "- the speaker's stance on the policy path (tighter / easier / on hold) and why\n"
         "- views on inflation, labor market and growth\n"
         "- any explicit hint about the next policy moves, quoted exactly\n"
-        "- if the speech is mainly not about monetary policy, say so in one bullet and keep only\n"
-        "  the policy-relevant points",
+        "- the figures and arguments from the BODY of the speech, section by section, not only\n"
+        "  its opening and its conclusion\n"
+        "- if the speech is mainly not about monetary policy, say so in one bullet, then still\n"
+        "  cover its economic content: the mechanisms, figures and conclusions the speaker gives",
     ),
     "landmark": (
         "a landmark policy communication (testimony, key speech or announcement)",
@@ -286,6 +293,8 @@ _FOCUS: dict[str, tuple[str, str]] = {
         "- the release name and the reference period\n"
         "- the headline figure, month-over-month and year-over-year\n"
         "- core / ex-food-and-energy or equivalent figures\n"
+        # Tried 2026-09-24: a line for the comparisons the release makes ("smallest since March
+        # 2021") cost 91 -> 86% on the test half and 100 -> 94% on dev. Reverted.
         "- the change versus the prior period and any revisions\n"
         "- the components that drove the change",
     ),

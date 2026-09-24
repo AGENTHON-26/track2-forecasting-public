@@ -134,6 +134,40 @@ What changed and stayed:
   and corporate_8k checklist additions (no gain / a loss, see table). Both reverted to the text
   that was measured.
 
+### Third pass, 2026-09-24 — speeches, with 12 more keyed docs
+
+**Diagnosis first, by position.** Coverage of the 8 original speeches by where the fact sits in
+the text: opening 64%, second quarter 42%, **third quarter 14%**, close 60% — the model summarizes
+intro and conclusion and skips the body. And the old exit clause ("mainly not about policy: say
+so and keep only the policy-relevant points") collapsed non-policy speeches: Dudley on trade got
+750-1,170-char summaries and 1 of 24 facts. Two generic lines: cover the body section by section;
+for a non-policy speech, say so and then still cover its economic content.
+
+**Keyed set 8 -> 20 speeches** (Opus subagents, `manifest.json` / `split.json` updated, 70 keys,
+0 errors). Old prompt on the 12 new ones: 72% — so the original 8 were a hard draw (Dudley,
+Gieve, Wilkins), and "speeches at 56%" overstated it.
+
+| speeches | before | after |
+|---|---|---|
+| all 20, must-recall | 66% | **73%** |
+| all 20, all-point | 55% | **67%** |
+| numbers | 60% | **82%** |
+| the 12 unseen by any prompt | 72% | 76% |
+| test half (10) / dev half (10) | 78 / 26 | 90 / 38 |
+
+Also in this pass: **"use the full allowance; do not stop early"** in the shared frame (the model
+wrote 8-12 of 15 bullets and dropped late items). Overall up on both halves (test 86 -> 87, dev
+80 -> 84); one runaway reply in ~200 calls (a long speech hit the 4k-token cap; the retry got
+it). **Tried and reverted:** a macro line for the comparisons a release makes ("smallest since
+March 2021") — 91 -> 86% test, 100 -> 94% dev; kept as a comment. Macro re-measured with it
+reverted but the frame line kept: **87%** (v6: 95%) — the "full allowance" line costs macro ~8
+points while lifting minutes 83 -> 86, beige 84 -> 89, corporate_8k 72 -> 80, landmark 86 -> 88
+and speeches; kept on the overall rule (test 86 -> 88, dev 80 -> 80).
+
+**Final, 70 docs x 3 runs (`out/eval_final.json`): must-recall 83% (82/85/83), all-point 74%;
+test half 88%, dev half 80%.** By type: statement 97, beige 89, landmark 88, CFTC 88, macro 87,
+minutes 86, corporate_8k 80, cb_speech 73.
+
 **Request budget (2026-09-24).** House rule: **25 admitted requests per unit**, ≤4,000 output
 tokens each, and a failed call or a retry spends a slot too (README "House API allocation";
 CHANGELOG). The busiest unit needs 16 calls with no retries; the old retry logic could spend up

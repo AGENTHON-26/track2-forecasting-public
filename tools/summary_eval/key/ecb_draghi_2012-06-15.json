@@ -1,0 +1,245 @@
+{
+ "doc_id": "ecb_draghi_2012-06-15",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "The three-year LTROs have broadly met their objectives",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:LTROs?|long(?:er)?-term refinancing).{0,80}(?:\\bmet\\b|achiev\\w*|succe\\w*|work(?:ed|ing)|effective|delivered)|(?:\\bmet\\b|achiev\\w*|succe\\w*|work(?:ed|ing)|effective|delivered).{0,80}(?:LTROs?|long(?:er)?-term refinancing)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:LTROs?|long(?:er)?-term refinancing).{0,80}(?:fail\\w*|fell short|ineffective|not (?:yet )?(?:been )?met|disappoint\\w*)|(?:fail\\w*|fell short|ineffective|not (?:yet )?(?:been )?met|disappoint\\w*).{0,80}(?:LTROs?|long(?:er)?-term refinancing)"
+   ],
+   "quote": "Their objectives have been broadly met.",
+   "paraphrases": [
+    "Draghi says the three-year LTROs have broadly met their objectives",
+    "3-year LTROs achieved their goals, removing supply-side constraints on bank credit",
+    "ECB's long-term refinancing operations largely succeeded, Draghi says"
+   ],
+   "decoys": [
+    "Draghi says the three-year LTROs have failed to meet their objectives",
+    "Draghi says the three-year LTROs fell short of their goals"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "The April bank lending survey shows a marked decline in the net tightening of credit standards",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "tighten\\w*.{0,80}(?:declin\\w*|fell|\\beas(?:e|ed|ing)\\b|less|lower|reduc\\w*|moderat\\w*)",
+    "(?:declin\\w*|fell|less|lower|reduc\\w*|moderat\\w*).{0,80}tighten"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:increas\\w*|sharp\\w*|intensif\\w*|more)\\W.{0,20}tighten",
+    "tighten\\w*.{0,20}(?:sharp|more|increas)"
+   ],
+   "quote": "The April bank lending survey points to a marked decline in the net tightening of credit standards",
+   "paraphrases": [
+    "April bank lending survey shows a marked decline in net tightening of credit standards",
+    "Banks tightened lending standards far less in the April BLS",
+    "Net credit-standard tightening eased markedly, per the bank lending survey"
+   ],
+   "decoys": [
+    "April bank lending survey shows a marked increase in net tightening of credit standards",
+    "Banks sharply tightened credit standards, the April survey shows"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Inflation expectations remain well anchored",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "inflation expectations.{0,80}(?:anchored|consistent with|in line with|stable)",
+    "(?:anchored|stable).{0,20}inflation expectations"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "de-?anchor|unanchor|less anchored|(?:rising|drift\\w*|mov\\w*) above"
+   ],
+   "quote": "Inflation expectations remain well anchored",
+   "paraphrases": [
+    "Draghi: inflation expectations remain well anchored",
+    "Long-term inflation expectations stay firmly anchored, consistent with price stability",
+    "Market-based 10-year inflation expectations are consistent with medium-term price stability"
+   ],
+   "decoys": [
+    "Draghi warns inflation expectations are becoming de-anchored",
+    "Draghi says inflation expectations are rising above the ECB's definition of price stability"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "There is no inflation risk in any euro area country",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "no inflation\\w* risks?",
+    "no (?:euro[- ]area )?(?:country|member)\\w*.{0,40}inflation\\w* risk"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "there is no inflation risk in any euro area country",
+   "paraphrases": [
+    "Draghi sees no inflation risk in any euro area country",
+    "There is no inflationary risk anywhere in the euro area, Draghi says",
+    "No euro area country faces inflation risk, according to Draghi"
+   ],
+   "decoys": [
+    "Draghi sees rising inflation risk in some euro area countries",
+    "Draghi flags inflation risk in Germany"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Supply-side constraints on bank credit have been removed",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "supply[- ]?(?:side)?.{0,40}constrain\\w*.{0,60}(?:remov\\w*|lift\\w*|\\beas(?:e|ed|ing)\\b|elimin\\w*|gone)",
+    "(?:remov\\w*|lift\\w*|elimin\\w*|no longer).{0,60}supply[- ]?(?:side)?.{0,40}constrain",
+    "no longer constrained.{0,40}supply"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "supply.{0,40}constrain\\w*.{0,60}(?:intensif\\w*|tighten\\w*|worsen\\w*|persist\\w*)"
+   ],
+   "quote": "it confirms that supply side constraints on bank credit have been removed",
+   "paraphrases": [
+    "Supply-side constraints on bank credit have been removed, Draghi says",
+    "Draghi: bank credit is no longer constrained on the supply side",
+    "LTROs lifted supply constraints on lending"
+   ],
+   "decoys": [
+    "Supply-side constraints on bank credit have intensified, Draghi says",
+    "Draghi says demand-side constraints on credit have been removed"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "A rebound in credit volumes will be particularly slow given very weak credit demand and heightened risk aversion",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:credit|lending|loans?).{0,80}(?:slow(?!down)\\w*|gradual\\w*|sluggish)|(?:slow(?!down)\\w*|gradual\\w*|sluggish).{0,80}(?:credit|lending|loans?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:rapid|quick|fast|strong|sharp)\\w*.{0,40}(?:rebound|recover)",
+    "(?:rebound|recover)\\w*.{0,40}(?:rapid|quick|fast|sharp)"
+   ],
+   "quote": "In the current environment of very weak credit demand and heightened risk aversion, a rebound in the volume of credit will be particularly slow.",
+   "paraphrases": [
+    "Draghi warns a rebound in credit volumes will be particularly slow given weak demand and risk aversion",
+    "Credit growth recovery to be slow amid very weak loan demand",
+    "Lending volumes will only recover slowly, Draghi says"
+   ],
+   "decoys": [
+    "Draghi expects a rapid rebound in credit volumes",
+    "Draghi says credit demand is strong and lending will recover quickly"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Financial markets are fragmenting along national lines, with the interbank market working almost exclusively nationally",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "fragment\\w*",
+    "home bias.{0,40}(?:ris\\w*|increas\\w*|grow\\w*)",
+    "national lines"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "fragment\\w*.{0,60}(?:revers\\w*|\\beas(?:e|ed|ing)\\b|diminish\\w*|healed|resolv\\w*|ended)",
+    "(?:revers\\w*|reduc\\w*|\\bend(?:ed|ing)?\\b)\\W.{0,40}fragment",
+    "more integrated|re-?integrat"
+   ],
+   "quote": "What is new in the current episode is the parallel fragmentation of financial markets.",
+   "paraphrases": [
+    "Draghi highlights fragmentation of euro area financial markets, with interbank lending now almost exclusively national",
+    "Financial fragmentation is the new feature of the crisis, Draghi says, as home bias rises",
+    "Euro area money markets have fragmented along national lines"
+   ],
+   "decoys": [
+    "Draghi says euro area financial markets are becoming more integrated",
+    "Draghi says fragmentation of financial markets has been reversed"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Some national central banks were allowed to enlarge the collateral pool",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:collateral).{0,80}(?:enlarg\\w*|expan\\w*|broaden\\w*|widen\\w*|extend\\w*|\\beas(?:e|ed|ing)\\b)|(?:enlarg\\w*|expan\\w*|broaden\\w*|widen\\w*|extend\\w*|\\beas(?:e|ed|ing)\\b).{0,80}(?:collateral)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:collateral).{0,80}(?:narrow\\w*|tighten\\w*|restrict\\w*|shrink\\w*)|(?:narrow\\w*|tighten\\w*|restrict\\w*|shrink\\w*).{0,80}(?:collateral)"
+   ],
+   "quote": "We have partly responded to the fact of increased heterogeneity by allowing some national central banks to enlarge the collateral pool.",
+   "paraphrases": [
+    "ECB let some national central banks enlarge the collateral pool, accepting more credit claims",
+    "Collateral eligibility was broadened for some NCBs to support SME lending",
+    "Draghi cites expansion of the collateral framework by several national central banks"
+   ],
+   "decoys": [
+    "ECB narrowed the collateral pool for national central banks",
+    "ECB tightened collateral requirements for credit claims"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Over two thirds of firms' external financing comes from banks",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:two[- ]thirds|(?<![\\d/])2/3(?![\\d/])|(?<![\\d.])6[67](?:\\.\\d)?\\s*(?:%|percent(?!age)|per cent|pct)).{0,80}(?:financ\\w*|fund\\w*)|(?:financ\\w*|fund\\w*).{0,80}(?:two[- ]thirds|(?<![\\d/])2/3(?![\\d/])|(?<![\\d.])6[67](?:\\.\\d)?\\s*(?:%|percent(?!age)|per cent|pct))"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "over two thirds of external financing of firms comes from banks",
+   "paraphrases": [
+    "Banks provide over two thirds of firms' external financing in the euro area",
+    "More than 2/3 of corporate external funding comes from banks, Draghi notes",
+    "Over 66% of external financing for euro area firms is bank-based"
+   ],
+   "decoys": [
+    "Banks provide about one third of firms' external financing in the euro area",
+    "Banks provide less than half of firms' external financing in the euro area"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Draghi is working with Van Rompuy, Barroso and Juncker on a longer-term vision for EMU",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "Van Rompuy",
+    "Barroso",
+    "Juncker"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "declin\\w* to|refus\\w*"
+   ],
+   "quote": "I am in close contact with Presidents Herman Van Rompuy, José-Manuel Barroso and Jean-Claude Juncker",
+   "paraphrases": [
+    "Draghi is working with Van Rompuy, Barroso and Juncker on a longer-term vision for EMU",
+    "Draghi, Van Rompuy, Barroso and Juncker are reflecting on the future of economic and monetary union",
+    "Four presidents (Van Rompuy, Barroso, Juncker, Draghi) drafting a long-term EMU roadmap"
+   ],
+   "decoys": [
+    "Draghi is working with Merkel and Hollande on a longer-term vision for EMU",
+    "Draghi declined to work with Van Rompuy, Barroso and Juncker on EMU reform"
+   ]
+  }
+ ]
+}

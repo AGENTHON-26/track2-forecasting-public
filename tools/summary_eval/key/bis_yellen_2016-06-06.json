@@ -1,0 +1,234 @@
+{
+ "doc_id": "bis_yellen_2016-06-06",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Further gradual increases in the federal funds rate are likely to be appropriate if data evolve as expected",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "gradual\\w*.{0,60}(increas\\w*|hike\\w*|rais\\w*|\\brise\\w*|tighten\\w*)|(increas\\w*|hike\\w*|rais\\w*|\\brise\\w*).{0,40}gradual\\w*"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "gradual\\w*.{0,20}\\b(cut\\w*|eas\\w*|lower\\w*)|rapid|aggressive"
+   ],
+   "quote": "further gradual increases in the federal funds rate are likely to be appropriate",
+   "paraphrases": [
+    "Yellen: further gradual increases in the fed funds rate are likely to be appropriate",
+    "Fed chair still expects gradual rate hikes if data cooperate",
+    "Yellen says the FFR will probably need to rise gradually over time"
+   ],
+   "decoys": [
+    "Yellen says further gradual cuts in the federal funds rate are likely to be appropriate",
+    "Yellen signals rapid rate hikes are likely appropriate"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Monetary policy is not on a preset course",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "\\b(not|isn'?t|no|cannot)\\b.{0,15}pre-?set"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "monetary policy is not on a preset course",
+   "paraphrases": [
+    "Yellen stresses monetary policy is not on a preset course",
+    "Policy not on a preset path; shifts in the outlook would change it",
+    "Fed's path isn't preset and will respond to incoming data, Yellen says"
+   ],
+   "decoys": [
+    "Yellen says monetary policy is on a preset course regardless of data",
+    "Yellen says the Fed will follow a predetermined path of hikes"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Payroll gains averaged only about 80,000 per month in April and May",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(payroll|\\bjobs?\\b|hiring|employment).{0,60}(?<![\\d.,])80(?:,000|000| ?k\\b| thousand)(?![\\d,])|(?<![\\d.,])80(?:,000|000| ?k\\b| thousand)(?![\\d,]).{0,60}(payroll|\\bjobs?\\b|hiring|employment)",
+    "(april|\\bapr\\b|\\bmay\\b|recent|latest|two months).{0,60}(?<![\\d.,])80(?:,000|000| ?k\\b| thousand)(?![\\d,])|(?<![\\d.,])80(?:,000|000| ?k\\b| thousand)(?![\\d,]).{0,60}(april|\\bapr\\b|\\bmay\\b|recent|latest|two months)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "averaging only about 80,000 per month",
+   "paraphrases": [
+    "Payroll gains slowed to an average of about 80,000 a month in April and May",
+    "April-May job gains averaged just ~80k per month, a disappointing report",
+    "Nonfarm payrolls rose only about 80 thousand per month over April-May"
+   ],
+   "decoys": [
+    "Payroll gains averaged about 180,000 per month in April and May",
+    "Payroll gains averaged about 80,000 per month in January and February"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "PCE prices rose only about 1 percent over the 12 months through April",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(pce|personal consumption|inflation|price).{0,60}(?<![\\d.])1(?:\\.0)?(?![\\d.])\\s*(?:percent|per cent|%|pct)|(?<![\\d.])1(?:\\.0)?(?![\\d.])\\s*(?:percent|per cent|%|pct).{0,60}(pce|personal consumption|inflation)",
+    "april|\\bapr\\b"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "core.{0,30}(?<![\\d.])1(?:\\.0)?(?![\\d.])\\s*(?:percent|per cent|%|pct)"
+   ],
+   "quote": "Over the 12 months through April, the price index for personal consumption expenditures rose only about 1 percent",
+   "paraphrases": [
+    "PCE inflation was only about 1% in the year through April",
+    "Headline PCE prices rose just ~1 percent y/y through April",
+    "PCE price index up only about 1 percent in the year to April"
+   ],
+   "decoys": [
+    "PCE inflation was about 2% in the year through April",
+    "PCE inflation was about 1% in the year through January"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Yellen expects inflation to move up to 2 percent over the next one to two years",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "inflation.{0,60}(mov\\w* up|mov\\w* back|\\brise|rising|return\\w*|climb\\w*|pick\\w* up|head\\w* back|go back|increas\\w*).{0,40}(?<![\\d.])2(?![\\d.])\\s*(?:percent|per cent|%|pct)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(stay|remain)\\w*.{0,20}(below|under)"
+   ],
+   "quote": "my expectation is that inflation will move up to 2 percent over the next one to two years",
+   "paraphrases": [
+    "Yellen expects inflation to move up to 2% over the next one to two years",
+    "Inflation seen returning to the 2 percent goal within 1-2 years as oil and dollar effects fade",
+    "Yellen: inflation should rise back to 2% over the next couple of years"
+   ],
+   "decoys": [
+    "Yellen expects inflation to move up to 3% over the next one to two years",
+    "Yellen expects inflation to stay well below 2% over the next one to two years"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Average hourly earnings rose 2-1/2 percent over the past 12 months",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(hourly earnings|\\bahe\\b|wage\\w*|\\bpay\\b).{0,60}(?<![\\d.])2(?:\\.5|[- ]1/2)(?![\\d.])\\s*(?:percent|per cent|%|pct)|(?<![\\d.])2(?:\\.5|[- ]1/2)(?![\\d.])\\s*(?:percent|per cent|%|pct).{0,60}(hourly earnings|\\bahe\\b|wage\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "\\b(fell|declin\\w*|dropped|down)\\b"
+   ],
+   "quote": "average hourly earnings for all employees in the nonfarm private sector increased 2-1/2 percent over the past 12 months",
+   "paraphrases": [
+    "Average hourly earnings rose 2.5% over the past year",
+    "AHE up 2-1/2 percent y/y, a sign wage growth may be picking up",
+    "Wages grew 2.5 percent over the year, a bit faster than in recent years"
+   ],
+   "decoys": [
+    "Average hourly earnings rose 3.5% over the past year",
+    "Average hourly earnings fell 2.5% over the past year"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "May's fall in the unemployment rate reflected fewer people seeking work, not more people with jobs",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "unemployment|jobless",
+    "(fewer|less).{0,50}(seeking|looking|searching)|(labou?r[- ]force|participation) (exit\\w*|drop\\w*|declin\\w*|fell)|(left|leaving|exit\\w*) the (?:labou?r )?(?:force|workforce)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "unemployment rate (rose|increas\\w*)|rise in the unemployment"
+   ],
+   "quote": "that decline occurred not because more people had jobs but because fewer people reported that they were actively seeking work",
+   "paraphrases": [
+    "May's drop in the unemployment rate reflected fewer people seeking work, not more people with jobs",
+    "Jobless rate fell because fewer people were actively looking for work",
+    "Unemployment decline in May came from labor-force exits rather than hiring"
+   ],
+   "decoys": [
+    "May's drop in the unemployment rate reflected more people finding jobs",
+    "May's rise in the unemployment rate reflected more people looking for work"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "A UK vote to exit the European Union could have significant economic repercussions",
+   "tier": "should",
+   "kind": "name",
+   "patterns": [
+    "brexit|(\\bu\\.?k\\b\\.?|united kingdom|britain|british).{0,60}(referendum|exit|leav\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "\\b(no|little|minimal|limited) (?:significant )?(?:economic )?(repercussion|consequence|impact|effect)"
+   ],
+   "quote": "A U.K. vote to exit the European Union could have significant economic repercussions.",
+   "paraphrases": [
+    "Yellen flags the UK's EU referendum: a Brexit vote could have significant economic repercussions",
+    "A U.K. vote to leave the EU could have significant economic consequences",
+    "Brexit referendum is a risk that could shift investor sentiment"
+   ],
+   "decoys": [
+    "Yellen says a Brexit vote would have no significant economic repercussions",
+    "Yellen flags Italy's referendum as a key risk"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Yellen views the current stance of monetary policy as modestly accommodative",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(modest\\w*|mild\\w*|somewhat|slightly) (accommodative|stimulative|easy|loose)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the stance of monetary policy at present should be viewed as modestly accommodative",
+   "paraphrases": [
+    "Yellen views the current stance of monetary policy as modestly accommodative",
+    "Policy is modestly accommodative, with the real fed funds rate around -1% versus a near-zero neutral rate",
+    "Current policy only mildly stimulative, Yellen says"
+   ],
+   "decoys": [
+    "Yellen views the current policy stance as modestly restrictive",
+    "Yellen views the current policy stance as highly accommodative"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Market-based proxies for longer-term inflation expectations have moved down noticeably",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(market|tips|inflation-protected|breakeven).{0,80}expectations|expectations.{0,80}(market|tips|inflation-protected|breakeven)",
+    "expectations.{0,100}(moved down|declin\\w*|\\bfell\\b|fallen|lower|drop\\w*|dipped)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "moved up|risen|\\brose\\b|increas\\w*|stable"
+   ],
+   "quote": "proxies for these expectations inferred from financial market instruments like inflation-protected securities have moved down more noticeably",
+   "paraphrases": [
+    "Market-based inflation expectations, e.g. from TIPS, have moved down noticeably",
+    "Yellen notes market-implied inflation expectations have declined more than survey measures",
+    "Financial-market proxies for longer-term inflation expectations have fallen, which has her close attention"
+   ],
+   "decoys": [
+    "Market-based inflation expectations have moved up noticeably",
+    "Market-based inflation expectations have been perfectly stable"
+   ]
+  }
+ ]
+}

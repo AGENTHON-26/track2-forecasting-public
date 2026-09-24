@@ -1,14 +1,14 @@
 # Summary-coverage eval
 
 Does a stage-1 summary contain the important points of its document? An answer key written once by
-Sonnet says what those points are; checking a summary against it costs **zero tokens** and gives the
+Sonnet and Opus subagents says what those points are; checking a summary against it costs **zero tokens** and gives the
 same answer every time, so prompt changes can be compared without paying for a judge.
 
 ## Layout
 
 | path | what it is |
 |---|---|
-| `manifest.json` | the 58 documents the eval runs on (≈8 per doc_type across the size range, plus the 16 legacy test docs). Built by `tools/build_summary_evalset.py`. |
+| `manifest.json` | the 70 documents the eval runs on: ≈8 per doc_type across the size range, the 16 legacy test docs, and 12 extra speeches (the least uniform type needed a bigger sample). Built by `tools/build_summary_evalset.py`, extended by hand. |
 | `key/<doc_id>.json` | the answer key: the important points of that document, with regex patterns, and the tests that prove the patterns work. |
 | `src/<doc_id>.txt` | derived, gitignored: each document as the summarizer sees it (CFTC reduced to the main contract), wrapped so it can be read in pages. Rebuild with `python3 tools/summary_key.py`. |
 | `audit/<doc_id>.json` | a reader's covered/missed labels for one run, used to measure whether the regex agrees with a human judgement. |
