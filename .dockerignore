@@ -1,0 +1,11 @@
+# Allowlist, not a denylist.
+#
+# Two reasons it is inverted. First, `.env` sits at the repo root and holds MODEL_API_KEY; a
+# denylist that forgets one line pushes a credential into a public registry layer. Second, the
+# build context is otherwise ~470 MB (.venv 422 M, units/ 44 M) and every byte of it is pull time
+# charged against the unit clock.
+#
+# The image needs exactly two files. Add a line here only when the Dockerfile grows a COPY.
+*
+!forecast_agent.py
+!text_signal.py
