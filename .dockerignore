@@ -2,10 +2,17 @@
 #
 # Two reasons it is inverted. First, `.env` sits at the repo root and holds MODEL_API_KEY; a
 # denylist that forgets one line pushes a credential into a public registry layer. Second, the
-# build context is otherwise ~470 MB (.venv 422 M, units/ 44 M) and every byte of it is pull time
-# charged against the unit clock.
+# build context is otherwise ~470 MB (.venv 422 M, units/ 44 M, f1_pipeline/data/ 14 M) and every
+# byte of it is pull time charged against the unit clock.
 #
-# The image needs exactly two files. Add a line here only when the Dockerfile grows a COPY.
+# `f1_pipeline` needs three lines, not one: `!f1_pipeline` lets Docker traverse into the directory
+# at all (a bare `*` above stops it there), `f1_pipeline/*` re-excludes everything inside it
+# (the notebooks, README, and the 14 MB `data/` of backtest output), then `!f1_pipeline/m2_unit.py`
+# allows back in the one file the image actually runs -- it reads nothing from `data/` at runtime,
+# only the unit's own panel under `/input`.
 *
 !forecast_agent.py
 !text_signal.py
+!f1_pipeline
+f1_pipeline/*
+!f1_pipeline/m2_unit.py

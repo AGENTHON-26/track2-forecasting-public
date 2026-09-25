@@ -18,7 +18,9 @@ in favour of the earlier upload.
 
 ## 1. What is in the image, and why
 
-Two files: `forecast_agent.py` and `text_signal.py`. Nothing else.
+Three files: `forecast_agent.py`, `text_signal.py`, and `f1_pipeline/m2_unit.py`. Nothing else —
+not `f1_pipeline/data/` (14 MB of notebook/backtest output; `m2_unit.py` reads nothing from it at
+run time, only the unit's own panel under `/input`), not the notebooks, not `f1_pipeline/README.md`.
 
 `forecast` is a `/usr/local/bin` shim that execs `python3 /opt/forecast_agent.py "$@"`. There is
 deliberately **no `ENTRYPOINT`**: the harness invokes
@@ -29,26 +31,37 @@ positional — both would exit 2 on every unit — so if anyone ever adds an `EN
 also add a positional argument to absorb the verb.
 
 **The reference CLI (`qfbench2_track_forecasting`) is not in the image.** Its own docstring says it
-"ignores `--text` entirely"; shipping it would score the text-blind floor. `pandas` was removed at
-the same time and for the same reason — it is that package's dependency, and nothing in the agent
-path imports it. Those two removals go together: keeping the package while dropping pandas would
-leave a verb-adjacent code path that dies on `import pandas`.
+"ignores `--text` entirely"; shipping it would score the text-blind floor.
+
+**`pandas` is back, for a different reason than it left.** It was first dropped alongside the
+reference CLI (its only importer at the time), then re-added when `forecast_agent.py` grew an M2
+dispatch: `T2-F1` level cards now fit through `f1_pipeline/m2_unit.py` (ridge location-scale +
+empirical residual pool) instead of the shared random walk, and both `forecast_agent.py` and
+`m2_unit.py`'s own `read_unit()` (`pd.read_parquet`) need it. Other families still use the random
+walk and never touch pandas at runtime, but the dependency is unconditional in the image since
+`forecast_agent.py` imports `f1_pipeline.m2_unit` regardless of which unit it happens to run.
+`f1_pipeline` needs no `__init__.py` — it resolves as an implicit Python namespace package under
+`PYTHONPATH=/opt`, since only the one file is copied in.
 
 **`qfbench2-common` stays in the Dockerfile** even though the agent never imports it.
 `.github/workflows/ci.yml` greps this Dockerfile for `refs/tags/vX.Y.Z.tar.gz` and fails the build
 with "could not find a pinned toolkit install" if the line disappears.
 
-**`.dockerignore` is an allowlist** (`*`, then two `!` lines). `.env` holds `MODEL_API_KEY` and
-sits at the repo root, so a denylist that forgets one line publishes a credential to a public
-registry. It also cuts the build context from ~470 MB to two files — pull time is charged against
-the unit clock.
+**The build-time import check covers all three modules, not just two, and asymmetrically.**
+`forecast_agent.read_text_signal` catches any exception from the `text_signal` import and falls
+back to neutral — a missing `text_signal.py` still builds, runs, exits 0, passes every gate, and
+silently scores text-blind. `f1_pipeline.m2_unit` has no such fallback: a missing or broken import
+there raises inside `build_draws()` and fails every `T2-F1` level-card unit outright. Both belong
+in the same `RUN python3 -c "..."` check for the same underlying reason — fail loud at build time,
+not silently (`text_signal`) or expensively (`m2_unit`, unit-by-unit) during scoring.
 
-**The build-time import check** —
-`RUN python3 -c "import forecast_agent, text_signal"` — is the most important line in the
-Dockerfile. `forecast_agent.read_text_signal` catches *any* exception from that import and returns
-exact-neutral adjustments, so an image missing `text_signal.py` would build, run, exit 0, pass
-every gate, and **silently score as the text-blind baseline**. That is the one failure that wastes
-an upload with no error visible anywhere. This turns it into a build failure.
+**`.dockerignore` is an allowlist**, not a denylist. `.env` holds `MODEL_API_KEY` and sits at the
+repo root, so a denylist that forgets one line publishes a credential to a public registry. Because
+`f1_pipeline` is a directory, allowing just its one file takes three lines, not one: `!f1_pipeline`
+lets Docker traverse into the directory at all (the leading `*` stops it there), `f1_pipeline/*`
+re-excludes everything inside it, then `!f1_pipeline/m2_unit.py` allows that one file back in. This
+cuts the build context from ~470 MB (`.venv` 422 M, `units/` 44 M, `f1_pipeline/data/` 14 M) to
+three files — pull time is charged against the unit clock.
 
 ## 2. One-time setup
 
@@ -113,8 +126,8 @@ Three units worth covering, because they exercise different shapes:
 | Unit | `--asof` | Covers |
 |---|---|---|
 | `t2-EXAMPLE-ust-curve-1m` | 2024-06-28 | 4 assets × 1 horizon — the joint/co-movement path |
-| `t2-F1-cad-boc-2017` | 2017-07-12 | 1 asset × 2 horizons `[126, 189]` — multi-horizon expansion |
-| `t2-F4-covid-mkt-2020` | 2020-02-19 | tail family |
+| `t2-F1-cad-boc-2017` | 2017-07-12 | 1 asset × 2 horizons `[126, 189]` — the **M2** path (`f1_pipeline/m2_unit.py`), not the random walk; check the rationale says `Base: M2 --` |
+| `t2-F4-covid-mkt-2020` | 2020-02-19 | tail family, random-walk path |
 
 **Pass means:** exit 0; all three of `forecast.parquet`, `forecast_meta.json`,
 `forecast_rationale.md` present with the rationale non-empty; `"admissible": true` with
@@ -221,6 +234,7 @@ schema cannot see. Hand-writing fails in four ways:
 |---|---|
 | Image is arm64 | `imagetools inspect` → `linux/amd64`; in-container `platform.machine()` → `x86_64` |
 | `text_signal.py` missing → **silent** text-blind scoring | build-time import check; absence of `[text_signal] unavailable` on stderr |
+| `f1_pipeline/m2_unit.py` missing → every `T2-F1` level-card unit fails outright | build-time import check (`from f1_pipeline import m2_unit`) |
 | Verb unresolvable / shim points at the wrong module | `docker run … forecast --help` exit 0, plus a full offline unit run |
 | GHCR package still private | the credential-free `ghcr.io/token` + manifest `HEAD` → 200 |
 | Wrong/stale digest, or an attestation-index digest | `--metadata-file` digest == `imagetools inspect` digest; clean-room pull by digest |
@@ -234,32 +248,33 @@ schema cannot see. Hand-writing fails in four ways:
 Known and deliberately not addressed in the packaging work. Roughly in order of how much they
 cost.
 
-1. **The 25-admitted-requests-per-unit budget is not enforced in code.** Stage 1 fires one call per
-   document, retries each up to twice (`text_signal.py:476`), and `call_model` retries up to three
-   more times (`text_signal.py:546`) — worst case **8 admitted requests per document**, on units
-   carrying up to 15 documents. The House route charges at admission and never refunds, and an SDK
-   retry can consume another slot with identical content. Blow the budget and the **Stage 2
-   adjustment call** — the one that actually produces the forecast signal — is refused, and the
-   unit falls back to neutral. It degrades silently; it does not DNF. A counter that hard-stops at
-   25 and reserves a slot for Stage 2 is the fix.
+1. ~~The 25-admitted-requests-per-unit budget was unenforced.~~ **Fixed on `dev` (`feac476`),
+   picked up here by rebasing.** `text_signal.py`'s `_Budget` now counts every attempt across the
+   summarizer's threads, hard-stops at `_REQUEST_BUDGET = 25`, and reserves a slot for the Stage 2
+   adjustment call so Stage 1 retries can't starve it. Documents are summarized newest-first, so
+   the oldest lose when the budget runs dry; a unit records
+   `"request budget exhausted"` on the documents it had to skip. Covered by tests. Worth rechecking
+   after any future change to `text_signal.py` — the budget logic and the import self-check in
+   §1 verify different things (one counts requests, the other proves the module loads at all).
 2. **Text is measured net-negative.** The last clean sweep
    (`eval_reports/stage2-thinking-throttled-live.json`, 103 units, 7h39m) has text-informed
    forecasts behind the text-blind baseline by **+0.0423** mean composite, and **+0.0869** on the
-   50 units with zero logged failures. The image ships text ON anyway — a deliberate choice to
-   exercise the House route in the real environment during Development, not an oversight. Revisit
-   before the single Final submission.
+   50 units with zero logged failures. That sweep predates both the request-budget fix (item 1)
+   and the M2 model (§1) — the comparison should be re-run before trusting it for a Final decision.
+   The image ships text ON regardless — a deliberate choice to exercise the House route in the real
+   environment during Development, not an oversight.
 3. **No House-call telemetry in the output.** If the proxy or token is wrong in the sealed
    environment, every call fails, `read_text_signal()` returns neutral, and the forecast scores
    text-blind with nothing in `forecast_meta.json` recording that anything broke. One upload
    burned, nothing learned. Recording attempted/succeeded/failed counts would make each Development
    upload a diagnostic.
-4. **`forecast_rationale.md` is thin** — about 250 bytes: assets, horizons, base method, and
-   whether text was used. It satisfies `g1_schema` (which only checks existence and non-emptiness)
-   and is **never scored**. But it feeds a human-review screen over the top of the leaderboard, and
-   it names no anchor, no per-adjustment size, and no cited documents — so a reviewer has nothing
-   to check. The reference CLI's `_rationale()`
-   (`qfbench2_track_forecasting/cli.py:324-449`) produces the shape the contract describes and
-   could be adapted.
+4. **`forecast_rationale.md` is thin** — a few lines: assets, horizons, base method (now
+   distinguishing M2 from the random walk — see §1), and whether text was used. It satisfies
+   `g1_schema` (which only checks existence and non-emptiness) and is **never scored**. But it
+   feeds a human-review screen over the top of the leaderboard, and it names no anchor, no
+   per-adjustment size, and no cited documents — so a reviewer has nothing to check. The reference
+   CLI's `_rationale()` (`qfbench2_track_forecasting/cli.py:324-449`) produces the shape the
+   contract describes and could be adapted.
 5. **`QFBENCH_SEED` is ignored** — the agent uses `--seed`, default 0. The reference CLI does the
    same and T2 verification is statistical (bootstrap-CI overlap), so this is currently fine.
 6. **`_series` assumes long-format panels** (`date` / `asset` / `value` columns) and raises
@@ -273,10 +288,16 @@ cost.
    0755, the `USER runner` (uid 1000) process cannot write it. macOS Docker Desktop virtualizes
    bind ownership so it will not reproduce here. Low risk: the shipped reference Dockerfile uses
    the same `USER runner`, so the harness demonstrably accommodates it.
+9. **M2's own documented limits carry into the image unchanged** (`f1_pipeline/README.md`): below
+   ~1,000 training rows it is worse than a random walk (three short units sit there); the
+   calibration constant and residual pool use in-sample residuals, making bands ~9% too narrow;
+   and the 1% tails of each residual pool rest on one or two historical episodes. M2 also only
+   covers `T2-F1` **level** targets — the two cumulative-log-return F1 units
+   (`ai-mom-2024`, `fed-put-2019`) still use the random walk.
 
 ## 8. What was verified, and when
 
-Recorded 2026-09-24 against the image built from this Dockerfile:
+**2026-09-24**, against the two-file image (`forecast_agent.py` + `text_signal.py`, before M2):
 
 - Image is `linux/amd64` — `platform.machine()` → `x86_64` from inside the container.
 - `forecast --help` resolves to the **agent's** parser (`--panels --text --asof --out --card
@@ -287,11 +308,30 @@ Recorded 2026-09-24 against the image built from this Dockerfile:
   `[text_signal] source=llm family=F4 docs=8 assets=['MKT']`.
 - `/opt` contains exactly the two agent files. No `.env`, no unit data, no `card.toml` anywhere in
   the image.
-- Repo suite: **507 passed, 4 skipped**. CI pin-consistency check passes.
+- Repo suite: 507 passed, 4 skipped. CI pin-consistency check passes.
 - `forecast_meta.json` validates against the toolkit's `forecast.schema.json`; `forecast.parquet`
   carries the four columns the `samples` representation mandates
   (`draw:int32, asset:string, horizon:int32, value:double`) and exactly
   `n_draws × assets × horizons` rows.
 
-Not yet done at that point: the push to GHCR, the descriptor, and the upload — all three need
+**2026-09-25**, re-verified after rebasing onto `dev` and adding `f1_pipeline/m2_unit.py` +
+`pandas` (§1):
+
+- Build-time check now passes all three imports:
+  `import forecast_agent, text_signal; from f1_pipeline import m2_unit`.
+- `/opt` contains exactly the three intended files (`find /opt -type f`) — no `f1_pipeline/data/`,
+  no notebooks. Image grew 465 MB → 538 MB, entirely pandas and its own dependencies (scipy, pytz,
+  etc.); expected, not a regression.
+- `t2-F1-cad-boc-2017` (a level card) run offline in the image: `forecast_rationale.md` now reads
+  `Base: M2 -- ridge location-scale fitted on panel history, joint bootstrap of standardised
+  residuals (f1_pipeline/m2_unit.py)` — confirming the M2 dispatch actually fires inside the
+  container, not just on the host. `admissible: true`, g0–g3 all `pass`, `qfbench2 smoke` agrees.
+- `t2-F4-covid-mkt-2020` (non-F1) still reports `Base: correlated Gaussian random walk` —
+  confirming the family dispatch didn't regress for units outside `T2-F1`.
+- `t2-EXAMPLE-ust-curve-1m` re-run for the same reason (non-F1, 4-asset joint path): unaffected,
+  `admissible: true`.
+- Repo suite: **513 passed, 4 skipped** (up from 507 — new commits merged from `dev` added tests).
+  CI pin-consistency check still passes.
+
+Not yet done at either point: the push to GHCR, the descriptor, and the upload — all three need
 credentials.
