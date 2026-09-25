@@ -103,14 +103,37 @@ def build_draws(
 ) -> np.ndarray:
     """Joint draws with Nish's adjustments applied. Returns (n_draws, n_assets, n_horizons).
 
-    F1 LEVEL cards (`family` in _M2_FAMILIES and `target_type == "level"`): M2 -- ridge centre,
-    ridge log-variance width, and a joint bootstrap of standardised residuals (one historical
-    date per draw, shared by every cell). `shift` moves the centre, `widen` scales sigma; `skew`
-    is not applied, since the residual pool already carries the shape. Any M2 failure falls back
-    to the random walk rather than crashing the card.
+    TWO MODELS, dispatched on the card:
 
-    Everything else, and callers that pass neither keyword: the random walk below -- one
-    shared correlated roll per draw (Cholesky), tilted per-asset by `skew` when enabled.
+      F1 level cards   -> M2 (`_m2_draws`): ridge centre, ridge log-variance width, and a joint
+                          bootstrap of standardised residuals sharing one historical date per
+                          draw. 21 of 23 F1 units. `skew` is not applied -- the residual pool
+                          already carries the shape. Any M2 failure falls back to the walk below
+                          rather than crashing the card (a crashed card scores worst-case).
+      everything else  -> the cumulative correlated random walk below. All of F2, F3 and F4,
+                          plus F1's 2 log_return units.
+
+    WHICH PARTS OF THE WALK ACTUALLY BITE WHERE. Counted over the shipped units, so nothing here
+    needs a family switch to stay scoped -- the card's own shape already scopes it:
+
+      step                      F1   F2   F3   F4   bites when
+      ------------------------  ---  ---  ---  ---  ----------------------------------------
+      cumulative path            0    0   22    0   >1 horizon. Only F3 has multi-horizon
+                                                    walk cards, so this is F3-only in effect;
+                                                    with one leg it reduces to the old
+                                                    z*sd*sqrt(h) exactly.
+      date-aligned covariance    0    1   22    2   >1 asset, and only differs from positional
+                                                    stacking when the assets' calendars differ.
+      gap-guarded diffs          .    .    .    .   any hole in the window. Worst case is an F2
+                                                    transfer card: measured 1.40x sd inflation
+                                                    on t2-F2-fragile-five-brl-2013.
+      log_return centring        2    0    3   11   target_type == "log_return". F4 is the
+                                                    biggest beneficiary, not F3.
+
+    The last three are correctness fixes, not F3 tuning, which is why they are not gated on
+    family -- gating them would keep a known-wrong volatility estimate for F2's transfer cards
+    and hand back F4's improvement. Genuinely F3-specific tuning lives in text_signal.py
+    (`_WIDEN_CLAMP_BY_FAMILY`, `_FAMILY_FOCUS`) and IS gated there.
     """
     global _last_base
     if target_type == "level" and family in _M2_FAMILIES:
@@ -125,24 +148,11 @@ def build_draws(
 
     rng = np.random.default_rng(seed)
     n = len(assets)
-    hist = {a: _series(panels, a, asof) for a in assets}
-
-    # Steps, aligned BY DATE. The `[assets]` reselect is not cosmetic: every downstream vector
-    # (sd, shift, widen, skew) is built in `assets` order, so if the frame's column order ever
-    # diverged the Cholesky would be applied to the wrong assets silently.
-    # `.dropna()` BEFORE the window, not after -- otherwise a cross-panel card keeps 260 raw rows
-    # and then loses a fraction of them to the date intersection, so the effective window differs
-    # per card.
     returns_target = target_type == "log_return"
-    steps = pd.DataFrame(
-        {a: (pd.Series(_log_return_steps(s.to_numpy()), index=s.index) if returns_target
-             else _diff_without_gaps(s))
-         for a, s in hist.items()}
-    )[assets].dropna().iloc[-_WINDOW:]
 
-    if len(steps) < 30:
-        raise SystemExit(f"not enough overlapping history to estimate covariance ({len(steps)} rows)")
-
+    # step 1 -- history -> a date-aligned step matrix
+    hist = {a: _series(panels, a, asof) for a in assets}
+    steps = _step_frame(hist, assets, returns_target)
     D = steps.to_numpy().T                       # (n_assets, window)
     sd = D.std(axis=1)
     # A cumulative log-return target starts at 0; a level target starts at its last observed value.
@@ -157,6 +167,7 @@ def build_draws(
     last = (np.zeros(n) if returns_target
             else np.array([hist[a].iloc[-1] for a in assets], dtype=float))
 
+    # step 2 -- the cross-asset correlation the draws will carry
     # np.corrcoef on a single-row input (single-asset cards) returns a 0-d SCALAR, not a (1,1)
     # matrix -- fill_diagonal then fails with "array must be at least 2-d". atleast_2d fixes the
     # single-asset case (correlation of one variable with itself is trivially [[1.0]]) and is a
@@ -168,7 +179,7 @@ def build_draws(
     corr = v @ np.diag(np.clip(w, 1e-8, None)) @ v.T
     chol = np.linalg.cholesky(corr)
 
-    # apply Nish's adjustments per asset
+    # step 3 -- the text adjustments, then the accumulating path
     shift = np.array([adjustments.get(a, {}).get("shift", 0.0) for a in assets])
     widen = np.array([adjustments.get(a, {}).get("widen", 1.0) for a in assets])
     skew = (
@@ -253,6 +264,34 @@ def _skew_tilt(z: np.ndarray, u: np.ndarray, skew: np.ndarray) -> np.ndarray:
     mean_shift = delta * np.sqrt(2.0 / np.pi)
     var_scale = np.sqrt(np.clip(1.0 - delta**2 * (2.0 / np.pi), 1e-8, None))
     return (delta * u + np.sqrt(1.0 - delta**2) * z - mean_shift) / var_scale
+
+
+def _step_frame(hist: dict[str, "pd.Series"], assets: list[str],
+                returns_target: bool) -> "pd.DataFrame":
+    """Per-asset histories -> one date-aligned matrix of steps, trimmed to the trailing window.
+
+    Three things here are load-bearing and easy to undo by accident:
+
+    `[assets]` reselects explicitly. Every downstream vector (sd, shift, widen, skew) is built in
+    `assets` order, so if the frame's column order ever diverged the Cholesky would be applied to
+    the wrong assets -- silently, with no exception, just a wrong correlation structure.
+
+    `.dropna()` comes BEFORE the window, not after. The other way round a cross-panel card keeps
+    260 raw rows and then loses a fraction of them to the date intersection, so the effective
+    window would differ per card.
+
+    A log_return panel already holds per-period returns, so its steps are log1p(row) rather than
+    a difference of rows.
+    """
+    frame = pd.DataFrame(
+        {a: (pd.Series(_log_return_steps(s.to_numpy()), index=s.index) if returns_target
+             else _diff_without_gaps(s))
+         for a, s in hist.items()}
+    )[assets].dropna().iloc[-_WINDOW:]
+    if len(frame) < 30:
+        raise SystemExit(
+            f"not enough overlapping history to estimate covariance ({len(frame)} rows)")
+    return frame
 
 
 def _diff_without_gaps(s: "pd.Series") -> "pd.Series":
