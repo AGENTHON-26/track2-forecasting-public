@@ -1,0 +1,237 @@
+{
+ "doc_id": "ecb_draghi_2014-11-12",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "ECB main policy rate is now 0.05%",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:rates?|refi|MRO|refinancing).{0,80}(?:(?<![\\d.])0\\.05\\s*(?:%|percent(?!age)|per cent|pct)|(?<![\\d.])5\\s*(?:bps?|basis points?))|(?:(?<![\\d.])0\\.05\\s*(?:%|percent(?!age)|per cent|pct)|(?<![\\d.])5\\s*(?:bps?|basis points?)).{0,80}(?:rates?|refi|MRO|refinancing)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "it has cut interest rates from 1.5% in November 2011 to 0.05% today",
+   "paraphrases": [
+    "ECB's main refinancing rate is now at 0.05%",
+    "Draghi: policy rates cut to 0.05 percent, a record low",
+    "ECB has slashed its benchmark rate to 5bp from 1.5% in November 2011"
+   ],
+   "decoys": [
+    "ECB's main refinancing rate is now at 0.5%",
+    "ECB's main refinancing rate is now at 0.15%"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "ECB deposit rate is now -0.20%",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:deposit).{0,80}(?:(?:-|minus |negative )\\s?0\\.20?(?!\\d)\\s*(?:%|percent(?!age)|per cent|pct)|(?:-|minus |negative )\\s?20\\s*(?:bps?|basis points?))|(?:(?:-|minus |negative )\\s?0\\.20?(?!\\d)\\s*(?:%|percent(?!age)|per cent|pct)|(?:-|minus |negative )\\s?20\\s*(?:bps?|basis points?)).{0,80}(?:deposit)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "from 0.75% in November 2011 to -0.20% today",
+   "paraphrases": [
+    "ECB deposit rate is now -0.20%",
+    "Deposit facility rate cut into negative territory at minus 0.2 percent",
+    "ECB has lowered the deposit rate to -20bp from 0.75% in Nov 2011"
+   ],
+   "decoys": [
+    "ECB deposit rate is now -0.10%",
+    "ECB deposit rate is now 0.20%"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Governing Council is committed to further unconventional measures if medium-term inflation expectations worsen or current measures prove insufficient",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:further|additional|more).{0,30}(?:unconventional|non-?standard|stimulus|easing)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "no (?:further|additional|more)",
+    "not (?:plan|intend|consider)\\w*.{0,40}(?:further|additional|more)",
+    "(?:unwind|exit|taper|wind down|scale back)\\w*.{0,80}(?:unconventional|non-?standard|stimulus)"
+   ],
+   "quote": "the commitment by the Governing Council to take further unconventional policy actions should medium-term inflation expectations worsen or if the measures already decided on prove to be insufficient",
+   "paraphrases": [
+    "Governing Council committed to further unconventional measures if medium-term inflation expectations worsen",
+    "ECB stands ready to take additional non-standard action should its measures prove insufficient",
+    "Draghi reiterates GC readiness to add more unconventional stimulus if needed"
+   ],
+   "decoys": [
+    "Draghi signals no further unconventional measures are planned",
+    "ECB says it will begin unwinding unconventional measures"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Youth unemployment: 23% of young people aged 15-24 have no job",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:youth|young|15-24|15 to 24|under-?25s?).{0,80}(?:(?<![\\d.])23\\s*(?:%|percent(?!age)|per cent|pct))|(?:(?<![\\d.])23\\s*(?:%|percent(?!age)|per cent|pct)).{0,80}(?:youth|young|15-24|15 to 24|under-?25s?)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "23% of young people aged between 15 and 24 years do not have a job",
+   "paraphrases": [
+    "Youth unemployment is at 23%, Draghi says",
+    "Draghi: 23 percent of young people aged 15 to 24 are jobless, an unacceptable level",
+    "Joblessness among under-25s stands at 23%"
+   ],
+   "decoys": [
+    "Youth unemployment is at 32%, Draghi says",
+    "Overall euro area unemployment is at 23%"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Interest rates are expected to be maintained at their current level for a long period of time",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:rates?).{0,80}(?:(?:long|extended|prolonged|lengthy) period|long time|considerable time)|(?:(?:long|extended|prolonged|lengthy) period|long time|considerable time).{0,80}(?:rates?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:rise|hike|increase|raise)\\w*.{0,40}soon"
+   ],
+   "quote": "the expected maintenance of interest rates at their current level for a long period of time",
+   "paraphrases": [
+    "Rates are expected to stay at current levels for a long period of time",
+    "Draghi reiterates rates will remain at present levels for an extended period",
+    "ECB forward guidance: policy rates on hold at current lows for a prolonged period"
+   ],
+   "decoys": [
+    "Draghi signals rates will rise soon from current levels",
+    "Rates are expected to stay at current levels only for a short period"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "The ECB's balance sheet is undergoing an ongoing expansion",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:balance[ -]sheet).{0,80}(?:expan\\w*|grow\\w*|increas\\w*|enlarg\\w*)|(?:expan\\w*|grow\\w*|increas\\w*|enlarg\\w*).{0,80}(?:balance[ -]sheet)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:balance[ -]sheet).{0,80}(?:shrink\\w*|reduc\\w*|contract\\w*|declin\\w*|run-?off)|(?:shrink\\w*|reduc\\w*|contract\\w*|declin\\w*|run-?off).{0,80}(?:balance[ -]sheet)"
+   ],
+   "quote": "an ongoing expansion of the ECB's balance sheet",
+   "paraphrases": [
+    "ECB's balance sheet is set to keep expanding",
+    "Draghi points to an ongoing expansion of the ECB balance sheet",
+    "Balance-sheet growth at the ECB continues as part of the accommodative stance"
+   ],
+   "decoys": [
+    "ECB's balance sheet is set to keep shrinking",
+    "Draghi signals a reduction of the ECB balance sheet"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Euro area private investment has fallen 15% since 2007",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:private.{0,40}invest\\w*).{0,60}(?:(?<![\\d.])15\\s*(?:%|percent(?!age)|per cent|pct))|(?:(?<![\\d.])15\\s*(?:%|percent(?!age)|per cent|pct)).{0,60}(?:private.{0,40}invest\\w*)",
+    "(?<!\\d)2007(?!\\d)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(?:private.{0,40}invest\\w*).{0,40}(?:rose|risen|increas\\w*|grew|grown)|(?:rose|risen|increas\\w*|grew|grown).{0,40}(?:private.{0,40}invest\\w*)"
+   ],
+   "quote": "since 2007 private investment in the euro area has fallen by 15%",
+   "paraphrases": [
+    "Euro area private investment has fallen 15% since 2007",
+    "Private investment is down 15 percent from 2007 levels",
+    "Since 2007, private-sector investment dropped by 15%, public investment by 12%"
+   ],
+   "decoys": [
+    "Euro area private investment has fallen 25% since 2007",
+    "Euro area private investment has risen 15% since 2007"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Euro area public investment has fallen 12% since 2007",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:(?:public|government|state)[- ]?(?:sector )?invest\\w*).{0,60}(?:(?<![\\d.])12\\s*(?:%|percent(?!age)|per cent|pct))|(?:(?<![\\d.])12\\s*(?:%|percent(?!age)|per cent|pct)).{0,60}(?:(?:public|government|state)[- ]?(?:sector )?invest\\w*)",
+    "(?<!\\d)2007(?!\\d)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(?:(?:public|government)[- ]?(?:sector )?invest\\w*).{0,40}(?:rose|risen|increas\\w*|grew|grown)|(?:rose|risen|increas\\w*|grew|grown).{0,40}(?:(?:public|government)[- ]?(?:sector )?invest\\w*)"
+   ],
+   "quote": "since 2007 private investment in the euro area has fallen by 15% and public investment by 12%",
+   "paraphrases": [
+    "Euro area public investment has fallen 12% since 2007",
+    "Public investment is down 12 percent from 2007 levels",
+    "Since 2007, private investment dropped by 15% and government investment by 12%"
+   ],
+   "decoys": [
+    "Euro area public investment has fallen 21% since 2007",
+    "Euro area public investment has risen 12% since 2007"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Structural reforms in product and labour markets are needed; monetary and fiscal policy alone are not enough",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:structural|labou?r[- ]market|product[- ]market).{0,40}reforms?",
+    "reforms?.{0,40}(?:labou?r|product) markets?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "reforms?.{0,40}(?:unnecessary|not needed|not necessary)",
+    "(?:no need|unnecessary).{0,40}reforms?",
+    "alone (?:is|are) (?:enough|sufficient)"
+   ],
+   "quote": "are not enough to generate a revival of strong and sustainable growth without the necessary structural reforms in product and labour markets",
+   "paraphrases": [
+    "Draghi says structural reforms in product and labour markets are needed for sustainable growth",
+    "Monetary policy alone is not enough; euro area needs structural reforms, Draghi says",
+    "Draghi urges governments to move from thought to action on labour and product market reforms"
+   ],
+   "decoys": [
+    "Draghi says structural reforms are unnecessary if monetary policy stays accommodative",
+    "Draghi says monetary policy alone is enough to revive growth"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "The ECB completed a comprehensive assessment of the 130 most significant banks",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:banks?|assessment|review|stress test|AQR|check).{0,80}(?:(?<![\\d.])130(?![\\d.]))|(?:(?<![\\d.])130(?![\\d.])).{0,80}(?:banks?|assessment|review|stress test|AQR|check)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "postpon\\w*|delay\\w*|defer\\w*|cancel\\w*"
+   ],
+   "quote": "the recently completed comprehensive assessment of the 130 most significant European banks",
+   "paraphrases": [
+    "ECB completed its comprehensive assessment of the 130 most significant euro area banks",
+    "Comprehensive assessment of 130 largest banks is done, removing an obstacle to monetary transmission",
+    "ECB's balance-sheet check of 130 major banks has been completed"
+   ],
+   "decoys": [
+    "ECB completed its comprehensive assessment of the 150 most significant euro area banks",
+    "ECB postponed its comprehensive assessment of the 130 biggest banks"
+   ]
+  }
+ ]
+}

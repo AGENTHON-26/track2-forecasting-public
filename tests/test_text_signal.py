@@ -151,6 +151,80 @@ class TestCleanup(unittest.TestCase):
         self.assertIn("no content", out["error"])
 
 
+class TestComputedCot(unittest.TestCase):
+    TABLE = ("CFTC Commitments of Traders\nMarket: JAPANESE YEN (CME). last report 2007-07-17\n"
+             "report_date  open_interest  noncomm_long  noncomm_short  noncomm_net\n"
+             " 2007-07-03        326811         43373         198511      -155138\n"
+             " 2007-07-10        320333         51549         177439      -125890\n"
+             " 2007-07-17        303595         50431         177204      -126773\n")
+
+    def test_direction_of_a_deepening_net_short_is_right(self):
+        out = ts.cot_summary(self.TABLE)
+        self.assertIn("net short deepened by 883", out)          # the model wrote "a decrease of 883"
+        self.assertIn("-126,773", out)
+        self.assertIn("down 16,738 from 320,333", out)            # open interest, week over week
+
+    def test_positioning_report_never_calls_the_model(self):
+        doc = {"doc_id": "c", "timestamp": "2007-07-17", "doc_type": "positioning_report", "text": self.TABLE}
+        with mock.patch.object(ts, "call_model") as call:
+            out = ts.summarize_doc(doc)
+        call.assert_not_called()
+        self.assertTrue(out["summarized"] and out["computed"])
+
+    def test_unparseable_table_falls_back_to_the_model(self):
+        doc = {"doc_id": "c", "timestamp": "2007-07-17", "doc_type": "positioning_report", "text": "no rows here " * 300}
+        with mock.patch.object(ts, "call_model", return_value=("- nothing", "")) as call:
+            out = ts.summarize_doc(doc)
+        call.assert_called_once()
+        self.assertEqual(out["summary"], "- nothing")
+
+
+class TestRequestBudget(unittest.TestCase):
+    """House rule: 25 admitted requests per unit, retries and failures included."""
+
+    def _http_error(self, code):
+        import urllib.error
+        return urllib.error.HTTPError("u", code, "err", {}, None)
+
+    def test_reserve_is_kept_for_stage_two(self):
+        b = ts._Budget(total=3, reserve=1)
+        self.assertTrue(b.take()); self.assertTrue(b.take())
+        self.assertFalse(b.take())              # stage 1 may not touch the reserve
+        self.assertTrue(b.take(reserved=True))  # stage 2 may
+        self.assertFalse(b.take(reserved=True))
+        self.assertEqual(b.spent, 3)
+
+    def test_every_retry_spends_a_slot_and_stops_when_out(self):
+        budget = ts._Budget(total=2, reserve=0)
+        env = {"MODEL_ENDPOINT": "https://h/v1", "MODEL_TOKEN": "t"}
+        with mock.patch.dict(os.environ, env), \
+             mock.patch.object(ts.urllib.request, "urlopen", side_effect=self._http_error(503)) as open_, \
+             mock.patch.object(ts.time, "sleep"):
+            out, err = ts.call_model("s", "u", budget=budget)
+        self.assertIsNone(out)
+        self.assertEqual(open_.call_count, 2)   # not the 4 attempts the retry table allows
+        self.assertEqual(budget.left, 0)
+        self.assertIn("budget", err)
+
+    def test_corpus_stops_sending_when_the_budget_is_gone(self):
+        with tempfile.TemporaryDirectory() as d:
+            text = _unit(pathlib.Path(d), [(f"m{i}", f"2024-01-0{i}", "fomc_minutes", "y" * 10_000) for i in range(1, 5)])
+            budget = ts._Budget(total=3, reserve=1)  # room for 2 documents
+            env = {"MODEL_ENDPOINT": "https://h/v1", "MODEL_TOKEN": "t"}
+            reply = mock.MagicMock()
+            reply.__enter__.return_value.read.return_value = json.dumps(
+                {"choices": [{"message": {"content": "- held rates"}}]}).encode()
+            with mock.patch.dict(os.environ, env), \
+                 mock.patch.object(ts.urllib.request, "urlopen", return_value=reply) as open_, \
+                 mock.patch.object(ts, "_WORKERS", 1):
+                out = ts.summarize_corpus(text, budget)
+        self.assertEqual(open_.call_count, 2)
+        self.assertEqual(sum(1 for o in out if o["summary"]), 2)
+        self.assertEqual([o["doc_id"] for o in out if o["summary"]], ["m4", "m3"])  # newest first win
+        self.assertTrue(all("budget" in o["error"] for o in out if not o["summary"]))
+        self.assertEqual(budget.left, 1)  # the stage-2 slot is untouched
+
+
 class TestContract(unittest.TestCase):
     def test_read_text_signal_is_neutral_with_no_corpus(self):
         # Stage 2 no longer returns exact neutral unconditionally -- but a directory with no

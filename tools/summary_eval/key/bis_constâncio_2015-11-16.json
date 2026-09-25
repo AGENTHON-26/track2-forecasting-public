@@ -1,0 +1,231 @@
+{
+ "doc_id": "bis_constâncio_2015-11-16",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "The ECB will reassess its monetary policy stance in December",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:reassess\\w*|re-assess\\w*|re-?examin\\w*|review\\w*|reconsider\\w*|recalibrat\\w*|revisit\\w*).{0,80}(?:December|\\bDec\\b)|(?:December|\\bDec\\b).{0,80}(?:reassess\\w*|re-assess\\w*|re-?examin\\w*|review\\w*|reconsider\\w*|recalibrat\\w*|revisit\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:no need|rules? out|ruled out|not (?:need|necessary)|unnecessary).{0,40}(?:reassess\\w*|re-assess\\w*|re-?examin\\w*|review\\w*|reconsider\\w*|recalibrat\\w*|revisit\\w*)|(?:reassess\\w*|re-assess\\w*|re-?examin\\w*|review\\w*|reconsider\\w*|recalibrat\\w*|revisit\\w*).{0,40}(?:no need|rules? out|ruled out|not (?:need|necessary)|unnecessary)"
+   ],
+   "quote": "will lead the ECB to reassess its policy stance in December",
+   "paraphrases": [
+    "ECB will reassess its policy stance in December",
+    "Governing Council to re-examine the degree of monetary accommodation at the December meeting with new staff forecasts",
+    "Constâncio flags a December review of the ECB policy stance given low inflation and a weaker external environment"
+   ],
+   "decoys": [
+    "ECB will reassess its policy stance in March",
+    "Constâncio says there is no need to reassess the policy stance in December"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Further monetary policy options are available if the Council decides the stance must change",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:(?:further|additional|more|other) (?:monetary(?: policy)? )?(?:policy )?(?:options|tools|instruments|measures|easing|stimulus)).{0,80}(?:available|on the table|at (?:its|our|the ECB's) disposal|ready|can be|could be|remain)|(?:available|on the table|at (?:its|our|the ECB's) disposal|ready|can be|could be|remain).{0,80}(?:(?:further|additional|more|other) (?:monetary(?: policy)? )?(?:policy )?(?:options|tools|instruments|measures|easing|stimulus))",
+    "(?:room|scope|capacity) (?:to|for) (?:ease|easing|act|do more)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "no (?:further|additional|more|other) (?:monetary(?: policy)? )?(?:options|tools|measures|room|scope)",
+    "exhaust\\w*|run out of|out of (?:ammunition|options|tools)|unavailable|not available|no (?:room|scope)"
+   ],
+   "quote": "Further monetary policy options are available should the Council determine that changes to the current policy stance are required",
+   "paraphrases": [
+    "Further monetary policy options are available should the Council decide changes are needed",
+    "ECB has additional policy tools available if the stance needs changing",
+    "Constâncio: more monetary easing options remain on the table"
+   ],
+   "decoys": [
+    "Constâncio says the ECB has exhausted its monetary policy options",
+    "No further monetary policy options are available, Constâncio says"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "External developments (EM growth concerns, financial and commodity markets) signal downside risks to the growth and inflation outlook",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:downside).{0,80}(?:risks?)|(?:risks?).{0,80}(?:downside)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "upside",
+    "risks?.{0,40}(?:balanced|evenly)|balanced risks"
+   ],
+   "quote": "have signalled downside risks to the outlook for growth and inflation",
+   "paraphrases": [
+    "EM growth concerns and commodity/financial market developments signal downside risks to growth and inflation outlook",
+    "Risks to the euro area growth and inflation outlook are to the downside vs September projections",
+    "Constâncio flags downside risks from a deteriorating external environment"
+   ],
+   "decoys": [
+    "Constâncio says the external environment signals upside risks to growth and inflation",
+    "Constâncio says risks to the outlook are broadly balanced"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Euro area headline inflation is again at zero",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:headline|HICP|(?<!core )inflation).{0,40}(?:(?:at|to|of|around|near) zero|(?<![\\d.])0(?:\\.0)? ?(?:%|percent|pct|per cent)|zero (?:per ?cent|inflation))|(?:(?:at|to|of|around|near) zero|(?<![\\d.])0(?:\\.0)? ?(?:%|percent|pct|per cent)|zero (?:per ?cent|inflation)).{0,40}(?:headline|HICP|(?<!core )inflation)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "Headline inflation is again at zero",
+   "paraphrases": [
+    "Euro area headline inflation is again at zero",
+    "HICP inflation back to 0%",
+    "Headline HICP inflation has slipped back to zero"
+   ],
+   "decoys": [
+    "Euro area headline inflation is again at 0.4 percent",
+    "Euro area core inflation is again at zero"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "ECB staff project inflation rising to 1.1 percent in 2016",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:(?<![\\d.])1\\.1 ?(?:%|percent|pct|per cent)).{0,40}(?:(?<!\\d)2016(?!\\d)|next year|\\b'?16\\b)|(?:(?<!\\d)2016(?!\\d)|next year|\\b'?16\\b).{0,40}(?:(?<![\\d.])1\\.1 ?(?:%|percent|pct|per cent))"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the latest ECB staff projection sees the annual rate of inflation increasing to 1.1 percent next year",
+   "paraphrases": [
+    "ECB staff project inflation rising to 1.1% next year",
+    "Staff see HICP inflation at 1.1 percent in 2016",
+    "Inflation projected at 1.1% in 2016 (Sept staff projections)"
+   ],
+   "decoys": [
+    "ECB staff project inflation rising to 1.1% in 2017",
+    "ECB staff project inflation rising to 1.4% next year"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "ECB staff project inflation at 1.7 percent in 2017",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:(?<![\\d.])1\\.7 ?(?:%|percent|pct|per cent)).{0,40}(?:(?<!\\d)2017(?!\\d)|\\b'?17\\b)|(?:(?<!\\d)2017(?!\\d)|\\b'?17\\b).{0,40}(?:(?<![\\d.])1\\.7 ?(?:%|percent|pct|per cent))"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "to 1.7 percent in 2017",
+   "paraphrases": [
+    "ECB staff project inflation at 1.7% in 2017",
+    "Staff see HICP inflation reaching 1.7 percent by 2017",
+    "Inflation forecast to climb to 1.7% in 2017"
+   ],
+   "decoys": [
+    "ECB staff project inflation at 1.7% in 2016",
+    "ECB staff project inflation at 1.9% in 2017"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "The ECB deposit facility rate stands at -20 basis points",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:deposit).{0,60}(?:(?:-|minus |negative )0\\.20? ?(?:%|percent|pct|per cent)|(?:-|minus |negative )20 ?(?:bp|bps|basis points?))|(?:(?:-|minus |negative )0\\.20? ?(?:%|percent|pct|per cent)|(?:-|minus |negative )20 ?(?:bp|bps|basis points?)).{0,60}(?:deposit)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the interest rate on the deposit facility is -20 basis points",
+   "paraphrases": [
+    "Deposit facility rate at -20bp",
+    "ECB deposit rate stands at minus 0.20 percent",
+    "Deposit rate negative at -0.2%"
+   ],
+   "decoys": [
+    "Deposit facility rate at -30bp",
+    "Deposit facility rate at 20bp"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "The main refinancing operations rate stands at 5 basis points",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:MRO|main refinancing|refi|refinancing rate|main (?:policy )?rate).{0,60}(?:(?<![\\d.])5 ?(?:bp|bps|basis points?)|(?<![\\d.])0\\.05 ?(?:%|percent|pct|per cent))|(?:(?<![\\d.])5 ?(?:bp|bps|basis points?)|(?<![\\d.])0\\.05 ?(?:%|percent|pct|per cent)).{0,60}(?:MRO|main refinancing|refi|refinancing rate|main (?:policy )?rate)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "the interest rate on the main refinancing operations currently stands at 5 basis points",
+   "paraphrases": [
+    "Main refinancing rate stands at 5 basis points",
+    "ECB MRO rate currently 0.05%",
+    "Refi rate at 5bp"
+   ],
+   "decoys": [
+    "Main refinancing rate stands at 25 basis points",
+    "Main refinancing rate stands at 50 basis points"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Main policy rates will stay low for a prolonged period, per forward guidance",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "rates?.{0,60}low.{0,40}(?:prolonged|extended|long|lengthy)",
+    "low (?:policy |interest )?rates?.{0,40}(?:prolonged|extended|long|lengthy)",
+    "(?:prolonged|extended|long|lengthy) period.{0,40}low (?:policy |interest )?rates"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:rates?).{0,30}(?:ris(?:e|es|ing)\\b|hik\\w*|rais\\w*|increas\\w*|higher|normali[sz]\\w*)|(?:ris(?:e|es|ing)\\b|hik\\w*|rais\\w*|increas\\w*|higher|normali[sz]\\w*).{0,30}(?:rates?)"
+   ],
+   "quote": "Our main policy rates will stay low for a prolonged period of time, in line with our forward guidance",
+   "paraphrases": [
+    "Main policy rates will stay low for a prolonged period, in line with forward guidance",
+    "ECB rates to remain low for an extended period",
+    "Key ECB rates to stay low for a long time"
+   ],
+   "decoys": [
+    "ECB policy rates will rise within a short period",
+    "Constâncio says ECB rates will stay low only briefly"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Member states' fiscal policy should be as accommodative as possible amid the tepid recovery",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:fiscal).{0,60}(?:accommodative|expansionary|loosen\\w*|stimul\\w*|space|room|support\\w*|eas(?:e|ing)\\b)|(?:accommodative|expansionary|loosen\\w*|stimul\\w*|space|room|support\\w*|eas(?:e|ing)\\b).{0,60}(?:fiscal)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:fiscal).{0,60}(?:consolidat\\w*|tighten\\w*|austerity|restrictive|contractionary)|(?:consolidat\\w*|tighten\\w*|austerity|restrictive|contractionary).{0,60}(?:fiscal)"
+   ],
+   "quote": "it is important for member states' fiscal policy to be as accommodative as possible",
+   "paraphrases": [
+    "Member states' fiscal policy should be as accommodative as possible amid tepid recovery",
+    "Constâncio urges euro-area governments to use fiscal space to support demand",
+    "Constâncio calls for a supportive, expansionary fiscal stance"
+   ],
+   "decoys": [
+    "Constâncio calls for fiscal consolidation across member states",
+    "Constâncio says fiscal policy should be tightened"
+   ]
+  }
+ ]
+}

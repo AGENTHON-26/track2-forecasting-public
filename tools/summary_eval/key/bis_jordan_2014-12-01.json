@@ -1,0 +1,239 @@
+{
+ "doc_id": "bis_jordan_2014-12-01",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "SNB maintains the minimum exchange rate of CHF 1.20 per euro",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:minimum (?:exchange )?rate|floor|cap|peg|EUR/?CHF|per euro|CHF).{0,80}(?:(?<![\\d.])1\\.20?(?![\\d%]))|(?:(?<![\\d.])1\\.20?(?![\\d%])).{0,80}(?:minimum (?:exchange )?rate|floor|cap|peg|EUR/?CHF|per euro|CHF)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:abandon\\w*|scrap\\w*|remov\\w*|discontinu\\w*|exit\\w*|dropp\\w*).{0,80}(?:minimum (?:exchange )?rate|floor|\\bcap\\b|\\bpeg\\b)|(?:minimum (?:exchange )?rate|floor|\\bcap\\b|\\bpeg\\b).{0,80}(?:abandon\\w*|scrap\\w*|remov\\w*|discontinu\\w*|exit\\w*|dropp\\w*)"
+   ],
+   "quote": "The Swiss National Bank (SNB) has decided to maintain the minimum exchange rate of CHF 1.20 per euro.",
+   "paraphrases": [
+    "SNB keeps the minimum exchange rate of CHF 1.20 per euro",
+    "SNB maintains EUR/CHF floor at 1.20",
+    "Swiss franc cap at 1.20 per euro stays in place, to be enforced with utmost determination"
+   ],
+   "decoys": [
+    "SNB keeps the minimum exchange rate of CHF 1.10 per euro",
+    "SNB abandons the minimum exchange rate of CHF 1.20 per euro"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "The target range for three-month Libor remains at 0.0-0.25%",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:Libor).{0,80}(?:(?:(?<![\\d.])0(?:\\.0+)?|zero)\\s*(?:%|percent)?\\s*(?:-|to|and)\\s*(?<![\\d.])0\\.25(?!\\d))|(?:(?:(?<![\\d.])0(?:\\.0+)?|zero)\\s*(?:%|percent)?\\s*(?:-|to|and)\\s*(?<![\\d.])0\\.25(?!\\d)).{0,80}(?:Libor)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "The target range for the three-month Libor remains at 0.0-0.25%.",
+   "paraphrases": [
+    "Three-month Libor target range remains at 0.0-0.25%",
+    "SNB leaves its 3M Libor target band unchanged at 0-0.25%",
+    "Libor target range held at zero to 0.25 percent"
+   ],
+   "decoys": [
+    "Three-month Libor target range remains at 0.0-0.50%",
+    "Three-month Libor target range remains at 0.25-0.50%"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "SNB is prepared to buy foreign currency in unlimited quantities to enforce the floor",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "unlimited.{0,80}(?:buy\\w*|purchas\\w*|interven\\w*|FX|foreign currenc\\w*)",
+    "(?:buy\\w*|purchas\\w*|interven\\w*).{0,80}unlimited"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "sell\\w*.{0,40}unlimited",
+    "unlimited.{0,40}sell"
+   ],
+   "quote": "If necessary, we are prepared to buy foreign currency in unlimited quantities for this purpose.",
+   "paraphrases": [
+    "SNB is prepared to buy foreign currency in unlimited quantities to defend the floor",
+    "Jordan: SNB ready to purchase unlimited FX if necessary",
+    "SNB will intervene in unlimited amounts in FX markets to enforce the 1.20 floor"
+   ],
+   "decoys": [
+    "SNB says its FX purchases will be limited in size",
+    "SNB is prepared to sell foreign currency in unlimited quantities"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "SNB now forecasts 2015 inflation at -0.1%",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:(?<!\\d)2015(?!\\d)).{0,80}(?:(?:-|minus |negative )\\s?0\\.1(?!\\d)(?:\\s*(?:%|percent(?!age)|per cent|pct))?)|(?:(?:-|minus |negative )\\s?0\\.1(?!\\d)(?:\\s*(?:%|percent(?!age)|per cent|pct))?).{0,80}(?:(?<!\\d)2015(?!\\d))",
+    "inflation|CPI|prices"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "For 2015, we are now even anticipating a negative inflation rate of -0.1%",
+   "paraphrases": [
+    "SNB now forecasts 2015 inflation at -0.1%",
+    "Inflation seen at minus 0.1 percent in 2015, down 0.3pp from the prior forecast",
+    "2015 CPI forecast cut to -0.1%"
+   ],
+   "decoys": [
+    "SNB now forecasts 2015 inflation at +0.1%",
+    "SNB now forecasts 2016 inflation at -0.1%"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Deflation risks have increased again",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "deflation\\w*\\s+risks?.{0,80}(?:increas\\w*|ris(?:e|en|ing)|rose|higher|heighten\\w*|grow\\w*|elevat\\w*|mount\\w*)",
+    "(?:increas\\w*|rising|higher|heighten\\w*|grow\\w*|elevat\\w*|mount\\w*).{0,80}deflation\\w*\\s+risks?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "deflation\\w*\\s+risks?.{0,80}(?:reced\\w*|\\beas(?:e|ed|ing)\\b|diminish\\w*|fad\\w*|declin\\w*|lower\\w*|fell|abat\\w*)",
+    "(?:reced\\w*|diminish\\w*|fad\\w*|declin\\w*|lower\\w*|abat\\w*).{0,80}deflation\\w*\\s+risks?"
+   ],
+   "quote": "Deflation risks have increased once again in recent months",
+   "paraphrases": [
+    "Jordan says deflation risks have increased again in recent months",
+    "Rising deflation risk, SNB warns, as inflation forecast is cut again",
+    "SNB flags heightened deflationary risks"
+   ],
+   "decoys": [
+    "Jordan says deflation risks have receded in recent months",
+    "SNB says inflation risks have increased"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "SNB forecasts 2016 inflation at 0.3%",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:(?<!\\d)2016(?!\\d)).{0,80}(?:(?<![\\d.-])\\+?0\\.3(?!\\d)\\s*(?:%|percent(?!age)|per cent|pct))|(?:(?<![\\d.-])\\+?0\\.3(?!\\d)\\s*(?:%|percent(?!age)|per cent|pct)).{0,80}(?:(?<!\\d)2016(?!\\d))"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "with inflation turning positive only in 2016, at 0.3%",
+   "paraphrases": [
+    "SNB sees inflation turning positive only in 2016, at 0.3%",
+    "2016 inflation forecast at 0.3 percent",
+    "Inflation seen back above zero in 2016 at +0.3%"
+   ],
+   "decoys": [
+    "SNB sees inflation at 0.3% in 2015",
+    "SNB sees 2016 inflation at 0.5%"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "SNB expects Swiss GDP growth of about 2% in 2015",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:GDP|growth|growing|grow|economy|expan\\w*).{0,80}(?:(?<![\\d.-])2\\s*(?:%|percent(?!age)|per cent|pct))|(?:(?<![\\d.-])2\\s*(?:%|percent(?!age)|per cent|pct)).{0,80}(?:GDP|growth|growing|grow|economy|expan\\w*)",
+    "(?<!\\d)2015(?!\\d)|next year|coming year"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "contract\\w*|shrink\\w*|recession"
+   ],
+   "quote": "For next year we expect to see GDP growth of about 2%.",
+   "paraphrases": [
+    "SNB expects Swiss GDP growth of about 2% in 2015",
+    "Swiss economy seen growing roughly 2 percent next year",
+    "2015 GDP forecast: ~2%"
+   ],
+   "decoys": [
+    "SNB expects Swiss GDP growth of about 1% in 2015",
+    "SNB expects Swiss GDP to contract about 2% in 2015"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "The Swiss franc is still high",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:franc|CHF).{0,80}(?:still high|remains? high|overvalued|elevated|above (?:its )?long|too strong|highly valued)",
+    "(?:overvalued|strong|high)\\s+(?:Swiss )?(?:franc|CHF)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:franc|CHF).{0,80}(?:below (?:its )?long|fairly valued|undervalued)",
+    "(?:undervalued|weak)\\w*\\s+(?:Swiss )?(?:franc|CHF)"
+   ],
+   "quote": "The Swiss franc is still high.",
+   "paraphrases": [
+    "Jordan says the Swiss franc is still high",
+    "CHF remains overvalued, with real trade-weighted value well above its long-term average",
+    "Franc's real external value stays considerably above its long-run average"
+   ],
+   "decoys": [
+    "Jordan says the Swiss franc is now fairly valued",
+    "Swiss franc's real value has fallen below its long-term average"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Swiss voters rejected the gold initiative, to the SNB's relief",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:gold).{0,80}(?:reject\\w*|voted down|defeat\\w*|fail\\w*)|(?:reject\\w*|voted down|defeat\\w*|fail\\w*).{0,80}(?:gold)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:gold).{0,40}(?:approv\\w*|accept\\w*|passed)|(?:approv\\w*|accept\\w*|passed).{0,40}(?:gold)"
+   ],
+   "quote": "On 30 November, the Swiss voters rejected the gold initiative.",
+   "paraphrases": [
+    "SNB relieved after the gold initiative was voted down",
+    "Swiss voters rejected the gold initiative on 30 November, to the SNB's relief",
+    "Gold referendum defeated; SNB has no intention of selling gold"
+   ],
+   "decoys": [
+    "Swiss voters approved the gold initiative on 30 November",
+    "SNB plans to sell gold after the initiative"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "SNB will not hesitate to take further measures should they prove necessary",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:further|additional|more)\\s+(?:measures|steps|action)|act further",
+    "(?:not hesitate|stands? ready|prepared|ready).{0,40}(?:act|measures|steps)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "rules? out|no further|not (?:take|plan)"
+   ],
+   "quote": "the SNB will not hesitate to take further measures to fulfil its mandate, should they prove necessary",
+   "paraphrases": [
+    "SNB will not hesitate to take further measures if necessary",
+    "Jordan says SNB stands ready to take additional steps should they be needed",
+    "SNB prepared to act further to fulfil its price-stability mandate"
+   ],
+   "decoys": [
+    "SNB rules out further measures",
+    "Jordan says the SNB has exhausted its room for manoeuvre"
+   ]
+  }
+ ]
+}

@@ -103,6 +103,28 @@ def _throttle() -> None:
                 _request_times.append(now)
                 return
             time.sleep(_request_times[0] + 60.0 - now)
+#: House rule: 25 admitted requests per unit, charged on admission -- a retry, a failed call or a
+#: lost response spends a slot too. Stage 1 spends up to one per document (plus retries); stage 2
+#: needs exactly one, so one is held back for it. The busiest unit needs 16 with no retries.
+_REQUEST_BUDGET = 25
+_STAGE2_RESERVE = 1
+
+
+class _Budget:
+    """Admitted-request counter for one unit, shared by the summarizer's worker threads."""
+
+    def __init__(self, total: int = _REQUEST_BUDGET, reserve: int = _STAGE2_RESERVE):
+        self.left, self.reserve, self.spent = total, reserve, 0
+        self._lock = threading.Lock()
+
+    def take(self, reserved: bool = False) -> bool:
+        """Claim one request. Stage 1 may not eat into the reserve; stage 2 (`reserved`) may."""
+        with self._lock:
+            if self.left - (0 if reserved else self.reserve) <= 0:
+                return False
+            self.left -= 1
+            self.spent += 1
+            return True
 
 #: Stage-2 clamps, carried forward from the removed single-shot pipeline (git history before
 #: "feat(text): stage 1" -- the clamps were never the reason it measured net negative; the
@@ -127,7 +149,8 @@ def read_text_signal(
     text_dir = pathlib.Path(text_dir)
     neutral = {a: dict(NEUTRAL) for a in assets}
     try:
-        raw_docs = summarize_corpus(text_dir)
+        budget = _Budget()
+        raw_docs = summarize_corpus(text_dir, budget)
         for d in raw_docs:
             if not d.get("summary") and d.get("error"):
                 print(f"[text_signal] doc {d.get('doc_id', '?')} ({d.get('doc_type', '?')}) "
@@ -139,7 +162,7 @@ def read_text_signal(
 
         ctx = load_context(text_dir, assets)
         system, user = build_adjustment_prompt(summaries, assets, ctx)
-        content, err = call_model(system, user, thinking=_STAGE2_THINKING)
+        content, err = call_model(system, user, thinking=_STAGE2_THINKING, budget=budget, reserved=True)
         if content is None:
             print(f"[text_signal] adjustment call failed: {err}; neutral", file=sys.stderr)
             return neutral
@@ -152,7 +175,7 @@ def read_text_signal(
 
         adjustments, ledger = to_adjustments(raw, assets, ctx)
         print(f"[text_signal] source=llm family={ctx['family']} docs={len(summaries)} "
-              f"assets={list(adjustments)}", file=sys.stderr)
+              f"requests={budget.spent}/{_REQUEST_BUDGET} assets={list(adjustments)}", file=sys.stderr)
         return adjustments
     except Exception as exc:  # never let the text half fail the card
         print(f"[text_signal] {type(exc).__name__}: {exc}; neutral", file=sys.stderr)
@@ -225,7 +248,8 @@ Only state what the document says. Never add topics, names, causes or numbers it
 and do not write bullets about what the document does NOT say.
 Output bullet points only (lines starting with "- "), one sentence each, at most {bullets} bullets.
 First cover EVERY item in the checklist below, in order, each in its own bullet; skip an item only
-if the document has nothing on it. Then use any remaining bullets for other important points.
+if the document has nothing on it. Then use any remaining bullets for other important points --
+use the full allowance when the document has that much to say; do not stop early.
 Condense, do not copy paragraphs.
 If the document has no monetary-policy or market-relevant content, reply with the single line:
 - no monetary-policy or market-relevant content
@@ -266,12 +290,18 @@ _FOCUS: dict[str, tuple[str, str]] = {
         # Tried 2026-09-24: asking for cited figures, dates and institutional commitments moved the
         # unseen test half 44 -> 58% but the dev half 76 -> 52% (net 59 -> 56 over all eight docs).
         # No measurable gain, so the original stays. Speeches remain the open problem.
+        # Measured 2026-09-24: the body of a speech (the third quarter of the text) had 14% of its
+        # facts covered against 60%+ for the opening and the close, and the old "say so and keep only
+        # the policy-relevant points" exit collapsed non-policy speeches to ~900 chars (Dudley on
+        # trade: 1 of 24 facts). Every section gets covered; non-policy speeches keep their economics.
         "- speaker, institution and role (first bullet)\n"
         "- the speaker's stance on the policy path (tighter / easier / on hold) and why\n"
         "- views on inflation, labor market and growth\n"
         "- any explicit hint about the next policy moves, quoted exactly\n"
-        "- if the speech is mainly not about monetary policy, say so in one bullet and keep only\n"
-        "  the policy-relevant points",
+        "- the figures and arguments from the BODY of the speech, section by section, not only\n"
+        "  its opening and its conclusion\n"
+        "- if the speech is mainly not about monetary policy, say so in one bullet, then still\n"
+        "  cover its economic content: the mechanisms, figures and conclusions the speaker gives",
     ),
     "landmark": (
         "a landmark policy communication (testimony, key speech or announcement)",
@@ -300,6 +330,8 @@ _FOCUS: dict[str, tuple[str, str]] = {
         "- the release name and the reference period\n"
         "- the headline figure, month-over-month and year-over-year\n"
         "- core / ex-food-and-energy or equivalent figures\n"
+        # Tried 2026-09-24: a line for the comparisons the release makes ("smallest since March
+        # 2021") cost 91 -> 86% on the test half and 100 -> 94% on dev. Reverted.
         "- the change versus the prior period and any revisions\n"
         "- the components that drove the change",
     ),
@@ -453,8 +485,8 @@ def cot_summary(text: str) -> str | None:
 
 
 # ----------------------------------------------------------------------------- the agents
-def summarize_doc(doc: dict[str, Any]) -> dict[str, Any]:
-    """One document -> its main points. Never raises."""
+def summarize_doc(doc: dict[str, Any], budget: _Budget | None = None) -> dict[str, Any]:
+    """One document -> its main points. Never raises. `budget`: the unit's request counter."""
     meta = {k: v for k, v in doc.items() if k != "text"}
     text = doc.get("text", "")
     out = {**meta, "full_chars": len(text), "summary": None, "summarized": False, "error": ""}
@@ -480,6 +512,7 @@ def summarize_doc(doc: dict[str, Any]) -> dict[str, Any]:
                     prompt_for(doc["doc_type"], doc["timestamp"]),
                     user,
                     thinking=_THINKING or doc["doc_type"] in _THINKING_TYPES,
+                    budget=budget,
                 )
             except Exception as exc:
                 summary, err = None, f"{type(exc).__name__}: {exc}"
@@ -497,22 +530,30 @@ def summarize_doc(doc: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def summarize_corpus(text_dir: pathlib.Path) -> list[dict[str, Any]]:
-    """Every admissible document summarized, newest first. Runs the calls in parallel."""
+def summarize_corpus(text_dir: pathlib.Path, budget: _Budget | None = None) -> list[dict[str, Any]]:
+    """Every admissible document summarized, newest first. Runs the calls in parallel.
+
+    Newest first also decides who loses when the request budget runs out: the oldest documents.
+    """
+    budget = budget or _Budget()
     try:
         _, docs = load_corpus(text_dir)
         with ThreadPoolExecutor(max_workers=_WORKERS) as pool:
-            return list(pool.map(summarize_doc, docs))
+            return list(pool.map(lambda d: summarize_doc(d, budget), docs))
     except Exception as exc:
         print(f"[text_signal] summarize_corpus failed: {exc}", file=sys.stderr)
         return []
 
 
-def call_model(system: str, user: str, thinking: bool = False) -> tuple[str | None, str]:
+def call_model(
+    system: str, user: str, thinking: bool = False,
+    budget: _Budget | None = None, reserved: bool = False,
+) -> tuple[str | None, str]:
     """(reply text, error). POST $MODEL_ENDPOINT/v1/chat/completions with stdlib urllib only.
 
     The scoring image has no `openai` package. MODEL_TOKEN is the House grant, MODEL_API_KEY
-    the local-dev key. The thinking switch is sent explicitly on every request.
+    the local-dev key. The thinking switch is sent explicitly on every request. Every attempt,
+    retries included, claims one slot from `budget` first; none left means no request is sent.
     """
     endpoint = os.environ.get("MODEL_ENDPOINT", "").strip()
     if not endpoint:
@@ -545,6 +586,8 @@ def call_model(system: str, user: str, thinking: bool = False) -> tuple[str | No
         req.add_header("Authorization", f"Bearer {token}")
     payload = None
     for wait in (*_RETRY_WAITS, None):
+        if budget is not None and not budget.take(reserved):
+            return None, "request budget exhausted"
         _throttle()
         try:
             with urllib.request.urlopen(req, timeout=_TIMEOUT_SEC) as resp:

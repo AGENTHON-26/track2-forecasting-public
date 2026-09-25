@@ -1,0 +1,240 @@
+{
+ "doc_id": "bis_greenspan_2005-02-16",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "The Fed has raised the target federal funds rate by a cumulative 150 basis points since June 2004",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:fed(?:eral)? funds|funds rate|policy rate|rates|tighten\\w*|rais\\w*|hik\\w*).{0,80}(?:(?<![\\d.])150 ?(?:bp|bps|basis[- ]points?)|(?<![\\d.])1(?:\\.5|-1/2|½) ?(?:percentage points?|pp|pts|points))|(?:(?<![\\d.])150 ?(?:bp|bps|basis[- ]points?)|(?<![\\d.])1(?:\\.5|-1/2|½) ?(?:percentage points?|pp|pts|points)).{0,80}(?:fed(?:eral)? funds|funds rate|policy rate|rates|tighten\\w*|rais\\w*|hik\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:cut|lowered|reduced|eased|slashed)(?: (?:the|its))?(?: target)?(?: fed(?:eral)? funds| policy| short-term)?(?: rates?)? by (?<![\\d.])(?:150|1\\.5)",
+    "(?:150 ?(?:bp|basis points?)|1\\.5 ?(?:percentage points?|pp)) (?:of )?(?:cuts|easing|reductions?|rate cuts)"
+   ],
+   "quote": "the Federal Reserve has raised the level of the target federal funds rate by 150 basis points",
+   "paraphrases": [
+    "Fed has raised the target fed funds rate by 150 basis points since June",
+    "FOMC has hiked a cumulative 150bp",
+    "Policy rate up 1.5 percentage points from its mid-2004 level"
+   ],
+   "decoys": [
+    "Fed has raised the target fed funds rate by 250 basis points since June",
+    "Fed has cut the target fed funds rate by 150 basis points since June"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Long-term interest rates have trended lower in recent months even as the Fed tightened",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:(?:long-term|longer-term|long-dated|long|10-year|ten-year|bond|treasury|distant forward)(?: interest| treasury| bond| government)? (?:rates?|yields?)|bond yields|forward rates).{0,80}(?:lower|declin\\w*|fell|fall\\w*|drop\\w*|down\\b|dip\\w*)|(?:lower|declin\\w*|fell|fall\\w*|drop\\w*|down\\b|dip\\w*).{0,80}(?:(?:long-term|longer-term|long-dated|long|10-year|ten-year|bond|treasury|distant forward)(?: interest| treasury| bond| government)? (?:rates?|yields?)|bond yields|forward rates)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:long-term|longer-term|10-year|ten-year|bond|long) (?:interest )?(?:rates|yields) (?:have |has )?(?:rose|risen|climbed|increased|moved higher|trended higher|rising|jumped)",
+    "(?:rise|increase|climb|jump)s? in (?:long-term|longer-term|10-year|ten-year|bond|long) (?:interest )?(?:rates|yields)",
+    "(?:higher|rising) (?:long-term|longer-term|10-year|ten-year|bond|long) (?:interest )?(?:rates|yields)"
+   ],
+   "quote": "long-term interest rates have trended lower in recent months",
+   "paraphrases": [
+    "Long-term interest rates have trended lower even as the Fed raised rates",
+    "Long-term yields fell despite 150bp of Fed tightening",
+    "10-year forward rates declined while short-term rates rose"
+   ],
+   "decoys": [
+    "Long-term interest rates have risen in line with Fed tightening",
+    "Short-term interest rates have trended lower in recent months"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Greenspan calls the unanticipated decline in long-term rates/world bond market behavior a 'conundrum'",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "conundrum"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:long-term|longer-term|10-year|ten-year|bond|long) (?:interest )?(?:rates|yields) (?:have |has )?(?:rose|risen|climbed|increased|moved higher|trended higher|rising|jumped)",
+    "(?:rise|increase|climb|jump)s? in (?:long-term|longer-term|10-year|ten-year|bond|long) (?:interest )?(?:rates|yields)",
+    "(?:higher|rising) (?:long-term|longer-term|10-year|ten-year|bond|long) (?:interest )?(?:rates|yields)"
+   ],
+   "quote": "the broadly unanticipated behavior of world bond markets remains a conundrum",
+   "paraphrases": [
+    "Greenspan calls falling long-term yields amid Fed tightening a 'conundrum'",
+    "Bond market behavior remains a conundrum, Greenspan says",
+    "Unexpected drop in world bond yields is a conundrum for the Fed"
+   ],
+   "decoys": [
+    "Greenspan says the decline in long-term rates is fully explained by globalization",
+    "Greenspan calls rising long-term yields a conundrum"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Despite the tightening, the real federal funds rate remains fairly low by most measures",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:real (?:federal |fed )?(?:funds )?rates?|real policy rate).{0,80}(?:low\\b|accommodative)|(?:low\\b|accommodative).{0,80}(?:real (?:federal |fed )?(?:funds )?rates?|real policy rate)",
+    "(?:policy|stance).{0,40}(?:still accommodative|remains? accommodative)|(?:still accommodative|remains? accommodative).{0,40}(?:policy|stance)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:real (?:federal |fed )?(?:funds )?rates?).{0,40}(?:high\\b|restrictive|neutral|tight\\b)|(?:high\\b|restrictive|neutral|tight\\b).{0,40}(?:real (?:federal |fed )?(?:funds )?rates?)"
+   ],
+   "quote": "The cumulative removal of policy accommodation to date has significantly raised measures of the real federal funds rate, but by most measures, it remains fairly low",
+   "paraphrases": [
+    "Real fed funds rate still fairly low by most measures despite the hikes",
+    "Greenspan: removal of accommodation has raised the real funds rate, but it remains low",
+    "By most measures, the real federal funds rate is still low"
+   ],
+   "decoys": [
+    "Real fed funds rate is now restrictive by most measures",
+    "Nominal fed funds rate still fairly low by most measures despite the hikes"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Core PCE prices rose about 1-1/4 percent at an annual rate over the second half of 2004",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:PCE).{0,80}(?:(?<![\\d/.])(?:1-1/4|1 1/4|1\\.25|1¼)(?![\\d/]))|(?:(?<![\\d/.])(?:1-1/4|1 1/4|1\\.25|1¼)(?![\\d/])).{0,80}(?:PCE)",
+    "second half|\\bH2|\\b2H|annual(?:ized)? (?:rate|pace|basis)|annuali[sz]ed|(?<!\\d)2004(?!\\d)"
+   ],
+   "match": "all",
+   "not_patterns": [],
+   "quote": "The core PCE and CPI measures, for example, climbed about 1-1/4 and 2 percent, respectively, at an annual rate over the second half of last year",
+   "paraphrases": [
+    "Core PCE prices rose about 1-1/4% at an annual rate in the second half of last year",
+    "Core PCE inflation ran at a 1.25 percent annualized pace in H2 2004",
+    "Core PCE up ~1 1/4% annualized over 2H04"
+   ],
+   "decoys": [
+    "Core PCE prices rose about 2-1/4% at an annual rate in the second half of last year",
+    "Core CPI rose about 1-1/4% at an annual rate in the second half of last year"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "The personal saving rate averaged only about 1 percent over 2004",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:sav(?:ing|ings) rate|saving).{0,60}(?:(?<![\\d.])1(?:\\.0)? ?(?:%|percent|pct|per cent))|(?:(?<![\\d.])1(?:\\.0)? ?(?:%|percent|pct|per cent)).{0,60}(?:sav(?:ing|ings) rate|saving)"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "a drop in the personal saving rate to an average of only 1 percent over 2004",
+   "paraphrases": [
+    "Personal saving rate averaged only about 1% last year",
+    "Household savings rate at just 1 percent in 2004",
+    "US personal saving rate down to about 1% in 2004"
+   ],
+   "decoys": [
+    "Personal saving rate averaged about 7% last year",
+    "Personal saving rate averaged about 3% last year"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Productivity (output per hour) growth slowed over the past half year",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:productivity|output per hour).{0,80}(?:slow\\w*|moderat\\w*|decelerat\\w*|weak\\w*|lower|cool\\w*)|(?:slow\\w*|moderat\\w*|decelerat\\w*|weak\\w*|lower|cool\\w*).{0,80}(?:productivity|output per hour)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "productivity (?:growth )?(?:has )?(?:accelerated|picked up|strengthened|surged|quickened|rose faster)",
+    "(?:faster|stronger|accelerating|surging) productivity"
+   ],
+   "quote": "The growth of output per hour slowed over the past half year",
+   "paraphrases": [
+    "Productivity growth slowed over the past half year, lifting unit labor costs",
+    "Output per hour decelerated in H2 2004",
+    "Greenspan notes a moderation in productivity growth in recent quarters"
+   ],
+   "decoys": [
+    "Productivity growth accelerated over the past half year, lowering unit labor costs",
+    "Wage growth slowed over the past half year"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Inflation and inflation expectations are well anchored",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:inflation|expectations).{0,60}(?:(?<!un)(?<!un-)(?<!de-)anchored)|(?:(?<!un)(?<!un-)(?<!de-)anchored).{0,60}(?:inflation|expectations)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "un-?anchor\\w*|de-?anchor\\w*|(?:not|no longer|less) (?:well[- ])?anchored"
+   ],
+   "quote": "with inflation and inflation expectations well anchored",
+   "paraphrases": [
+    "Inflation and inflation expectations are well anchored",
+    "Greenspan: inflation expectations remain well-anchored as 2005 begins",
+    "Longer-run inflation expectations stay anchored"
+   ],
+   "decoys": [
+    "Greenspan warns inflation expectations have become unanchored",
+    "Greenspan says inflation expectations are no longer well anchored"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "The pace of U.S. import price increases has quickened somewhat recently",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:import prices?).{0,80}(?:quicken\\w*|ris(?:e|es|ing)\\b|increas\\w*|accelerat\\w*|pick\\w* up|climb\\w*|\\bup\\b|firm\\w*|faster)|(?:quicken\\w*|ris(?:e|es|ing)\\b|increas\\w*|accelerat\\w*|pick\\w* up|climb\\w*|\\bup\\b|firm\\w*|faster).{0,80}(?:import prices?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:import prices?).{0,40}(?:fall\\w*|fell|declin\\w*|drop\\w*|slow\\w*|decelerat\\w*|lower)|(?:fall\\w*|fell|declin\\w*|drop\\w*|slow\\w*|decelerat\\w*|lower).{0,40}(?:import prices?)"
+   ],
+   "quote": "the recent somewhat quickened pace of increases in U.S. import prices",
+   "paraphrases": [
+    "Pace of US import price increases has quickened somewhat recently",
+    "Import prices rising faster, suggesting foreign exporters' margins are squeezed",
+    "Greenspan flags a quickened pace of import price increases as foreign exporters' margins shrink"
+   ],
+   "decoys": [
+    "US import prices have been falling at a faster pace recently",
+    "US export prices have quickened recently"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "The U.S. economic expansion has firmed since mid-2004",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:expansion|expanding|fundamentals).{0,80}(?:firmed|firming|firmer|reasonably good|good pace|solid\\w*|steadied|strengthen\\w*|robust)|(?:firmed|firming|firmer|reasonably good|good pace|solid\\w*|steadied|strengthen\\w*|robust).{0,80}(?:expansion|expanding|fundamentals)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:expansion|economy|growth).{0,40}(?:weak\\w*|falter\\w*|stall\\w*|slow\\w*|recession)|(?:weak\\w*|falter\\w*|stall\\w*|slow\\w*|recession).{0,40}(?:expansion|economy|growth)"
+   ],
+   "quote": "the U.S. economic expansion has firmed",
+   "paraphrases": [
+    "US economic expansion has firmed since July",
+    "Economy entered 2005 expanding at a reasonably good pace",
+    "Greenspan says fundamentals have steadied and growth is solid"
+   ],
+   "decoys": [
+    "US economic expansion has weakened since July",
+    "Greenspan says the economy entered 2005 in recession"
+   ]
+  }
+ ]
+}

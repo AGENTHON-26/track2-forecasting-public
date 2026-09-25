@@ -1,0 +1,237 @@
+{
+ "doc_id": "bis_hoenig_2008-09-01",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "Hoenig argues the Fed must strive to limit public safety nets and minimize their associated moral hazard",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "safety[- ]nets?.{0,80}(limit\\w*|restrict\\w*|contain\\w*|curb\\w*|minimi\\w*|narrow\\w*|shrink\\w*|rein\\w* in)|(limit\\w*|restrict\\w*|contain\\w*|curb\\w*|minimi\\w*|narrow\\w*|shrink\\w*|rein\\w* in).{0,80}safety[- ]nets?"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(should|must|to) (?:be )?(?:permanently )?(widen|expand|extend|broaden)\\w*.{0,40}safety[- ]net|safety[- ]nets?.{0,30}should be (widen|expand|extend|broaden)\\w*|overstated"
+   ],
+   "quote": "we must strive to limit public safety nets and minimize their associated moral hazard problems",
+   "paraphrases": [
+    "Hoenig: the Fed must limit public safety nets and minimize the moral hazard they create",
+    "KC Fed's Hoenig wants to restrict the federal safety net to curb moral hazard",
+    "Hoenig warns extending the safety net magnifies moral hazard and argues for containing it"
+   ],
+   "decoys": [
+    "Hoenig argues the Fed should permanently extend the safety net to investment banks and nonbanks",
+    "Hoenig says moral hazard concerns are overstated and the safety net should be widened"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "Hoenig favours 'doubling back across the river' to a more historical/traditional central-banking role once the crisis abates",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "doubl\\w* back|(return\\w*|go\\w* back|revert\\w*|head\\w* back) to.{0,30}(traditional|historical|narrower|previous)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(not|never|rather than) (return|go(ing)? back|doubl)"
+   ],
+   "quote": "this means doubling back across the river to a more historical central banking role",
+   "paraphrases": [
+    "Hoenig favors 'doubling back across the river' to the Fed's traditional central-banking role once the crisis abates",
+    "The Fed should return to its historical, narrower role and make clear such interventions will be rare, Hoenig says",
+    "Hoenig prefers going back to a traditional central bank role rather than formalizing a broader financial-stability mandate"
+   ],
+   "decoys": [
+    "Hoenig favors formalizing the Fed's broader role and going even farther into uncharted territory",
+    "Hoenig says the Fed should stay where it is now, on the other side of the river"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "Core PCE inflation has been above most definitions of price stability for the past four years",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "core.{0,80}(?:four|(?<!\\d)4(?!\\d))[- ](?:straight |consecutive )?years?|(?:four|(?<!\\d)4(?!\\d))[- ](?:straight |consecutive )?years?.{0,80}core",
+    "above|exceed\\w*|too high|overshoot\\w*"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "below|undershoot\\w*|undershot|within"
+   ],
+   "quote": "core PCE inflation has been above most definitions of price stability for the past four years",
+   "paraphrases": [
+    "Core PCE inflation has exceeded most definitions of price stability for four years",
+    "Hoenig: core inflation has run above price-stability levels for the past 4 years",
+    "Core PCE has been too high relative to price stability for four straight years"
+   ],
+   "decoys": [
+    "Core PCE inflation has been below most definitions of price stability for the past four years",
+    "Core PCE inflation has been above price stability for the past two years"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "Core PCE inflation is poised to move even higher over the near term",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "core.{0,80}(even higher|move higher|rise further|climb further|increase further|further (?:rise|increase|climb)|accelerat\\w*)|(even higher|rise further|climb further|accelerat\\w*).{0,80}core|poised to (?:move|rise|climb) (?:even )?higher"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(core|inflation).{0,60}\\b(eas\\w*|fall\\w*|declin\\w*|moderat\\w*|steady|stabili\\w*)"
+   ],
+   "quote": "is poised to move even higher over the near term",
+   "paraphrases": [
+    "Core PCE inflation is poised to move even higher in the near term",
+    "Hoenig expects core inflation to rise further near term",
+    "Core inflation set to climb further over the coming months, Hoenig warns"
+   ],
+   "decoys": [
+    "Core PCE inflation is poised to ease in the near term",
+    "Hoenig expects core PCE inflation to hold steady over the near term"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "Hoenig warns the current (crisis-calibrated) policy stance will make it difficult to achieve price stability over the longer term",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(stance|policy).{0,100}(difficult|hard|threaten\\w*|jeopardi\\w*|undermin\\w*|risk\\w*|compromis\\w*).{0,60}price[- ]stability|price[- ]stability.{0,60}(difficult|hard|threaten\\w*|jeopardi\\w*|undermin\\w*|at risk|compromis\\w*).{0,60}(stance|policy)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "consistent with|compatible with"
+   ],
+   "quote": "will make it difficult to achieve our mandate for price stability over the longer term",
+   "paraphrases": [
+    "Hoenig: the current policy stance will make it difficult to achieve price stability over the longer term",
+    "Current accommodative stance, calibrated to the financial crisis, threatens the Fed's longer-run price-stability mandate",
+    "Hoenig warns that today's easy policy jeopardizes price stability in the long run"
+   ],
+   "decoys": [
+    "Hoenig says the current policy stance is fully consistent with achieving price stability over the longer term",
+    "Hoenig says the current stance will make it difficult to achieve maximum employment over the longer term"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "The Fed lent $30 billion to support the takeover of Bear Stearns",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "bear.{0,80}(?<![\\d.])30(?![\\d.])\\s*(?:billion|bn|bln|b\\b)|(?<![\\d.])30(?![\\d.])\\s*(?:billion|bn|bln|b\\b).{0,80}bear"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "lending $30 billion to support the takeover of Bear Stearns",
+   "paraphrases": [
+    "Fed lent $30 billion to support the Bear Stearns takeover",
+    "The Fed's $30bn loan backed JPMorgan's acquisition of Bear Stearns",
+    "Bear Stearns rescue involved $30 bln of Fed lending"
+   ],
+   "decoys": [
+    "Fed lent $300 billion to support the Bear Stearns takeover",
+    "Fed lent $30 billion to support the Lehman Brothers takeover"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Major nonbank financial institutions that seek discount-window assistance should immediately come under Federal Reserve oversight",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "non-?banks?",
+    "discount[- ]window",
+    "(fed\\w*|federal reserve).{0,40}(oversight|supervis\\w*)|(oversight|supervis\\w*).{0,40}(fed\\w*|federal reserve)"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "without.{0,20}(oversight|supervis)|\\bSEC\\b|\\bno (?:fed )?oversight"
+   ],
+   "quote": "major nonbank financial institutions that seek discount window assistance will immediately come under Federal Reserve oversight",
+   "paraphrases": [
+    "Nonbanks seeking discount-window help should immediately come under Fed oversight, Hoenig says",
+    "Hoenig: any major nonbank that taps the discount window must be subject to Fed supervision",
+    "Access to the discount window for nonbank firms should trigger immediate Federal Reserve oversight"
+   ],
+   "decoys": [
+    "Hoenig says nonbanks should get discount-window access without any Fed oversight",
+    "Hoenig says nonbanks tapping the discount window should come under SEC oversight"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Care must be taken not to ask too much of monetary policy, or it risks adding significant inflationary pressures",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(too much of|overburden\\w*|overload\\w*|over-?reli\\w*|overus\\w*).{0,40}monetary policy.{0,80}inflation\\w*|inflation\\w*.{0,80}(too much of|overburden\\w*|over-?reli\\w*).{0,40}monetary policy"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "care must be taken not to ask too much of monetary policy or we risk adding significant inflationary pressures into an economy",
+   "paraphrases": [
+    "Hoenig cautions against asking too much of monetary policy, which risks adding significant inflationary pressure",
+    "Overburdening monetary policy in the crisis could stoke inflation, Hoenig warns",
+    "Asking too much of monetary policy risks fueling inflation pressures, per Hoenig"
+   ],
+   "decoys": [
+    "Hoenig says monetary policy should do more, since inflation risks are minimal",
+    "Hoenig warns that asking too much of fiscal policy risks adding inflationary pressures"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Rate cuts are less effective in a financial crisis because key parts of the transmission mechanism (notably housing) are dysfunctional",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "transmission|housing",
+    "rate|eas\\w*|monetary",
+    "less effective|less stimulus|los\\w* (?:its |some )?(?:potency|effectiveness)|less potent|impaired|dysfunctional|break\\w* down"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "more effective|strengthen\\w*"
+   ],
+   "quote": "the stimulus provided by lowering the policy rate is less effective in a financial crisis because important parts of the policy transmission mechanism are dysfunctional",
+   "paraphrases": [
+    "Rate cuts are less effective in a financial crisis because the transmission mechanism, notably housing, is impaired",
+    "Hoenig: lowering the policy rate delivers less stimulus when the transmission channel is dysfunctional",
+    "Policy easing loses potency in a crisis as key transmission channels like housing break down"
+   ],
+   "decoys": [
+    "Rate cuts are more effective in a financial crisis because transmission is strengthened",
+    "Hoenig says fiscal stimulus is less effective in a financial crisis"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Hoenig warns the too-big-to-fail issue will only grow in importance as financial-industry consolidation grows",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(too[- ]big[- ]to[- ]fail|tbtf).{0,80}(grow\\w*|increas\\w*|bigger|more important|worsen\\w*)|(grow\\w*|increas\\w*|bigger|worsen\\w*).{0,40}(too[- ]big[- ]to[- ]fail|tbtf)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(too[- ]big[- ]to[- ]fail|tbtf).{0,60}(fade|diminish\\w*|shrink\\w*|solved|recede|less important)|(solved|ended|eliminat\\w*).{0,30}(too[- ]big|tbtf)"
+   ],
+   "quote": "The 'Too Big to Fail' issue will only grow in importance",
+   "paraphrases": [
+    "Hoenig: the too-big-to-fail problem will only grow in importance as the financial industry consolidates",
+    "TBTF will become an increasingly important issue as financial consolidation continues, Hoenig warns",
+    "Too big to fail is set to become a bigger problem with further industry consolidation"
+   ],
+   "decoys": [
+    "Hoenig says the too-big-to-fail problem will fade as the financial industry consolidates",
+    "Hoenig says too-big-to-fail has been solved by recent reforms"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,240 @@
+{
+ "doc_id": "bis_kuroda_2014-09-16",
+ "doc_type": "cb_speech",
+ "points": [
+  {
+   "id": "p1",
+   "point": "BOJ will continue QQE, aiming at the 2% price stability target, as long as necessary to maintain it stably",
+   "tier": "must",
+   "kind": "concept",
+   "patterns": [
+    "(?:QQE|quantitative and qualitative(?: monetary)? easing).{0,80}(?:continu\\w*|maintain\\w*|keep\\w*|stay the course|persist\\w*|as long as (?:it is )?necessary|press on)|(?:continu\\w*|maintain\\w*|keep\\w*|stay the course|persist\\w*|as long as (?:it is )?necessary|press on).{0,80}(?:QQE|quantitative and qualitative(?: monetary)? easing)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:QQE|quantitative and qualitative(?: monetary)? easing|stimulus).{0,40}(?:taper\\w*|exit\\w*|wind\\w* down|scal\\w* back|halt\\w*|end(?:s|ed|ing)?\\b|withdraw\\w*|unwind\\w*)|(?:taper\\w*|exit\\w*|wind\\w* down|scal\\w* back|halt\\w*|end(?:s|ed|ing)?\\b|withdraw\\w*|unwind\\w*).{0,40}(?:QQE|quantitative and qualitative(?: monetary)? easing|stimulus)"
+   ],
+   "quote": "the Bank will continue with QQE, aiming to achieve the price stability target of 2 percent, as long as it is necessary for maintaining that target in a stable manner",
+   "paraphrases": [
+    "BOJ will continue QQE as long as necessary to stably achieve its price stability target",
+    "Kuroda: BOJ to keep quantitative and qualitative easing going until 2% inflation is maintained stably",
+    "Bank to persist with QQE aimed at 2 percent price stability target"
+   ],
+   "decoys": [
+    "Kuroda signals BOJ will begin tapering QQE",
+    "Kuroda says BOJ will end QQE once inflation reaches 1 percent"
+   ]
+  },
+  {
+   "id": "p2",
+   "point": "If risks materialize and it is judged necessary for the 2% target, the BOJ will make policy adjustments without hesitation",
+   "tier": "must",
+   "kind": "phrase",
+   "patterns": [
+    "without hesitat\\w*",
+    "(?:will not|won't|would not|wouldn't|not) hesitate",
+    "(?:adjust\\w*|additional easing|further easing|ease further).{0,40}(?:ready|prepared)|(?:ready|prepared).{0,40}(?:adjust\\w*|additional easing|further easing|ease further)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "no need.{0,40}(?:adjust|eas|action)"
+   ],
+   "quote": "the Bank will make adjustments without hesitation",
+   "paraphrases": [
+    "BOJ will adjust policy without hesitation if risks materialize and threaten the price target",
+    "Kuroda says BOJ won't hesitate to make policy adjustments if the outlook changes",
+    "Bank stands ready to adjust policy should downside risks threaten the price goal"
+   ],
+   "decoys": [
+    "Kuroda says BOJ sees no need for further policy adjustments even if the outlook changes",
+    "Kuroda says BOJ would hesitate to adjust policy even if risks materialize"
+   ]
+  },
+  {
+   "id": "p3",
+   "point": "CPI inflation is expected to reach about 2 percent around the middle of the FY2014-2016 projection period",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:(?<![\\d./])2 ?(?:%|percent|pct|per cent)).{0,80}(?:middle|mid-?point|midway|\\bmid\\b|FY ?2015|fiscal ?(?:year )?2015|FY ?15\\b)|(?:middle|mid-?point|midway|\\bmid\\b|FY ?2015|fiscal ?(?:year )?2015|FY ?15\\b).{0,80}(?:(?<![\\d./])2 ?(?:%|percent|pct|per cent))"
+   ],
+   "match": "any",
+   "not_patterns": [],
+   "quote": "reach about 2 percent - the price stability target - around the middle of the current projection period from fiscal 2014 through 2016",
+   "paraphrases": [
+    "CPI expected to reach about 2% around the middle of the projection period",
+    "BOJ sees inflation hitting its 2 percent target around fiscal 2015",
+    "Core CPI to reach ~2% target by mid-projection period (FY14-16)"
+   ],
+   "decoys": [
+    "CPI expected to reach about 2% only at the end of the FY2014-2016 projection period",
+    "CPI expected to reach about 1% around the middle of the FY2014-2016 projection period"
+   ]
+  },
+  {
+   "id": "p4",
+   "point": "CPI (ex fresh food, ex consumption tax effects) is recently around 1.3 / 1-1/4 percent y/y",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:CPI|inflation|consumer prices?).{0,80}(?:(?<![\\d/.])(?:1-1/4|1 1/4|1\\.25|1¼|1\\.3) ?(?:%|percent|pct|per cent))|(?:(?<![\\d/.])(?:1-1/4|1 1/4|1\\.25|1¼|1\\.3) ?(?:%|percent|pct|per cent)).{0,80}(?:CPI|inflation|consumer prices?)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "PCE"
+   ],
+   "quote": "recently registering 1.3 percent excluding the direct effects of the consumption tax hike",
+   "paraphrases": [
+    "Core CPI ex tax hike recently at 1.3% y/y",
+    "Inflation ex fresh food and tax effects hovering around 1¼ percent",
+    "CPI inflation around 1.25% excluding the consumption tax hike"
+   ],
+   "decoys": [
+    "Core CPI ex tax hike recently at 1.8% y/y",
+    "Core CPI ex tax hike recently at 3.3% y/y"
+   ]
+  },
+  {
+   "id": "p5",
+   "point": "CPI inflation is expected to resume an uptrend from the second half of this fiscal year",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:CPI|inflation|prices?).{0,80}(?:up-?trend|upward|ris\\w*|pick\\w* up|accelerat\\w*|climb\\w*|increas\\w*)|(?:up-?trend|upward|ris\\w*|pick\\w* up|accelerat\\w*|climb\\w*|increas\\w*).{0,80}(?:CPI|inflation|prices?)",
+    "second half|\\bH2|\\b2H|latter half"
+   ],
+   "match": "all",
+   "not_patterns": [
+    "(?:CPI|inflation).{0,40}(?:downtrend|declin\\w*|fall\\w*|decelerat\\w*)|(?:downtrend|declin\\w*|fall\\w*|decelerat\\w*).{0,40}(?:CPI|inflation)",
+    "(?:second|latter) half of (?:the )?next|H2 (?:of )?next"
+   ],
+   "quote": "is expected to subsequently follow an uptrend again from the second half of this fiscal year",
+   "paraphrases": [
+    "CPI expected to resume an uptrend from the second half of this fiscal year",
+    "Inflation to pick up again from H2 FY2014",
+    "Kuroda sees consumer price gains accelerating again from the latter half of fiscal 2014"
+   ],
+   "decoys": [
+    "CPI expected to decline from the second half of this fiscal year",
+    "CPI expected to resume an uptrend from the second half of next fiscal year"
+   ]
+  },
+  {
+   "id": "p6",
+   "point": "Real GDP fell at an annualized 7.1 percent in the April-June quarter of 2014",
+   "tier": "must",
+   "kind": "number",
+   "patterns": [
+    "(?:GDP|economy|output|growth).{0,80}(?:(?<![\\d.])7\\.1 ?(?:%|percent|pct|per cent))|(?:(?<![\\d.])7\\.1 ?(?:%|percent|pct|per cent)).{0,80}(?:GDP|economy|output|growth)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:grew|rose|expanded|increased|jumped|surged)\\b.{0,30}(?<![\\d.])7\\.1",
+    "(?<![\\d.-])\\+ ?7\\.1"
+   ],
+   "quote": "real GDP in the April-June quarter of 2014 fell substantially at a rate of 7.1 percent on an annualized quarter-on-quarter basis",
+   "paraphrases": [
+    "Japan real GDP fell 7.1% annualized in the April-June quarter",
+    "Q2 2014 real GDP contracted at a 7.1 percent annualized rate",
+    "Apr-Jun GDP -7.1% saar after the consumption tax hike"
+   ],
+   "decoys": [
+    "Japan real GDP grew 7.1% annualized in the April-June quarter",
+    "Japan real GDP fell 6.0% annualized in the April-June quarter"
+   ]
+  },
+  {
+   "id": "p7",
+   "point": "Japan's economy has continued to recover moderately as a trend",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:recover\\w*).{0,80}(?:moderat\\w*)|(?:moderat\\w*).{0,80}(?:recover\\w*)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "recession",
+    "(?:recover\\w*).{0,40}(?:derail\\w*|stall\\w*|ended|halted|reversed)|(?:derail\\w*|stall\\w*|ended|halted|reversed).{0,40}(?:recover\\w*)"
+   ],
+   "quote": "Japan's economy has continued to recover moderately as a trend",
+   "paraphrases": [
+    "Japan's economy has continued to recover moderately as a trend despite post-tax-hike payback",
+    "Kuroda: moderate recovery trend intact; tax-hike demand drop to wane gradually",
+    "Japanese economy still on a moderate recovery path"
+   ],
+   "decoys": [
+    "Kuroda says Japan's economy has stalled and fallen into recession",
+    "Kuroda says Japan's recovery has accelerated sharply"
+   ]
+  },
+  {
+   "id": "p8",
+   "point": "Employee income is rising about 2 percent year on year, exceeding inflation",
+   "tier": "should",
+   "kind": "number",
+   "patterns": [
+    "(?:employee income|income|wages?|earnings).{0,60}(?:(?<![\\d./])2 ?(?:%|percent|pct|per cent))|(?:(?<![\\d./])2 ?(?:%|percent|pct|per cent)).{0,60}(?:employee income|income|wages?|earnings)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:employee income|income|wages?|earnings).{0,60}(?:fell|fall\\w*|declin\\w*|drop\\w*|down\\b|shrank|contract\\w*)|(?:fell|fall\\w*|declin\\w*|drop\\w*|down\\b|shrank|contract\\w*).{0,60}(?:employee income|income|wages?|earnings)"
+   ],
+   "quote": "employee income has been increasing about 2 percent year on year, exceeding the inflation rate",
+   "paraphrases": [
+    "Household employee income up around 2 percent year on year",
+    "Employee income rising about 2% y/y, outpacing inflation",
+    "Kuroda: employee income growing ~2% y/y, exceeding inflation ex-tax"
+   ],
+   "decoys": [
+    "Employee income falling about 2% y/y",
+    "Employee income rising about 4% y/y"
+   ]
+  },
+  {
+   "id": "p9",
+   "point": "Business fixed investment is expected to continue its moderate increasing trend",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:business (?:fixed )?investment|capex|capital (?:spending|expenditure|investment)|fixed investment).{0,80}(?:increas\\w*|ris(?:e|es|ing)\\b|grow\\w*|expand\\w*|pick\\w* up|up-?trend|\\bup\\b)|(?:increas\\w*|ris(?:e|es|ing)\\b|grow\\w*|expand\\w*|pick\\w* up|up-?trend|\\bup\\b).{0,80}(?:business (?:fixed )?investment|capex|capital (?:spending|expenditure|investment)|fixed investment)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:business (?:fixed )?investment|capex|capital (?:spending|expenditure|investment)|fixed investment).{0,60}(?:declin\\w*|fall\\w*|fell|weak\\w*|contract\\w*|slump\\w*|drop\\w*|shrink\\w*)|(?:declin\\w*|fall\\w*|fell|weak\\w*|contract\\w*|slump\\w*|drop\\w*|shrink\\w*).{0,60}(?:business (?:fixed )?investment|capex|capital (?:spending|expenditure|investment)|fixed investment)"
+   ],
+   "quote": "business fixed investment is expected to continue its moderate increasing trend",
+   "paraphrases": [
+    "Business fixed investment expected to continue a moderate increasing trend",
+    "Capex set to keep rising moderately on strong profits",
+    "Kuroda sees firms increasing business investment, mainly in Japan, from last year"
+   ],
+   "decoys": [
+    "Business fixed investment expected to decline",
+    "Business fixed investment expected to contract as firms move production overseas"
+   ]
+  },
+  {
+   "id": "p10",
+   "point": "Exports are expected to head for a moderate increase as overseas economies recover",
+   "tier": "should",
+   "kind": "concept",
+   "patterns": [
+    "(?:\\bexports?\\b).{0,80}(?:increas\\w*|ris(?:e|es|ing)\\b|pick\\w* up|recover\\w*|rebound\\w*|grow\\w*|improv\\w*)|(?:increas\\w*|ris(?:e|es|ing)\\b|pick\\w* up|recover\\w*|rebound\\w*|grow\\w*|improv\\w*).{0,80}(?:\\bexports?\\b)"
+   ],
+   "match": "any",
+   "not_patterns": [
+    "(?:\\bexports?\\b).{0,60}(?:declin\\w*|fall\\w*|fell|contract\\w*|drop\\w*|shrink\\w*)|(?:declin\\w*|fall\\w*|fell|contract\\w*|drop\\w*|shrink\\w*).{0,60}(?:\\bexports?\\b)"
+   ],
+   "quote": "exports are expected to head for a moderate increase",
+   "paraphrases": [
+    "Exports expected to head for a moderate increase as overseas economies recover",
+    "Kuroda sees exports picking up, led by high-value-added goods",
+    "Japan's exports seen rising moderately despite recent lack of momentum"
+   ],
+   "decoys": [
+    "Exports expected to decline as overseas economies slow",
+    "Imports expected to head for a moderate increase"
+   ]
+  }
+ ]
+}
