@@ -9,6 +9,7 @@ The model call is monkeypatched; nothing here touches the network.
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import pathlib
@@ -442,3 +443,112 @@ class TestThrottle(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestF3CrossAssetPrompt(unittest.TestCase):
+    """Stage 2's F3 handling: the joint framing, the cross-asset numbers, and the tighter clamp.
+
+    Nothing in this file before these tests called build_adjustment_prompt with more than one
+    asset, so the multi-asset rendering -- which is the entire F3 case -- was unpinned.
+    """
+
+    ASSETS = ["UST_2Y", "EUR", "GBP", "JPY"]
+
+    def _ctx(self, family="F3"):
+        return {
+            "asof": "2022-06-15", "horizons": [21, 63], "value_unit": "mixed",
+            "target_type": "level", "family": family, "sigma_horizon": 21,
+            "level": {a: 1.0 for a in self.ASSETS},
+            "sigma": {a: 0.1 for a in self.ASSETS},
+            "cross": {
+                "corr": {a: {b: (1.0 if a == b else 0.5) for b in self.ASSETS}
+                         for a in self.ASSETS},
+                "trailing_sigma": {a: {21: 1.2, 63: -0.4} for a in self.ASSETS},
+            },
+        }
+
+    def _prompt(self, family="F3"):
+        return ts.build_adjustment_prompt(
+            [{"doc_id": "d1", "timestamp": "2022-06-15", "doc_type": "fomc_statement",
+              "summary": "- hiked 75bp"}], self.ASSETS, self._ctx(family))
+
+    def test_every_asset_appears_in_the_reply_schema(self):
+        """The skeleton used to show assets[:2] beside a 10-asset list -- and got 2 keys back."""
+        system, _ = self._prompt()
+        for a in self.ASSETS:
+            self.assertIn(f'"{a}"', system, f"{a} missing from the reply schema")
+
+    def test_f3_focus_does_not_claim_correlation_is_unexpressible(self):
+        """The old F3 paragraph ended by apologising that the format had no correlation field.
+
+        That is false in the way that matters: the variogram scores |asset_i - asset_j|, so the
+        per-asset drift_sd values ARE a joint statement. Measured, per-asset drift is worth ~0.75
+        normalized composite against ~0.99 for an explicit correlation control, so the apology was
+        steering the model away from its strongest lever.
+        """
+        system, _ = self._prompt()
+        self.assertNotIn("no field for a target correlation", system)
+        self.assertIn("DIFFERENCES between your assets", system)
+
+    def test_cross_asset_numbers_reach_the_user_message(self):
+        """Correlations and trailing moves -- the model had neither before."""
+        _, user = self._prompt()
+        self.assertIn("moved together", user)
+        self.assertIn("Trailing move already realized", user)
+        self.assertIn("EUR +0.50", user)          # a rendered pairwise correlation
+
+    def test_asset_glossary_states_the_fx_direction(self):
+        """A bare `JPY` does not say which way the quote runs; the card's value_unit often can't
+        either, because it is one field shared by every asset on the card."""
+        _, user = self._prompt()
+        self.assertIn("RISES when the dollar strengthens", user)   # JPY, ccy-per-USD
+        self.assertIn("RISES when the dollar weakens", user)       # EUR/GBP, USD-per-ccy
+
+    def test_f3_widen_clamp_is_tighter_and_is_enforced(self):
+        """F3 pays 0.3 on a term that gets monotonically worse as the draws widen.
+
+        The default ceiling of 2.00 lets the model cost itself ~46% on its primary term; measured,
+        the normalized composite goes 0.978 at widen 1.00 to 1.056 at 1.30.
+        """
+        self.assertEqual(ts._widen_clamp("F3"), (0.85, 1.25))
+        self.assertEqual(ts._widen_clamp("F1"), ts._WIDEN_CLAMP)
+        self.assertEqual(ts._widen_clamp(None), ts._WIDEN_CLAMP)
+
+        ctx = {"sigma": {"EUR": 0.02}, "family": "F3"}
+        adj, _ = ts.to_adjustments({"assets": {"EUR": {"drift_sd": 0.0, "vol_scale": 1.9}}},
+                                   ["EUR"], ctx)
+        self.assertEqual(adj["EUR"]["widen"], 1.25)
+        # the same reply on a non-F3 card keeps the wide ceiling
+        ctx_f4 = {"sigma": {"EUR": 0.02}, "family": "F4"}
+        adj4, _ = ts.to_adjustments({"assets": {"EUR": {"drift_sd": 0.0, "vol_scale": 1.9}}},
+                                    ["EUR"], ctx_f4)
+        self.assertEqual(adj4["EUR"]["widen"], 1.9)
+
+    def test_prompt_states_the_clamp_it_actually_enforces(self):
+        """The stated range and the enforced range come from one resolver, so they cannot drift."""
+        system_f3, _ = self._prompt("F3")
+        self.assertIn("[0.85, 1.25]", system_f3)
+        system_f1, _ = self._prompt("F1")
+        self.assertIn(f"[{ts._WIDEN_CLAMP[0]}, {ts._WIDEN_CLAMP[1]}]", system_f1)
+
+
+class TestLedgerLogging(unittest.TestCase):
+    def test_missing_asset_is_reported_not_silently_neutralized(self):
+        """An omitted asset is left at exact neutral, which on a joint card is itself a claim.
+
+        It still gets a ledger row, so it has to be detected by its note rather than by absence.
+        """
+        ctx = {"sigma": {"A": 1.0, "B": 1.0}, "family": "F3"}
+        _, ledger = ts.to_adjustments({"assets": {"A": {"drift_sd": 0.5}}}, ["A", "B"], ctx)
+        with mock.patch("sys.stderr", new=io.StringIO()) as err:
+            ts._log_ledger(ledger, ["A", "B"], ctx)
+            out = err.getvalue()
+        self.assertIn("adj A:", out)
+        self.assertIn("MISSING from the reply", out)
+        self.assertIn("'B'", out)
+
+    def test_logging_never_raises(self):
+        """A logging failure must not cost a card its text signal."""
+        with mock.patch("sys.stderr", new=io.StringIO()):
+            ts._log_ledger({"A": "not-a-dict"}, ["A"], {})
+            ts._log_ledger({}, ["A"], {})
