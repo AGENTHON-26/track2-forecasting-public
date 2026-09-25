@@ -142,3 +142,211 @@ class TestBuildDrawsWithSkew(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def _bdays(n: int, start: str = "2018-01-01") -> list[str]:
+    """n real consecutive business days as YYYY-MM-DD.
+
+    Not the f"2020-{i//28}" shortcut used above: past n=392 that rolls into month 15 and pandas
+    rejects it outright, which is the right behaviour now that _series parses dates rather than
+    sorting them as strings.
+    """
+    import pandas as _pd
+    return [d.strftime("%Y-%m-%d") for d in _pd.bdate_range(start=start, periods=n)]
+
+
+def _panel_truth(table, assets, window=260):
+    """The sd and correlation build_draws will estimate from this panel's last `window` steps.
+
+    Tests assert against THIS, not against the generator's theoretical parameters: a 260-sample
+    sd carries ~4% estimation error, so comparing to the theoretical 1.0 tests the fixture's luck
+    rather than the code.
+    """
+    import pandas as _pd
+    d = table.to_pydict()
+    frame = _pd.DataFrame({"date": d["date"], "asset": d["asset"], "value": d["value"]})
+    wide = frame.pivot(index="date", columns="asset", values="value").sort_index()
+    steps = wide[list(assets)].diff().dropna().iloc[-window:]
+    return steps.to_numpy().std(axis=0), steps.corr().to_numpy()
+
+
+def _multi_panel(assets, n=400, seed=0, corr=0.0, start=100.0):
+    """One panel holding several assets on a shared date grid, with a known step correlation."""
+    rng = np.random.default_rng(seed)
+    k = len(assets)
+    cov = np.full((k, k), corr, dtype=float)
+    np.fill_diagonal(cov, 1.0)
+    steps = rng.multivariate_normal(np.zeros(k), cov, size=n)
+    dates = _bdays(n)
+    cols = {"date": [], "asset": [], "value": []}
+    for j, a in enumerate(assets):
+        vals = start + np.cumsum(steps[:, j])
+        cols["date"] += dates
+        cols["asset"] += [a] * n
+        cols["value"] += vals.tolist()
+    return pa.table(cols), dates[-1]
+
+
+class TestJointStructure(unittest.TestCase):
+    """The cross-horizon and cross-asset structure the variogram actually scores.
+
+    Nothing in this file before these tests called build_draws() with more than one asset or more
+    than one horizon, so the joint behaviour was entirely unpinned.
+    """
+
+    def test_cross_horizon_correlation_is_sqrt_ratio(self):
+        """Same asset, two horizons -> rho = sqrt(h1/h2), the random-walk truth.
+
+        Before the cumulative path this was ~0: each horizon drew its own independent shock. On
+        F3 that is the majority of the variogram's cell pairs (every F3 card has 2 horizons, so
+        cross-horizon pairs are 53-67% of all pairs).
+        """
+        assets = ["A", "B", "C", "D"]
+        table, asof = _multi_panel(assets, seed=3, corr=0.3)
+        out = fa.build_draws({"p": table}, assets, [63, 126], asof,
+                             {a: dict(NEUTRAL) for a in assets}, 20000, 0)
+        expected = np.sqrt(63 / 126)
+        for i, a in enumerate(assets):
+            rho = np.corrcoef(out[:, i, 0], out[:, i, 1])[0, 1]
+            self.assertAlmostEqual(rho, expected, delta=0.02, msg=f"{a}: rho={rho:.4f}")
+
+    def test_marginal_variance_is_unchanged_by_the_path(self):
+        """std at horizon h is still sd*sqrt(h).
+
+        This is the guard that the joint fix never leaks into the marginal or tail terms -- the
+        cumulative path adds covariance ACROSS horizons without touching any single horizon's
+        marginal distribution.
+        """
+        assets = ["A", "B"]
+        table, asof = _multi_panel(assets, seed=4, corr=0.0)
+        out = fa.build_draws({"p": table}, assets, [21, 84], asof,
+                             {a: dict(NEUTRAL) for a in assets}, 20000, 0)
+        sd, _ = _panel_truth(table, assets)
+        for i in range(len(assets)):
+            for hi, h in enumerate([21, 84]):
+                self.assertAlmostEqual(out[:, i, hi].std() / (sd[i] * np.sqrt(h)), 1.0, delta=0.03)
+
+    def test_single_horizon_is_distributionally_unchanged(self):
+        """A one-horizon card must behave exactly as it did before the cumulative path.
+
+        This is the whole cross-family regression guard: all 27 F2 units and all 31 F4 units are
+        single-horizon, and with one leg the path reduces to z*sd*sqrt(h) -- the old formula. If
+        this test fails, those 58 units moved and the change is not safe to ship.
+        """
+        assets = ["A", "B", "C"]
+        table, asof = _multi_panel(assets, seed=5, corr=0.5)
+        out = fa.build_draws({"p": table}, assets, [21], asof,
+                             {a: dict(NEUTRAL) for a in assets}, 20000, 0)
+        sd, corr_true = _panel_truth(table, assets)
+        for i in range(len(assets)):
+            self.assertAlmostEqual(out[:, i, 0].std() / (sd[i] * np.sqrt(21)), 1.0, delta=0.03)
+        # and the cross-asset correlation is still the panel's own
+        rho = np.corrcoef(out[:, 0, 0], out[:, 1, 0])[0, 1]
+        self.assertAlmostEqual(rho, corr_true[0, 1], delta=0.03)
+
+    def test_cross_asset_correlation_survives(self):
+        """The Cholesky structure is preserved by the accumulation, at every horizon."""
+        assets = ["A", "B"]
+        table, asof = _multi_panel(assets, seed=6, corr=0.7)
+        out = fa.build_draws({"p": table}, assets, [21, 63], asof,
+                             {a: dict(NEUTRAL) for a in assets}, 20000, 0)
+        _, corr_true = _panel_truth(table, assets)
+        for hi in range(2):
+            rho = np.corrcoef(out[:, 0, hi], out[:, 1, hi])[0, 1]
+            self.assertAlmostEqual(rho, corr_true[0, 1], delta=0.03)
+
+
+class TestAlignmentAndGaps(unittest.TestCase):
+    def test_assets_in_different_panels_align_by_date(self):
+        """Two panels with different calendars must correlate on the date intersection.
+
+        Positional stacking (the old behaviour) reads a shifted, wrong correlation. Six F3 units
+        span two panels: measured on t2-F3-divergence-2014, UST_10Y/JPY reads 0.32 positionally
+        against 0.50 date-aligned.
+        """
+        rng = np.random.default_rng(7)
+        n = 400
+        dates = _bdays(n)
+        steps = rng.multivariate_normal([0, 0], [[1.0, 0.8], [0.8, 1.0]], size=n)
+        a_vals = 100 + np.cumsum(steps[:, 0])
+        b_vals = 100 + np.cumsum(steps[:, 1])
+        # B's panel is missing a scattered handful of dates -- a different calendar, as a real
+        # rates-vs-FX pair has.
+        drop = {13, 51, 97, 150, 201, 260, 301}
+        pa_tbl = pa.table({"date": dates, "asset": ["A"] * n, "value": a_vals.tolist()})
+        keep = [i for i in range(n) if i not in drop]
+        pb_tbl = pa.table({"date": [dates[i] for i in keep], "asset": ["B"] * len(keep),
+                           "value": [b_vals[i] for i in keep]})
+        out = fa.build_draws({"pa": pa_tbl, "pb": pb_tbl}, ["A", "B"], [21], dates[-1],
+                             {a: dict(NEUTRAL) for a in ["A", "B"]}, 20000, 0)
+        # The truth is the correlation on the DATE INTERSECTION, which is what date-aligned
+        # stacking recovers and positional stacking does not.
+        import pandas as _pd
+        sa = _pd.Series(a_vals, index=_pd.to_datetime(dates))
+        sb = _pd.Series([b_vals[i] for i in keep], index=_pd.to_datetime([dates[i] for i in keep]))
+        joined = _pd.DataFrame({"A": sa, "B": sb}).diff().dropna().iloc[-260:]
+        expected = joined.corr().to_numpy()[0, 1]
+        rho = np.corrcoef(out[:, 0, 0], out[:, 1, 0])[0, 1]
+        self.assertAlmostEqual(rho, expected, delta=0.04,
+                               msg=f"date-aligned corr {expected:.3f} not recovered: {rho:.3f}")
+
+    def test_a_decade_hole_does_not_inflate_sd(self):
+        """A deliberate history gap must not be differenced across.
+
+        Transfer cards ship an early window plus a single as-of anchor row. Differenced naively
+        that hole is one 'day' worth a decade of movement: measured on
+        t2-F2-fragile-five-brl-2013, a -0.875 step against a typical 0.030, inflating sd by 1.4x.
+        """
+        rng = np.random.default_rng(8)
+        early = _bdays(300, start="2003-01-01")
+        vals = list(100 + np.cumsum(rng.normal(0, 1.0, 300)))
+        gapped = pa.table({"date": early + ["2013-05-24"], "asset": ["A"] * 301,
+                           "value": vals + [40.0]})            # a huge jump across a 10-year hole
+        clean = pa.table({"date": early, "asset": ["A"] * 300, "value": vals})
+        adj = {"A": dict(NEUTRAL)}
+        g = fa.build_draws({"p": gapped}, ["A"], [21], "2013-05-24", adj, 8000, 0)
+        c = fa.build_draws({"p": clean}, ["A"], [21], early[-1], adj, 8000, 0)
+        ratio = g[:, 0, 0].std() / c[:, 0, 0].std()
+        self.assertLess(ratio, 2.0, f"the gap inflated sd by {ratio:.2f}x")
+
+    def test_asset_order_follows_the_argument_not_the_panel(self):
+        """sd/shift/widen are built in `assets` order; the step frame must match it.
+
+        If the frame's column order ever diverged, the Cholesky would be applied to the wrong
+        assets silently -- no exception, just a wrong correlation structure.
+        """
+        # B is far more volatile than A; ask for them in the non-panel order.
+        rng = np.random.default_rng(9)
+        n = 400
+        dates = _bdays(n)
+        cols = {"date": [], "asset": [], "value": []}
+        for a, vol in (("A", 0.1), ("B", 5.0)):
+            cols["date"] += dates
+            cols["asset"] += [a] * n
+            cols["value"] += (100 + np.cumsum(rng.normal(0, vol, n))).tolist()
+        table = pa.table(cols)
+        out = fa.build_draws({"p": table}, ["B", "A"], [21], dates[-1],
+                             {a: dict(NEUTRAL) for a in ["A", "B"]}, 8000, 0)
+        sd_b, sd_a = out[:, 0, 0].std(), out[:, 1, 0].std()
+        self.assertGreater(sd_b, 10 * sd_a, "B (vol 5.0) must be the first output column")
+
+
+class TestLogReturnTarget(unittest.TestCase):
+    def test_log_return_centres_on_zero_not_the_last_return(self):
+        """A cumulative log-return target starts at 0, with no drift extrapolation.
+
+        The panel holds decimal simple returns, so the old behaviour -- anchor at the last row and
+        difference the rows -- was wrong twice over. Zero drift rather than `steps.mean()*h` is a
+        measured choice: 11/15 log_return units improve, mean ratio 0.8818.
+        """
+        rng = np.random.default_rng(10)
+        n = 400
+        dates = _bdays(n)
+        rets = rng.normal(0.002, 0.01, n)          # a clear positive mean, to catch drift
+        rets[-1] = 0.05                            # a large final return: the old anchor
+        table = pa.table({"date": dates, "asset": ["A"] * n, "value": rets.tolist()})
+        out = fa.build_draws({"p": table}, ["A"], [21], dates[-1], {"A": dict(NEUTRAL)},
+                             20000, 0, target_type="log_return", family="T2-F4")
+        centre = out[:, 0, 0].mean()
+        self.assertAlmostEqual(centre, 0.0, delta=0.01,
+                               msg=f"log_return centre should be ~0, got {centre:.4f}")

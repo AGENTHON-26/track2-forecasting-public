@@ -11,7 +11,8 @@ THE CONTRACT (do not change the shapes — this is what lets us integrate):
     build_draws(panels, assets, horizons, asof, adjustments, n_draws, seed) -> np.ndarray
                                                      shape = (n_draws, n_assets, n_horizons)
 
-Runs offline with numpy + pyarrow; the F1 M2 path (f1_pipeline/m2_unit.py) also needs pandas.
+Runs offline with numpy + pandas + pyarrow (pandas carries the date-aligned step frame
+in build_draws and the F1 M2 path in f1_pipeline/m2_unit.py).
 """
 
 from __future__ import annotations
@@ -23,11 +24,19 @@ import sys
 import tomllib
 
 import numpy as np
+import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
 DEFAULT_DRAWS = 500
 _ASSET_COLS = ("asset", "asset_id")
+
+#: Trailing rows used to estimate sd and the cross-asset correlation. PINNED, and not a free
+#: parameter: the window dominates the choice of method. Measured on the 20 F3 units with realized
+#: vectors (mean variogram, horizons drawn independently): 260 -> 2.47, 504 -> 2.58, 1260 -> 2.77,
+#: full history -> 3.02. Changing it at the same time as anything else makes the comparison
+#: uninterpretable, so change it alone or not at all.
+_WINDOW = 260
 
 #: Off pending a clean, controlled measurement. Two live full-sweep comparisons
 #: (PUN_TEXT_NOTES.md, 2026-09-22) can't isolate skew's real effect from this endpoint's
@@ -115,17 +124,39 @@ def build_draws(
     _last_base = "random walk"
 
     rng = np.random.default_rng(seed)
+    n = len(assets)
     hist = {a: _series(panels, a, asof) for a in assets}
-    diffs = np.array(
-        [np.diff(hist[a][-260:]) for a in assets], dtype=float
-    )  # last ~1y of daily changes, per asset
-    m = min(len(d) for d in diffs.tolist()) if diffs.size else 0
-    if m < 30:
-        raise SystemExit(f"not enough history to estimate covariance ({m} rows)")
-    D = np.stack([d[-m:] for d in diffs])  # (n_assets, m)
 
-    last = np.array([hist[a][-1] for a in assets], dtype=float)
+    # Steps, aligned BY DATE. The `[assets]` reselect is not cosmetic: every downstream vector
+    # (sd, shift, widen, skew) is built in `assets` order, so if the frame's column order ever
+    # diverged the Cholesky would be applied to the wrong assets silently.
+    # `.dropna()` BEFORE the window, not after -- otherwise a cross-panel card keeps 260 raw rows
+    # and then loses a fraction of them to the date intersection, so the effective window differs
+    # per card.
+    returns_target = target_type == "log_return"
+    steps = pd.DataFrame(
+        {a: (pd.Series(_log_return_steps(s.to_numpy()), index=s.index) if returns_target
+             else _diff_without_gaps(s))
+         for a, s in hist.items()}
+    )[assets].dropna().iloc[-_WINDOW:]
+
+    if len(steps) < 30:
+        raise SystemExit(f"not enough overlapping history to estimate covariance ({len(steps)} rows)")
+
+    D = steps.to_numpy().T                       # (n_assets, window)
     sd = D.std(axis=1)
+    # A cumulative log-return target starts at 0; a level target starts at its last observed value.
+    #
+    # Neither carries a drift term. For levels that is just the random walk. For log returns it is
+    # a deliberate departure from the reference CLI (`cli.py:278`), which centres them on
+    # `steps.mean() * h` -- a 260-day mean daily return extrapolated linearly over the horizon.
+    # Measured on all 15 log_return units with realized vectors, 5 seeds, 4000 draws: zero drift
+    # wins 11/15, mean normalized composite ratio 0.8818. The extrapolation is a noisy momentum
+    # bet (t2-F4-short-vol-2018: 0.01573 -> 0.00587 without it, -63%); the martingale is both the
+    # standard choice for returns and, here, the measured one.
+    last = (np.zeros(n) if returns_target
+            else np.array([hist[a].iloc[-1] for a in assets], dtype=float))
+
     # np.corrcoef on a single-row input (single-asset cards) returns a 0-d SCALAR, not a (1,1)
     # matrix -- fill_diagonal then fails with "array must be at least 2-d". atleast_2d fixes the
     # single-asset case (correlation of one variable with itself is trivially [[1.0]]) and is a
@@ -142,16 +173,34 @@ def build_draws(
     widen = np.array([adjustments.get(a, {}).get("widen", 1.0) for a in assets])
     skew = (
         np.array([adjustments.get(a, {}).get("skew", 0.0) for a in assets])
-        if _SKEW_ENABLED else np.zeros(len(assets))
+        if _SKEW_ENABLED else np.zeros(n)
     )
-    center = last + shift
 
-    out = np.empty((n_draws, len(assets), len(horizons)), dtype=float)
-    for hi, h in enumerate(horizons):
-        z = rng.standard_normal((n_draws, len(assets))) @ chol.T  # ONE shared correlated roll
-        u = np.abs(rng.standard_normal((n_draws, len(assets))))  # independent per asset -- skew only
-        tilted = _skew_tilt(z, u, skew)
-        out[:, :, hi] = center + tilted * (sd * widen * np.sqrt(h))
+    # ONE accumulating path per draw, not an independent draw per horizon.
+    #
+    # Each leg adds an increment of sd sqrt(h_k - h_{k-1}), so after the leg ending at h_k the
+    # path has variance sd^2 * sum(h_j - h_j-1) = sd^2 * h_k -- IDENTICAL to the old per-horizon
+    # formula, which is why the marginal and tail terms are untouched by this change. What it adds
+    # is the covariance the old loop threw away: Cov(path_hj, path_hk) = sd^2 * h_j, i.e.
+    # rho = sqrt(h_j / h_k).
+    #
+    # That value is the point, and it is NOT "as much correlation as possible". Measured on the 20
+    # F3 units, forcing a flat cross-horizon rho: 0.0 -> 2.471, 0.577 -> 2.231, 0.707 -> 2.225,
+    # 1.0 -> 2.487. rho=1 scores as badly as rho=0. The variogram is a proper scoring rule, so the
+    # calibrated gap variance (h_k - h_j)*sd^2 is optimal in expectation -- the cumulative path
+    # reaches 2.162, beating every flat rho. Do not "improve" this by pushing the correlation up.
+    order = np.argsort(horizons)                 # cards ship ascending; don't rely on it
+    out = np.empty((n_draws, n, len(horizons)), dtype=float)
+    path = np.zeros((n_draws, n))
+    prev = 0
+    for hi in order:
+        h = int(horizons[hi])
+        z = rng.standard_normal((n_draws, n)) @ chol.T   # ONE correlated roll per LEG
+        u = np.abs(rng.standard_normal((n_draws, n)))    # independent per asset -- skew only
+        # max(..., 0) guards a duplicated or unsorted horizon against a silent NaN under sqrt.
+        path = path + _skew_tilt(z, u, skew) * (sd * widen * np.sqrt(max(h - prev, 0)))
+        prev = h
+        out[:, :, hi] = last + shift + path              # write to the ORIGINAL index
     return out
 
 
@@ -206,14 +255,58 @@ def _skew_tilt(z: np.ndarray, u: np.ndarray, skew: np.ndarray) -> np.ndarray:
     return (delta * u + np.sqrt(1.0 - delta**2) * z - mean_shift) / var_scale
 
 
-def _series(panels: dict[str, "pa.Table"], asset: str, asof: str) -> np.ndarray:
-    """History of one asset up to and including the as-of, from whichever panel holds it."""
+def _diff_without_gaps(s: "pd.Series") -> "pd.Series":
+    """First differences, dropping any difference that spans a hole in the data.
+
+    Ported from `qfbench2_track_forecasting/cli.py:_diff_without_gaps` (kept local rather than
+    imported: this file deliberately depends on nothing in the toolkit).
+
+    A transfer card ships its target as an early window plus a single row at the as-of date, with
+    the years between deliberately withheld. Differenced naively, that hole reads as one day in
+    which the asset moved a decade's worth. Measured on t2-F2-fragile-five-brl-2013: one
+    gap-spanning "day" of -0.875 against a typical daily move of 0.030, inflating the estimated
+    daily sd by 1.4x. t2-F3-fragile-five-joint-2013 has the same 3654-day hole inside its window.
+    The threshold adapts to the panel's own spacing, so a gapless daily panel is untouched.
+    """
+    d = s.diff()
+    when = pd.to_datetime(pd.Series(s.index, index=s.index), errors="coerce")
+    step = when.diff().dt.days
+    if step.notna().sum() == 0:
+        return d
+    return d.where(step <= max(float(step.median()) * 10.0, 5.0))
+
+
+def _log_return_steps(values: np.ndarray) -> np.ndarray:
+    """Simple returns -> additive log-return steps, for a cumulative log target.
+
+    Mirrors `qfbench2_track_forecasting/targets.py:log_return_steps`, guard included. Without
+    this a log_return card is anchored at its last simple return and its already-return data is
+    differenced again -- both wrong. Every row is already a step here, so unlike the level path
+    nothing is lost to a leading NaN; the reference does the same.
+    """
+    rows = np.asarray(values, dtype=np.float64)
+    if np.any(rows <= -1.0) or np.any(np.isinf(rows)):
+        raise ValueError("log_return history requires finite simple returns greater than -1")
+    return np.log1p(rows)
+
+
+def _series(panels: dict[str, "pa.Table"], asset: str, asof: str) -> "pd.Series":
+    """History of one asset up to and including the as-of, from whichever panel holds it.
+
+    Returns a DATE-INDEXED series, not a bare array. The index is what lets `build_draws` align
+    assets that live in different panel files by date instead of by row position -- six F3 units
+    span two panels whose calendars differ, and stacking those positionally silently mis-estimates
+    the cross-asset correlation (measured on t2-F3-divergence-2014: UST_10Y/JPY reads 0.32
+    positionally against 0.50 date-aligned).
+    """
+    seen: set[str] = set()
     for t in panels.values():
         cols = t.column_names
         acol = next((c for c in _ASSET_COLS if c in cols), None)
         if acol is None:
             continue
         d = t.to_pydict()
+        seen.update(str(a) for a in d[acol])
         rows = [
             (str(dt)[:10], float(v))
             for dt, a, v in zip(d["date"], d[acol], d["value"])
@@ -221,8 +314,12 @@ def _series(panels: dict[str, "pa.Table"], asset: str, asof: str) -> np.ndarray:
         ]
         if rows:
             rows.sort()
-            return np.array([v for _, v in rows], dtype=float)
-    raise SystemExit(f"asset {asset!r} not found in any panel at/before {asof}")
+            idx = pd.to_datetime([r[0] for r in rows])
+            return pd.Series([r[1] for r in rows], index=idx, name=asset)
+    raise SystemExit(
+        f"asset {asset!r} not found in any panel at/before {asof}; "
+        f"the panels carry {sorted(seen)}"
+    )
 
 
 # ============================================================================
@@ -307,8 +404,11 @@ def main(argv: list[str] | None = None) -> int:
         )
         + "\n"
     )
+    # Key-wise, not whole-dict: a whole-dict comparison against a fixed 3-key literal reports
+    # "text used: yes" for an all-neutral reply the moment `read_text_signal` grows a fourth key.
     used_text = any(
-        v != {"shift": 0.0, "widen": 1.0, "skew": 0.0} for v in adjustments.values()
+        v.get("shift", 0.0) != 0.0 or v.get("widen", 1.0) != 1.0 or v.get("skew", 0.0) != 0.0
+        for v in adjustments.values()
     )
     (out_dir / "forecast_rationale.md").write_text(
         f"# Forecast rationale — {unit_id}\n\n"
@@ -317,7 +417,10 @@ def main(argv: list[str] | None = None) -> int:
             "Base: M2 -- ridge location-scale fitted on panel history, joint bootstrap of "
             "standardised residuals (f1_pipeline/m2_unit.py).\n"
             if _last_base == "M2" else
-            "Base: correlated Gaussian random walk from panel history "
+            "Base: cumulative correlated Gaussian random walk from panel history -- one "
+            "accumulating path per draw, so horizons carry the covariance sqrt(h_j/h_k) rather "
+            "than being drawn independently; cross-asset correlation from a date-aligned, "
+            "gap-guarded estimate over the trailing 260 rows "
             "(skew implemented but disabled pending measurement -- see _SKEW_ENABLED).\n"
         )
         + f"Text used: {'yes' if used_text else 'no (baseline stub)'}.\n"
