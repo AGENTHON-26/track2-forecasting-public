@@ -186,3 +186,44 @@ Open (prompt work):
 4. 3 runs, always. Per-pass overall was 84/80/83 on identical inputs.
 5. Higher recall has not yet been shown to move the composite score — run the scorer old vs new
    over the 90 realized units next.
+
+## F4 — tail/shock cards (2026-09-26)
+
+Scored in-process with the real composite (`qfbench2_track_forecasting.scoring._composite`, card
+weights, single-cell renormalisation, seed 0, 500 draws) over the 29 realized F4 units. The numbers
+reproduce `eval_reports/*.json` exactly for the text-off arm.
+
+**What F4 is scored on.** All but two F4 cards are single-cell, so the composite is
+0.714 x CRPS + 0.286 x tail, and the tail term is `pinball` — a distance, not coverage. Text-off,
+10 of 32 F4 cells fall outside the random walk's own 1%/99% (hike-cycle-2021Q4b +8.1 sigma,
+nok-covid-2020 +6.3, chf-floor-strain-2015 -6.1). A too-narrow tail is charged in proportion.
+
+**What the LLM had been doing.** With replies that actually arrive, the deployed stage 2 gives
+vol_scale 0.8-1.3 (cap 2.0) and |skew| <= 0.3 on every F4 card, and on chf-floor it narrowed and
+pointed the wrong way. Direction is right 19 / wrong 9 overall but **6 right / 5 wrong on the
+|z|>2 cards** — a coin flip where it matters. In the 2026-09-22 report the six worst F4 units
+scored identical to text-off: those replies had failed or truncated (thinking on can hit
+max_tokens mid-JSON; seen on factor-stress-2008).
+
+| arm (29 units) | mean | wins/losses vs walk |
+|---|---|---|
+| random walk, text off | 0.4563 | — |
+| walk, widen x1.5 (text off) | 0.4126 | 17/12 |
+| walk, widen x2 (text off) | 0.3908 | 16/13 |
+| LLM answers as deployed | 0.4111 | 15/14 |
+| LLM answers + F4 floor 1.5 | **0.3878** | **18/11** |
+| LLM answers + F4 floor 2.0 | 0.3714 | 16/13 (7/8 on one half) |
+| Student-t innovations alone | 0.4782 | 9/20 |
+| M2 on F4 level cards | 0.4498 | 10/8 |
+| directional jump keyed on the LLM's sign | 0.3642 | 11/18 |
+
+Kept: **F4 widen floor 1.5** in `build_draws` (`_FAMILY_WIDEN_FLOOR`) — helps on both halves of an
+odd/even split, costs the 15 calmest cards 0.0234 -> 0.0247, and the LLM's own widen still applies
+above it. Also kept: one no-thinking retry when the stage-2 reply does not parse
+(`_STAGE2_RESERVE` 1 -> 2). Not kept: skew on (+0.01 worse), directional jumps (mean improves,
+most units lose), M2 for F4, and a v2 "shock block" prompt (explicit shock_prob / size, vol cap 3):
+without thinking the 120B mostly returns the template zeros ("no shock signals; routine") and
+overshoots when it fires.
+
+Endpoint note: 36 rpm with 8 workers hit 429s and a 40-minute read timeout partway through a 31-unit
+sweep; 12 rpm / 3 workers was clean. 429 retries spend the 25-request unit budget and end in neutral.
