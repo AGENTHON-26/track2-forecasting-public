@@ -45,15 +45,29 @@ AGENT_SCRIPT = REPO_ROOT / "forecast_agent.py"
 _EXCLUDED_UNITS = {"t2-EXAMPLE-ust-curve-1m"}
 
 
+#: `[text_signal]` lines that are NOT failures. Anything else on that prefix is a call that
+#: failed or fell back to neutral.
+#:
+#: `source=llm` is the success line. `adj ` is the per-asset ledger -- it reports what the model
+#: said and what the clamps did, on a unit that worked, so counting it as an issue would mark
+#: every healthy unit as broken and destroy the one signal that tells a real sweep from a
+#: silently-neutral one.
+_TEXT_SIGNAL_OK_MARKERS = ("source=llm", "[text_signal] adj ")
+
+
 def _extract_text_signal_issues(stderr: str) -> list[str]:
-    """`[text_signal]` lines that mean a call failed or fell back to neutral -- every such line
-    except the plain success one (`source=llm ...`). forecast_agent.py doesn't crash on a
-    rate-limited or malformed model reply -- it degrades to NEUTRAL and exits 0 -- so without
-    this, a sweep's report can't tell a unit that silently lost its text signal from one that
-    never had a chance to be wrong. See PUN_TEXT_NOTES.md, "silent rate-limit fallback"."""
+    """`[text_signal]` lines that mean a call failed or fell back to neutral.
+
+    forecast_agent.py doesn't crash on a rate-limited or malformed model reply -- it degrades to
+    NEUTRAL and exits 0 -- so without this, a sweep's report can't tell a unit that silently lost
+    its text signal from one that never had a chance to be wrong. See PUN_TEXT_NOTES.md,
+    "silent rate-limit fallback": 67% of three earlier sweeps had fallen back this way, which is
+    why three genuinely different code versions scored identically.
+    """
     return [
         line for line in stderr.splitlines()
-        if line.startswith("[text_signal]") and "source=llm" not in line
+        if line.startswith("[text_signal]")
+        and not any(ok in line for ok in _TEXT_SIGNAL_OK_MARKERS)
     ]
 
 
@@ -139,6 +153,12 @@ def main(argv: list[str] | None = None) -> int:
                      help="run only the first N units (sorted order), report file still written -- "
                           "for a quick look at a real (but small, and non-representative) report "
                           "without paying for a full sweep")
+    ap.add_argument("--require-clean-text", action="store_true",
+                     help="refuse to print the family score table if ANY unit's text signal "
+                          "failed or fell back to neutral. Use this for every text A/B: a sweep "
+                          "with silent fallbacks measures the endpoint's mood, not your change. "
+                          "PUN_TEXT_NOTES.md records three sweeps of genuinely different code "
+                          "that scored identically because 67%% of units had fallen back.")
     ap.add_argument("--concurrency", type=int, default=1,
                      help="run this many units' forecast_agent.py + scoring at once (default: "
                           "1, sequential -- each unit is a separate subprocess, so raising this "
@@ -211,6 +231,17 @@ def main(argv: list[str] | None = None) -> int:
             print("\nslowest 5 unit(s):")
             for r in slowest:
                 print(f"  {r['unit_id']}: {r['elapsed_seconds']:.1f}s")
+        if a.require_clean_text and units_with_issues:
+            print(f"\n{'=' * 78}")
+            print(f"REFUSING to report scores: {len(units_with_issues)}/{total} unit(s) lost or "
+                  f"degraded their text signal.")
+            print("Those units forecast text-blind, so a comparison against another sweep would "
+                  "be measuring\nhow the endpoint behaved today, not the change under test. "
+                  "Re-run when the endpoint is\nhealthy, or drop --require-clean-text to see the "
+                  "numbers anyway and treat them as untrusted.")
+            print(f"{'=' * 78}")
+            return 2
+
         if composites_by_category:
             print("\nComposite score by family (lower is better; 1.0 = text-blind baseline on the "
                   "REAL leaderboard -- this raw composite is NOT normalized the same way, so treat "

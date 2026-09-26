@@ -998,8 +998,11 @@ def _log_ledger(ledger: dict[str, Any], assets: list[str], ctx: dict[str, Any]) 
         if missing:
             # On a joint card this is not a small thing: an asset left at exact neutral while the
             # others move is itself a claim about that asset relative to them.
-            print(f"[text_signal] adj MISSING from the reply, left neutral: {missing}",
-                  file=sys.stderr)
+            # Deliberately NOT the "adj " prefix: that marks the healthy per-asset rows, which
+            # run_eval.py filters out. A partial reply is a real degradation and should surface
+            # in the sweep's issue list alongside a failed call.
+            print(f"[text_signal] partial reply: {len(missing)} of {len(assets)} assets missing, "
+                  f"left neutral: {missing}", file=sys.stderr)
     except Exception:
         pass
 

@@ -7,6 +7,7 @@ Plain `unittest`, no pytest and no `qfbench2_common`:
 
 from __future__ import annotations
 
+import io
 import json
 import pathlib
 import sys
@@ -131,3 +132,60 @@ class TestLimit(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestLedgerLinesAreNotIssues(unittest.TestCase):
+    """The per-asset ledger shares the `[text_signal]` prefix but reports success, not failure.
+
+    Without this distinction every healthy unit would be counted as broken, which would destroy
+    the one signal that separates a real sweep from a silently-neutral one -- the exact failure
+    PUN_TEXT_NOTES.md documents.
+    """
+
+    def test_per_asset_ledger_rows_are_not_issues(self):
+        stderr = (
+            "[text_signal] source=llm family=F3 docs=8 requests=9/25 assets=['UST_2Y', 'EUR']\n"
+            "[text_signal] adj UST_2Y: drift_sd=+0.800 shift=+0.240000 widen=1.250 skew=+0.000"
+            " | vol_scale 1.90 clamped | 75bp hike, more to come\n"
+            "[text_signal] adj EUR: drift_sd=-0.500 shift=-0.010000 widen=1.000 skew=+0.000\n"
+        )
+        self.assertEqual(re._extract_text_signal_issues(stderr), [])
+
+    def test_a_partial_reply_IS_an_issue(self):
+        """Assets the model omitted are left at exact neutral. On a joint card that is itself a
+        claim about them, so it belongs in the issue list -- hence its own prefix, not `adj `."""
+        stderr = (
+            "[text_signal] source=llm family=F3 docs=8 requests=9/25 assets=['A', 'B']\n"
+            "[text_signal] adj A: drift_sd=+0.500 shift=+0.100000 widen=1.000 skew=+0.000\n"
+            "[text_signal] partial reply: 1 of 2 assets missing, left neutral: ['B']\n"
+        )
+        issues = re._extract_text_signal_issues(stderr)
+        self.assertEqual(len(issues), 1)
+        self.assertIn("partial reply", issues[0])
+
+    def test_a_real_failure_still_surfaces_beside_ledger_rows(self):
+        stderr = (
+            "[text_signal] adj A: drift_sd=+0.500 shift=+0.100000 widen=1.000 skew=+0.000\n"
+            "[text_signal] doc beige_book-2024-04-30 (beige_book) failed: HTTP 503\n"
+        )
+        issues = re._extract_text_signal_issues(stderr)
+        self.assertEqual(len(issues), 1)
+        self.assertIn("HTTP 503", issues[0])
+
+
+class TestHelpRenders(unittest.TestCase):
+    def test_help_does_not_crash_on_a_literal_percent(self):
+        """argparse %-formats help strings, so a literal `67%` in help text raises TypeError.
+
+        Cheap to write, and it caught exactly that.
+        """
+        parser_ok = True
+        try:
+            with mock.patch("sys.stdout", new=io.StringIO()):
+                try:
+                    re.main(["--help"])
+                except SystemExit:
+                    pass
+        except TypeError:
+            parser_ok = False
+        self.assertTrue(parser_ok, "--help raised; check for an unescaped % in a help string")

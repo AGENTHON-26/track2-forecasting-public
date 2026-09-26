@@ -544,7 +544,10 @@ class TestLedgerLogging(unittest.TestCase):
             ts._log_ledger(ledger, ["A", "B"], ctx)
             out = err.getvalue()
         self.assertIn("adj A:", out)
-        self.assertIn("MISSING from the reply", out)
+        # Its own prefix, not "adj ": run_eval.py treats `adj ` rows as healthy and filters them,
+        # so a partial reply has to be distinguishable or it would be silently dropped from the
+        # sweep's issue list.
+        self.assertIn("partial reply", out)
         self.assertIn("'B'", out)
 
     def test_logging_never_raises(self):
