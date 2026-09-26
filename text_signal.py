@@ -54,7 +54,10 @@ NEUTRAL = {"shift": 0.0, "widen": 1.0, "skew": 0.0}
 
 #: Documents shorter than this are already small; summarizing them only loses detail.
 _PASSTHROUGH_CHARS = 3_000
-_WORKERS = 8
+#: Both pace knobs can be lowered for LOCAL runs, where a personal build.nvidia.com key 429s well
+#: under the House pace (2026-09-26: 36 rpm / 8 workers dropped 5 of 7 documents on one card;
+#: 8 rpm / 2 workers was clean). Unset in the scoring image, so the House defaults apply there.
+_WORKERS = int(os.environ.get("TEXT_SIGNAL_WORKERS", "") or 8)
 #: A ceiling, not a target: a normal reply is ~400 tokens. Set well above that so a reply that runs
 #: long comes back complete rather than cut off mid-sentence.
 _MAX_TOKENS = 4_000
@@ -85,7 +88,7 @@ _RETRY_WAITS = (2.0, 5.0, 10.0)
 #: no visible failure (see PUN_TEXT_NOTES.md, "silent rate-limit fallback"). Local eval sweeps
 #: should keep --concurrency at 1 for now -- this only coordinates calls within one process, not
 #: across the separate subprocesses run_eval.py spawns per unit.
-_RATE_LIMIT_RPM = 36
+_RATE_LIMIT_RPM = int(os.environ.get("TEXT_SIGNAL_RPM", "") or 36)
 _rate_lock = threading.Lock()
 _request_times: collections.deque[float] = collections.deque()
 
