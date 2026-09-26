@@ -80,7 +80,9 @@ _MAX_TOKENS_THINKING = 4_000
 _MAX_SUMMARY_CHARS = 12_000
 _TIMEOUT_SEC = 300.0
 #: Seconds to wait before each retry of an overloaded (429 / 5xx) reply.
-_RETRY_WAITS = (2.0, 5.0, 10.0)
+_RETRY_WAITS: tuple[float, ...] = tuple(
+    float(x) for x in os.environ.get("TEXT_SIGNAL_RETRY_WAITS", "").split(",") if x.strip()
+) or (2.0, 5.0, 10.0)  # e.g. TEXT_SIGNAL_RETRY_WAITS=15,30,60,120 for a patient local run
 
 #: The House endpoint's shared quota, measured 2026-09-22: 40 requests/minute. Kept a margin
 #: under it rather than 40 itself -- Stage 1's own worker pool can burst several requests within
@@ -110,7 +112,8 @@ def _throttle() -> None:
 #: lost response spends a slot too. Stage 1 spends up to one per document (plus retries); stage 2
 #: needs one, plus one for the no-thinking retry in `read_text_signal`, so two are held back.
 #: The busiest unit needs 16 with no retries.
-_REQUEST_BUDGET = 25
+#: TEXT_SIGNAL_BUDGET raises this for LOCAL runs only; the House rule is 25.
+_REQUEST_BUDGET = int(os.environ.get("TEXT_SIGNAL_BUDGET", "") or 25)
 _STAGE2_RESERVE = 2
 
 
