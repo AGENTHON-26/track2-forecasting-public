@@ -16,8 +16,9 @@ public issue #4.
 ## Unreleased
 
 **Track scorer code and evaluation cards: unchanged.** Documentation, link and CI-comment
-corrections, and one unit document cleaned of later news; no scoring path, gate, card or
-published number changes.
+corrections and one unit document cleaned of later news change no scoring path, gate, card or
+published number. The monthly practice-panel entry, second below, changes the data and notes
+of four practice units and states its own scoring effect.
 
 - **`t2-F3-scandies-stress-2022`: a document carried news from after the card's as-of date.**
   `text/boe_mpc_statement_20220922.txt`, the Bank of England statement of 22 September 2022 on a
@@ -25,6 +26,30 @@ published number changes.
   2026 that listed Bank Rate decisions from 2026. That block is removed and the unit's manifest
   updated. No realized value, reference or scale changes. The copy evaluated on CodaBench changes
   at the next Track 2 evaluation update.
+
+- **Monthly practice panels now hold the data as published on each card's as-of date.** The
+  `macro_monthly.parquet` panels of the four monthly practice cards (`t2-F1-cpi-glidepath-2023`,
+  `t2-F1-sahm-watch-2024`, `t2-F4-covid-nfp-2020`, `t2-F4-cpi-vintage-2022`) carried today's
+  revised values, not the values published by the as-of date that
+  [`docs/CATEGORIES.md`](docs/CATEGORIES.md) tells you to use. Nothing in them was published after
+  the as-of date; the difference was later revisions only. Each panel is now the ALFRED vintage in
+  force on its card's as-of date, revisions released that day included.
+  - **What changes.** Values only: rows, dates, assets, the 45-day publication-lag truncation and
+    the file format are unchanged. Between 517 and 948 values change per panel: recent CPI months
+    (seasonal-factor revisions), most payroll months (benchmark revisions), some
+    unemployment-rate months and the PCE indexes.
+  - **PCE index base.** On the three cards dated before September 2023 the PCE indexes are on the
+    base then published, 2012=100, so their levels sit about 6 to 8% above the same months on
+    today's 2017=100 basis. That is the published basis, not an error.
+  - **Documents.** Each card's panel note, `forecast_card.md` and manifest now state the vintage,
+    as does `data/PROVENANCE.md`. The pooled row count in README leakage rule 5 is updated to
+    148,680 (re-run: still 0 exposed), and [`docs/M0-BASELINE.md`](docs/M0-BASELINE.md) §6 dates
+    the four regenerated scales.
+  - *Scoring:* targets, target months and scored values do not change.
+    `t2-F1-cpi-glidepath-2023` and `t2-F1-sahm-watch-2024` are still scored on the current
+    vintage, as their `value_unit` says. The organizer-side normalization scales of the four
+    cards were regenerated from the new panels by the unchanged M0 procedure. All four are
+    public-dev units, so none of them is part of the Final.
 
 - **Last Development runs start by 20:00 UTC on Monday 12 October 2026.** A scheduled
   maintenance window on Tuesday 13 October 2026, 08:00–12:00 UTC stops the evaluation fleet. An

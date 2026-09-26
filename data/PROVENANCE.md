@@ -95,7 +95,7 @@ appears anywhere.
 | `g10_fx_daily` | 40 | 10 G10 currencies vs USD | Federal Reserve H.10 via FRED — public domain |
 | `factors_daily` | 16 | MKT, SMB, HML, MOM, BAB, QMJ | **Kenneth R. French Data Library and AQR — see below** |
 | `em_transfer_early` | 5 | CNY, INR, BRL | **Source not established — see below** |
-| `macro_monthly` | 4 | CPI, PCE, NFP, unemployment rate | BLS and BEA via FRED — public domain |
+| `macro_monthly` | 4 | CPI, PCE, NFP, unemployment rate | BLS and BEA via FRED, as the ALFRED vintage published on each card's as-of date (index base as then published) — public domain |
 
 All five panel types carry **raw published values redistributed as-is** — yields in percent, quoted
 FX rates, raw CPI index levels, raw daily factor returns. They are not derived series we own. The

@@ -664,7 +664,7 @@ practice panel carry the asset far enough to touch the target date, does it hold
 that (asset, date), does that row's value equal the sealed one — and we re-run it as the sealed set
 is finalized, rather than treating one clean result as settled.
 
-The current run: **0 exposed**, pooling all 146,692 `(asset, date, value)` rows from every
+The current run: **0 exposed**, pooling all 148,680 `(asset, date, value)` rows from every
 published panel against every sealed answer that exists today. The honest scope of that number is
 that only a small fraction of the sealed units have a resolved outcome yet; the rest resolve in
 the

@@ -70,7 +70,7 @@ asset_ids  = ["CPI_ALL"]
 frequency  = "monthly"
 start_date = "2000-01-03"
 end_date   = "2022-05-31"
-notes      = "Truncated at the as-of date minus a 45-day publication lag by construction; leakage guard re-checks at runtime."
+notes      = "Truncated at the as-of date minus a 45-day publication lag by construction; leakage guard re-checks at runtime. Values are the ALFRED vintage as published on the as-of date (31 May 2022, including revisions released that day), not later revisions; PCE_ALL and PCE_CORE are on the index base then in force (2012=100, not today's 2017=100)."
 
 [text]
 source         = "BLS/BEA news release; Federal Reserve; official (see landmarks index)"

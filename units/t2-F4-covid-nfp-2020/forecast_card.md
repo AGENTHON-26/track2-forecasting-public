@@ -11,6 +11,7 @@ Produce `forecast.parquet` with columns `[draw:int32, asset:string, horizon:int3
 value:float64]`, n_draws >= 200 (>= 500 recommended; >= 1000 for tail accuracy),
 plus `forecast_meta.json`. `value` = level in the stated unit on the target date.
 
+Panel values are the vintage as published on the as-of date (31 March 2020), not later revisions; PCE indexes are on the base then in force (2012=100, not today's 2017=100).
 
 Scoring: S = 0.5 x marginal CRPS + 0.3 x joint variogram + 0.2 x tail penalty (lower
 is better) against sealed realized outcomes.
