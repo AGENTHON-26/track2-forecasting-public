@@ -41,6 +41,7 @@ import math
 import os
 import pathlib
 import re
+import statistics
 import sys
 import threading
 import time
@@ -79,6 +80,22 @@ _TIMEOUT_SEC = 300.0
 #: Seconds to wait before each retry of an overloaded (429 / 5xx) reply.
 _RETRY_WAITS = (2.0, 5.0, 10.0)
 
+#: HTTP codes worth another attempt, on top of every 5xx.
+#:
+#: 429 is the obvious one. **404 is not, and is here because this endpoint emits it spuriously
+#: under load.** Measured 2026-09-25, six identical probes three seconds apart against
+#: $MODEL_ENDPOINT/chat/completions: 200, 503, 404, 200, 404, 200 -- the 404s carry an EMPTY body
+#: and are followed by a 200 on the identical request, so they are infrastructure, not a missing
+#: route. Because a 404 is normally permanent, the retry loop returned on the first one, and an
+#: F3 sweep "completed" units in 1.6-4.0 s having made no successful call at all: every document
+#: and the stage-2 adjustment silently fell back to neutral, which the scores would have reported
+#: as a real text-blind result.
+#:
+#: If the House route ever 404s for a real reason (a wrong path, a retired model id), this costs
+#: three extra attempts before the same failure is reported -- cheap next to silently forecasting
+#: text-blind. Revisit if the endpoint stops doing this.
+_RETRYABLE_CODES = frozenset({404, 429})
+
 #: The House endpoint's shared quota, measured 2026-09-22: 40 requests/minute. Kept a margin
 #: under it rather than 40 itself -- Stage 1's own worker pool can burst several requests within
 #: the same second, and a 429 that exhausts _RETRY_WAITS degrades the whole card to NEUTRAL with
@@ -107,7 +124,9 @@ def _throttle() -> None:
 #: lost response spends a slot too. Stage 1 spends up to one per document (plus retries); stage 2
 #: needs exactly one, so one is held back for it. The busiest unit needs 16 with no retries.
 _REQUEST_BUDGET = 25
-_STAGE2_RESERVE = 1
+#: Raised 1 -> 3 alongside median-of-3 self-consistency below: three stage-2 attempts must always
+#: fit, regardless of how many slots stage 1's document summaries already spent.
+_STAGE2_RESERVE = 3
 
 
 class _Budget:
@@ -134,11 +153,55 @@ _DRIFT_SD_CLAMP = 1.5
 _WIDEN_CLAMP = (0.60, 2.00)
 _SKEW_CLAMP = (-1.0, 1.0)
 
-#: EXPERIMENTAL 2026-09-22 (Pun): forced ON to test directly, rather than carry forward the
-#: removed pipeline's un-re-measured finding for its equivalent call: thinking ON made the 120B
-#: halve its committed adjustments -- more hedging, not better reasoning. Revert to False if this
-#: measures the same way here.
-_STAGE2_THINKING = True
+#: F3 pays 0.3 on the joint variogram, and that term is monotone increasing in the width of the
+#: draws above 1.0: measured on the 20 F3 units, a global vol multiplier of 1.0 / 1.25 / 1.50 /
+#: 2.00 gives joint 2.162 / 2.252 / 2.465 / 3.166, and the normalized composite goes 0.978 at
+#: 1.00 to 1.056 at 1.30. The default ceiling of 2.00 therefore lets the model cost the card ~46%
+#: on its primary term by widening, which on F3 is never the right answer to uncertainty -- a
+#: wider joint distribution has wider gaps between every pair of cells, and gaps are what is
+#: scored. Other families keep the wide clamp: F4 is single-cell (the joint weight is
+#: redistributed away entirely) and is scored on exactly the tail that widening helps.
+_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25)}
+
+
+def _widen_clamp(family: str | None) -> tuple[float, float]:
+    """The vol_scale bounds for this family. Used for BOTH the prompt text and the enforcement,
+    so the range the model is told and the range it is held to cannot drift apart."""
+    return _WIDEN_CLAMP_BY_FAMILY.get(str(family), _WIDEN_CLAMP)
+
+#: OFF since 2026-09-25. Decided on inherited evidence plus cost, NOT measured here -- recorded
+#: that way on purpose so nobody later mistakes it for a settled result.
+#:
+#: What is actually known:
+#:   - Stage 1's thinking WAS measured at scale on this same model and endpoint and came out
+#:     worse: 4-5x slower, reasoning leaking into replies, and worse composites -- worst in the
+#:     family that most needs a committed answer (`_THINKING` above, reverted 2026-09-23).
+#:   - The older claim this flag was set to test: thinking made the 120B halve its committed
+#:     adjustments. Hedging is the opposite of what the scoring rewards here -- on F3 the measured
+#:     strongest text lever is the SIZE and spread of per-asset drift_sd (oracle 0.747 normalized
+#:     composite), and both the F2 and F3 prompts now explicitly ask the model not to hedge.
+#:   - It does NOT break stage 2: the 2026-09-22 thinking-on sweep had 3 stage-2 failures, all
+#:     503/429 transport errors, and zero truncated or unparseable replies. So the 4,000-token cap
+#:     accommodates the reasoning and the JSON together, unlike the landmark case in `_THINKING`.
+#:
+#: What is NOT known: whether it helps or hurts the score at stage 2 specifically. Deciding that
+#: needs replicated sweeps per arm (run-to-run variance on this endpoint is the same order as the
+#: effect -- see PUN_TEXT_NOTES.md), roughly 3-4 hours, and the downside of simply leaving it on
+#: is only ~20 s/unit against a 1,800 s budget. That measurement lost to the prompt A/B on value.
+#: Flip back to True and re-measure if a text A/B ever comes out strangely.
+_STAGE2_THINKING = False
+
+#: Stage 2 attempts to combine by MEDIAN, per field per asset, rather than trusting a single
+#: sample. This endpoint is confirmed non-deterministic at temperature 0 (PUN_TEXT_NOTES.md) --
+#: the same prompt returns different drift_sd on different calls -- and that run-to-run noise is
+#: the same order of magnitude as the effect a text A/B is trying to detect (F3's measured text
+#: gain: -0.32%, well inside documented single-sweep swings of a few percent). Three independent
+#: samples and a median is a variance reducer, not a bias corrector: it cannot fix a model that is
+#: SYSTEMATICALLY wrong (e.g. reasoning correctly from a corpus that stops before the event that
+#: actually moved the market -- see the scandies-stress-2022 case), only one that is noisy around
+#: a value that would otherwise be right. Costs 2 extra requests per unit against a 25-request
+#: budget a typical F3 unit spends ~5-6 of.
+_STAGE2_SAMPLES = 3
 
 
 # ----------------------------------------------------------------------------- the entry point
@@ -162,20 +225,44 @@ def read_text_signal(
 
         ctx = load_context(text_dir, assets)
         system, user = build_adjustment_prompt(summaries, assets, ctx)
-        content, err = call_model(system, user, thinking=_STAGE2_THINKING, budget=budget, reserved=True)
-        if content is None:
-            print(f"[text_signal] adjustment call failed: {err}; neutral", file=sys.stderr)
-            return neutral
 
-        raw = _extract_json_object(content)
-        if raw is None:
-            print(f"[text_signal] adjustment reply did not parse: {content[:200]!r}; neutral",
-                  file=sys.stderr)
-            return neutral
+        # Median-of-3: three independent samples of the same call, combined per field per asset.
+        # Not three attempts at ONE answer -- three separate draws, kept even when they disagree,
+        # so a single noisy sample cannot swing the forecast on its own. A parse failure or a
+        # transport error on one attempt does not abort the others; only zero usable replies does.
+        replies, sample_errs = [], []
+        for _ in range(_STAGE2_SAMPLES):
+            content, err = call_model(system, user, thinking=_STAGE2_THINKING, budget=budget,
+                                       reserved=True)
+            if content is None:
+                sample_errs.append(err)
+                continue
+            raw = _extract_json_object(content)
+            if raw is None:
+                sample_errs.append(f"did not parse: {content[:120]!r}")
+                continue
+            replies.append(raw)
 
+        if not replies:
+            print(f"[text_signal] adjustment call failed: {'; '.join(sample_errs) or 'no reply'}; "
+                  f"neutral", file=sys.stderr)
+            return neutral
+        if len(replies) < _STAGE2_SAMPLES:
+            print(f"[text_signal] median-of-3 got {len(replies)}/{_STAGE2_SAMPLES} usable "
+                  f"replies ({'; '.join(sample_errs)})", file=sys.stderr)
+
+        raw = _median_reply(replies, assets) if len(replies) > 1 else replies[0]
         adjustments, ledger = to_adjustments(raw, assets, ctx)
         print(f"[text_signal] source=llm family={ctx['family']} docs={len(summaries)} "
               f"requests={budget.spent}/{_REQUEST_BUDGET} assets={list(adjustments)}", file=sys.stderr)
+
+        # The ledger used to be computed here and dropped on the floor. Without it a sweep's
+        # numbers cannot be explained after the fact -- you can see that a card scored worse but
+        # not whether the model said anything, whether a clamp ate it, or whether an asset came
+        # back missing and was silently neutralized. Half of why the three sweeps in
+        # PUN_TEXT_NOTES.md were unreadable. One line per asset, stderr only, so run_eval.py
+        # captures it per unit without changing any output contract.
+        _log_ledger(ledger, assets, ctx)
         return adjustments
     except Exception as exc:  # never let the text half fail the card
         print(f"[text_signal] {type(exc).__name__}: {exc}; neutral", file=sys.stderr)
@@ -597,7 +684,8 @@ def call_model(
             detail = ""
             with contextlib.suppress(Exception):
                 detail = exc.read().decode("utf-8", "replace")[:300]
-            if wait is None or not (exc.code == 429 or exc.code >= 500):
+            worth_retrying = exc.code in _RETRYABLE_CODES or exc.code >= 500
+            if wait is None or not worth_retrying:
                 return None, f"HTTP {exc.code}: {detail}"
         except (urllib.error.URLError, TimeoutError, ValueError, OSError) as exc:
             return None, f"{type(exc).__name__}: {exc}"
@@ -616,6 +704,49 @@ def call_model(
 
 
 # ----------------------------------------------------------------------------- stage 2: context
+#: What each target id IS, and -- for FX -- which way its quote runs. The model otherwise sees a
+#: bare string like `NOK` or `HML` and has to infer both.
+#:
+#: The direction half is not cosmetic. The prompt already warns that "usd_per_eur RISES when the
+#: dollar WEAKENS", but the card's own `value_unit` is a single field shared by every asset, and
+#: on a multi-asset card it degenerates to prose like "H.10 native quote (GBP,EUR: USD-per-ccy;
+#: CHF,JPY: ccy-per-USD)" -- so per-asset direction is genuinely not machine-readable from the
+#: card. The H.10 convention is consistent across all 104 shipped cards and is stated once here.
+_ASSET_NOTES: dict[str, str] = {
+    # US Treasury constant-maturity yields, percent per annum. Higher = yields up = prices down.
+    "UST_2Y": "US 2-year Treasury yield, % p.a. (policy-path sensitive)",
+    "UST_5Y": "US 5-year Treasury yield, % p.a.",
+    "UST_7Y": "US 7-year Treasury yield, % p.a.",
+    "UST_10Y": "US 10-year Treasury yield, % p.a. (term-premium sensitive)",
+    "UST_30Y": "US 30-year Treasury yield, % p.a. (term-premium sensitive)",
+    # FX, H.10 native quotes. USD-per-ccy: RISES when the dollar WEAKENS.
+    "EUR": "EUR/USD as USD per EUR -- RISES when the dollar weakens",
+    "GBP": "GBP/USD as USD per GBP -- RISES when the dollar weakens",
+    "AUD": "AUD/USD as USD per AUD -- RISES when the dollar weakens",
+    "NZD": "NZD/USD as USD per NZD -- RISES when the dollar weakens",
+    # ccy-per-USD: RISES when the dollar STRENGTHENS.
+    "JPY": "USD/JPY as JPY per USD -- RISES when the dollar strengthens",
+    "CHF": "USD/CHF as CHF per USD -- RISES when the dollar strengthens (funding/haven currency)",
+    "CAD": "USD/CAD as CAD per USD -- RISES when the dollar strengthens (oil-sensitive)",
+    "SEK": "USD/SEK as SEK per USD -- RISES when the dollar strengthens",
+    "NOK": "USD/NOK as NOK per USD -- RISES when the dollar strengthens (oil-sensitive)",
+    "DKK": "USD/DKK as DKK per USD -- RISES when the dollar strengthens (pegged to EUR)",
+    "CNY": "USD/CNY as CNY per USD -- RISES when the dollar strengthens (managed)",
+    "INR": "USD/INR as INR per USD -- RISES when the dollar strengthens",
+    "BRL": "USD/BRL as BRL per USD -- RISES when the dollar strengthens",
+    # Equity factor returns (cumulative log return over the horizon).
+    "MKT": "US equity market excess return factor",
+    "HML": "value-minus-growth equity factor return",
+    "SMB": "small-minus-big equity factor return",
+    "MOM": "momentum equity factor return",
+    "QMJ": "quality-minus-junk equity factor return",
+    # Macro releases.
+    "CPI_ALL": "US CPI all-items index (1982-84=100)",
+    "UNRATE": "US unemployment rate, percent (U-3)",
+    "NFP": "US nonfarm payrolls, change in thousands of jobs",
+}
+
+
 def load_context(text_dir: pathlib.Path, assets: list[str]) -> dict[str, Any]:
     """as-of date, horizons, value unit, family (F1-F4) and a per-asset (level, sigma).
 
@@ -646,8 +777,9 @@ def load_context(text_dir: pathlib.Path, assets: list[str]) -> dict[str, Any]:
             if fam in _FAMILY_FOCUS:
                 ctx["family"] = fam
 
-    level, sd_daily = _panel_stats(unit, assets, ctx["asof"])
+    level, sd_daily, hist = _panel_stats(unit, assets, ctx["asof"])
     ctx["level"] = level
+    ctx["cross"] = _cross_asset_stats(hist, assets, ctx["horizons"])
     h0 = max(1, min(ctx["horizons"]))
     for a in assets:
         if a in sd_daily:
@@ -662,8 +794,13 @@ def load_context(text_dir: pathlib.Path, assets: list[str]) -> dict[str, Any]:
 
 def _panel_stats(
     unit: pathlib.Path, assets: list[str], asof: str
-) -> tuple[dict[str, float], dict[str, float]]:
-    """(last level, daily sd) per asset from the unit's own panel parquet(s). Empty on any error.
+) -> tuple[dict[str, float], dict[str, float], dict[str, dict[str, float]]]:
+    """(last level, daily sd, date->value history) per asset from the unit's own panel parquet(s).
+
+    The third return exists so `_cross_asset_stats` can align assets by date without re-reading
+    every parquet; on a 10-asset card that matters.
+
+    Empty on any error.
 
     Carried forward from the removed single-shot pipeline (git history before "feat(text): stage
     1") -- this idea is orthogonal to why that pipeline measured net negative. Converting to a
@@ -672,11 +809,12 @@ def _panel_stats(
     """
     level: dict[str, float] = {}
     sd: dict[str, float] = {}
+    hist: dict[str, dict[str, float]] = {}
     try:
         import numpy as np
         import pyarrow.parquet as pq
     except Exception:
-        return level, sd
+        return level, sd, hist
     files = sorted(unit.glob("*.parquet")) + sorted(unit.glob("panels/*.parquet"))
     for path in files:
         try:
@@ -698,10 +836,66 @@ def _panel_stats(
                 continue
             series = np.array([v for _, v in rows], dtype=float)
             level[a] = float(series[-1])
+            hist[a] = {d: v for d, v in rows}
             diffs = np.diff(series[-260:])
             if diffs.size >= 30 and math.isfinite(float(diffs.std())):
                 sd[a] = float(diffs.std())
-    return level, sd
+    return level, sd, hist
+
+
+def _cross_asset_stats(
+    hist: dict[str, dict[str, float]], assets: list[str], horizons: list[int]
+) -> dict[str, Any]:
+    """Date-aligned correlations and trailing moves -- the cross-asset numbers Stage 2 never had.
+
+    Until this existed the model was shown each asset's level and sigma and nothing else, then
+    asked on F3 cards to make every asset move "consistently with each other". It had no way to
+    know what consistent looks like for this particular set: no correlations, no relative moves,
+    nothing pairwise. It was being asked for a joint view on marginal information.
+
+    Aligned on the date intersection, matching how `forecast_agent.build_draws` estimates the
+    covariance it will actually draw from -- so the correlations quoted here are the ones the
+    sampler uses, not a different estimate the model would then be arguing against.
+
+    Returns {} for a single-asset card (nothing to be cross about) or on any failure.
+    """
+    out: dict[str, Any] = {}
+    if len(assets) < 2:
+        return out
+    try:
+        import numpy as np
+
+        common = sorted(set.intersection(*(set(hist[a]) for a in assets if a in hist)))
+        if len(common) < 31:
+            return out
+        wide = np.array([[hist[a][d] for d in common] for a in assets], dtype=float)
+
+        steps = np.diff(wide, axis=1)[:, -260:]
+        if steps.shape[1] < 30:
+            return out
+        corr = np.corrcoef(steps)
+        if np.all(np.isfinite(corr)):
+            out["corr"] = {assets[i]: {assets[j]: float(corr[i, j]) for j in range(len(assets))}
+                           for i in range(len(assets))}
+
+        # Trailing realized move over each of the card's own horizons, in sigma units -- the
+        # "what is already priced" the prompt asks the model to reason about and never supplied.
+        moves: dict[str, dict[int, float]] = {}
+        for i, a in enumerate(assets):
+            sd_a = float(np.diff(wide[i])[-260:].std())
+            if not (math.isfinite(sd_a) and sd_a > 0):
+                continue
+            per_h = {}
+            for h in horizons:
+                if wide.shape[1] > h:
+                    per_h[int(h)] = float((wide[i, -1] - wide[i, -1 - h]) / (sd_a * math.sqrt(h)))
+            if per_h:
+                moves[a] = per_h
+        if moves:
+            out["trailing_sigma"] = moves
+    except Exception:
+        return {}
+    return out
 
 
 # ----------------------------------------------------------------------------- stage 2: prompts
@@ -726,12 +920,31 @@ _FAMILY_FOCUS: dict[str, str] = {
     ),
     "F3": (
         "This is an F3 (cross-asset reasoning) card: the joint variogram is the primary score "
-        "(30% weight), which checks whether your assets move together the way they actually do. "
-        "Work out ONE coherent macro scenario from the summaries first, then derive every asset's "
-        "numbers FROM that same scenario, so they move consistently with each other rather than "
-        "being judged independently. (This reply format has no field for a target correlation --"
-        " consistency has to come from your reasoning about one shared scenario, not from a "
-        "number you can state directly.)"
+        "(30% weight). It compares the DIFFERENCES between your assets -- |asset_i - asset_j| for "
+        "every pair -- against what actually happened. Two consequences. First, a constant added "
+        "to every asset is free: it changes no difference, so it changes nothing. Second, the "
+        "numbers you give ARE a joint statement, because what is scored is the pattern of gaps "
+        "between them -- which assets move more than which others, and in which direction "
+        "relative to each other.\n\n"
+        "EXPECT THE DOCUMENTS NOT TO MENTION MOST OF THESE ASSETS. That is the design of this "
+        "card type, not a gap in the evidence: the text discusses one market and the card asks "
+        "about several, so the work is carrying the implication across. \"No asset-specific "
+        "signal\" is therefore not a reason to answer 0 -- it is the normal starting position, "
+        "and answering 0 for that reason is the single most common way to fail this family. "
+        "Reason down the chain instead:\n"
+        "  - policy stays restrictive -> short yields held up, long yields lag -> the curve "
+        "flattens: that is a DIFFERENT number for the 2Y than for the 30Y.\n"
+        "  - broad-based inflation -> upward rate pressure AND pressure on equity factor "
+        "returns, in opposite directions.\n"
+        "  - one central bank moves while another holds -> the currency pair between them moves, "
+        "even when neither document names the pair.\n"
+        "Only answer 0 for an asset when your scenario genuinely implies nothing for it -- not "
+        "when the documents merely fail to name it.\n\n"
+        "Work out ONE coherent macro scenario from the summaries, then derive every asset's "
+        "numbers from that same scenario. Before answering, check your own work: for each pair of "
+        "assets, does drift_sd[i] - drift_sd[j] say what your scenario says about that pair? A "
+        "set of numbers that is individually plausible but pairwise incoherent scores worse here "
+        "than a smaller, consistent set."
     ),
     "F4": (
         "This is an F4 (tail/shock-from-text) card: the tail penalty is the primary score (20% "
@@ -763,7 +976,8 @@ def build_adjustment_prompt(
         f"of the forecast at the shortest horizon. Range [-{_DRIFT_SD_CLAMP}, {_DRIFT_SD_CLAMP}]; "
         "0 if the summaries say nothing directional for that asset.\n"
         f"  vol_scale : multiplier on that same standard deviation, range "
-        f"[{_WIDEN_CLAMP[0]}, {_WIDEN_CLAMP[1]}]. >1 when the summaries show disagreement, "
+        f"[{_widen_clamp(ctx.get('family'))[0]}, {_widen_clamp(ctx.get('family'))[1]}]. "
+        ">1 when the summaries show disagreement, "
         "two-sided risk or an unresolved decision; <1 only when they REMOVE uncertainty (an "
         "explicit commitment or a peg).\n"
         "  skew      : tail tilt in [-1, 1]. Positive = the upside tail is the fatter one.\n\n"
@@ -774,14 +988,20 @@ def build_adjustment_prompt(
         "for every asset is identical to not reading them -- if a summary gives you something "
         "concrete to react to, react to it; the ranges above already bound how far. Remember "
         "that a decision already delivered is priced into the level given below -- what usually "
-        "is NOT priced is what the summaries say about the path from here.\n\n"
-        "All three numbers must be finite (no NaN or Infinity). Reply with JSON only, no prose, "
+        "is NOT priced is what the summaries say about the path from here. \"Already priced\" "
+        "is a reason not to re-trade the decision itself; it is NOT a reason to have no view on "
+        "the path, and it is not a reason for two different assets to move by the same amount.\n\n"
+        "All three numbers must be finite (no NaN or Infinity). Every asset listed below must "
+        "appear as a key -- an asset you omit is scored as 'no view', which on a joint card is "
+        "itself a claim about that asset relative to the others. Reply with JSON only, no prose, "
         "no markdown fence:\n"
+        # Every asset, not assets[:2]: a 10-asset card used to be shown a 2-key skeleton, which
+        # is exactly the shape of reply that then came back.
         '{"assets": {'
         + ", ".join(
             f'"{a}": {{"drift_sd": 0.0, "vol_scale": 1.0, "skew": 0.0, '
             '"evidence": "<=15 words"}'
-            for a in assets[:2]
+            for a in assets
         )
         + "}}"
     )
@@ -797,14 +1017,75 @@ def build_adjustment_prompt(
     for a in assets:
         lvl = ctx["level"].get(a)
         sig = ctx["sigma"].get(a, 0.0)
-        lines.append(
-            f"  {a}: level {lvl:.6f}, sigma {sig:.6f}" if lvl is not None
-            else f"  {a}: level unknown, sigma {sig:.6f}"
-        )
+        head = (f"  {a}: level {lvl:.6f}, sigma {sig:.6f}" if lvl is not None
+                else f"  {a}: level unknown, sigma {sig:.6f}")
+        note = _ASSET_NOTES.get(a)
+        lines.append(f"{head}  -- {note}" if note else head)
+
+    # Cross-asset numbers, on multi-asset cards. Absent before: the model was asked for a joint
+    # view while being shown only per-asset marginals.
+    cross = ctx.get("cross") or {}
+    if cross.get("trailing_sigma"):
+        lines += ["", "Trailing move already realized, in each asset's own sigma at that horizon "
+                      "(what is arguably already priced):"]
+        for a in assets:
+            per_h = cross["trailing_sigma"].get(a)
+            if per_h:
+                moves = ", ".join(f"{h} BD {v:+.2f}s" for h, v in sorted(per_h.items()))
+                lines.append(f"  {a}: {moves}")
+    if cross.get("corr"):
+        lines += ["", "How these assets have actually moved together (correlation of daily "
+                      "changes, last 260 business days). This is the correlation the forecast "
+                      "itself uses, so a pair listed near +1 will move together in every draw "
+                      "whatever you answer -- your numbers say how far each one moves, and a "
+                      "scenario that BREAKS a usual relationship has to say so through the gap "
+                      "between their drift_sd values:"]
+        for i, a in enumerate(assets):
+            row = cross["corr"].get(a, {})
+            cells = ", ".join(f"{b} {row.get(b, float('nan')):+.2f}" for b in assets[:i])
+            if cells:
+                lines.append(f"  {a} vs {cells}")
+
     lines += ["", f"Document summaries ({len(summaries)}), newest first:"]
     for s in summaries:
         lines += [f"--- {s['doc_id']} | {s['timestamp']} | {s['doc_type']} ---", s["summary"], ""]
     return system, "\n".join(lines)
+
+
+def _log_ledger(ledger: dict[str, Any], assets: list[str], ctx: dict[str, Any]) -> None:
+    """One `[text_signal] adj` line per asset: what the model said and what survived.
+
+    Never raises -- a logging failure must not cost a card its text signal.
+    """
+    try:
+        # An omitted asset still gets a ledger row -- neutral values plus a note saying so --
+        # so detect it by the note, not by a missing key.
+        missing = [a for a in assets
+                   if "no entry for this asset" in str(
+                       (ledger.get(a) or {}).get("note", "") if isinstance(ledger.get(a), dict) else "")]
+        for a in assets:
+            row = ledger.get(a)
+            if not isinstance(row, dict):
+                continue
+            drift = row.get("drift_sd")
+            drift_s = f"{drift:+.3f}" if isinstance(drift, (int, float)) else "n/a"
+            note = row.get("note") or ""
+            ev = str(row.get("because") or "")[:80]
+            print(f"[text_signal] adj {a}: drift_sd={drift_s} "
+                  f"shift={row.get('shift', 0.0):+.6f} widen={row.get('widen', 1.0):.3f} "
+                  f"skew={row.get('skew', 0.0):+.3f}"
+                  + (f" | {note}" if note else "")
+                  + (f" | {ev}" if ev else ""), file=sys.stderr)
+        if missing:
+            # On a joint card this is not a small thing: an asset left at exact neutral while the
+            # others move is itself a claim about that asset relative to them.
+            # Deliberately NOT the "adj " prefix: that marks the healthy per-asset rows, which
+            # run_eval.py filters out. A partial reply is a real degradation and should surface
+            # in the sweep's issue list alongside a failed call.
+            print(f"[text_signal] partial reply: {len(missing)} of {len(assets)} assets missing, "
+                  f"left neutral: {missing}", file=sys.stderr)
+    except Exception:
+        pass
 
 
 # ----------------------------------------------------------------------------- stage 2: parse + clamp
@@ -858,6 +1139,69 @@ def _extract_json_object(content: str) -> dict[str, Any] | None:
     return out if isinstance(out, dict) else None
 
 
+def _normalize_reply(raw: Any, assets: list[str]) -> dict[str, Any]:
+    """A stage-2 reply, either `{"assets": {...}}` or a flat `{asset: {...}}`, to one per-asset dict.
+
+    Shared by `to_adjustments` and `_median_reply` so the two never disagree on how a reply's
+    shape is read.
+    """
+    top = raw if isinstance(raw, dict) else {}
+    nested = top.get("assets")
+    return nested if isinstance(nested, dict) and any(a in nested for a in assets) else top
+
+
+def _median_reply(replies: list[dict[str, Any]], assets: list[str]) -> dict[str, Any]:
+    """N raw stage-2 replies -> one merged reply, each numeric field combined by median.
+
+    Per asset, per field (`drift_sd`, `vol_scale`, `skew`), independently -- one asset's noisy
+    reply must not drag another asset's clean one, and one field's outlier must not distort a
+    different field for the same asset. An asset missing from every reply is simply absent from
+    the merged result, which `to_adjustments` already treats as "no entry -- neutral for this
+    asset"; an asset missing from SOME replies is medianed over only the ones that answered.
+
+    `evidence` cannot be medianed -- it is kept from whichever reply's `drift_sd` is closest to
+    the merged median, so the ledger still shows one coherent, readable reason.
+    """
+    normalized = [_normalize_reply(r, assets) for r in replies]
+
+    def field(specs: list[dict], key: str, default: float) -> list[float]:
+        out = []
+        for s in specs:
+            try:
+                v = float(s.get(key, default))
+            except (TypeError, ValueError):
+                continue
+            if math.isfinite(v):
+                out.append(v)
+        return out
+
+    merged: dict[str, Any] = {}
+    for a in assets:
+        specs = [n[a] for n in normalized if isinstance(n.get(a), dict)]
+        drifts = field(specs, "drift_sd", 0.0)
+        if not drifts:
+            continue  # no reply gave a usable number for this asset -- to_adjustments neutralizes it
+        vols = field(specs, "vol_scale", 1.0)
+        skews = field(specs, "skew", 0.0)
+        drift_med = statistics.median(drifts)
+        closest = min(specs, key=lambda sp: abs(_coerce(sp.get("drift_sd"), 0.0) - drift_med))
+        merged[a] = {
+            "drift_sd": drift_med,
+            "vol_scale": statistics.median(vols) if vols else 1.0,
+            "skew": statistics.median(skews) if skews else 0.0,
+            "evidence": closest.get("evidence", ""),
+        }
+    return {"assets": merged}
+
+
+def _coerce(value: Any, default: float) -> float:
+    try:
+        v = float(value)
+        return v if math.isfinite(v) else default
+    except (TypeError, ValueError):
+        return default
+
+
 def to_adjustments(
     raw: dict[str, Any], assets: list[str], ctx: dict[str, Any]
 ) -> tuple[dict[str, dict[str, float]], dict[str, Any]]:
@@ -870,9 +1214,7 @@ def to_adjustments(
     Anything missing, unreadable or non-finite drops to neutral FOR THAT ASSET, never for the
     whole card -- one bad asset should not zero out the ones the model answered fine.
     """
-    top = raw if isinstance(raw, dict) else {}
-    nested = top.get("assets")
-    per = nested if isinstance(nested, dict) and any(a in nested for a in assets) else top
+    per = _normalize_reply(raw, assets)
 
     adjustments: dict[str, dict[str, float]] = {}
     ledger: dict[str, Any] = {}
@@ -899,7 +1241,8 @@ def to_adjustments(
         clamped_drift = min(max(drift_sd, -_DRIFT_SD_CLAMP), _DRIFT_SD_CLAMP)
         if clamped_drift != drift_sd:
             note = (note + "; " if note else "") + f"drift_sd {drift_sd:+.2f} clamped"
-        vol_c = min(max(vol, _WIDEN_CLAMP[0]), _WIDEN_CLAMP[1])
+        w_lo, w_hi = _widen_clamp(ctx.get("family"))
+        vol_c = min(max(vol, w_lo), w_hi)
         if vol_c != vol:
             note = (note + "; " if note else "") + f"vol_scale {vol:.2f} clamped"
         skew_c = min(max(skew, _SKEW_CLAMP[0]), _SKEW_CLAMP[1])

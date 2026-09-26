@@ -45,16 +45,41 @@ AGENT_SCRIPT = REPO_ROOT / "forecast_agent.py"
 _EXCLUDED_UNITS = {"t2-EXAMPLE-ust-curve-1m"}
 
 
+#: `[text_signal]` lines that are NOT failures. Anything else on that prefix is a call that
+#: failed or fell back to neutral.
+#:
+#: `source=llm` is the success line. `adj ` is the per-asset ledger -- it reports what the model
+#: said and what the clamps did, on a unit that worked, so counting it as an issue would mark
+#: every healthy unit as broken and destroy the one signal that tells a real sweep from a
+#: silently-neutral one.
+_TEXT_SIGNAL_OK_MARKERS = ("source=llm", "[text_signal] adj ")
+
+
 def _extract_text_signal_issues(stderr: str) -> list[str]:
-    """`[text_signal]` lines that mean a call failed or fell back to neutral -- every such line
-    except the plain success one (`source=llm ...`). forecast_agent.py doesn't crash on a
-    rate-limited or malformed model reply -- it degrades to NEUTRAL and exits 0 -- so without
-    this, a sweep's report can't tell a unit that silently lost its text signal from one that
-    never had a chance to be wrong. See PUN_TEXT_NOTES.md, "silent rate-limit fallback"."""
+    """`[text_signal]` lines that mean a call failed or fell back to neutral.
+
+    forecast_agent.py doesn't crash on a rate-limited or malformed model reply -- it degrades to
+    NEUTRAL and exits 0 -- so without this, a sweep's report can't tell a unit that silently lost
+    its text signal from one that never had a chance to be wrong. See PUN_TEXT_NOTES.md,
+    "silent rate-limit fallback": 67% of three earlier sweeps had fallen back this way, which is
+    why three genuinely different code versions scored identically.
+    """
     return [
         line for line in stderr.splitlines()
-        if line.startswith("[text_signal]") and "source=llm" not in line
+        if line.startswith("[text_signal]")
+        and not any(ok in line for ok in _TEXT_SIGNAL_OK_MARKERS)
     ]
+
+
+def _extract_text_ledger(stderr: str) -> list[str]:
+    """The per-asset `adj` rows: what the model actually said, and what the clamps did to it.
+
+    Deliberately kept OUT of `text_signal_issues` (those are failures) and stored separately.
+    Without this the ledger is written to a subprocess's stderr and thrown away, which makes a
+    sweep's scores uninterpretable after the fact: you can see that a card moved but not whether
+    the model said anything, whether a clamp ate it, or which assets came back missing.
+    """
+    return [line for line in stderr.splitlines() if line.startswith("[text_signal] adj ")]
 
 
 def _iter_unit_dirs() -> list[pathlib.Path]:
@@ -87,10 +112,11 @@ def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
             capture_output=True, text=True, cwd=REPO_ROOT,
         )
         text_signal_issues = _extract_text_signal_issues(agent_result.stderr)
+        text_ledger = _extract_text_ledger(agent_result.stderr)
         if agent_result.returncode != 0:
             tail = "\n".join(agent_result.stderr.strip().splitlines()[-3:])
             return {"unit_id": unit_id, "status": "agent_crashed", "detail": tail,
-                    "text_signal_issues": text_signal_issues}
+                    "text_signal_issues": text_signal_issues, "text_ledger": text_ledger}
 
         score_args = [sys.executable, str(REPO_ROOT / "scoring" / "scoring.py"), "score",
                       "--card", str(unit_dir / "card.toml"), "--forecast", str(out)]
@@ -102,7 +128,7 @@ def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
         except json.JSONDecodeError:
             return {"unit_id": unit_id, "status": "scorer_crashed",
                     "detail": score_result.stderr.strip()[-300:],
-                    "text_signal_issues": text_signal_issues}
+                    "text_signal_issues": text_signal_issues, "text_ledger": text_ledger}
 
         if not payload.get("admissible", False):
             failing_gate = next(
@@ -122,10 +148,10 @@ def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
                     "tail_penalty": payload.get("tail_penalty"),
                     "tail_metric": payload.get("tail_metric"),
                     "category": card.get("metadata", {}).get("category"),
-                    "text_signal_issues": text_signal_issues}
+                    "text_signal_issues": text_signal_issues, "text_ledger": text_ledger}
         return {"unit_id": unit_id, "status": "gates_only",
                 "category": card.get("metadata", {}).get("category"),
-                "text_signal_issues": text_signal_issues}
+                "text_signal_issues": text_signal_issues, "text_ledger": text_ledger}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -139,6 +165,12 @@ def main(argv: list[str] | None = None) -> int:
                      help="run only the first N units (sorted order), report file still written -- "
                           "for a quick look at a real (but small, and non-representative) report "
                           "without paying for a full sweep")
+    ap.add_argument("--require-clean-text", action="store_true",
+                     help="refuse to print the family score table if ANY unit's text signal "
+                          "failed or fell back to neutral. Use this for every text A/B: a sweep "
+                          "with silent fallbacks measures the endpoint's mood, not your change. "
+                          "PUN_TEXT_NOTES.md records three sweeps of genuinely different code "
+                          "that scored identically because 67%% of units had fallen back.")
     ap.add_argument("--concurrency", type=int, default=1,
                      help="run this many units' forecast_agent.py + scoring at once (default: "
                           "1, sequential -- each unit is a separate subprocess, so raising this "
@@ -211,7 +243,20 @@ def main(argv: list[str] | None = None) -> int:
             print("\nslowest 5 unit(s):")
             for r in slowest:
                 print(f"  {r['unit_id']}: {r['elapsed_seconds']:.1f}s")
-        if composites_by_category:
+        untrusted = bool(a.require_clean_text and units_with_issues)
+        if untrusted:
+            print(f"\n{'=' * 78}")
+            print(f"REFUSING to report scores: {len(units_with_issues)}/{total} unit(s) lost or "
+                  f"degraded their text signal.")
+            print("Those units forecast text-blind, so a comparison against another sweep would "
+                  "be measuring\nhow the endpoint behaved today, not the change under test. "
+                  "Re-run when the endpoint is\nhealthy, or drop --require-clean-text to see the "
+                  "numbers anyway and treat them as untrusted.")
+            print("The report file is still written -- the per-unit issue list is the most useful "
+                  "thing\nabout a sweep that went wrong.")
+            print(f"{'=' * 78}")
+
+        if composites_by_category and not untrusted:
             print("\nComposite score by family (lower is better; 1.0 = text-blind baseline on the "
                   "REAL leaderboard -- this raw composite is NOT normalized the same way, so treat "
                   "it as a within-run comparison tool, not a leaderboard-equivalent number):")
@@ -233,6 +278,9 @@ def main(argv: list[str] | None = None) -> int:
         "total_units": len(unit_dirs),
         "status_counts": {status: len(items) for status, items in by_status.items()},
         "units_with_text_signal_issues": len(units_with_issues),
+        # Stamped into the file so a sweep whose text signal failed cannot be picked up weeks
+        # later and compared against a healthy one without anyone noticing.
+        "text_signal_trusted": not units_with_issues,
         "wall_seconds": wall_seconds,
         "avg_unit_seconds": round(sum(per_unit_seconds) / len(per_unit_seconds), 2) if per_unit_seconds else 0.0,
         "concurrency": concurrency,

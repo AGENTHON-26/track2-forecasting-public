@@ -11,7 +11,12 @@ THE CONTRACT (do not change the shapes — this is what lets us integrate):
     build_draws(panels, assets, horizons, asof, adjustments, n_draws, seed) -> np.ndarray
                                                      shape = (n_draws, n_assets, n_horizons)
 
-Runs offline with numpy + pyarrow; the F1 M2 path (f1_pipeline/m2_unit.py) also needs pandas.
+This file is the contract and the CLI: read the text signal, read the panels, call a model, write
+the three output files. The models themselves live in `forecast_models.py` -- M2, the cumulative
+walk and the random walk, and the switch that picks between them. `build_draws` is re-exported
+here so the contract above stays true at this import path.
+
+Runs offline with numpy + pandas + pyarrow; the F1 M2 path also imports f1_pipeline/m2_unit.py.
 """
 
 from __future__ import annotations
@@ -21,26 +26,15 @@ import json
 import pathlib
 import sys
 import tomllib
-
 import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-DEFAULT_DRAWS = 500
-_ASSET_COLS = ("asset", "asset_id")
+import forecast_models
+from forecast_models import build_draws  # re-exported: this is the documented contract path
 
-#: Off pending a clean, controlled measurement. Two live full-sweep comparisons
-#: (PUN_TEXT_NOTES.md, 2026-09-22) can't isolate skew's real effect from this endpoint's
-#: already-confirmed run-to-run non-determinism: `read_text_signal()` re-calls the live model on
-#: every run with nothing cached, so shift/widen also change between "before" and "after" sweeps,
-#: not just skew. The apparent aggregate regression (F1/F2/F3 worse, F4 flat) is dominated by one
-#: card swinging back almost exactly as far as it swung in the opposite direction the previous
-#: comparison -- a signature of response variance, not a real skew effect either way. The tilt
-#: itself is implemented and unit-tested correctly (`_skew_tilt` below, `tests/test_build_draws.py`)
-#: -- this flag does not undo that work, it just keeps it out of the actual forecast until a
-#: same-inputs, code-path-only comparison (skew forced on vs. off against ONE recorded set of
-#: model adjustments, not two fresh live calls) actually isolates the effect.
-_SKEW_ENABLED = False
+DEFAULT_DRAWS = 500
+
 
 
 # ============================================================================
@@ -69,161 +63,8 @@ def read_text_signal(text_dir: pathlib.Path, assets: list[str]) -> dict[str, dic
 
 # ============================================================================
 #  OWNER: DEW  ·  the time-series / numbers part   branch: feat/model
-#  Turn the panels (+ Nish's adjustments) into correlated joint draws.
+#  Lives in forecast_models.py: build_draws() and the three models behind it.
 # ============================================================================
-#: Families whose LEVEL cards use M2 (f1_pipeline/m2_unit.py) instead of the random walk below.
-#: M2 was built and tuned on F1 only (f1_pipeline notebooks 01-04); other families keep the
-#: random walk until M2 is measured on them.
-_M2_FAMILIES = {"T2-F1"}
-
-#: Which base produced the last build_draws() call -- read by main() for the rationale.
-_last_base = "random walk"
-
-
-def build_draws(
-    panels: dict[str, "pa.Table"],
-    assets: list[str],
-    horizons: list[int],
-    asof: str,
-    adjustments: dict[str, dict[str, float]],
-    n_draws: int,
-    seed: int,
-    *,
-    target_type: str | None = None,
-    family: str | None = None,
-) -> np.ndarray:
-    """Joint draws with Nish's adjustments applied. Returns (n_draws, n_assets, n_horizons).
-
-    F1 LEVEL cards (`family` in _M2_FAMILIES and `target_type == "level"`): M2 -- ridge centre,
-    ridge log-variance width, and a joint bootstrap of standardised residuals (one historical
-    date per draw, shared by every cell). `shift` moves the centre, `widen` scales sigma; `skew`
-    is not applied, since the residual pool already carries the shape. Any M2 failure falls back
-    to the random walk rather than crashing the card.
-
-    Everything else, and callers that pass neither keyword: the random walk below -- one
-    shared correlated roll per draw (Cholesky), tilted per-asset by `skew` when enabled.
-    """
-    global _last_base
-    if target_type == "level" and family in _M2_FAMILIES:
-        try:
-            out = _m2_draws(panels, assets, horizons, asof, adjustments, n_draws, seed)
-            _last_base = "M2"
-            return out
-        except Exception as exc:  # a crashed card scores worst-case; the random walk does not
-            print(f"[m2] {type(exc).__name__}: {exc}; falling back to the random walk",
-                  file=sys.stderr)
-    _last_base = "random walk"
-
-    rng = np.random.default_rng(seed)
-    hist = {a: _series(panels, a, asof) for a in assets}
-    diffs = np.array(
-        [np.diff(hist[a][-260:]) for a in assets], dtype=float
-    )  # last ~1y of daily changes, per asset
-    m = min(len(d) for d in diffs.tolist()) if diffs.size else 0
-    if m < 30:
-        raise SystemExit(f"not enough history to estimate covariance ({m} rows)")
-    D = np.stack([d[-m:] for d in diffs])  # (n_assets, m)
-
-    last = np.array([hist[a][-1] for a in assets], dtype=float)
-    sd = D.std(axis=1)
-    # np.corrcoef on a single-row input (single-asset cards) returns a 0-d SCALAR, not a (1,1)
-    # matrix -- fill_diagonal then fails with "array must be at least 2-d". atleast_2d fixes the
-    # single-asset case (correlation of one variable with itself is trivially [[1.0]]) and is a
-    # no-op for multi-asset cards, where corrcoef already returns a proper 2-d matrix.
-    corr = np.atleast_2d(np.corrcoef(D))
-    corr = np.nan_to_num(corr, nan=0.0)
-    np.fill_diagonal(corr, 1.0)
-    w, v = np.linalg.eigh(corr)  # nearest-PSD nudge
-    corr = v @ np.diag(np.clip(w, 1e-8, None)) @ v.T
-    chol = np.linalg.cholesky(corr)
-
-    # apply Nish's adjustments per asset
-    shift = np.array([adjustments.get(a, {}).get("shift", 0.0) for a in assets])
-    widen = np.array([adjustments.get(a, {}).get("widen", 1.0) for a in assets])
-    skew = (
-        np.array([adjustments.get(a, {}).get("skew", 0.0) for a in assets])
-        if _SKEW_ENABLED else np.zeros(len(assets))
-    )
-    center = last + shift
-
-    out = np.empty((n_draws, len(assets), len(horizons)), dtype=float)
-    for hi, h in enumerate(horizons):
-        z = rng.standard_normal((n_draws, len(assets))) @ chol.T  # ONE shared correlated roll
-        u = np.abs(rng.standard_normal((n_draws, len(assets))))  # independent per asset -- skew only
-        tilted = _skew_tilt(z, u, skew)
-        out[:, :, hi] = center + tilted * (sd * widen * np.sqrt(h))
-    return out
-
-
-def _m2_draws(
-    panels: dict[str, "pa.Table"],
-    assets: list[str],
-    horizons: list[int],
-    asof: str,
-    adjustments: dict[str, dict[str, float]],
-    n_draws: int,
-    seed: int,
-) -> np.ndarray:
-    """M2 fitted at `asof` on the panel that holds every asset, then notebook 04's joint draw."""
-    from f1_pipeline import m2_unit as m2
-
-    unit = m2.unit_from_panels(panels, assets, horizons, asof, target_type="level")
-    fits = [m2.fit_m2(c) for c in m2.build_features(unit)]  # asset-major, then horizon: card order
-    shift = [adjustments.get(f.asset, {}).get("shift", 0.0) for f in fits]
-    widen = [adjustments.get(f.asset, {}).get("widen", 1.0) for f in fits]
-    samples = m2.draw_joint(fits, n_draws, seed, shift, widen)
-    return samples.reshape(n_draws, len(assets), len(horizons))
-
-
-#: The skew-normal family's sample skewness is bounded (|.| < ~0.995 as shape -> infinity) and
-#: rises slowly: shape=1 (the top of `skew`'s own [-1,1] contract if used directly) reaches only
-#: ~0.14 sample skewness -- a barely-visible tilt, not the "shock" F4 needs (see NISH_TEXT_NOTES.md
-#: and PUN_TEXT_NOTES.md). Scaling `skew` up to a shape parameter of +-5 at the clamp's edge
-#: reaches ~0.85 instead -- a strong, visibly asymmetric tail without pinning at the family's
-#: near-degenerate ceiling.
-_SKEW_SHAPE_SCALE = 5.0
-
-
-def _skew_tilt(z: np.ndarray, u: np.ndarray, skew: np.ndarray) -> np.ndarray:
-    """Azzalini's skew-normal construction, per asset (last axis of `z`/`u`, matching `skew`).
-
-    Mixes the correlated roll `z` with an independent |normal| term `u`, weighted by `delta`,
-    then recenters and rescales so the result has mean 0 and unit variance for EVERY value of
-    skew -- `shift` and `widen` keep meaning exactly what they already mean upstream, and `skew`
-    changes shape only. At skew=0, delta=0 and this returns `z` exactly (see
-    `test_skew_zero_is_identity`): every card that never asks for a tilt draws identically to
-    before this function existed.
-
-    `u` must be independent PER ASSET, drawn separately from `z` -- it must not touch the
-    cross-asset correlation `chol` already encodes elsewhere, which this leaves untouched. A skew
-    that reaches across assets (e.g. "both legs of this trade break the same way") is real future
-    work, not this.
-    """
-    alpha = skew * _SKEW_SHAPE_SCALE
-    delta = alpha / np.sqrt(1.0 + alpha**2)
-    mean_shift = delta * np.sqrt(2.0 / np.pi)
-    var_scale = np.sqrt(np.clip(1.0 - delta**2 * (2.0 / np.pi), 1e-8, None))
-    return (delta * u + np.sqrt(1.0 - delta**2) * z - mean_shift) / var_scale
-
-
-def _series(panels: dict[str, "pa.Table"], asset: str, asof: str) -> np.ndarray:
-    """History of one asset up to and including the as-of, from whichever panel holds it."""
-    for t in panels.values():
-        cols = t.column_names
-        acol = next((c for c in _ASSET_COLS if c in cols), None)
-        if acol is None:
-            continue
-        d = t.to_pydict()
-        rows = [
-            (str(dt)[:10], float(v))
-            for dt, a, v in zip(d["date"], d[acol], d["value"])
-            if str(a) == asset and str(dt)[:10] <= asof
-        ]
-        if rows:
-            rows.sort()
-            return np.array([v for _, v in rows], dtype=float)
-    raise SystemExit(f"asset {asset!r} not found in any panel at/before {asof}")
-
 
 # ============================================================================
 #  SHARED GLUE  ·  do not change the interface.  (Pun's eval runs this whole file.)
@@ -307,8 +148,11 @@ def main(argv: list[str] | None = None) -> int:
         )
         + "\n"
     )
+    # Key-wise, not whole-dict: a whole-dict comparison against a fixed 3-key literal reports
+    # "text used: yes" for an all-neutral reply the moment `read_text_signal` grows a fourth key.
     used_text = any(
-        v != {"shift": 0.0, "widen": 1.0, "skew": 0.0} for v in adjustments.values()
+        v.get("shift", 0.0) != 0.0 or v.get("widen", 1.0) != 1.0 or v.get("skew", 0.0) != 0.0
+        for v in adjustments.values()
     )
     (out_dir / "forecast_rationale.md").write_text(
         f"# Forecast rationale — {unit_id}\n\n"
@@ -316,8 +160,11 @@ def main(argv: list[str] | None = None) -> int:
         + (
             "Base: M2 -- ridge location-scale fitted on panel history, joint bootstrap of "
             "standardised residuals (f1_pipeline/m2_unit.py).\n"
-            if _last_base == "M2" else
-            "Base: correlated Gaussian random walk from panel history "
+            if forecast_models.last_model() == forecast_models.M2 else
+            "Base: cumulative correlated Gaussian random walk from panel history -- one "
+            "accumulating path per draw, so horizons carry the covariance sqrt(h_j/h_k) rather "
+            "than being drawn independently; cross-asset correlation from a date-aligned, "
+            "gap-guarded estimate over the trailing 260 rows "
             "(skew implemented but disabled pending measurement -- see _SKEW_ENABLED).\n"
         )
         + f"Text used: {'yes' if used_text else 'no (baseline stub)'}.\n"
