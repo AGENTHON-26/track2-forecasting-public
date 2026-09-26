@@ -800,8 +800,7 @@ def build_adjustment_prompt(
     """(system, user). system carries the persistent rules and schema; user carries the case."""
     system = (
         "You are a macro forecaster adjusting a statistical forecast using document summaries. "
-        f"As-of date: {ctx['asof']}. Nothing after this date is known to you; reason only from "
-        "the summaries given, never from outside knowledge of what happened later.\n\n"
+        f"As-of date: {ctx['asof']}. Reason from the summaries given.\n\n"
         f"{_FAMILY_FOCUS.get(ctx['family'], _FAMILY_FOCUS['default'])}\n\n"
         "For EACH asset give three numbers:\n"
         f"  drift_sd  : where the centre of the distribution should move, in standard deviations "
