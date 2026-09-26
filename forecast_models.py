@@ -39,18 +39,29 @@ _ASSET_COLS = ("asset", "asset_id")
 #: uninterpretable, so change it alone or not at all.
 _WINDOW = 260
 
-#: Off pending a clean, controlled measurement. Two live full-sweep comparisons
-#: (PUN_TEXT_NOTES.md, 2026-09-22) can't isolate skew's real effect from this endpoint's
-#: already-confirmed run-to-run non-determinism: `read_text_signal()` re-calls the live model on
-#: every run with nothing cached, so shift/widen also change between "before" and "after" sweeps,
-#: not just skew. The apparent aggregate regression (F1/F2/F3 worse, F4 flat) is dominated by one
-#: card swinging back almost exactly as far as it swung in the opposite direction the previous
-#: comparison -- a signature of response variance, not a real skew effect either way. The tilt
-#: itself is implemented and unit-tested correctly (`_skew_tilt` below, `tests/test_build_draws.py`)
-#: -- this flag does not undo that work, it just keeps it out of the actual forecast until a
-#: same-inputs, code-path-only comparison (skew forced on vs. off against ONE recorded set of
-#: model adjustments, not two fresh live calls) actually isolates the effect.
-SKEW_ENABLED = False
+#: ON since 2026-09-25, after running the exact comparison the previous comment here demanded:
+#: "skew forced on vs. off against ONE recorded set of model adjustments, not two fresh live
+#: calls". That was impossible until the stage-2 ledger started being recorded; replaying tonight's
+#: F3 sweep with the flag flipped and everything else held (same adjustments, same draws, same
+#: seeds, no new model calls) isolates the code path exactly as asked.
+#:
+#: Result on the 3 F3 units where the model asked for a non-zero skew: composite ratio ON/OFF
+#: 0.9865, 1.0000, 0.9992 -- mean 0.9952, nothing worse. Weak evidence, and honestly so: 5 assets,
+#: every one at skew=-0.20, on the family where skew matters LEAST (F3 is scored on the joint
+#: term, not the tail).
+#:
+#: The stronger argument is structural. Stage 2 asks for a skew on every card and F4's prompt
+#: explicitly instructs the model to "use skew to point the distribution toward the side the shock
+#: would move prices" -- F4 is scored primarily on the tail penalty, which is precisely what a
+#: tilt shapes. Discarding a value we ask for, on the family whose primary term it exists to move,
+#: was the incoherent state. Off was the safe default while nobody could measure it; that is no
+#: longer true.
+#:
+#: STILL UNVALIDATED ON F4. The replay above covers F3 only, because no F4 sweep has been recorded
+#: since the ledger landed. Do that before trusting skew to earn anything on the family it is
+#: really for. M2 (F1 level cards) ignores skew by design -- its residual pool already carries the
+#: empirical shape.
+SKEW_ENABLED = True
 
 def build_draws(
     panels: dict[str, "pa.Table"],

@@ -99,20 +99,30 @@ class TestBuildDrawsWithSkew(unittest.TestCase):
         col = out[:, 0, 0]
         self.assertAlmostEqual(col.mean(), last, delta=col.std() * 0.05)
 
-    def test_skew_is_disabled_by_default(self):
-        # As of 2026-09-22 (PUN_TEXT_NOTES.md): two live comparisons couldn't isolate skew's
-        # real effect from this endpoint's confirmed non-determinism, so it's off pending a
-        # controlled measurement. A card asking for skew=0.9 must draw identically to skew=0.0
-        # while the flag is off -- this is the behavioral guarantee that actually matters right
-        # now, more than the math itself (which TestSkewTiltMath already covers directly).
-        self.assertFalse(fm.SKEW_ENABLED, "flip this test too if re-enabling on purpose")
+    def test_skew_reaches_the_draws(self):
+        # Enabled 2026-09-25. It was off from 2026-09-22 pending "a same-inputs, code-path-only
+        # comparison" that nobody could run until the stage-2 ledger was recorded; replaying that
+        # ledger with the flag flipped gave a mean composite ratio of 0.9952 on the F3 units that
+        # asked for a skew, nothing worse. The structural argument carried more weight than the
+        # measurement: stage 2 asks for a skew on every card and F4's prompt explicitly tells the
+        # model to use it, on the family scored primarily on the tail that a tilt shapes.
+        #
+        # The inverse of the test this replaces: a card asking for skew must now draw DIFFERENTLY
+        # from a neutral one.
+        self.assertTrue(fm.SKEW_ENABLED, "flip this test too if disabling on purpose")
         table, asof, _ = _panel("A")
         neutral = fa.build_draws({"p": table}, ["A"], [21], asof,
                                   {"A": dict(NEUTRAL)}, n_draws=50_000, seed=0)
         skewed = fa.build_draws({"p": table}, ["A"], [21], asof,
                                  {"A": {"shift": 0.0, "widen": 1.0, "skew": 0.9}},
                                  n_draws=50_000, seed=0)
-        np.testing.assert_array_equal(neutral, skewed)
+        self.assertFalse(np.array_equal(neutral, skewed), "skew=0.9 drew identically to skew=0")
+        # and it tilts the right way: positive skew fattens the UPPER tail
+        col = skewed[:, 0, 0]
+        centred = col - col.mean()
+        sample_skewness = (centred ** 3).mean() / (centred.std() ** 3)
+        self.assertGreater(sample_skewness, 0.3, f"upper tail not fattened: {sample_skewness:.3f}")
+
 
     def test_skew_works_correctly_when_enabled(self):
         # The mechanism itself: still implemented and correct, just gated off above. Flips the
