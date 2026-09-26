@@ -363,6 +363,41 @@ class TestModelContext(unittest.TestCase):
         self.assertNotIn("ALREADY moved its centre", system)
 
 
+class TestStage2Thinking(unittest.TestCase):
+    def test_thinking_is_per_family(self):
+        with mock.patch.object(ts, "_STAGE2_THINKING", False), \
+             mock.patch.dict(ts._STAGE2_THINKING_BY_FAMILY, {"F4": True}, clear=True):
+            self.assertTrue(ts._stage2_thinking("F4"))
+            self.assertFalse(ts._stage2_thinking("F1"))
+            self.assertFalse(ts._stage2_thinking(None))
+
+    def test_unparsed_thinking_sample_is_retried_without_thinking(self):
+        good = json.dumps({"assets": {"JPY": {"drift_sd": 0.5, "vol_scale": 2.0, "skew": -0.5}}})
+        cut = '{"assets": {"JPY": {"drift_sd": 0.5, "vol_scale": 2.'
+        with mock.patch.dict(ts._STAGE2_THINKING_BY_FAMILY, {"F4": True}, clear=True), \
+             mock.patch.object(ts, "call_model", side_effect=[(cut, ""), (good, "")]) as call:
+            raw, err = ts._stage2_sample("sys", "usr", "F4", None)
+        self.assertEqual(call.call_count, 2)
+        self.assertTrue(call.call_args_list[0].kwargs["thinking"])
+        self.assertFalse(call.call_args_list[1].kwargs["thinking"])
+        self.assertEqual(raw["assets"]["JPY"]["vol_scale"], 2.0)
+        self.assertEqual(err, "")
+
+    def test_no_retry_when_family_thinking_is_off(self):
+        with mock.patch.dict(ts._STAGE2_THINKING_BY_FAMILY, {}, clear=True), \
+             mock.patch.object(ts, "_STAGE2_THINKING", False), \
+             mock.patch.object(ts, "call_model", return_value=("nope", "")) as call:
+            raw, err = ts._stage2_sample("sys", "usr", "F1", None)
+        self.assertEqual(call.call_count, 1)
+        self.assertIsNone(raw)
+        self.assertIn("did not parse", err)
+
+    def test_stray_closing_bracket_is_repaired(self):
+        raw = ts._extract_json_object('{"assets": {"CHF": {"drift_sd": 0.0, "vol_scale": 1.0}}]}')
+        self.assertEqual(raw["assets"]["CHF"]["vol_scale"], 1.0)
+        self.assertIsNone(ts._extract_json_object('{"assets": [1, 2]]}x'))  # a real list: left alone
+
+
 class TestStage1Cache(unittest.TestCase):
     def test_second_call_is_served_from_cache_and_key_tracks_the_prompt(self):
         doc = {"doc_id": "d1", "doc_type": "fomc_minutes", "timestamp": "2024-01-01",

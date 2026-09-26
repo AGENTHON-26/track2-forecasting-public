@@ -210,6 +210,41 @@ _STAGE2_THINKING = False
 #: budget a typical F3 unit spends ~5-6 of.
 _STAGE2_SAMPLES = 3
 
+#: Stage-2 thinking per family, overriding `_STAGE2_THINKING`. F4 ON (Nish, 2026-09-26): with
+#: thinking off the 120B answers exact neutral ("no clear directional signal") on 24 of 29 F4
+#: cards, so the text half contributes nothing on the family whose whole premise is the text.
+#: The output cap stays at 4,000 tokens (House rule) for thinking and non-thinking calls alike;
+#: a thinking reply that runs out of tokens mid-JSON is re-asked ONCE without thinking, see
+#: `_stage2_sample`.
+_STAGE2_THINKING_BY_FAMILY: dict[str, bool] = {"F4": True}
+
+
+def _stage2_thinking(family: str | None) -> bool:
+    return _STAGE2_THINKING_BY_FAMILY.get(str(family), _STAGE2_THINKING)
+
+
+def _stage2_sample(system: str, user: str, family: str | None,
+                   budget: "_Budget | None") -> tuple[dict[str, Any] | None, str]:
+    """One stage-2 sample: (parsed reply, error). A thinking-on reply that does not parse --
+    typically the reasoning ate the 4,000-token cap and the JSON was cut -- is retried once
+    without thinking, budget permitting; the retry spends a slot like any other request."""
+    thinking = _stage2_thinking(family)
+    content, err = call_model(system, user, thinking=thinking, budget=budget, reserved=True)
+    if content is None:
+        return None, err
+    raw = _extract_json_object(content)
+    if raw is None and thinking:
+        print("[text_signal] note: thinking reply did not parse; retrying without thinking",
+              file=sys.stderr)
+        content2, err2 = call_model(system, user, thinking=False, budget=budget, reserved=True)
+        if content2 is not None:
+            content, raw = content2, _extract_json_object(content2)
+        elif err2:
+            return None, f"did not parse: {content[:120]!r}; retry: {err2}"
+    if raw is None:
+        return None, f"did not parse: {content[:120]!r}"
+    return raw, ""
+
 
 # ----------------------------------------------------------------------------- the entry point
 def read_text_signal(
@@ -239,14 +274,9 @@ def read_text_signal(
         # transport error on one attempt does not abort the others; only zero usable replies does.
         replies, sample_errs = [], []
         for _ in range(_STAGE2_SAMPLES):
-            content, err = call_model(system, user, thinking=_STAGE2_THINKING, budget=budget,
-                                       reserved=True)
-            if content is None:
-                sample_errs.append(err)
-                continue
-            raw = _extract_json_object(content)
+            raw, err = _stage2_sample(system, user, ctx.get("family"), budget)
             if raw is None:
-                sample_errs.append(f"did not parse: {content[:120]!r}")
+                sample_errs.append(err)
                 continue
             replies.append(raw)
 
@@ -1181,6 +1211,15 @@ def _extract_json_object(content: str) -> dict[str, Any] | None:
     if start < 0:
         return None
     blob = content[start:].strip()
+    out = _parse_blob(blob)
+    if out is None and "]" in blob and "[" not in blob:
+        # Seen 2026-09-26 on every reply for one F4 card: a stray `]` before the final brace
+        # (`..."}}]}`). No list was ever opened, so dropping unmatched closers changes nothing.
+        out = _parse_blob(blob.replace("]", ""))
+    return out
+
+
+def _parse_blob(blob: str) -> dict[str, Any] | None:
     for end in range(len(blob), 0, -1):
         if blob[end - 1] != "}":
             continue
