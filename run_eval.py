@@ -231,7 +231,8 @@ def main(argv: list[str] | None = None) -> int:
             print("\nslowest 5 unit(s):")
             for r in slowest:
                 print(f"  {r['unit_id']}: {r['elapsed_seconds']:.1f}s")
-        if a.require_clean_text and units_with_issues:
+        untrusted = bool(a.require_clean_text and units_with_issues)
+        if untrusted:
             print(f"\n{'=' * 78}")
             print(f"REFUSING to report scores: {len(units_with_issues)}/{total} unit(s) lost or "
                   f"degraded their text signal.")
@@ -239,10 +240,11 @@ def main(argv: list[str] | None = None) -> int:
                   "be measuring\nhow the endpoint behaved today, not the change under test. "
                   "Re-run when the endpoint is\nhealthy, or drop --require-clean-text to see the "
                   "numbers anyway and treat them as untrusted.")
+            print("The report file is still written -- the per-unit issue list is the most useful "
+                  "thing\nabout a sweep that went wrong.")
             print(f"{'=' * 78}")
-            return 2
 
-        if composites_by_category:
+        if composites_by_category and not untrusted:
             print("\nComposite score by family (lower is better; 1.0 = text-blind baseline on the "
                   "REAL leaderboard -- this raw composite is NOT normalized the same way, so treat "
                   "it as a within-run comparison tool, not a leaderboard-equivalent number):")
@@ -264,6 +266,9 @@ def main(argv: list[str] | None = None) -> int:
         "total_units": len(unit_dirs),
         "status_counts": {status: len(items) for status, items in by_status.items()},
         "units_with_text_signal_issues": len(units_with_issues),
+        # Stamped into the file so a sweep whose text signal failed cannot be picked up weeks
+        # later and compared against a healthy one without anyone noticing.
+        "text_signal_trusted": not units_with_issues,
         "wall_seconds": wall_seconds,
         "avg_unit_seconds": round(sum(per_unit_seconds) / len(per_unit_seconds), 2) if per_unit_seconds else 0.0,
         "concurrency": concurrency,

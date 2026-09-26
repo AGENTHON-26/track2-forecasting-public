@@ -340,12 +340,19 @@ organizer's direct reply:
 4. **`skew` is implemented but disabled** (see "Skew" above) — flip `_SKEW_ENABLED` in
    `forecast_agent.py` once its effect can be measured cleanly (item 1) without rate-limit
    fallback confounding it.
-5. **Thinking: stage 1 reverted, stage 2 still an open experiment.** `_THINKING` back to `False`
-   (2026-09-23) after the real full-sweep measurement above reconfirmed Nish's original finding at
-   scale (4-5x slower, a leaked-reasoning failure mode, worse composite scores especially in F2).
-   `_STAGE2_THINKING` deliberately left `True` — not yet measured cleanly on its own (every sweep
-   so far changed both stages' thinking together, or was contaminated by the rate-limit issue), so
-   whether stage 2's own thinking is earning its cost is still genuinely unknown, not assumed fine.
+5. **Thinking: both stages now off.** `_THINKING` back to `False` (2026-09-23) after the real
+   full-sweep measurement above reconfirmed Nish's original finding at scale (4-5x slower, a
+   leaked-reasoning failure mode, worse composite scores especially in F2). `_STAGE2_THINKING`
+   turned `False` on 2026-09-25 — **decided, not measured**, and the distinction matters. What the
+   2026-09-22 thinking-on sweep does establish is that stage 2 thinking is not *breaking* anything:
+   3 stage-2 failures, all 503/429 transport errors, zero truncated or unparseable replies, so the
+   4,000-token cap fits the reasoning and the JSON together. What it cannot establish is whether
+   thinking helps or hurts the score, because run-to-run variance on this endpoint is the same
+   order as the effect. Deciding that needs replicated sweeps per arm (~3-4 h), and leaving it on
+   costs only ~20 s/unit against an 1,800 s budget, so it lost to the prompt A/B on value. It was
+   turned off rather than left on because the one measurement that exists on this model (stage 1,
+   at scale) says thinking underperforms, and because hedging is the opposite of what F3 rewards.
+   Flip it back and re-measure if a text A/B comes out strangely.
 6. **No sweep run so far is fully trustworthy.** Even the sweep-1-vs-sweep-2 comparison in
    "Measured 2026-09-22" above (previously the one considered clean) likely has some units
    silently flipped to neutral on one side or the other. Everything needs item 1's logging before

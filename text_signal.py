@@ -150,11 +150,27 @@ def _widen_clamp(family: str | None) -> tuple[float, float]:
     so the range the model is told and the range it is held to cannot drift apart."""
     return _WIDEN_CLAMP_BY_FAMILY.get(str(family), _WIDEN_CLAMP)
 
-#: EXPERIMENTAL 2026-09-22 (Pun): forced ON to test directly, rather than carry forward the
-#: removed pipeline's un-re-measured finding for its equivalent call: thinking ON made the 120B
-#: halve its committed adjustments -- more hedging, not better reasoning. Revert to False if this
-#: measures the same way here.
-_STAGE2_THINKING = True
+#: OFF since 2026-09-25. Decided on inherited evidence plus cost, NOT measured here -- recorded
+#: that way on purpose so nobody later mistakes it for a settled result.
+#:
+#: What is actually known:
+#:   - Stage 1's thinking WAS measured at scale on this same model and endpoint and came out
+#:     worse: 4-5x slower, reasoning leaking into replies, and worse composites -- worst in the
+#:     family that most needs a committed answer (`_THINKING` above, reverted 2026-09-23).
+#:   - The older claim this flag was set to test: thinking made the 120B halve its committed
+#:     adjustments. Hedging is the opposite of what the scoring rewards here -- on F3 the measured
+#:     strongest text lever is the SIZE and spread of per-asset drift_sd (oracle 0.747 normalized
+#:     composite), and both the F2 and F3 prompts now explicitly ask the model not to hedge.
+#:   - It does NOT break stage 2: the 2026-09-22 thinking-on sweep had 3 stage-2 failures, all
+#:     503/429 transport errors, and zero truncated or unparseable replies. So the 4,000-token cap
+#:     accommodates the reasoning and the JSON together, unlike the landmark case in `_THINKING`.
+#:
+#: What is NOT known: whether it helps or hurts the score at stage 2 specifically. Deciding that
+#: needs replicated sweeps per arm (run-to-run variance on this endpoint is the same order as the
+#: effect -- see PUN_TEXT_NOTES.md), roughly 3-4 hours, and the downside of simply leaving it on
+#: is only ~20 s/unit against a 1,800 s budget. That measurement lost to the prompt A/B on value.
+#: Flip back to True and re-measure if a text A/B ever comes out strangely.
+_STAGE2_THINKING = False
 
 
 # ----------------------------------------------------------------------------- the entry point
