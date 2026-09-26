@@ -180,7 +180,7 @@ def read_text_signal(
             # A thinking-on reply can hit max_tokens mid-JSON (seen 2026-09-26 on
             # t2-F4-factor-stress-2008: the answer stopped at `"vol_scale": 1.`). That used to
             # score as neutral. One retry without thinking uses the second reserved slot.
-            print("[text_signal] adjustment reply did not parse with thinking on; retrying "
+            print("[text_signal] note: adjustment reply did not parse with thinking on; retrying "
                   "without thinking", file=sys.stderr)
             content2, err2 = call_model(system, user, thinking=False, budget=budget, reserved=True)
             if content2 is not None:

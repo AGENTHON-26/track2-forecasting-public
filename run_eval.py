@@ -54,6 +54,7 @@ def _extract_text_signal_issues(stderr: str) -> list[str]:
     return [
         line for line in stderr.splitlines()
         if line.startswith("[text_signal]") and "source=llm" not in line
+        and not line.startswith("[text_signal] note:")  # progress notes, e.g. a successful retry
     ]
 
 
@@ -153,9 +154,15 @@ def main(argv: list[str] | None = None) -> int:
                           "OUT of the family means, instead of being scored on a partial corpus "
                           "-- use for measurement runs, so a rate-limited endpoint cannot "
                           "silently degrade the numbers")
+    ap.add_argument("--family", default=None,
+                     help="run only units whose card [metadata].category equals this, e.g. T2-F4")
     a = ap.parse_args(argv)
 
     unit_dirs = [d for d in _iter_unit_dirs() if a.unit is None or d.name == a.unit]
+    if a.family:
+        unit_dirs = [d for d in unit_dirs
+                     if tomllib.loads((d / "card.toml").read_text())
+                     .get("metadata", {}).get("category") == a.family]
     if not unit_dirs:
         print(f"no unit matched {a.unit!r}", file=sys.stderr)
         return 1
