@@ -36,6 +36,7 @@ from __future__ import annotations
 import argparse
 import collections
 import contextlib
+import hashlib
 import json
 import math
 import os
@@ -520,6 +521,13 @@ def summarize_doc(doc: dict[str, Any], budget: _Budget | None = None) -> dict[st
         out["summary"] = text.strip()
     else:
         summary, err = None, ""
+        cache_path = _cache_path(doc, text)
+        if cache_path is not None and cache_path.is_file():
+            with contextlib.suppress(Exception):
+                hit = json.loads(cache_path.read_text(encoding="utf-8"))
+                out.update(summary=hit["summary"], summarized=True, cached=True)
+                out["summary_chars"] = len(out["summary"] or "")
+                return out
         # Two attempts: once in ~50 calls the model returned a bare "-" and nothing else.
         for _ in range(2):
             try:
@@ -542,8 +550,29 @@ def summarize_doc(doc: dict[str, Any], budget: _Budget | None = None) -> dict[st
                 continue
             break
         out["summary"], out["error"], out["summarized"] = summary, err, summary is not None
+        if summary is not None and cache_path is not None:
+            with contextlib.suppress(Exception):
+                cache_path.parent.mkdir(parents=True, exist_ok=True)
+                cache_path.write_text(json.dumps({"summary": summary}), encoding="utf-8")
     out["summary_chars"] = len(out["summary"] or "")
     return out
+
+
+def _cache_path(doc: dict[str, Any], text: str) -> pathlib.Path | None:
+    """LOCAL stage-1 cache: $TEXT_SIGNAL_CACHE_DIR/<sha256>.json, or None when the variable is
+    unset (always unset in the scoring image). The key covers everything that decides a summary
+    -- the document, its prompt, the reminder, the bullet count and the model -- so a prompt or
+    model change misses cleanly and the cache never hands back a stale summary."""
+    root = os.environ.get("TEXT_SIGNAL_CACHE_DIR", "").strip()
+    if not root:
+        return None
+    model = os.environ.get("MODEL_NAME", "").strip() or "nvidia/nemotron-3-super-120b-a12b"
+    key = "\x1f".join([
+        str(doc.get("doc_id", "")), str(doc.get("doc_type", "")), str(doc.get("timestamp", "")),
+        prompt_for(doc.get("doc_type", "default"), str(doc.get("timestamp", ""))),
+        _REMINDER.format(bullets=_BULLETS), model, text,
+    ])
+    return pathlib.Path(root) / (hashlib.sha256(key.encode("utf-8")).hexdigest() + ".json")
 
 
 def summarize_corpus(text_dir: pathlib.Path, budget: _Budget | None = None) -> list[dict[str, Any]]:

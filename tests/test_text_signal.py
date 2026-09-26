@@ -335,6 +335,32 @@ class TestToAdjustments(unittest.TestCase):
         self.assertAlmostEqual(out["UST_2Y"]["shift"], 0.3 * 0.20)
 
 
+class TestStage1Cache(unittest.TestCase):
+    def test_second_call_is_served_from_cache_and_key_tracks_the_prompt(self):
+        doc = {"doc_id": "d1", "doc_type": "fomc_minutes", "timestamp": "2024-01-01",
+               "text": "x" * (ts._PASSTHROUGH_CHARS + 10)}
+        with tempfile.TemporaryDirectory() as d, \
+             mock.patch.dict(os.environ, {"TEXT_SIGNAL_CACHE_DIR": d}), \
+             mock.patch.object(ts, "call_model", return_value=("- a point", "")) as call:
+            first = ts.summarize_doc(doc)
+            second = ts.summarize_doc(doc)
+            self.assertEqual(call.call_count, 1)
+            self.assertEqual(first["summary"], second["summary"])
+            self.assertTrue(second.get("cached"))
+            with mock.patch.object(ts, "_BULLETS", ts._BULLETS + 1):  # prompt changed -> miss
+                ts.summarize_doc(doc)
+            self.assertEqual(call.call_count, 2)
+
+    def test_no_cache_when_variable_is_unset(self):
+        doc = {"doc_id": "d1", "doc_type": "fomc_minutes", "timestamp": "2024-01-01",
+               "text": "x" * (ts._PASSTHROUGH_CHARS + 10)}
+        env = {k: v for k, v in os.environ.items() if k != "TEXT_SIGNAL_CACHE_DIR"}
+        with mock.patch.dict(os.environ, env, clear=True), \
+             mock.patch.object(ts, "call_model", return_value=("- a point", "")) as call:
+            ts.summarize_doc(doc); ts.summarize_doc(doc)
+        self.assertEqual(call.call_count, 2)
+
+
 class TestReadTextSignalStage2(unittest.TestCase):
     def test_successful_adjustment_end_to_end(self):
         fake_summaries = [
