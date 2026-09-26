@@ -41,6 +41,7 @@ import math
 import os
 import pathlib
 import re
+import statistics
 import sys
 import threading
 import time
@@ -123,7 +124,9 @@ def _throttle() -> None:
 #: lost response spends a slot too. Stage 1 spends up to one per document (plus retries); stage 2
 #: needs exactly one, so one is held back for it. The busiest unit needs 16 with no retries.
 _REQUEST_BUDGET = 25
-_STAGE2_RESERVE = 1
+#: Raised 1 -> 3 alongside median-of-3 self-consistency below: three stage-2 attempts must always
+#: fit, regardless of how many slots stage 1's document summaries already spent.
+_STAGE2_RESERVE = 3
 
 
 class _Budget:
@@ -188,6 +191,18 @@ def _widen_clamp(family: str | None) -> tuple[float, float]:
 #: Flip back to True and re-measure if a text A/B ever comes out strangely.
 _STAGE2_THINKING = False
 
+#: Stage 2 attempts to combine by MEDIAN, per field per asset, rather than trusting a single
+#: sample. This endpoint is confirmed non-deterministic at temperature 0 (PUN_TEXT_NOTES.md) --
+#: the same prompt returns different drift_sd on different calls -- and that run-to-run noise is
+#: the same order of magnitude as the effect a text A/B is trying to detect (F3's measured text
+#: gain: -0.32%, well inside documented single-sweep swings of a few percent). Three independent
+#: samples and a median is a variance reducer, not a bias corrector: it cannot fix a model that is
+#: SYSTEMATICALLY wrong (e.g. reasoning correctly from a corpus that stops before the event that
+#: actually moved the market -- see the scandies-stress-2022 case), only one that is noisy around
+#: a value that would otherwise be right. Costs 2 extra requests per unit against a 25-request
+#: budget a typical F3 unit spends ~5-6 of.
+_STAGE2_SAMPLES = 3
+
 
 # ----------------------------------------------------------------------------- the entry point
 def read_text_signal(
@@ -210,17 +225,33 @@ def read_text_signal(
 
         ctx = load_context(text_dir, assets)
         system, user = build_adjustment_prompt(summaries, assets, ctx)
-        content, err = call_model(system, user, thinking=_STAGE2_THINKING, budget=budget, reserved=True)
-        if content is None:
-            print(f"[text_signal] adjustment call failed: {err}; neutral", file=sys.stderr)
-            return neutral
 
-        raw = _extract_json_object(content)
-        if raw is None:
-            print(f"[text_signal] adjustment reply did not parse: {content[:200]!r}; neutral",
-                  file=sys.stderr)
-            return neutral
+        # Median-of-3: three independent samples of the same call, combined per field per asset.
+        # Not three attempts at ONE answer -- three separate draws, kept even when they disagree,
+        # so a single noisy sample cannot swing the forecast on its own. A parse failure or a
+        # transport error on one attempt does not abort the others; only zero usable replies does.
+        replies, sample_errs = [], []
+        for _ in range(_STAGE2_SAMPLES):
+            content, err = call_model(system, user, thinking=_STAGE2_THINKING, budget=budget,
+                                       reserved=True)
+            if content is None:
+                sample_errs.append(err)
+                continue
+            raw = _extract_json_object(content)
+            if raw is None:
+                sample_errs.append(f"did not parse: {content[:120]!r}")
+                continue
+            replies.append(raw)
 
+        if not replies:
+            print(f"[text_signal] adjustment call failed: {'; '.join(sample_errs) or 'no reply'}; "
+                  f"neutral", file=sys.stderr)
+            return neutral
+        if len(replies) < _STAGE2_SAMPLES:
+            print(f"[text_signal] median-of-3 got {len(replies)}/{_STAGE2_SAMPLES} usable "
+                  f"replies ({'; '.join(sample_errs)})", file=sys.stderr)
+
+        raw = _median_reply(replies, assets) if len(replies) > 1 else replies[0]
         adjustments, ledger = to_adjustments(raw, assets, ctx)
         print(f"[text_signal] source=llm family={ctx['family']} docs={len(summaries)} "
               f"requests={budget.spent}/{_REQUEST_BUDGET} assets={list(adjustments)}", file=sys.stderr)
@@ -1108,6 +1139,69 @@ def _extract_json_object(content: str) -> dict[str, Any] | None:
     return out if isinstance(out, dict) else None
 
 
+def _normalize_reply(raw: Any, assets: list[str]) -> dict[str, Any]:
+    """A stage-2 reply, either `{"assets": {...}}` or a flat `{asset: {...}}`, to one per-asset dict.
+
+    Shared by `to_adjustments` and `_median_reply` so the two never disagree on how a reply's
+    shape is read.
+    """
+    top = raw if isinstance(raw, dict) else {}
+    nested = top.get("assets")
+    return nested if isinstance(nested, dict) and any(a in nested for a in assets) else top
+
+
+def _median_reply(replies: list[dict[str, Any]], assets: list[str]) -> dict[str, Any]:
+    """N raw stage-2 replies -> one merged reply, each numeric field combined by median.
+
+    Per asset, per field (`drift_sd`, `vol_scale`, `skew`), independently -- one asset's noisy
+    reply must not drag another asset's clean one, and one field's outlier must not distort a
+    different field for the same asset. An asset missing from every reply is simply absent from
+    the merged result, which `to_adjustments` already treats as "no entry -- neutral for this
+    asset"; an asset missing from SOME replies is medianed over only the ones that answered.
+
+    `evidence` cannot be medianed -- it is kept from whichever reply's `drift_sd` is closest to
+    the merged median, so the ledger still shows one coherent, readable reason.
+    """
+    normalized = [_normalize_reply(r, assets) for r in replies]
+
+    def field(specs: list[dict], key: str, default: float) -> list[float]:
+        out = []
+        for s in specs:
+            try:
+                v = float(s.get(key, default))
+            except (TypeError, ValueError):
+                continue
+            if math.isfinite(v):
+                out.append(v)
+        return out
+
+    merged: dict[str, Any] = {}
+    for a in assets:
+        specs = [n[a] for n in normalized if isinstance(n.get(a), dict)]
+        drifts = field(specs, "drift_sd", 0.0)
+        if not drifts:
+            continue  # no reply gave a usable number for this asset -- to_adjustments neutralizes it
+        vols = field(specs, "vol_scale", 1.0)
+        skews = field(specs, "skew", 0.0)
+        drift_med = statistics.median(drifts)
+        closest = min(specs, key=lambda sp: abs(_coerce(sp.get("drift_sd"), 0.0) - drift_med))
+        merged[a] = {
+            "drift_sd": drift_med,
+            "vol_scale": statistics.median(vols) if vols else 1.0,
+            "skew": statistics.median(skews) if skews else 0.0,
+            "evidence": closest.get("evidence", ""),
+        }
+    return {"assets": merged}
+
+
+def _coerce(value: Any, default: float) -> float:
+    try:
+        v = float(value)
+        return v if math.isfinite(v) else default
+    except (TypeError, ValueError):
+        return default
+
+
 def to_adjustments(
     raw: dict[str, Any], assets: list[str], ctx: dict[str, Any]
 ) -> tuple[dict[str, dict[str, float]], dict[str, Any]]:
@@ -1120,9 +1214,7 @@ def to_adjustments(
     Anything missing, unreadable or non-finite drops to neutral FOR THAT ASSET, never for the
     whole card -- one bad asset should not zero out the ones the model answered fine.
     """
-    top = raw if isinstance(raw, dict) else {}
-    nested = top.get("assets")
-    per = nested if isinstance(nested, dict) and any(a in nested for a in assets) else top
+    per = _normalize_reply(raw, assets)
 
     adjustments: dict[str, dict[str, float]] = {}
     ledger: dict[str, Any] = {}

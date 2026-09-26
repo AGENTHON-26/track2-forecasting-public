@@ -578,3 +578,95 @@ class TestRetryableCodes(unittest.TestCase):
         (each attempt is charged on admission)."""
         for code in (400, 401, 403, 422):
             self.assertTrue(self._gives_up(code), f"HTTP {code} should not be retried")
+
+
+class TestMedianOfThree(unittest.TestCase):
+    """Stage 2 self-consistency: three samples of the same call, combined by median.
+
+    All previous stage-2 tests mock `call_model` with a single fixed `return_value`, so the same
+    reply is returned three times and the median trivially equals it -- that proves no regression
+    on identical replies, not that combination is correct on DIFFERENT ones.
+    """
+
+    def _ctx(self):
+        return {"asof": "2024-01-01", "horizons": [21], "value_unit": "percent_per_annum",
+                "target_type": "level", "family": "F2", "level": {"A": 4.5, "B": 1.0},
+                "sigma": {"A": 0.2, "B": 0.1}, "sigma_horizon": 21}
+
+    def _summaries(self):
+        return [{"doc_id": "x", "timestamp": "2024-01-01", "doc_type": "fomc_statement",
+                 "summary": "- ok", "error": ""}]
+
+    def test_three_different_replies_are_medianed_per_asset_per_field(self):
+        replies = [
+            json.dumps({"assets": {"A": {"drift_sd": 0.2, "vol_scale": 1.0, "skew": 0.0, "evidence": "low"},
+                                    "B": {"drift_sd": -0.5, "vol_scale": 1.1, "skew": 0.0, "evidence": "b1"}}}),
+            json.dumps({"assets": {"A": {"drift_sd": 0.8, "vol_scale": 1.4, "skew": 0.3, "evidence": "high"},
+                                    "B": {"drift_sd": -0.3, "vol_scale": 1.0, "skew": 0.0, "evidence": "b2"}}}),
+            json.dumps({"assets": {"A": {"drift_sd": 0.5, "vol_scale": 1.2, "skew": 0.1, "evidence": "mid"},
+                                    "B": {"drift_sd": -0.4, "vol_scale": 0.9, "skew": 0.0, "evidence": "b3"}}}),
+        ]
+        with tempfile.TemporaryDirectory() as d:
+            text = _unit(pathlib.Path(d), [("x", "2024-01-01", "fomc_statement", "irrelevant")])
+            with mock.patch.object(ts, "summarize_corpus", return_value=self._summaries()), \
+                 mock.patch.object(ts, "load_context", return_value=self._ctx()), \
+                 mock.patch.object(ts, "call_model", side_effect=[(r, "") for r in replies]) as call:
+                out = ts.read_text_signal(text, ["A", "B"])
+        self.assertEqual(call.call_count, 3)
+        # median of (0.2, 0.8, 0.5) = 0.5 -> the "mid" reply's own evidence should be kept
+        self.assertAlmostEqual(out["A"]["shift"], 0.5 * 0.2)
+        self.assertAlmostEqual(out["A"]["widen"], 1.2)
+        # median of (-0.5, -0.3, -0.4) = -0.4
+        self.assertAlmostEqual(out["B"]["shift"], -0.4 * 0.1)
+
+    def test_evidence_kept_from_the_reply_closest_to_the_median(self):
+        replies = [
+            json.dumps({"assets": {"A": {"drift_sd": 0.2, "vol_scale": 1.0, "skew": 0.0, "evidence": "outlier low"}}}),
+            json.dumps({"assets": {"A": {"drift_sd": 0.8, "vol_scale": 1.0, "skew": 0.0, "evidence": "outlier high"}}}),
+            json.dumps({"assets": {"A": {"drift_sd": 0.5, "vol_scale": 1.0, "skew": 0.0, "evidence": "the median one"}}}),
+        ]
+        merged = ts._median_reply([json.loads(r) for r in replies], ["A"])
+        self.assertEqual(merged["assets"]["A"]["drift_sd"], 0.5)
+        self.assertEqual(merged["assets"]["A"]["evidence"], "the median one")
+
+    def test_one_bad_sample_does_not_spoil_the_other_two(self):
+        """A parse failure on one of three attempts still yields a real (2-sample) median,
+        not a fallback to neutral -- median-of-3 degrades to median-of-2 gracefully."""
+        replies_raw = [
+            "not json at all",
+            json.dumps({"assets": {"A": {"drift_sd": 0.4, "vol_scale": 1.0, "skew": 0.0, "evidence": "a"}}}),
+            json.dumps({"assets": {"A": {"drift_sd": 0.6, "vol_scale": 1.0, "skew": 0.0, "evidence": "b"}}}),
+        ]
+        with tempfile.TemporaryDirectory() as d:
+            text = _unit(pathlib.Path(d), [("x", "2024-01-01", "fomc_statement", "irrelevant")])
+            with mock.patch.object(ts, "summarize_corpus", return_value=self._summaries()), \
+                 mock.patch.object(ts, "load_context", return_value=self._ctx()), \
+                 mock.patch.object(ts, "call_model", side_effect=[(r, "") for r in replies_raw]):
+                out = ts.read_text_signal(text, ["A", "B"])
+        # median of just (0.4, 0.6) = 0.5
+        self.assertAlmostEqual(out["A"]["shift"], 0.5 * 0.2)
+
+    def test_all_three_failing_falls_back_to_neutral(self):
+        with tempfile.TemporaryDirectory() as d:
+            text = _unit(pathlib.Path(d), [("x", "2024-01-01", "fomc_statement", "irrelevant")])
+            with mock.patch.object(ts, "summarize_corpus", return_value=self._summaries()), \
+                 mock.patch.object(ts, "load_context", return_value=self._ctx()), \
+                 mock.patch.object(ts, "call_model", return_value=(None, "HTTP 503")), \
+                 mock.patch("sys.stderr", new=io.StringIO()) as err:
+                out = ts.read_text_signal(text, ["A", "B"])
+        self.assertEqual(out, {"A": dict(ts.NEUTRAL), "B": dict(ts.NEUTRAL)})
+        self.assertIn("HTTP 503", err.getvalue())
+
+    def test_asset_present_in_only_one_of_three_replies_still_counts(self):
+        """B answered by only one of three samples: median-of-1 for that asset, not dropped."""
+        replies = [
+            json.dumps({"assets": {"A": {"drift_sd": 0.5, "vol_scale": 1.0, "skew": 0.0, "evidence": "a"},
+                                    "B": {"drift_sd": -0.9, "vol_scale": 1.0, "skew": 0.0, "evidence": "b"}}}),
+            json.dumps({"assets": {"A": {"drift_sd": 0.5, "vol_scale": 1.0, "skew": 0.0, "evidence": "a"}}}),
+            json.dumps({"assets": {"A": {"drift_sd": 0.5, "vol_scale": 1.0, "skew": 0.0, "evidence": "a"}}}),
+        ]
+        merged = ts._median_reply([json.loads(r) for r in replies], ["A", "B"])
+        self.assertEqual(merged["assets"]["B"]["drift_sd"], -0.9)
+
+    def test_stage2_reserve_covers_all_three_samples(self):
+        self.assertGreaterEqual(ts._STAGE2_RESERVE, ts._STAGE2_SAMPLES)
