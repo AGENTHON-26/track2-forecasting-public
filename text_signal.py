@@ -79,6 +79,22 @@ _TIMEOUT_SEC = 300.0
 #: Seconds to wait before each retry of an overloaded (429 / 5xx) reply.
 _RETRY_WAITS = (2.0, 5.0, 10.0)
 
+#: HTTP codes worth another attempt, on top of every 5xx.
+#:
+#: 429 is the obvious one. **404 is not, and is here because this endpoint emits it spuriously
+#: under load.** Measured 2026-09-25, six identical probes three seconds apart against
+#: $MODEL_ENDPOINT/chat/completions: 200, 503, 404, 200, 404, 200 -- the 404s carry an EMPTY body
+#: and are followed by a 200 on the identical request, so they are infrastructure, not a missing
+#: route. Because a 404 is normally permanent, the retry loop returned on the first one, and an
+#: F3 sweep "completed" units in 1.6-4.0 s having made no successful call at all: every document
+#: and the stage-2 adjustment silently fell back to neutral, which the scores would have reported
+#: as a real text-blind result.
+#:
+#: If the House route ever 404s for a real reason (a wrong path, a retired model id), this costs
+#: three extra attempts before the same failure is reported -- cheap next to silently forecasting
+#: text-blind. Revisit if the endpoint stops doing this.
+_RETRYABLE_CODES = frozenset({404, 429})
+
 #: The House endpoint's shared quota, measured 2026-09-22: 40 requests/minute. Kept a margin
 #: under it rather than 40 itself -- Stage 1's own worker pool can burst several requests within
 #: the same second, and a 429 that exhausts _RETRY_WAITS degrades the whole card to NEUTRAL with
@@ -637,7 +653,8 @@ def call_model(
             detail = ""
             with contextlib.suppress(Exception):
                 detail = exc.read().decode("utf-8", "replace")[:300]
-            if wait is None or not (exc.code == 429 or exc.code >= 500):
+            worth_retrying = exc.code in _RETRYABLE_CODES or exc.code >= 500
+            if wait is None or not worth_retrying:
                 return None, f"HTTP {exc.code}: {detail}"
         except (urllib.error.URLError, TimeoutError, ValueError, OSError) as exc:
             return None, f"{type(exc).__name__}: {exc}"

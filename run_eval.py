@@ -71,6 +71,17 @@ def _extract_text_signal_issues(stderr: str) -> list[str]:
     ]
 
 
+def _extract_text_ledger(stderr: str) -> list[str]:
+    """The per-asset `adj` rows: what the model actually said, and what the clamps did to it.
+
+    Deliberately kept OUT of `text_signal_issues` (those are failures) and stored separately.
+    Without this the ledger is written to a subprocess's stderr and thrown away, which makes a
+    sweep's scores uninterpretable after the fact: you can see that a card moved but not whether
+    the model said anything, whether a clamp ate it, or which assets came back missing.
+    """
+    return [line for line in stderr.splitlines() if line.startswith("[text_signal] adj ")]
+
+
 def _iter_unit_dirs() -> list[pathlib.Path]:
     return sorted(
         p.parent for p in UNITS_DIR.glob("*/card.toml") if p.parent.name not in _EXCLUDED_UNITS
@@ -101,10 +112,11 @@ def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
             capture_output=True, text=True, cwd=REPO_ROOT,
         )
         text_signal_issues = _extract_text_signal_issues(agent_result.stderr)
+        text_ledger = _extract_text_ledger(agent_result.stderr)
         if agent_result.returncode != 0:
             tail = "\n".join(agent_result.stderr.strip().splitlines()[-3:])
             return {"unit_id": unit_id, "status": "agent_crashed", "detail": tail,
-                    "text_signal_issues": text_signal_issues}
+                    "text_signal_issues": text_signal_issues, "text_ledger": text_ledger}
 
         score_args = [sys.executable, str(REPO_ROOT / "scoring" / "scoring.py"), "score",
                       "--card", str(unit_dir / "card.toml"), "--forecast", str(out)]
@@ -116,7 +128,7 @@ def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
         except json.JSONDecodeError:
             return {"unit_id": unit_id, "status": "scorer_crashed",
                     "detail": score_result.stderr.strip()[-300:],
-                    "text_signal_issues": text_signal_issues}
+                    "text_signal_issues": text_signal_issues, "text_ledger": text_ledger}
 
         if not payload.get("admissible", False):
             failing_gate = next(
@@ -136,10 +148,10 @@ def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
                     "tail_penalty": payload.get("tail_penalty"),
                     "tail_metric": payload.get("tail_metric"),
                     "category": card.get("metadata", {}).get("category"),
-                    "text_signal_issues": text_signal_issues}
+                    "text_signal_issues": text_signal_issues, "text_ledger": text_ledger}
         return {"unit_id": unit_id, "status": "gates_only",
                 "category": card.get("metadata", {}).get("category"),
-                "text_signal_issues": text_signal_issues}
+                "text_signal_issues": text_signal_issues, "text_ledger": text_ledger}
 
 
 def main(argv: list[str] | None = None) -> int:

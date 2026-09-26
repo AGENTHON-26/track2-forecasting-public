@@ -555,3 +555,26 @@ class TestLedgerLogging(unittest.TestCase):
         with mock.patch("sys.stderr", new=io.StringIO()):
             ts._log_ledger({"A": "not-a-dict"}, ["A"], {})
             ts._log_ledger({}, ["A"], {})
+
+
+class TestRetryableCodes(unittest.TestCase):
+    """Which HTTP codes get another attempt.
+
+    404 is in the set for an unusual reason and the test records it: this endpoint emits
+    empty-bodied 404s under load and answers the identical request with 200 seconds later.
+    Treating it as permanent made an F3 sweep finish units in ~2s having made no successful call,
+    every one silently text-blind.
+    """
+
+    def _gives_up(self, code):
+        return not (code in ts._RETRYABLE_CODES or code >= 500)
+
+    def test_transient_codes_retry(self):
+        for code in (404, 429, 500, 502, 503, 504):
+            self.assertFalse(self._gives_up(code), f"HTTP {code} should be retried")
+
+    def test_genuine_client_errors_do_not_retry(self):
+        """A bad request or a bad key will not fix itself, and retrying burns the request budget
+        (each attempt is charged on admission)."""
+        for code in (400, 401, 403, 422):
+            self.assertTrue(self._gives_up(code), f"HTTP {code} should not be retried")
