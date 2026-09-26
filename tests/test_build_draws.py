@@ -17,7 +17,8 @@ import pyarrow as pa
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
-import forecast_agent as fa  # noqa: E402
+import forecast_agent as fa  # noqa: E402  -- the contract entry point (build_draws, _read_panels)
+import forecast_models as fm  # noqa: E402  -- the models themselves, and the switch
 
 
 def _panel(asset: str, n: int = 300, start: float = 100.0, seed: int = 0):
@@ -43,7 +44,7 @@ class TestSkewTiltMath(unittest.TestCase):
         rng = np.random.default_rng(1)
         z = rng.standard_normal((5000, 2))
         u = np.abs(rng.standard_normal((5000, 2)))
-        out = fa._skew_tilt(z, u, np.array([0.0, 0.0]))
+        out = fm._skew_tilt(z, u, np.array([0.0, 0.0]))
         np.testing.assert_array_equal(out, z)
 
     def test_mean_zero_and_unit_variance_for_any_skew(self):
@@ -52,7 +53,7 @@ class TestSkewTiltMath(unittest.TestCase):
         for s in (-0.9, -0.4, 0.0, 0.4, 0.9):
             z = rng.standard_normal(n)
             u = np.abs(rng.standard_normal(n))
-            out = fa._skew_tilt(z, u, np.full(n, s))
+            out = fm._skew_tilt(z, u, np.full(n, s))
             self.assertAlmostEqual(out.mean(), 0.0, delta=0.02, msg=f"skew={s}")
             self.assertAlmostEqual(out.std(), 1.0, delta=0.02, msg=f"skew={s}")
 
@@ -63,7 +64,7 @@ class TestSkewTiltMath(unittest.TestCase):
         n = 200_000
         z = rng.standard_normal(n)
         u = np.abs(rng.standard_normal(n))
-        out = fa._skew_tilt(z, u, np.full(n, 0.8))
+        out = fm._skew_tilt(z, u, np.full(n, 0.8))
         skewness = ((out - out.mean()) ** 3).mean() / out.std() ** 3
         self.assertGreater(skewness, 0.5)
 
@@ -72,7 +73,7 @@ class TestSkewTiltMath(unittest.TestCase):
         n = 200_000
         z = rng.standard_normal(n)
         u = np.abs(rng.standard_normal(n))
-        out = fa._skew_tilt(z, u, np.full(n, -0.8))
+        out = fm._skew_tilt(z, u, np.full(n, -0.8))
         skewness = ((out - out.mean()) ** 3).mean() / out.std() ** 3
         self.assertLess(skewness, -0.5)
 
@@ -83,7 +84,7 @@ class TestSkewTiltMath(unittest.TestCase):
         n = 50_000
         z = rng.standard_normal((n, 2))
         u = np.abs(rng.standard_normal((n, 2)))
-        out = fa._skew_tilt(z, u, np.array([0.8, -0.8]))
+        out = fm._skew_tilt(z, u, np.array([0.8, -0.8]))
         skew_a = ((out[:, 0] - out[:, 0].mean()) ** 3).mean() / out[:, 0].std() ** 3
         skew_b = ((out[:, 1] - out[:, 1].mean()) ** 3).mean() / out[:, 1].std() ** 3
         self.assertGreater(skew_a, 0.5)
@@ -104,7 +105,7 @@ class TestBuildDrawsWithSkew(unittest.TestCase):
         # controlled measurement. A card asking for skew=0.9 must draw identically to skew=0.0
         # while the flag is off -- this is the behavioral guarantee that actually matters right
         # now, more than the math itself (which TestSkewTiltMath already covers directly).
-        self.assertFalse(fa._SKEW_ENABLED, "flip this test too if re-enabling on purpose")
+        self.assertFalse(fm.SKEW_ENABLED, "flip this test too if re-enabling on purpose")
         table, asof, _ = _panel("A")
         neutral = fa.build_draws({"p": table}, ["A"], [21], asof,
                                   {"A": dict(NEUTRAL)}, n_draws=50_000, seed=0)
@@ -117,7 +118,7 @@ class TestBuildDrawsWithSkew(unittest.TestCase):
         # The mechanism itself: still implemented and correct, just gated off above. Flips the
         # module flag for the duration of this test only.
         table, asof, _ = _panel("A")
-        with mock.patch.object(fa, "_SKEW_ENABLED", True):
+        with mock.patch.object(fm, "SKEW_ENABLED", True):
             neutral = fa.build_draws({"p": table}, ["A"], [21], asof,
                                       {"A": dict(NEUTRAL)}, n_draws=50_000, seed=0)
             skewed = fa.build_draws({"p": table}, ["A"], [21], asof,
@@ -203,8 +204,10 @@ class TestJointStructure(unittest.TestCase):
         """
         assets = ["A", "B", "C", "D"]
         table, asof = _multi_panel(assets, seed=3, corr=0.3)
+        # family="T2-F3" selects the cumulative walk -- routing is explicit now, so a caller that
+        # does not name a joint-scored family gets independent horizons by design.
         out = fa.build_draws({"p": table}, assets, [63, 126], asof,
-                             {a: dict(NEUTRAL) for a in assets}, 20000, 0)
+                             {a: dict(NEUTRAL) for a in assets}, 20000, 0, family="T2-F3")
         expected = np.sqrt(63 / 126)
         for i, a in enumerate(assets):
             rho = np.corrcoef(out[:, i, 0], out[:, i, 1])[0, 1]
@@ -220,7 +223,7 @@ class TestJointStructure(unittest.TestCase):
         assets = ["A", "B"]
         table, asof = _multi_panel(assets, seed=4, corr=0.0)
         out = fa.build_draws({"p": table}, assets, [21, 84], asof,
-                             {a: dict(NEUTRAL) for a in assets}, 20000, 0)
+                             {a: dict(NEUTRAL) for a in assets}, 20000, 0, family="T2-F3")
         sd, _ = _panel_truth(table, assets)
         for i in range(len(assets)):
             for hi, h in enumerate([21, 84]):
@@ -249,7 +252,7 @@ class TestJointStructure(unittest.TestCase):
         assets = ["A", "B"]
         table, asof = _multi_panel(assets, seed=6, corr=0.7)
         out = fa.build_draws({"p": table}, assets, [21, 63], asof,
-                             {a: dict(NEUTRAL) for a in assets}, 20000, 0)
+                             {a: dict(NEUTRAL) for a in assets}, 20000, 0, family="T2-F3")
         _, corr_true = _panel_truth(table, assets)
         for hi in range(2):
             rho = np.corrcoef(out[:, 0, hi], out[:, 1, hi])[0, 1]
@@ -350,3 +353,68 @@ class TestLogReturnTarget(unittest.TestCase):
         centre = out[:, 0, 0].mean()
         self.assertAlmostEqual(centre, 0.0, delta=0.01,
                                msg=f"log_return centre should be ~0, got {centre:.4f}")
+
+
+class TestModelDispatch(unittest.TestCase):
+    """The switch in `_select_model` -- which family gets which model.
+
+    Routing is explicit and family-based, so it is worth pinning: a change here silently moves a
+    whole family onto a different model, and every one of these choices is a measured one.
+    """
+
+    def test_the_routing_table(self):
+        cases = {
+            # F1 level cards are M2's home: measured 0.832x the walk on F1's own units. This is
+            # the only family-keyed branch, because M2 is a fitted model.
+            ("T2-F1", "level", (126, 189)): fm.M2,
+            # ...but M2 covers level targets only, so F1's 2 log_return units take a walk.
+            ("T2-F1", "log_return", (127,)): fm.RANDOM_WALK,
+            # Multi-horizon -> the path is accumulated. Today this is exactly F3's 22 units.
+            ("T2-F3", "level", (63, 126)): fm.CUMULATIVE_WALK,
+            ("T2-F3", "log_return", (21, 63)): fm.CUMULATIVE_WALK,
+            # Single-horizon -> one draw per horizon. All 27 F2 and all 31 F4 units today.
+            ("T2-F2", "level", (21,)): fm.RANDOM_WALK,
+            ("T2-F4", "log_return", (21,)): fm.RANDOM_WALK,
+            # The reason the middle branch tests shape and not family: the organizers' own
+            # example cards in docs/CATEGORIES.md are multi-horizon for BOTH F2 ("GBP/USD at
+            # horizons 21 BD and 63 BD") and F4 ("UST_2Y, UST_10Y at 63 BD and 126 BD"), even
+            # though no shipped dev unit in those families is. A sealed card shaped like either
+            # must still get its cross-horizon structure -- on the F2 shape that pair is the
+            # entire off-diagonal of the variogram.
+            ("T2-F2", "level", (21, 63)): fm.CUMULATIVE_WALK,
+            ("T2-F4", "level", (63, 126)): fm.CUMULATIVE_WALK,
+            # An unknown or absent family must still produce a forecast, and must not lose the
+            # path just because its metadata is unfamiliar.
+            ("T2-F9", "level", (21, 63)): fm.CUMULATIVE_WALK,
+            (None, None, (21,)): fm.RANDOM_WALK,
+        }
+        for (family, target_type, horizons), expected in cases.items():
+            name, model = fm._select_model(family, target_type, list(horizons))
+            self.assertEqual(name, expected,
+                             f"{family}/{target_type}/h={list(horizons)} routed to {name}")
+            self.assertTrue(callable(model))
+
+    def test_m2_failure_falls_back_instead_of_losing_the_card(self):
+        """M2 refuses cards whose assets span two panel files. A raise would score the card at the
+        pre-committed worst case (4.0); the walk scores ~1.0, so the fallback is worth a lot."""
+        assets = ["A", "B"]
+        table, asof = _multi_panel(assets, seed=11, corr=0.2)
+        with mock.patch.object(fm, "_m2_model", side_effect=ValueError("no single panel")):
+            out = fa.build_draws({"p": table}, assets, [21], asof,
+                                 {a: dict(NEUTRAL) for a in assets}, 500, 0,
+                                 target_type="level", family="T2-F1")
+        self.assertEqual(out.shape, (500, 2, 1))
+        self.assertEqual(fm.last_model(), fm.RANDOM_WALK)
+
+    def test_single_horizon_walks_agree(self):
+        """On a single horizon the cumulative and independent walks are the same model.
+
+        This is what makes the routing safe for F2 (27 units) and F4 (31), all single-horizon:
+        sending them to the plain walk is a naming choice, not a behaviour change.
+        """
+        assets = ["A", "B"]
+        table, asof = _multi_panel(assets, seed=12, corr=0.4)
+        args = ({"p": table}, assets, [21], asof, {a: dict(NEUTRAL) for a in assets}, 4000, 0)
+        cumulative = fa.build_draws(*args, family="T2-F3")
+        independent = fa.build_draws(*args, family="T2-F2")
+        np.testing.assert_allclose(cumulative, independent, rtol=0, atol=0)
