@@ -52,9 +52,13 @@ the realized outcome on that card. Given M0's forecast — which this document m
 a published scale can be inverted to recover the outcome it was measured against. That is
 sharpest on single-asset cards, which are most of the roster. This is why the values stay sealed
 even though the method does not, and why no card released to participants ships the file. The
-scorer enforces the same boundary from its own side: it refuses to read a scale from anywhere but
-a card's `reference/` directory (`qfbench2_track_forecasting/normalization.py`,
-`assert_reference_only`).
+scorer enforces the same boundary from its own side. It reads a scale only as the `ref_scale.json`
+directly inside a card's `reference/` directory, which on the ranked path sits under the
+organizer's reference root. It opens each directory on the way without following symbolic links,
+and it accepts only a single-link regular file of bounded size ([`qfbench2_track_forecasting/normalization.py`](../qfbench2_track_forecasting/normalization.py),
+`_read_scale_bytes`, which `load_ref_scale` and `read_ref_scale_bundle` both read through). On the
+ranked path it also checks the exact bytes of every scale in the roster against the evaluation plan's
+commitment before anything is scored (§5).
 
 Publishing the method settles a real question at a cost we judge small: a reproducible baseline is
 one more handle on a scored board, which is why the board reports a single aggregate statistic and
@@ -176,9 +180,12 @@ sides.
 Call the resulting per-cell step count **s**.
 
 **Where the target date comes from, and what that means for you.** M0 reads each cell's target date
-from the card's sealed `reference/` directory. Released cards do not publish target dates — the
-worked exemplar in §4 is the single exception — so step 1's fallback fires for you on every other
-card, and you use the declared horizon.
+from the card's sealed `reference/` directory. Released cards do not publish target dates, with two
+exceptions. The worked exemplar in §4 carries them in its `card.toml` (`[targets] target_dates`).
+The four monthly-panel cards listed below name each target's observation month in
+`forecast_spec.json`, under `targets.observation_periods`; that is the month being forecast, not a
+release date (see [MONTHLY-HORIZONS.md](MONTHLY-HORIZONS.md)). On every other card step 1's
+fallback fires for you, and you use the declared horizon.
 
 On daily panels that costs you nothing: the counted and declared values land within 2x of each
 other, so step 5 keeps the declared horizon and M0 does the same. **On the four released cards that
@@ -193,9 +200,12 @@ override was built to fire. Their step counts:
 | `t2-F4-cpi-vintage-2022` | `[21]` | **2** |
 
 Use those numbers and you reproduce M0 on those four cards; use the declared horizon and you are
-forecasting years out with a spread to match. A change is in preparation that restates these four
-cards' horizons in panel steps so the table stops being necessary (§8); no scale moves when it
-lands, because the conversion is already being applied on the denominator side.
+forecasting years out with a spread to match.
+
+The conversion changes the walk, not the grid. `forecast.parquet` keeps the declared horizon keys
+(140, 160, 145, 165 and 21 on these four cards), as [MONTHLY-HORIZONS.md](MONTHLY-HORIZONS.md)
+requires, and scoring joins on `(asset, horizon)`. The reference CLI derives its own monthly step
+counts from `targets.observation_periods` (§7).
 
 ### 3.8 The mean vector and the covariance matrix
 
@@ -208,8 +218,9 @@ cov[i, j] = min(s_i, s_j) * Sigma[a_i, a_j]
 
 `min(s_i, s_j)` is what makes the draws a **path** rather than a bundle of unrelated marginals: a
 random walk observed at two horizons shares the variance accumulated up to the earlier one. That
-cross-horizon structure is the part the joint variogram term is there to reward, and it is the
-part the shipped reference CLI does not have (§7).
+cross-horizon structure is the part the joint variogram term is there to reward. On daily cards it
+is the part the shipped reference CLI does not have; on the four monthly-panel cards the CLI's
+monthly path builds a path too (§7).
 
 Then `1e-10` is added to the diagonal, and the Cholesky factor is taken of `cov + 1e-9·I`. If that
 still fails, the factor is taken of the **diagonal** of `cov + 1e-9·I` — a card whose covariance
@@ -268,9 +279,10 @@ hold in full, not a record of a scored run.
 Contrast, same repository: `units/t2-F1-cpi-glidepath-2023` is a monthly macro card whose panel
 spacing measures 30.4 days, so §3.7 takes the month-counting branch, and whose card states
 `horizons = [140, 160]` in business days. Those two are far more than 2x apart, so the counted
-month step wins. You cannot finish that arithmetic yourself from the published card: it does not
-publish its target dates. That is the expected shape — on most cards you can reproduce M0's
-**construction**, and on the sealed set you can reproduce neither the target date nor the outcome.
+month step wins. The published card carries no target dates, but its `forecast_spec.json` names
+the observation months: `targets.observation_periods = ["2024-01", "2024-02"]`. Counted from the
+last observation (2023-05, §3.6) with step 3's month formula, that is 8 and 9, the counts §3.7
+lists. On the sealed set, by contrast, you can reproduce neither the target date nor the outcome.
 
 ## 5 — From draws to a scale (what happens on our side)
 
@@ -294,6 +306,28 @@ normalized at all. The case this exists for: a single-asset card has no pairs, s
 are also the ones whose weights are redistributed — see [CONCEPTS.md §13](CONCEPTS.md), step 2 —
 so the baseline still anchors at 1.0 there, exactly as it does on a multi-cell card.
 
+### How the scales in force are pinned
+
+The evaluation plan carries a `ref_scale_commitment` field. The recipe that computes it is in
+[`qfbench2_track_forecasting/normalization.py`](../qfbench2_track_forecasting/normalization.py)
+(`RefScaleBundle`, built by `read_ref_scale_bundle`):
+
+```
+ref_scale_commitment = digest_json({
+    unit_handle: sha256_bytes(exact bytes of <unit_handle>/reference/ref_scale.json)
+    for every unit handle in the plan's roster
+})
+```
+
+Both helpers come from the shared toolkit, `qfbench2_common.contracts.digest`. `sha256_bytes`
+returns `sha256:` followed by the hex SHA-256 of its input. `digest_json` is `sha256_bytes` of the
+RFC 8785 (JCS) canonical JSON of its argument. So the commitment is one digest over a map from each
+unit handle to the `sha256:`-prefixed SHA-256 of that file's exact bytes.
+
+`load_verified_ref_scales` recomputes it from the files on disk before any score is computed, and
+refuses to rank when the bytes do not reproduce the plan's value. The commitment binds the values
+without revealing them.
+
 ## 6 — Fidelity: what you will match, and what you will not
 
 ### What you can reproduce, and what you cannot
@@ -306,8 +340,9 @@ beating it requires.
 
 Three things stand between §3 and an exact match, in descending order of size:
 
-- **The four monthly-panel cards.** M0 converts their horizon to panel steps from a target date you
-  do not have. Use the table in §3.7 and this disappears; ignore it and you are not close.
+- **The four monthly-panel cards.** M0 converts their horizon to panel steps from each card's
+  sealed target date. Use the step counts in §3.7's table and this disappears; ignore them and you
+  are not close.
 - **Cell ordering (§3.9).** Stored with the sealed answer, not derived from the card. The published
   rule matches almost every card; where it does not, a component moves by up to about a third.
 - **Sealed cards.** You do not have the panels, the as-of or the target date, so the draws are out
@@ -352,41 +387,38 @@ scored against the scales and the scorer described above.
 the interface, passes the gates offline and can be edited into a real agent. **It is not M0**, and
 a submission that runs it unchanged does not score 1.0. Every difference below is deliberate.
 
+The CLI samples on one of two paths. The **daily path** is the default. The **monthly path** is
+taken when the card declares `target_frequency = "monthly"` and the selected target series really
+have monthly observations; it then requires a `level` target and an explicit observation month for
+every grid cell, and refuses otherwise (`_monthly_inputs`). Among the released cards, the four
+monthly-panel cards of §3.7 take it. [MONTHLY-HORIZONS.md](MONTHLY-HORIZONS.md) specifies the month
+mapping it reads. Where the two paths differ, the table gives both.
+
 | | M0 (this document) | Reference CLI |
 |---|---|---|
-| History used | trailing 300 observations (§3.1) | the full history at or before the as-of (`_series`) |
-| Drift on a `level` target | `s · mu` (§3.8) | **none** — `drift = np.zeros(...)` for a level target, a driftless walk (`_draw`) |
-| Across horizons | one path: `cov[i,j] = min(s_i,s_j)·Sigma` (§3.8) | a **fresh** innovation per horizon — no cross-horizon covariance at all (`_draw`, the `for hi, h in enumerate(horizons)` loop) |
+| History used | trailing 300 observations (§3.1) | the full history at or before the as-of (`_series`); the monthly path uses only changes between consecutive calendar months (`_draw`) |
+| Drift on a `level` target | `s · mu` (§3.8) | **none** — `drift = np.zeros(...)` for a level target, a driftless walk on both paths (`_draw`) |
+| Across horizons | one path: `cov[i,j] = min(s_i,s_j)·Sigma` (§3.8) | daily: a **fresh** innovation per horizon — no cross-horizon covariance at all (`_draw`, the `for hi, h in enumerate(horizons)` loop). Monthly: one correlated innovation per calendar month, accumulated along a single path and reused at every later target period (`_monthly_walk`) |
 | Across assets | full covariance of steps (§3.5) | correlation of steps, nearest-PSD clipped, times each asset's own sd |
-| Spread with horizon | from `min(s,g)·Sigma` | `sd · sqrt(h)` |
-| Horizon units | converted to panel steps (§3.7) | the card's `horizon` used as-is |
+| Spread with horizon | from `min(s,g)·Sigma` | daily: `sd · sqrt(h)`. Monthly: `sd · sqrt(s)`, with `sd` estimated from monthly changes and `s` the calendar-month steps |
+| Horizon units | converted to panel steps (§3.7) | daily: the card's `horizon` used as-is. Monthly: calendar-month steps counted from the last panel observation to each cell's observation month (`_monthly_inputs` → `horizons.monthly_horizon_steps`); the key written to `forecast.parquet` is unchanged |
 | Seed | `crc32(unit_id)` (§3.9) | `--seed`, default **0**, the same for every card |
 
 How far apart that leaves them, measured 2026-09-18 over the 103 released cards that have a
 resolved answer: scored against the scales in force, **M0 lands at exactly 1.000000 on every one of
 them** — which is what it means for M0 to be the denominator. The shipped reference CLI at its
-default seed averages about **1.29** (median 1.05), with five cards at the 4.0 clip. A submission that
-runs the CLI unchanged is roughly 29% worse than the baseline it is often mistaken for, and the gap
-is not evenly spread: the median card is close, and a handful are pinned at the clip because the
-CLI is driftless on level targets while M0 is not.
+default seed averages about **1.29** (median 1.05), with five cards at the 4.0 clip. This is a
+single organizer measurement taken on 2026-09-18 against the sealed scales; re-running it needs the
+sealed outcomes, so it cannot be reproduced from published material. On that measurement a
+submission that runs the CLI unchanged is roughly 29% worse than the baseline it is often mistaken
+for, and the gap is not evenly spread: the median card is close and a handful are pinned at the
+clip; the table above lists what separates the two, the driftless level walk most visibly.
 
 The five adapter scaffolds in `baselines/` are further away still: whatever model each is named
 after, they all return a seeded Gaussian random walk whose draws are, in their own docstring's
 words, i.i.d. across assets with no modelled cross-asset dependence
 (`baselines/base.py`, `_gaussian_rw_samples`; `baselines/README.md` opens by saying they are
 scaffolds). Do not read a gap against any of them as a gap against M0.
-
-## 8 — Open items
-
-Stated so they are not mistaken for settled:
-
-- **Cards whose horizon is restated in panel steps.** A change is in preparation that would state
-  the monthly-panel cards' horizons directly in panel steps. If it lands, §3.7's override stops
-  firing on those cards and the step count comes from the card itself. No scale moves; the
-  conversion becomes visible instead of implicit.
-- **The commitment digest.** The evaluation plan carries a `ref_scale_commitment` field. The
-  recipe that computes it over the scales is not yet documented, and this document does not
-  specify it. When it is, it belongs here.
 
 ---
 
