@@ -359,6 +359,42 @@ class TestReadTextSignalStage2(unittest.TestCase):
         # live experiment (see its own comment) and this test should stay meaningful either way.
         self.assertEqual(call.call_args.kwargs["thinking"], ts._STAGE2_THINKING)
 
+    def test_truncated_thinking_reply_is_retried_once_without_thinking(self):
+        # A thinking-on reply cut off at max_tokens mid-JSON (real case: F4 factor-stress-2008)
+        # must not score as neutral when one plain retry would parse.
+        good = json.dumps({"assets": {"UST_2Y": {"drift_sd": 0.4, "vol_scale": 1.2, "skew": 0.0}}})
+        cut = '{"assets": {"UST_2Y": {"drift_sd": -0.2, "vol_scale": 1.'  # stopped at max_tokens
+        fake_ctx = {"asof": "2024-01-01", "horizons": [21], "value_unit": "percent_per_annum",
+                    "target_type": "level", "family": "F4", "level": {"UST_2Y": 4.5},
+                    "sigma": {"UST_2Y": 0.2}, "sigma_horizon": 21}
+        with tempfile.TemporaryDirectory() as d:
+            text = _unit(pathlib.Path(d), [("x", "2024-01-01", "fomc_statement", "irrelevant")])
+            with mock.patch.object(ts, "_STAGE2_THINKING", True), \
+                 mock.patch.object(ts, "summarize_corpus",
+                                   return_value=[{"doc_id": "x", "timestamp": "2024-01-01",
+                                                  "doc_type": "fomc_statement", "summary": "- ok"}]), \
+                 mock.patch.object(ts, "load_context", return_value=fake_ctx), \
+                 mock.patch.object(ts, "call_model",
+                                   side_effect=[(cut, ""), (good, "")]) as call:
+                out = ts.read_text_signal(text, ["UST_2Y"])
+        self.assertEqual(call.call_count, 2)
+        self.assertTrue(call.call_args_list[0].kwargs["thinking"])
+        self.assertFalse(call.call_args_list[1].kwargs["thinking"])
+        self.assertAlmostEqual(out["UST_2Y"]["shift"], 0.4 * 0.2)
+        self.assertAlmostEqual(out["UST_2Y"]["widen"], 1.2)
+
+    def test_no_retry_when_thinking_is_off(self):
+        with tempfile.TemporaryDirectory() as d:
+            text = _unit(pathlib.Path(d), [("x", "2024-01-01", "fomc_statement", "irrelevant")])
+            with mock.patch.object(ts, "_STAGE2_THINKING", False), \
+                 mock.patch.object(ts, "summarize_corpus",
+                                   return_value=[{"doc_id": "x", "timestamp": "2024-01-01",
+                                                  "doc_type": "fomc_statement", "summary": "- ok"}]), \
+                 mock.patch.object(ts, "call_model", return_value=("not json at all", "")) as call:
+                out = ts.read_text_signal(text, ["UST_2Y"])
+        self.assertEqual(call.call_count, 1)
+        self.assertEqual(out, {"UST_2Y": dict(ts.NEUTRAL)})
+
     def test_unparseable_reply_falls_back_to_neutral(self):
         with tempfile.TemporaryDirectory() as d:
             text = _unit(pathlib.Path(d), [("x", "2024-01-01", "fomc_statement", "irrelevant")])

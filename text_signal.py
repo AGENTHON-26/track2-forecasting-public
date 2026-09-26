@@ -105,9 +105,10 @@ def _throttle() -> None:
             time.sleep(_request_times[0] + 60.0 - now)
 #: House rule: 25 admitted requests per unit, charged on admission -- a retry, a failed call or a
 #: lost response spends a slot too. Stage 1 spends up to one per document (plus retries); stage 2
-#: needs exactly one, so one is held back for it. The busiest unit needs 16 with no retries.
+#: needs one, plus one for the no-thinking retry in `read_text_signal`, so two are held back.
+#: The busiest unit needs 16 with no retries.
 _REQUEST_BUDGET = 25
-_STAGE2_RESERVE = 1
+_STAGE2_RESERVE = 2
 
 
 class _Budget:
@@ -168,6 +169,15 @@ def read_text_signal(
             return neutral
 
         raw = _extract_json_object(content)
+        if raw is None and _STAGE2_THINKING:
+            # A thinking-on reply can hit max_tokens mid-JSON (seen 2026-09-26 on
+            # t2-F4-factor-stress-2008: the answer stopped at `"vol_scale": 1.`). That used to
+            # score as neutral. One retry without thinking uses the second reserved slot.
+            print("[text_signal] adjustment reply did not parse with thinking on; retrying "
+                  "without thinking", file=sys.stderr)
+            content2, err2 = call_model(system, user, thinking=False, budget=budget, reserved=True)
+            if content2 is not None:
+                content, raw = content2, _extract_json_object(content2)
         if raw is None:
             print(f"[text_signal] adjustment reply did not parse: {content[:200]!r}; neutral",
                   file=sys.stderr)
