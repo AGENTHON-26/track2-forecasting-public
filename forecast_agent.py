@@ -76,6 +76,17 @@ def read_text_signal(text_dir: pathlib.Path, assets: list[str]) -> dict[str, dic
 #: random walk until M2 is measured on them.
 _M2_FAMILIES = {"T2-F1"}
 
+#: Per-family floor on `widen` in the random-walk path. F4 cards are built around a shock the
+#: calm panel history does not show: text-off, 10 of 32 F4 cells land outside the walk's own
+#: 1%/99% (three of them 6-8 sigma out), and the scorer's tail term is a pinball DISTANCE, so a
+#: too-narrow tail is charged in proportion to the miss. Measured 2026-09-26 on the 29 realized
+#: F4 units (in-process, seed 0, 500 draws), composite mean / wins-losses vs the plain walk:
+#: floor 1.5 -> 0.4126 (17/12) text-off and 0.3878 (18/11) on top of the LLM's own answers, with
+#: the gain present on both halves of an odd/even split and the 15 calmest cards costing
+#: 0.0234 -> 0.0247. Floor 2.0 has a better mean (0.3714) but a losing record on one half, so it
+#: is not the default. The LLM's own `widen` still applies above the floor.
+_FAMILY_WIDEN_FLOOR = {"T2-F4": 1.5}
+
 #: Which base produced the last build_draws() call -- read by main() for the rationale.
 _last_base = "random walk"
 
@@ -101,7 +112,8 @@ def build_draws(
     to the random walk rather than crashing the card.
 
     Everything else, and callers that pass neither keyword: the random walk below -- one
-    shared correlated roll per draw (Cholesky), tilted per-asset by `skew` when enabled.
+    shared correlated roll per draw (Cholesky), tilted per-asset by `skew` when enabled, with
+    `widen` floored per family by `_FAMILY_WIDEN_FLOOR` (F4 only, today).
     """
     global _last_base
     if target_type == "level" and family in _M2_FAMILIES:
@@ -140,6 +152,7 @@ def build_draws(
     # apply Nish's adjustments per asset
     shift = np.array([adjustments.get(a, {}).get("shift", 0.0) for a in assets])
     widen = np.array([adjustments.get(a, {}).get("widen", 1.0) for a in assets])
+    widen = np.maximum(widen, _FAMILY_WIDEN_FLOOR.get(family or "", 1.0))
     skew = (
         np.array([adjustments.get(a, {}).get("skew", 0.0) for a in assets])
         if _SKEW_ENABLED else np.zeros(len(assets))

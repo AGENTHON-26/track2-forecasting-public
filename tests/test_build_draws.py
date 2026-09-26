@@ -140,5 +140,30 @@ class TestBuildDrawsWithSkew(unittest.TestCase):
         self.assertEqual(out.shape, (1000, 1, 1))
 
 
+class TestFamilyWidenFloor(unittest.TestCase):
+    def test_f4_is_floored_and_other_families_are_not(self):
+        table, asof, _ = _panel("A")
+        kw = dict(n_draws=20_000, seed=0)
+        plain = fa.build_draws({"p": table}, ["A"], [21], asof, {"A": dict(NEUTRAL)}, **kw)
+        f2 = fa.build_draws({"p": table}, ["A"], [21], asof, {"A": dict(NEUTRAL)},
+                            family="T2-F2", **kw)
+        f4 = fa.build_draws({"p": table}, ["A"], [21], asof, {"A": dict(NEUTRAL)},
+                            family="T2-F4", **kw)
+        np.testing.assert_array_equal(plain, f2)  # no floor for other families
+        ratio = f4[:, 0, 0].std() / plain[:, 0, 0].std()
+        self.assertAlmostEqual(ratio, fa._FAMILY_WIDEN_FLOOR["T2-F4"], delta=0.02)
+        self.assertAlmostEqual(f4[:, 0, 0].mean(), plain[:, 0, 0].mean(),
+                               delta=plain[:, 0, 0].std() * 0.05)  # the centre does not move
+
+    def test_llm_widen_above_the_floor_still_applies(self):
+        table, asof, _ = _panel("A")
+        kw = dict(n_draws=20_000, seed=0)
+        plain = fa.build_draws({"p": table}, ["A"], [21], asof, {"A": dict(NEUTRAL)}, **kw)
+        wide = fa.build_draws({"p": table}, ["A"], [21], asof,
+                              {"A": {"shift": 0.0, "widen": 2.0, "skew": 0.0}},
+                              family="T2-F4", **kw)
+        self.assertAlmostEqual(wide[:, 0, 0].std() / plain[:, 0, 0].std(), 2.0, delta=0.02)
+
+
 if __name__ == "__main__":
     unittest.main()
