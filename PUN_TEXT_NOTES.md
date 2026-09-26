@@ -306,6 +306,79 @@ organizer's direct reply:
   per-unit count**, not a rate — see the sharpened "Request budget" section above for why our
   retry logic now looks like a bigger risk against that cap than originally estimated.
 
+## Update 2026-09-26 — F3 branch: prompt targeted at the measured failure, skew back on, self-consistency shipped
+
+Context: `feat/f3` fixed the numerical side first (`build_draws()` now walks one shared path across
+an F3 card's horizons instead of drawing them independently — see `forecast_models.py`'s own
+docstrings for that half; out of scope for this file). This section covers what changed on the
+text side on top of that fix, resolving Open items 2 (partially), 3, and 4 below.
+
+**F3's interface gap (Open item 2) — decided, not solved.** Measured the actual leverage of adding
+a new schema field (a `beta`/correlation control) against just using the `drift_sd` field that
+already exists: an oracle sweep put the schema-field ceiling at ~0.993 normalized composite,
+against **0.747 for per-asset `drift_sd` alone** — an order of magnitude stronger, because the
+joint variogram is bias-blind to a constant added to every asset but very sensitive to
+*differences* between assets, and differential drift is exactly what `drift_sd` already encodes.
+**Decision: no new field.** The gap is closed by prompting, not by the contract.
+
+**Why the model wasn't using that lever: it was refusing.** A live sweep before this fix found the
+model answering "no view" (`drift_sd=0`) on **81% of assets** across F3's 22 units, with its own
+stated reasons giving it away — *"no GBP-specific view," "No CHF-specific policy signal"* — it was
+waiting to be told about each asset by name, which is the exact inference F3 exists to test.
+Rewrote `_FAMILY_FOCUS["F3"]` to say this outright (most documents won't name most assets — that's
+the card design, not missing evidence; answering 0 for that reason is named as the single most
+common way to fail this family), and gave Stage 2 cross-asset numbers it never had before: the
+date-aligned correlation matrix `build_draws()` actually uses, each asset's trailing move in sigma
+units, and a static asset-id glossary (`_ASSET_NOTES`) so a bare ticker carries a direction. Also
+fixed a real bug in the same pass: the schema skeleton in `build_adjustment_prompt` only enumerated
+`assets[:2]`, silently truncating the "answer for every asset" instruction on any card with more
+than 2. Measured effect: non-zero answers went from 19% to 37% of assets on a re-sweep.
+
+Added a family-aware widen clamp (`_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25)}`, default
+unchanged) after measuring that F3's joint term is monotone-increasing in widen above 1.0x — the
+model could cost itself up to +46% on the term it's actually scored on by hedging wide, which the
+old universal `(0.60, 2.00)` clamp allowed.
+
+**Skew (Open item 4) — `_SKEW_ENABLED` flipped back to `True`.** The correctness of the tilt itself
+was already solid (unit-tested); what was missing was a clean measurement, since every earlier
+attempt at one was confounded by the rate-limit/caching issues above. Got a same-inputs replay
+instead: took a recorded sweep's real ledger (3 F3 units with non-zero skew) and ran
+`build_draws()` twice against those *same recorded numbers*, skew forced on vs. off — the fix this
+file's "Skew" section above said was the right way to measure it and never built. Result: ratios
+0.9865 / 1.0000 / 0.9992 (mean 0.9952) — nothing worse, all three unchanged-or-better. Weak
+evidence (n=3, one arm), labeled as such, but combined with the structural argument that F4's own
+prompt explicitly asks the model to move skew and F4 is scored on exactly the tail it shapes, that
+was enough to re-enable it. Lives in `forecast_models.py` now (see the module-split note below),
+not `forecast_agent.py` — the flag moved when the models did.
+
+**Self-consistency (Open item 3) — shipped, but the measurement argues against keeping it as-is.**
+Stage 2 now samples the identical prompt 3 times (`_STAGE2_SAMPLES = 3`) and combines per-asset,
+per-field via median (`_median_reply`), keeping evidence from whichever sample's `drift_sd` lands
+closest to the merged value. This was expected to be a clean win — it only reduces sampling
+*variance*, and Nish's stage-1 notes already flagged it as the natural next step. A first
+side-by-side (single-call vs. median-of-3, same commit, same 20 F3 units) instead measured
+**median-of-3 raw composite 0.8937 vs. single-call 0.8889 — about 0.5% worse, not better.**
+Per-unit: 12/20 units had all 3 samples independently land on exact neutral (median-of-3 does
+nothing there, just triples the Stage-2 call count); of the 8 where it mattered, 5 improved and 3
+got worse, but the 3 losses were larger (one alone, `bear-flattener-2022`, +12.7%) than the 5 wins
+combined. **This is one replicate, not a settled result** — more replicates were kicked off to see
+if it's noise or real; whoever picks this up next should check for that data before assuming
+median-of-3 is a net win just because it shipped. If it holds up as a net negative, reverting to a
+single Stage-2 call is a one-line change (`_STAGE2_SAMPLES = 1`).
+
+**Also fixed alongside this work, smaller items:** the House endpoint was found to emit spurious,
+empty-bodied HTTP 404s under load (verified: 6 rapid probes returned `200,503,404,200,404,200`,
+the *same* request succeeding seconds after a 404) — `call_model()`'s retry loop only covered
+429/5xx, now also retries 404 (`_RETRYABLE_CODES`). Added a per-asset ledger log
+(`[text_signal] adj {asset}: ...`) that `to_adjustments()`'s return value was previously computing
+and throwing away — this is what made the median-of-3 measurement above possible to interpret at
+all. `run_eval.py` initially misclassified these new healthy ledger lines as failures; fixed with
+`_TEXT_SIGNAL_OK_MARKERS`.
+
+**Not touched by this update, still true:** the module split — `build_draws()` and its three
+models (M2, the cumulative walk, the plain random walk) moved out of `forecast_agent.py` into
+`forecast_models.py` — is Dew's side of the branch; see that module's own docstrings, not this file.
+
 ## Open
 
 1. **Highest priority: fix the silent rate-limit fallback and log raw model replies / derived
@@ -331,15 +404,19 @@ organizer's direct reply:
    - Still open regardless: making the fallback loud (or at least counted) instead of silent, and
      the raw-reply logging itself. Everything below this item is still blocked on those in
      practice, even where not stated explicitly.
-2. **F3's interface gap** (above) is real and unaddressed — a structural fix would need the
-   output contract itself to change, not just the prompt.
-3. **Self-consistency not implemented.** Sampling the stage-2 call a few times and taking the
-   median (same idea Nish's own notes list as her #1 priority for stage 1) would likely help,
-   and the request budget has room for it — but do item 1 first, or self-consistency just
-   averages over a mix of real replies and rate-limited neutrals without knowing which is which.
-4. **`skew` is implemented but disabled** (see "Skew" above) — flip `_SKEW_ENABLED` in
-   `forecast_agent.py` once its effect can be measured cleanly (item 1) without rate-limit
-   fallback confounding it.
+2. **F3's interface gap** — **decided against a schema change, 2026-09-26** (see the Update section
+   above): a new correlation field was measured at ~0.993 oracle composite vs. **0.747 for the
+   `drift_sd` field that already exists**, so the fix is prompting the model to use the lever it
+   already has, not adding one. What's still open: whether the prompt work extracts all of that
+   0.747 ceiling — it clearly doesn't yet (37% of assets still get a real answer, not 100%).
+3. **Self-consistency — shipped, 2026-09-26, but not a confirmed win.** See the Update section
+   above: the first side-by-side measured it ~0.5% worse on raw composite, not better, with 3 units
+   losing more than the other 5 gained. More replicates were started to check if that's noise; if
+   it holds up, reverting `_STAGE2_SAMPLES` to 1 removes a real 3x Stage-2 cost for no benefit.
+4. **`skew` was disabled, now re-enabled (2026-09-26)** — `_SKEW_ENABLED = True`, moved to
+   `forecast_models.py` with the rest of the model code. See the Update section above for the
+   (weak, n=3) replay evidence this was based on — still worth a real measurement once item 1's
+   logging can isolate a text-signal-caused change from this endpoint's own noise.
 5. **Thinking: both stages now off.** `_THINKING` back to `False` (2026-09-23) after the real
    full-sweep measurement above reconfirmed Nish's original finding at scale (4-5x slower, a
    leaked-reasoning failure mode, worse composite scores especially in F2). `_STAGE2_THINKING`
