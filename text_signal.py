@@ -824,7 +824,40 @@ def load_context(text_dir: pathlib.Path, assets: list[str]) -> dict[str, Any]:
         else:
             ctx["sigma"][a] = 0.0  # no scale is knowable -> shift stays 0, widen still works
     ctx["sigma_horizon"] = h0
+    _model_context(unit, assets, ctx)
     return ctx
+
+
+def _model_context(unit: pathlib.Path, assets: list[str], ctx: dict[str, Any]) -> None:
+    """On the cards whose base is a fitted model (F1 level -> M2), show stage 2 the model's own
+    centre and width, and make `sigma` the model's sigma at the shortest horizon.
+
+    Without this the prompt says the statistical forecast "assumes the summaries say nothing"
+    while M2 has already moved the centre off the level from the panel's own history, so a
+    directional signal M2 priced in gets added a second time by `shift`. Degrades silently:
+    any failure leaves the walk-based level/sigma in place and no `model_centre` key, and the
+    prompt then reads exactly as before.
+    """
+    if ctx.get("family") != "F1" or ctx.get("target_type") != "level":
+        return
+    try:
+        import forecast_agent
+        from f1_pipeline import m2_unit as m2
+
+        panels = forecast_agent._read_panels(unit)
+        fits = [m2.fit_m2(c) for c in m2.build_features(
+            m2.unit_from_panels(panels, assets, ctx["horizons"], ctx["asof"], target_type="level"))]
+    except Exception as exc:
+        print(f"[text_signal] note: no model context ({type(exc).__name__}: {exc})", file=sys.stderr)
+        return
+    h0 = ctx["sigma_horizon"]
+    centre: dict[str, float] = {}
+    for f in fits:
+        if f.horizon == h0 and math.isfinite(f.anchor + f.mu) and f.sigma > 0:
+            centre[f.asset] = float(f.anchor + f.mu)
+            ctx["sigma"][f.asset] = float(f.sigma)
+    if centre:
+        ctx["model_centre"] = centre
 
 
 def _panel_stats(
@@ -892,10 +925,11 @@ def _cross_asset_stats(
     covariance it will actually draw from -- so the correlations quoted here are the ones the
     sampler uses, not a different estimate the model would then be arguing against.
 
-    Returns {} for a single-asset card (nothing to be cross about) or on any failure.
+    Returns {} on any failure. A single-asset card gets only `trailing_sigma` (nothing to be
+    cross about, but "what is already priced" is just as absent there -- 2026-09-26, F4 work).
     """
     out: dict[str, Any] = {}
-    if len(assets) < 2:
+    if not assets or any(a not in hist for a in assets):
         return out
     try:
         import numpy as np
@@ -908,8 +942,8 @@ def _cross_asset_stats(
         steps = np.diff(wide, axis=1)[:, -260:]
         if steps.shape[1] < 30:
             return out
-        corr = np.corrcoef(steps)
-        if np.all(np.isfinite(corr)):
+        corr = np.corrcoef(steps) if len(assets) > 1 else None
+        if corr is not None and np.all(np.isfinite(corr)):
             out["corr"] = {assets[i]: {assets[j]: float(corr[i, j]) for j in range(len(assets))}
                            for i in range(len(assets))}
 
@@ -1018,7 +1052,15 @@ def build_adjustment_prompt(
         "Quote conventions matter for direction: a unit like usd_per_eur RISES when the dollar "
         "WEAKENS, while jpy_per_usd RISES when the dollar STRENGTHENS. Check the value unit given "
         "below before choosing a sign, and answer 0 if the convention makes you unsure.\n\n"
-        "The statistical forecast already assumes the summaries say nothing. Answering all zeros "
+        + (
+            "The statistical forecast below has ALREADY moved its centre off the as-of level "
+            "(`model centre`), from the panel's own history alone. drift_sd is what the summaries "
+            "add BEYOND that move, not the whole move: 0 means the model's centre is right, and a "
+            "signal the model has visibly priced in should not be added again. "
+            if ctx.get("model_centre") else
+            "The statistical forecast already assumes the summaries say nothing. "
+        )
+        + "Answering all zeros "
         "for every asset is identical to not reading them -- if a summary gives you something "
         "concrete to react to, react to it; the ranges above already bound how far. Remember "
         "that a decision already delivered is priced into the level given below -- what usually "
@@ -1053,6 +1095,9 @@ def build_adjustment_prompt(
         sig = ctx["sigma"].get(a, 0.0)
         head = (f"  {a}: level {lvl:.6f}, sigma {sig:.6f}" if lvl is not None
                 else f"  {a}: level unknown, sigma {sig:.6f}")
+        mc = (ctx.get("model_centre") or {}).get(a)
+        if mc is not None and lvl is not None:
+            head += f", model centre {mc:.6f} ({mc - lvl:+.6f} vs level, {(mc - lvl) / sig:+.2f} sigma)" if sig else f", model centre {mc:.6f}"
         note = _ASSET_NOTES.get(a)
         lines.append(f"{head}  -- {note}" if note else head)
 

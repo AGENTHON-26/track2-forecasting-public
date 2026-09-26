@@ -21,7 +21,9 @@ from unittest import mock
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
-import text_signal as ts  # noqa: E402
+import text_signal as ts
+
+_REPO = pathlib.Path(__file__).resolve().parents[1]  # noqa: E402
 
 SHIPPED_TYPES = [
     "fomc_statement", "fomc_minutes", "cb_speech", "landmark",
@@ -334,6 +336,31 @@ class TestToAdjustments(unittest.TestCase):
         raw = {"UST_2Y": {"drift_sd": 0.3, "vol_scale": 1.0, "skew": 0.0}}
         out, _ = ts.to_adjustments(raw, ["UST_2Y"], self._CTX)
         self.assertAlmostEqual(out["UST_2Y"]["shift"], 0.3 * 0.20)
+
+
+class TestModelContext(unittest.TestCase):
+    _F1 = _REPO / "units" / "t2-F1-cad-boc-2017"
+    _F4 = _REPO / "units" / "t2-F4-jpy-carry-2007"
+
+    @unittest.skipUnless(_F1.is_dir(), "needs the shipped units")
+    def test_f1_level_card_gets_m2_centre_and_sigma(self):
+        ctx = ts.load_context(self._F1 / "text", ["CAD"])
+        self.assertEqual(ctx["family"], "F1")
+        self.assertIn("CAD", ctx.get("model_centre", {}))
+        self.assertGreater(ctx["sigma"]["CAD"], 0.0)
+        system, user = ts.build_adjustment_prompt([], ["CAD"], ctx)
+        self.assertIn("model centre", user)
+        self.assertIn("ALREADY moved its centre", system)
+
+    @unittest.skipUnless(_F4.is_dir(), "needs the shipped units")
+    def test_walk_card_has_no_model_centre_but_gets_trailing_move(self):
+        ctx = ts.load_context(self._F4 / "text", ["JPY"])
+        self.assertNotIn("model_centre", ctx)
+        self.assertIn("JPY", ctx["cross"].get("trailing_sigma", {}))
+        system, user = ts.build_adjustment_prompt([], ["JPY"], ctx)
+        self.assertNotIn("model centre", user)
+        self.assertIn("Trailing move already realized", user)
+        self.assertNotIn("ALREADY moved its centre", system)
 
 
 class TestStage1Cache(unittest.TestCase):
