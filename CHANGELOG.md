@@ -51,6 +51,15 @@ of four practice units and states its own scoring effect.
     cards were regenerated from the new panels by the unchanged M0 procedure. All four are
     public-dev units, so none of them is part of the Final.
 
+- **Two monthly practice cards name the month they are scored on.** `t2-F4-cpi-vintage-2022`
+  and `t2-F4-covid-nfp-2020` said they forecast "the next" print; the scored month is one
+  print later than the next unreleased print at the as-of date. Card text only: targets, spec,
+  horizons, panels and corpus are unchanged.
+- **[`docs/M0-BASELINE.md`](docs/M0-BASELINE.md) matches the monthly release.** It still
+  described the cards before the 2026-09-16 monthly release. It now says what a released
+  monthly card publishes, follows the reference CLI's monthly path, and gives the recipe for
+  the normalization scale commitment. Documentation only.
+
 - **Last Development runs start by 20:00 UTC on Monday 12 October 2026.** A scheduled
   maintenance window on Tuesday 13 October 2026, 08:00–12:00 UTC stops the evaluation fleet. An
   upload that has not started by 20:00 UTC on 12 October, whenever it was made, is not run, and

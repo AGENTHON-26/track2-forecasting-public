@@ -360,8 +360,8 @@ then in force was generated on **2026-09-03**, under exactly the procedure speci
 Since then, four scales have been regenerated, on **2026-09-25**, by the same procedure and
 seeds: those of the practice cards with a `macro_monthly` panel (`t2-F1-cpi-glidepath-2023`,
 `t2-F1-sahm-watch-2024`, `t2-F4-covid-nfp-2020`, `t2-F4-cpi-vintage-2022`), whose panels were
-rebuilt as the data vintage published on each card's as-of date. Every other scale in force
-still dates from 2026-09-03.
+rebuilt as the data vintage published on each card's as-of date. The scales of every other
+published card still date from 2026-09-03.
 
 The 2026-09-03 generation corrected three things at once, relative to the scales that had been
 in force before it. If you have read earlier organizer statements about the baseline, these are the
