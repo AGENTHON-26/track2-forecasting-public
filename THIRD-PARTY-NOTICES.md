@@ -9,7 +9,8 @@ came from.
 
 **Where no grant to the organizers is evidenced, this file says so rather than naming a licence.**
 "Issuer's terms govern" is not a grant and not a denial — it means the terms have not been
-established from any evidence in this repository.
+established from any evidence in this repository, unless the entry quotes the issuer's published
+terms, as it does for the two ECB files and the SNB press release below.
 
 ## Software
 
@@ -62,10 +63,12 @@ are original organizer work under this repository's `LICENSE` (MIT).
 
 ## Non-U.S. central banks — the issuing institution's terms govern
 
-None of the material below is a U.S. Government work, and **no grant to the organizers is evidenced
-anywhere in this repository.** It is neither MIT nor CC-BY-4.0. Most copies were obtained from the
-BIS *Central bankers' speeches* archive, which is a host and compiler — **BIS authored none of these
-documents**, and a thin typesetting or compilation layer may sit over the underlying text.
+None of the material below is a U.S. Government work, and **except for the two ECB files and the SNB
+press release noted below, no grant to the organizers is evidenced anywhere in this repository.** It
+is neither MIT nor CC-BY-4.0. Those three are the only ones whose reuse terms are established: the
+ECB files print them, and the SNB publishes them on its copyright page. Most copies were obtained
+from the BIS *Central bankers' speeches* archive, which is a host and compiler — **BIS authored none
+of these documents**, and a thin typesetting or compilation layer may sit over the underlying text.
 
 - **Bank for International Settlements** (bis.org) — *Central bankers' speeches* archive; the source
   from which most speeches below were obtained. BIS's own compilation and typesetting rights are
@@ -89,11 +92,19 @@ documents**, and a thin typesetting or compilation layer may sit over the underl
   BIS archive. These files carry verbatim bis.org PDF URLs in their own first line.
 - **Bank of Canada** (bankofcanada.ca) — speeches by Poloz and Wilkins. Canadian **Crown copyright**
   and the Bank's own terms apply.
-- **Swiss National Bank** (snb.ch) — three speeches by Thomas Jordan. **One of the three,
-  `bis_jordan_2021-04-30.txt`, carries an express "© Swiss National Bank" notice on its face**
-  (lines 16 and 154), which rules out any MIT or CC-BY-4.0 label for it. The other two,
-  `bis_jordan_2014-11-23.txt` and `bis_jordan_2014-12-01.txt`, carry **no copyright notice at all**;
-  the SNB's own terms still govern them, but no notice should be attributed to them.
+- **Swiss National Bank** (snb.ch) — three speeches by Thomas Jordan and one press release.
+  **One of the speeches, `bis_jordan_2021-04-30.txt`, carries an express "© Swiss National Bank"
+  notice on its face** (lines 16 and 154), which rules out any MIT or CC-BY-4.0 label for it. The
+  other two, `bis_jordan_2014-11-23.txt` and `bis_jordan_2014-12-01.txt`, carry **no copyright
+  notice at all**; the SNB's own terms still govern them, but no notice should be attributed to
+  them. The press release of 15 January 2015 announcing the end of the minimum exchange rate
+  (`snb_floor_discontinued_20150115.txt`, in `t2-F1-chf-highly-valued-2021`) likewise shows no
+  copyright or permission notice. **The SNB states its terms on its copyright page**,
+  <https://www.snb.ch/en/srv/disclaimer_copyright>: the information and data the SNB provides on
+  its website may be saved, translated (with reference to the source), transmitted or used in
+  other ways "for non-commercial purposes, compatible with the purpose of such information or
+  data". We reproduce the release on those terms, for non-commercial research, and name the SNB
+  as its source.
 - **Reserve Bank of India** (rbi.org.in) — address by Deputy Governor Michael Debabrata Patra.
 - **Bank Indonesia** (bi.go.id) — welcoming remarks by Governor Agus D W Martowardojo.
 

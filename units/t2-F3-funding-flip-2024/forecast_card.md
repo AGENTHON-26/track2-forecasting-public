@@ -4,7 +4,7 @@
 at horizons [21, 63] BD · unit `H.10 native quote (JPY,CHF: ccy-per-USD; AUD,NZD: USD-per-ccy)` · split validation
 
 Inputs mounted read-only: `/input/panels/g10_fx_daily.parquet` (rows only through
-the as-of date) and `/input/text/` (4 dated documents, all timestamps <= as-of;
+the as-of date) and `/input/text/` (8 dated documents, all timestamps <= as-of;
 see `text/corpus_index.json`).
 
 Produce `forecast.parquet` with columns `[draw:int32, asset:string, horizon:int32,

@@ -15,17 +15,50 @@ public issue #4.
 
 ## Unreleased
 
-**Track scorer code and evaluation cards: unchanged.** Documentation, link and CI-comment
-corrections and one unit document cleaned of later news change no scoring path, gate, card or
-published number. The monthly practice-panel entry, second below, changes the data and notes
-of four practice units and states its own scoring effect.
+**Track scorer code and evaluation cards: unchanged.** Documentation and link corrections and one
+unit document cleaned of later news change no scoring path, gate, card or published number. Three
+further entries change practice units, each stating its own scoring effect: the practice-corpus
+entry, second below, changes the text of the practice units; the monthly practice-panel entry,
+third below, changes the data and notes of four practice units; and the entry after it changes the
+card text of two monthly practice cards.
 
 - **`t2-F3-scandies-stress-2022`: a document carried news from after the card's as-of date.**
   `text/boe_mpc_statement_20220922.txt`, the Bank of England statement of 22 September 2022 on a
   card whose as-of date is 23 September 2022, ended with a block of site navigation scraped in
   2026 that listed Bank Rate decisions from 2026. That block is removed and the unit's manifest
-  updated. No realized value, reference or scale changes. The copy evaluated on CodaBench changes
-  at the next Track 2 evaluation update.
+  updated. No realized value, reference or scale changes. The copy evaluated on CodaBench was
+  updated on 27 September 2026 at 19:14 UTC.
+
+- **Practice-unit text corpora: counts corrected, 59 documents added, website material removed.**
+  *Scoring:* this change leaves scorer code, gates, reference outcomes and normalization scales as
+  they are. The text an agent reads on the practice units changes, so an agent's outputs on those
+  units can change. The copies evaluated on CodaBench were updated on 27 September 2026 at 19:14 UTC.
+  - **Counts.** On 92 units `forecast_card.md` stated a document count that did not match the
+    files shipped. The prose, `card.toml` `[text]` (`n_documents`, `doc_types`, `source`),
+    `text/corpus_index.json`, the manifests and the files on disk now agree on every unit.
+  - **59 documents added** on 42 units: 14 CPI and 16 Employment Situation releases, 19 sets of
+    FOMC minutes, 5 Beige Books, 3 Bank of Japan policy statements, the SNB's 15 January 2015
+    press release and the FOMC statement of 22 September 2021. Every one is dated on or before
+    its card's as-of date.
+  - **Website material removed** from 173 existing and 38 of the added documents by one committed
+    module, `scripts/declutter_corpus.py`: menus, footers, "Return to top" separators,
+    related-news lists and a trailing "Last Modified Date:" page label. Document text is kept,
+    including every District report of the 2024 Beige Books, Beige Book titles, release dates and
+    "prepared at" preambles, BLS release headers, and the date line of the 2007-2011 FOMC minutes.
+    `python3 scripts/declutter_corpus.py --check units` confirms every unit text is clean.
+  - **Post-as-of material.** The Bank of England statement's list of 2026 announcements is
+    already removed (see the `t2-F3-scandies-stress-2022` entry above). Four BLS files carried a
+    note that the release was reissued after its publication date (`cpi_2011-07-15.txt` on two
+    units, `empsit_2020-02-07.txt` and `empsit_2020-03-06.txt` on `t2-F4-covid-nfp-2020`); the
+    notes are removed and listed in `data/corpus-cleaning/reissue-notes-removed.tsv`. The tables
+    in those files are still the reissued versions.
+  - **Beige Book dates.** Nine `corpus_index.json` timestamps now carry the Beige Book's release
+    date; four of them had been earlier than the release. No card has a Beige Book released after
+    its as-of date.
+  - **Docs.** New `data/LANDMARKS.md` gives the official source of the 13 landmark documents;
+    `data/PROVENANCE.md` is re-measured; `THIRD-PARTY-NOTICES.md` and `DATA-LICENSE.md` list the
+    SNB press release under the SNB's published copyright terms, which allow non-commercial use
+    compatible with the purpose of the information.
 
 - **Monthly practice panels now hold the data as published on each card's as-of date.** The
   `macro_monthly.parquet` panels of the four monthly practice cards (`t2-F1-cpi-glidepath-2023`,

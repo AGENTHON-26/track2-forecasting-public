@@ -71,12 +71,12 @@ end_date   = "2017-07-12"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches (full archive); Federal Reserve"
+source         = "BIS central bankers' speeches (full archive); BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2017-07-12"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 5
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "macro_release"]
+n_documents    = 7
 notes          = "Deputy-governor remarks in June 2017 telegraph that the 2015 insurance cuts 'have done their job'; the July hike lands at the as-of. With the turn delivered and telegraphed, the six-month question is follow-through pace versus oil and NAFTA noise."
 
 [targets]

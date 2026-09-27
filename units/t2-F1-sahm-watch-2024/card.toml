@@ -71,7 +71,7 @@ end_date   = "2024-08-02"
 notes      = "Truncated at the as-of date minus a 45-day publication lag by construction; leakage guard re-checks at runtime. Values are the ALFRED vintage as published on the as-of date (2 August 2024, including revisions released that day), not later revisions; PCE_ALL and PCE_CORE are on the index base then in force (2017=100). The target is still scored on the current vintage, as value_unit states."
 
 [text]
-source         = "BIS central bankers' speeches; Federal Reserve"
+source         = "BIS central bankers' speeches; BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2024-08-02"
 cutoff_checked = true

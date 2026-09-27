@@ -73,12 +73,12 @@ end_date   = "2018-01-26"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime. Reporting lag: French/AQR factor libraries publish with a multi-week lag; values are final library data, not what was downloadable on the as-of date."
 
 [text]
-source         = "BIS central bankers' speeches; Federal Reserve"
+source         = "BIS central bankers' speeches; BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2018-01-26"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement"]
-n_documents    = 5
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "macro_release"]
+n_documents    = 7
 notes          = "As-of the top of a euphoric, ultra-low-vol run. Dec-2017 minutes flag continued hikes into fiscal stimulus; a scheduled early-February employment report (release calendar known ex-ante) falls inside the window; pre-asof commentary documents record short-vol product crowding. A wage-inflation surprise could force a mechanical vol unwind — the left tail must stay fat despite the calm panel."
 
 [targets]

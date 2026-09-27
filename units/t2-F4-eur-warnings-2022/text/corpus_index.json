@@ -25,6 +25,13 @@
       "file": "ecb_lagarde_2022-02-07.txt"
     },
     {
+      "doc_id": "macro_release-2022-02-10",
+      "timestamp": "2022-02-10",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "cpi_2022-02-10.txt"
+    },
+    {
       "doc_id": "ecb_lagarde_2022-02-14",
       "timestamp": "2022-02-14",
       "source": "ECB (all_ECB_speeches.csv)",

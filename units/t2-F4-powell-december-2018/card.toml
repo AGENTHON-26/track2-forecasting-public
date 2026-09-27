@@ -73,12 +73,12 @@ end_date   = "2018-11-30"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime. Reporting lag: French/AQR factor libraries publish with a multi-week lag; values are final library data, not what was downloadable on the as-of date."
 
 [text]
-source         = "BIS central bankers' speeches; Federal Reserve"
+source         = "BIS central bankers' speeches; BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2018-11-30"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement"]
-n_documents    = 4
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "macro_release"]
+n_documents    = 6
 notes          = "The trap card: a late-November policy speech read dovish and markets bounced hard into the as-of. But the corpus also holds the November minutes ('further gradual increases'), balance-sheet-runoff language, live trade-war headlines, and a December FOMC inside the window. A single reassuring speech is not regime evidence — the left tail must survive it."
 
 [targets]

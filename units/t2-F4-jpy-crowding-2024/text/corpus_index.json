@@ -18,6 +18,20 @@
       "file": "beigebook_202405.txt"
     },
     {
+      "doc_id": "macro_release-2024-07-05",
+      "timestamp": "2024-07-05",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "empsit_2024-07-05.txt"
+    },
+    {
+      "doc_id": "macro_release-2024-07-11",
+      "timestamp": "2024-07-11",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "cpi_2024-07-11.txt"
+    },
+    {
       "doc_id": "cftc_cot_japanese_2024",
       "timestamp": "2024-07-26",
       "source": "CFTC",

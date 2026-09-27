@@ -1,85 +1,4 @@
-FRB: Beige Book - January 13, 2016 
-
- skip to main navigation 
- skip to secondary navigation 
- skip to content 
-
- What's New · 
- What's Next · 
- Site Map · 
- A-Z Index · 
- Careers · 
- RSS · 
- All Videos · 
- Current FAQs · 
- Contact Us 
-
- Search 
- Advanced Search 
-
- About the Fed 
-
- News & Events 
-
- Monetary Policy 
-
- Banking Information & Regulation 
-
- Payment Systems 
-
- Economic Research & Data 
-
- Consumer Information 
-
- Community Development 
-
- Reporting Forms 
-
- Publications 
-
- skip to content 
-
- Menu 
-
- Home 
-
- > Monetary Policy 
-
- > Beige Book 
-
- Print 
-
- Beige Book - January 13, 2016 
-
- Full Report 
-
- Summary 
-
- Boston 
-
- New York 
-
- Philadelphia 
-
- Cleveland 
-
- Richmond 
-
- Atlanta 
-
- Chicago 
-
- St. Louis 
-
- Minneapolis 
-
- Kansas City 
-
- Dallas 
-
- San Francisco 
-
-Full Report
+Beige Book - January 13, 2016 
 
 Summary of Commentary on Current Economic Conditions by Federal Reserve District 
 
@@ -142,8 +61,6 @@ District labor markets continued to improve. Richmond reported moderate employme
 
  Nearly all Districts reported that overall price pressures were minimal. Price increases were noted by service-sector firms in New York, Philadelphia, and San Francisco, and by retail outlets and restaurants in Richmond and Kansas City. Prices of inputs and finished goods for manufacturers tended to be stable or declining, although Richmond's manufacturing contacts reported rising prices for both. Falling energy prices, as cited by Richmond, Kansas City, and Dallas, and lower prices for copper, steel, and other commodities, as cited by Boston, Cleveland, Atlanta, and Chicago, were generally described as contributing to lower input costs for manufacturers. Low oil prices were also credited for reducing home heating costs in Minneapolis and airfares in Dallas. Six Districts reported low or falling prices for most crops and livestock. Chicago and Kansas City contacts indicated that large harvests had contributed to the price declines.
 
- Return to top 
-
 First District--Boston 
 
  Reports from business contacts in the First District are generally upbeat. Holiday schedules reduced the number of responding firms below average this round. Most reporting retailers, manufacturers, and consulting and advertising firms cite year-over-year sales increases compared with the same period in 2014. Residential real estate markets continue to be strong and commercial real estate markets are said to be similar to the mostly positive situation six weeks ago. Contacts say pricing remains steady. Some firms mention increases in the minimum wage as a cost increase; four of the six New England states saw a January 1 rise. Outlooks are positive.
@@ -183,8 +100,6 @@ First District--Boston
 
  The consensus among industry contacts is that the market is strong and expected to continue to perform well in 2016. A contact in Connecticut cites the mild weather as a contributor to increased activity in the normally slow holiday season. A contact in Boston reports that "sales increases in both markets are encouraging at this time of year which is typically slow." A New Hampshire contact notes that "more of the same is anticipated in 2016, but inventory and affordability challenges coupled with mortgage rate increases will likely keep any sort of monster growth in check." In spite of any potential concerns about increased interest rates, a Massachusetts contact indicates that he feels buyer demand will remain strong in the New Year.
 
- Return to top 
-
 Second District--New York 
 
  Economic activity in the Second District has remained essentially flat since the last report, while labor markets have continued to be tight. Selling prices remain generally stable, while service-sector firms indicate continued upward pressure on input prices and wages. Consumer spending has been sluggish, with tourism activity particularly weak. Manufacturers report that activity has continued to weaken. Residential real estate conditions continued to improve, while commercial real estate markets were little changed. Multi-family residential construction has held steady at a high level, while commercial construction has picked up somewhat. Finally, banks report weaker loan demand from the household sector, but lower delinquency rates, especially on residential mortgages.
@@ -206,8 +121,6 @@ Second District--New York
 
  Financial Developments 
  Small to medium-sized banks in the District report weaker demand for consumer loans and residential mortgages, but steady demand for commercial mortgages and C&I loans. Credit standards were unchanged across all loan categories. Banks report some narrowing in spreads of loan rates over cost of funds across all loan categories, with the decrease in spreads most prevalent for commercial mortgages. There was little change seen in the average deposit rate. Finally, bankers report lower delinquency rates across all loan categories, particularly on residential mortgages.
-
- Return to top 
 
 Third District--Philadelphia 
 
@@ -241,8 +154,6 @@ Third District--Philadelphia
  Prices and Wages 
  On balance, general price levels have continued to rise slightly since the previous Beige Book period. Over half of all contacts reported no significant change in the prices they pay for inputs and the prices received for their goods and services. Of firms that indicated a change, most nonmanufacturing contacts reported increases in prices paid and prices received. Firms from the smaller manufacturing sector tended to report decreases in prices paid and in prices received. Overall, contacts continued to report only slight upward wage pressures, although many contacts continued to report difficulties filling various technical positions. Manufacturing firms expected essentially no change in the cost of their nonlabor production inputs for 2016; however, they expected their direct wage costs to increase in excess of 2 percent, with benefit increases higher still.
 
- Return to top 
-
 Fourth District--Cleveland 
 
  Aggregate business activity in the Fourth District grew at a modest pace since our last report. Manufacturing output increased on balance, albeit at a slow rate. The housing market improved, with higher unit sales and higher prices. Nonresidential building contractors reported continued strong activity. Retailers and auto dealerships saw higher revenues on a year-over-year basis. The demand for credit was stable. Oil and gas exploration remains depressed, while investment in pipeline and midstream projects moved forward. Freight volume trended lower.
@@ -274,8 +185,6 @@ Fourth District--Cleveland
 
  Freight Transportation 
  Reports indicated that on net freight volume contracted further over the period. This situation was attributed primarily to weakness in the energy sector, steel, and export environment. Some carriers saw a boost in volume related to seasonal products and building materials and hardware. Our contacts are fairly pessimistic and see little growth in volume along seasonal trends during 2016. One contact noted he is hopeful the current inventory glut will be reduced, a situation which would provide a needed lift to the freight industry. On balance, shipping rates increased modestly even though volume is lower. Rate adjustments are needed to cover rising costs for labor, new equipment, and regulatory compliance. Two of our contacts reported they have pulled back on capital spending, while others indicated that if current market conditions persist, they anticipate adjusting their capital budgets downward. Spending is mainly for replacing older equipment and, to a lesser extent, for maintenance projects. Hiring was flat on balance during the past few months because of the slowdown in demand.
-
- Return to top 
 
 Fifth District--Richmond 
 
@@ -310,8 +219,6 @@ Fifth District--Richmond
 
  Labor 
  The demand for labor in the Fifth District continued to strengthen moderately since our previous report. Demand generally rose for customer service professionals, warehouse and distribution center workers and temporary employees. Sources reported difficulty finding nurses, mechanics, accountants, IT workers, administrative professionals, engineers, hospitality workers, truck drivers and skilled tradespeople. Temp-to-hire placements increased in South Carolina, according to one staffing firm, and the time to convert to full time shortened further. According to our most recent surveys, employment increased robustly for services firms, moderately for manufacturing firms, and rose slightly for retail establishments. Wages increased moderately in manufacturing and rose at a modest pace in the service sector overall, despite a slight slowdown in retail wage growth.
-
- Return to top 
 
 Sixth District--Atlanta
 
@@ -351,8 +258,6 @@ Sixth District--Atlanta
 
  Most of the District remained free from drought conditions, but as a result of excessive rain, winds, and flooding earlier in the year, the USDA declared several counties in Alabama, Florida and Georgia as natural disaster areas. Florida's orange forecast was down both from last month's forecast and last season's production. On a year-over-year basis, prices paid to farmers for cotton, rice, soybeans, beef, and broilers have declined while corn's price rose slightly.
 
- Return to top 
-
 Seventh District--Chicago
 
  Economic activity in the Seventh District continued to increase at a modest pace in late November and December, but contacts were optimistic that growth would pick up some over the next 6 to 12 months. Consumer and business spending, construction, and real estate activity all rose at modest rates while gains in manufacturing production picked up to a more moderate pace. Financial conditions tightened slightly. Both price and wage pressures remained subdued. Farm incomes declined as the large harvest pushed product prices down faster than input costs.
@@ -377,8 +282,6 @@ Seventh District--Chicago
 
  Agriculture 
  District farm incomes declined as the large harvest pushed product prices down faster than input costs. Most contacts expect that farmers will face tighter (and possibly negative) margins this year. Many farmers are holding on to much of their corn and soybean harvest in the hope that prices will go up before they need to sell them to fund 2016 operations. Many are also waiting on purchasing inputs in the hope that seed and fertilizer prices decline further. One contact reported that more farmers are testing fields for nutritional deficiency before applying fertilizer in an effort to reduce input costs. Dairy, egg, hog, and cattle prices moved lower, although cattle prices rallied some toward the end of the reporting period.
-
- Return to top 
 
 Eighth District--St. Louis
 
@@ -407,8 +310,6 @@ Eighth District--St. Louis
  As of late November, District winter wheat was roughly 95 percent planted, which is consistent with recent history. More than 94 percent of District winter wheat was rated fair or better. However, due to warmer weather about 86 percent of the crop had already emerged--a proportion that is notably higher than recent averages. Moreover, late December flooding has led to concerns about significant crop damage.
 
  Year-to-date District coal production was 5 percent below the 2014 level by the end of November, while production in the month of November was almost 12 percent below the amount produced during the same month in 2014.
-
- Return to top 
 
 Ninth District--Minneapolis
 
@@ -441,8 +342,6 @@ Ninth District--Minneapolis
 
  Overall, wage pressures were moderate. The majority of Business Outlook Poll respondents expected wages to rise by 2 percent to 3 percent in the coming year. A major retailer announced that it was raising base wages for 2,500 store workers in South Dakota. A Minneapolis-St. Paul staffing source said high health care costs were pushing up total compensation costs, but limiting wage increases to about 3 percent. However, an eastern North Dakota manufacturer said that it was raising wages by 10 percent to attract and expand its workforce. Price pressures overall remained low. The majority of Outlook Poll respondents expected inflation over the coming year of 2 percent or slightly lower. Input prices "are flat," said a North Dakota engineering firm, and construction bid prices in that state have been lower because of a slower state economy and greater competition for projects. A mild District winter and cheap fuel prices were expected to reduce home heating costs by 30 percent or more.
 
- Return to top 
-
 Tenth District--Kansas City 
 
  Economic activity in the Tenth District was flat in December, but expectations for future activity were positive outside of the energy and agriculture sectors. Consumer spending was mixed across sectors, with increased retail and tourism activity and decreased auto and restaurant sales. District manufacturing activity declined moderately for both durable and nondurable goods, and the weakest activity continued to be in energy-concentrated states. Professional and high-tech firms continued to report moderate increases in activity, but wholesale trade and transportation contacts reported a sharp decline. District real estate activity increased slightly since the previous survey period as a seasonally sluggish residential real estate sector was offset by positive growth in the commercial real estate sector. Bankers continued to report steady loan demand, deposit levels, and loan quality. Energy activity in the District fell at a slightly faster pace than the previous survey period, and warmer-than-expected winter months combined with abundant inventory levels put further downward pressure on oil and gas prices. Farm income expectations remained subdued as a strong fall harvest kept corn prices near year-ago-levels and soybean prices were significantly less than a year ago. Prices were mixed across sectors, while wage growth generally held steady across the District. 
@@ -467,8 +366,6 @@ Tenth District--Kansas City
 
  Wages and Prices 
  Prices were mixed across sectors, while wage growth remained generally steady across the District. Retail input prices grew at a faster pace compared to the previous survey, while selling prices remained unchanged. Restaurant input and menu prices experienced faster growth than in the previous month. Raw materials prices in the manufacturing sector declined more rapidly, and finished goods prices continued to decline slightly. Manufacturers expected raw materials prices to increase in the coming months and anticipated that selling prices would remain unchanged. Transportation input and selling prices declined and were expected to continue falling over coming months. Construction prices held steady since the previous survey period. Restaurant contacts reported steady wage growth, while retail sector wages grew at a slightly faster rate. The transportation sector experienced a moderate decline in wage growth. Respondents noted shortages for management and skilled workers, along with a continued need for drivers and technicians.
-
- Return to top 
 
  Eleventh District--Dallas
 
@@ -513,8 +410,6 @@ Tenth District--Kansas City
  Agriculture 
  The district continued to receive ample rainfall, keeping drought conditions at bay and providing good soil moisture going into the spring planting season. 2015 crop production was above the five-year averages for most crops. However, crop prices are generally low, even sub-profitable for some producers, and much of the cotton crop was discounted further because of damage from too much rain. The low prices have led to some financial stress among agricultural producers. Cattle prices are well below year-ago levels but are still quite strong historically.
 
- Return to top 
-
 Twelfth District--San Francisco 
 
  Economic activity in the District grew at a moderate pace during the reporting period of late November through early January. Overall price inflation was minimal, and upward wage pressures increased further. Retail sales expanded moderately, as did demand for business and consumer services. Manufacturing output declined somewhat. On balance, activity in the agriculture sector was flat. Activity in residential and commercial real estate markets expanded further. Lending activity grew at a modest pace.
@@ -540,80 +435,3 @@ Twelfth District--San Francisco
 
  Financial Institutions 
  Lending activity grew modestly over the reporting period. Loan demand grew unevenly across the District, as some borrowers switched financial institutions while shopping for better terms. Contacts reported that automobile loans and mortgage originations grew at a robust pace. Deposits expanded further, and financial institutions had ample liquidity to cover risk. However, contacts noted that low interest rates and regulatory burdens have held down bank profitability. Credit quality improved further, with stronger household balance sheets contributing to a decline in loan delinquencies and charge-offs.
-
- Return to top 
-
- Other Formats
-
- PDF 
-
- More Information
-
- Beige Book Home 
-
- View Archive 
-
- Frequently Asked Questions 
-
- Last update: 
-
- January 13, 2016
-
- This page uses Javascript. Your browser either doesn't support Javascript or you have it turned off.
-
- To see this page as it is meant to appear please use a Javascript enabled browser.
-
- Related pages:
-
- Beige Book 2016 
-
- Beige Book 2015 
-
- Beige Book 2014 
-
- Beige Book 2013 
-
- Beige Book 2011 
-
- Beige Book 2010 
-
- Beige Book 2009 
-
- Beige Book 2008 
-
- Beige Book 2007 
-
- Beige Book 2006 
-
- Beige Book 2005 
-
- Beige Book 2004 
-
- Beige Book 2003 
-
- Beige Book 2002 
-
- Beige Book 2001 
-
- Beige Book 2000 
-
- Beige Book 1999 
-
- Beige Book 1998 
-
- Beige Book 1997 
-
- Beige Book 1996 
-
- Beige Book - November 30, 2016 Beige Book - October 19, 2016 Beige Book - September 7, 2016 Beige Book - July 13, 2016 Beige Book - June 1, 2016 Beige Book - April 13, 2016 Beige Book - March 2, 2016 Beige Book - January 13, 2016 Beige Book - December 2, 2015 Beige Book - October 14, 2015 Beige Book - September 2, 2015 Beige Book - July 15, 2015 Beige Book - June 3, 2015 Beige Book - April 15, 2015 Beige Book - March 4, 2015 Beige Book - January 14, 2015 Beige Book - December 3, 2014 Beige Book - October 15, 2014 Beige Book - September 3, 2014 Beige Book - July 16, 2014 Beige Book - June 4, 2014 Beige Book - April 16, 2014 Beige Book - March 5, 2014 Beige Book - January 15, 2014 Beige Book - December 4, 2013 Beige Book -- October 16, 2013 Beige Book - September 4, 2013 Beige Book - July 17, 2013 Beige Book - June 5, 2013 Beige Book - April 17, 2013 Beige Book - March 6, 2013 Beige Book - January 16, 2013 Beige Book - November 28, 2012 Beige Book - October 10, 2012 Beige Book - August 29, 2012 Beige Book - July 18, 2012 Beige Book - June 6, 2012 Beige Book - April 11, 2012 Beige Book - February 29, 2012 Beige Book - January 11, 2012 Beige Book - November 30, 2011 Beige Book - October 19, 2011 Beige Book - September 7, 2011 Beige Book - July 27, 2011 Beige Book - June 8, 2011 Beige Book - April 13, 2011 Beige Book - March 2, 2011 Beige Book - January 12, 2011 Beige Book - December 1, 2010 Beige Book - October 20, 2010 Beige Book - September 8, 2010 Beige Book - July 28, 2010 Beige Book - June 9, 2010 Beige Book - April 14, 2010 Beige Book - March 3, 2010 Beige Book - January 13, 2010 Beige Book - December 2, 2009 Beige Book - October 21, 2009 Beige Book - September 9, 2009 Beige Book - July 29, 2009 Beige Book - June 10, 2009 Beige Book - April 15, 2009 Beige Book - March 4, 2009 Beige Book - January 14, 2009 Beige Book - December 3, 2008 Beige Book - October 15, 2008 Beige Book - September 3, 2008 Beige Book - July 23, 2008 Beige Book - June 11, 2008 Beige Book - April 16, 2008 Beige Book - March 5, 2008 Beige Book - January 16, 2008 Beige Book - November 28, 2007 Beige Book - October 17, 2007 Beige Book - September 5, 2007 Beige Book - July 25, 2007 Beige Book - June 13, 2007 Beige Book - April 25, 2007 Beige Book - March 7, 2007 Beige Book - January 17, 2007 Beige Book - November 29, 2006 Beige Book - October 12, 2006 Beige Book - September 6, 2006 Beige Book - July 26, 2006 Beige Book - June 14, 2006 Beige Book - April 26, 2006 Beige Book - March 15, 2006 Beige Book - January 18, 2006 Beige Book - November 30, 2005 Beige Book - October 19, 2005 Beige Book - September 7, 2005 Beige Book - July 27, 2005 Beige Book - June 15, 2005 Beige Book - April 20, 2005 Beige Book - March 9, 2005 Beige Book - January 19, 2005 Beige Book - December 1, 2004 Beige Book - October 27, 2004 Beige Book - September 8, 2004 Beige Book - July 28, 2004 Beige Book - June 16, 2004 Beige Book - April 21, 2004 Beige Book - March 3, 2004 Beige Book - January 14, 2004 Beige Book - November 26, 2003 Beige Book - October 15, 2003 Beige Book - July 30, 2003 Beige Book - June 11, 2003 Beige Book - April 23, 2003 Beige Book - March 5, 2003 Beige Book - January 15, 2003 Beige Book - November 27, 2002 Beige Book - October 23, 2002 Beige Book - September 11, 2002 Beige Book - July 31, 2002 Beige Book - June 12, 2002 Beige Book - April 24, 2002 Beige Book - March 6, 2002 Beige Book - January 16, 2002 Beige Book - November 28, 2001 Beige Book - October 24, 2001 Beige Book - September 19, 2001 Beige Book - August 8, 2001 Beige Book - June 13, 2001 Beige Book - May 2, 2001 Beige Book - March 7, 2001 Beige Book - January 17, 2001 Beige Book - December 6, 2000 Beige Book - November 1, 2000 Beige Book - September 20, 2000 Beige Book - August 9, 2000 Beige Book - June 14, 2000 Beige Book - May 3, 2000 Beige Book - March 8, 2000 Beige Book - January 19, 2000 Beige Book - December 8, 1999 Beige Book - November 3, 1999 Beige Book - September 22, 1999 Beige Book - August 11, 1999 Beige Book - June 16, 1999 Beige Book - May 5, 1999 Beige Book - March 17, 1999 Beige Book - January 20, 1999 Beige Book - December 9, 1998 Beige Book - November 4, 1998 Beige Book - September 16,1998 Beige Book - August 5, 1998 Beige Book - June 17, 1998 Beige Book - May 6, 1998 Beige Book - March 18, 1998 Beige Book - January 21, 1998 Beige Book - December 3, 1997 Beige Book - October 29, 1997 Beige Book - September 17, 1997 Beige Book - August 6, 1997 Beige Book - June 18, 1997 Beige Book - May 7, 1997 Beige Book - March 12, 1997 Beige Book - January 22,1997 Beige Book - December 4, 1996 Beige Book - October 30, 1996 
-
- Home 
- | Monetary Policy 
-
- Accessibility 
- Contact Us 
- Disclaimer 
- Website Policies 
- FOIA 
-
- PDF Reader

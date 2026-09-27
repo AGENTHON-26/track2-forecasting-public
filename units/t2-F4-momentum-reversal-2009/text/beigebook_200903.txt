@@ -53,8 +53,6 @@ Residential real estate markets remained in the doldrums in most areas, with onl
 
  Upward wage pressures eased in all Districts, as a rising incidence of hiring freezes and continued job cuts increased the degree of labor market slack. Contacts from various Districts pointed to a higher incidence of wage freezes resulting from the added slack, with a few noting outright wage reductions. Some employers also reduced compensation by lowering benefit costs, including reduced contributions to employee retirement programs, according to the Philadelphia, Chicago, Minneapolis, and San Francisco Districts.
 
- Return to top 
-
  First District--Boston
 
  Economic activity continues to slow in the First District, with most manufacturers tallying year-over-year revenue declines, some of which are substantial. Both residential and commercial real estate markets in the region saw some further deterioration in recent months, while staffing and software firms report ongoing declines in demand. Retail results, by contrast, are somewhat mixed. Respondents across sectors say they are restraining compensation in multiple ways, and many firms have cut employment. Although pressures are downward, only a few contacts indicate they are reducing their selling prices; manufacturers say they are avoiding general price cuts either to protect margins or because they foresee little demand responsiveness. 
@@ -101,8 +99,6 @@ Home sales and prices showed steep declines across the New England region in Dec
 
  Contacts are generally optimistic regarding the tax credit included in the stimulus package. Even though the new $8,000 credit is still available only for new homebuyers, they are pleased that Congress removed the payback requirement that was part of the 2008 $7,500 credit.
 
- Return to top 
-
  Second District--New York
 
  The Second District's economy has weakened noticeably since the last report. In general, contacts in both the manufacturing and non-manufacturing sectors report broad-based deterioration in general business conditions in recent weeks and most do not anticipate improvement in the months ahead. In particular, contacts report widespread softening in the labor market, especially in New York City. Retail sales were sluggish in January, though not down as sharply as in December, while consumer confidence remained near record lows. Tourism activity in New York City weakened substantially in January and in early February. Both residential and commercial real estate markets deteriorated since the last report, though housing markets in parts of upstate New York appeared relatively stable. Finally, bankers report that refinancing stabilized demand for home mortgages but that demand for other categories of loans declined further; they also report further tightening in credit standards and higher delinquency rates--especially on loans to the household sector. 
@@ -128,8 +124,6 @@ Home sales and prices showed steep declines across the New England region in Dec
 
  Financial Developments 
  Small to medium-sized banks report weakening demand for loans in all categories except residential mortgages, for which demand was little changed. The percentage of bankers reporting weakened demand ranged from 39 percent in the consumer loan category to 45 percent in the commercial and industrial loan category. Bankers reported an increase in the refinancing rate; 42 percent of bankers reported an increase while 8 percent reported a decrease. For all loan categories, respondents indicate tightening credit standards--most notably in the residential mortgage category. No banker reported an easing of credit standards for any loan category. Respondents note a decrease in the spreads of loan rates over cost of funds for the residential mortgage category but increased spreads for the commercial mortgage segment. Spreads were generally steady for all other loan categories. Contacts indicate a decrease in the average deposit rate. Finally, bankers report increased delinquency rates across the board, but most notably for consumer loans.
-
- Return to top 
 
  Third District--Philadelphia
 
@@ -163,8 +157,6 @@ Home sales and prices showed steep declines across the New England region in Dec
 
  Firms in a wide range of industries reported they were implementing salary freezes or reductions and cutting back on fringe benefits, including 401-K matching contributions. A growing number of employers in the region have announced hiring freezes as well as immediate and prospective layoffs. Several firms that reported they intended to maintain staffing levels noted that they were reducing hours, imposing unpaid furloughs, or scheduling temporary plant shutdowns in order to reduce wage bills. 
 
- Return to top 
-
  Fourth District--Cleveland
 
  Economic activity in the Fourth District has weakened further since our last report. The downward trend in factory output and steel shipments that began late in the third quarter of 2008 continued. Residential construction remains very weak, with no improvement expected during 2009, while commercial builders reported a significant slowdown in construction activity. Sales by District retailers did show a slight improvement, but purchases of new motor vehicles remained at very low levels. Even though industrial demand has been falling, there was little change in energy production. Freight transport volume remains at low levels. Finally, regional bankers told us that commercial and industrial lending is flat to down, while community banks experienced some growth in C&I loans. 
@@ -192,8 +184,6 @@ Home sales and prices showed steep declines across the New England region in Dec
 
  Transportation 
  Shipping volumes for freight transport service companies remained at low levels, with little volume change over the past six weeks. On a year-over-year basis, January shipments were down 15 percent on average. The only market segment exhibiting some stability was energy, particularly coal. Expectations call for activity to remain at current levels or to decline further during 2009. Few problems in collecting on accounts receivable were reported, other than some slowdown in payments. Several trucking executives noted a small increase in the price of diesel fuel and significant increases in turnpike tolls, which they are unable to pass through to customers. Little change in capital spending was reported; though most companies have reduced expenditures to the replacement level. Several trucking executives are laying off drivers as part of their capacity reduction plans, while others did not replace drivers who have left voluntarily. 
-
- Return to top 
 
  Fifth District--Richmond
 
@@ -227,8 +217,6 @@ Home sales and prices showed steep declines across the New England region in Dec
  Agriculture 
  Colder-than-normal temperatures, combined with relatively low precipitation, hindered crop development in some parts of the District. For example, a contact in Virginia reported that colder temperatures and below-average precipitation had slowed small grain growth. At the same time, other farmers benefited from the moderately dry weather, such as farmers in southern areas of the District who were able to get an early start on land preparation.
 
- Return to top 
-
  Sixth District--Atlanta
 
  Sixth District economic activity weakened further in January and early February compared with late 2008. Most retail contacts reported that consumer spending declined more than expected. Residential real estate contacts noted that sales continued to slide, although at a more modest pace than last reported. Residential construction levels remained at very low levels. The outlook among commercial real estate contacts worsened as vacancy rates continued to rise. Manufacturing contacts noted further reductions in orders and production. By most accounts, business and consumer access to credit remained tight and loan demand was generally weak. Labor market conditions worsened as more businesses reported cutbacks in hours and layoffs. Price pressures remained subdued throughout the District. 
@@ -261,8 +249,6 @@ Home sales and prices showed steep declines across the New England region in Dec
 
  Most of the District received much needed rainfall in January. However some areas in Alabama and Florida continued to report poor soil moisture conditions. The Districts' poultry and cotton producing industries continued to be affected by lower global demand. The recent salmonella outbreak had a significantly negative effect on the local peanut industry, and the severe drop in consumption and uncertain outlook threatens the economies of several rural communities where major production facilities are located.
 
- Return to top 
-
  Seventh District--Chicago
 
  Economic activity in the Seventh District remained weak in January and February. The expectation of most contacts was for economic activity to remain weak into late 2009 before slowly beginning to recover in 2010. Consumer spending, construction, and manufacturing activity continued to decline, and labor market conditions deteriorated further. Credit conditions remained tight. Price and wage pressures tilted toward the downside. Most key agricultural prices decreased during the reporting period.
@@ -288,8 +274,6 @@ Contacts reported closely monitoring margins given ongoing declines in the deman
  Agriculture 
 Most agricultural commodity prices fell since the previous reporting period. Crop prices moved down and were substantially lower than a year ago. Farmers continued to store more corn and soybeans than last year given the current lower prices. Farmland cash rents and input costs for crop production have not decreased as much as crop prices, so farmers faced added pressures in making plans for 2009. Some farms may incur significant losses, even at cash prices above the triggers of the government safety net. Spring planting intentions remained somewhat uncertain, though shifts toward soybeans and away from corn are likely to occur. Hog prices increased, but dairy and cattle prices declined from the previous reporting period. Even with recent below normal precipitation in some areas, almost the entire District had plentiful levels of ground water heading into the spring.
 
- Return to top 
-
  Eighth District--St. Louis
 
  The economy of the Eighth District weakened further since our previous report. Retail and auto sales were lower in January and early February compared with a year ago. Manufacturing activity continued to decrease and activity in the services sector declined in most District areas. Residential real estate markets continue to be weak. Reports from commercial and industrial real estate market contacts were mixed. Overall lending at a sample of large District banks decreased moderately.
@@ -314,8 +298,6 @@ Most agricultural commodity prices fell since the previous reporting period. Cro
 
  Agriculture and Natural Resources 
  Total production of corn, sorghum, and cotton decreased from 2007 to 2008, while total production of soybeans, winter wheat, and tobacco increased, and total production of rice did not change. The prices of winter wheat, rice, and tobacco increased from 2007 to 2008 in all District states that produced them, while the prices of corn, sorghum, and cotton were mixed among states, and the price of soybeans was down in most states. The total value of field crops in District states fell by 1 percent from 2007 to 2008.
-
- Return to top 
 
  Ninth District--Minneapolis
 
@@ -350,8 +332,6 @@ Most agricultural commodity prices fell since the previous reporting period. Cro
 
  Prices remained relatively stable since the last report; many prices were lower compared with a year ago. Minnesota gasoline prices in mid-February were about 35 cents higher than at the end of December, but were about $1 lower than a year ago. Metal prices remained much lower than a year ago after decreasing sharply last fall. 
 
- Return to top 
-
  Tenth District--Kansas City
 
  Economic conditions in the Tenth District continued to deteriorate in January and early February. Consumers retrenched further, shying away from durable goods and curtailing restaurant dining and travel. Manufacturing activity and capital spending weakened further, and the decline in real estate activity intensified as construction weakened further and home prices maintained their downward trend. Energy activity dampened significantly as drilling waned and rig counts hit five-year lows. Farm incomes declined with crop and livestock prices. Lack of demand and wide availability put downward pressure on prices of raw materials and finished goods, but wages and salaries remained steady.
@@ -376,8 +356,6 @@ Agricultural conditions varied with precipitation levels in late January and Feb
 
  Wages and Prices 
 Hiring retrenched in January and early February as businesses struggled to contain costs and respond to faltering demand in the slowing economy. Nevertheless, wages and salaries held steady. Prices continued to ease. Raw materials were widely available for construction and manufacturing enterprises, which put downward pressure on input prices, especially for lumber. Manufacturers reported reduced prices for finished goods, and retailers largely reported lower prices as well. 
-
- Return to top 
 
  Eleventh District--Dallas
 
@@ -428,8 +406,6 @@ Hiring retrenched in January and early February as businesses struggled to conta
  Agriculture 
 The dry spell continues to grip much of the District. Wheat and oat crops are suffering from lack of moisture. Grazing conditions are poor as well, and most ranchers reported the supplemental feeding of livestock. Hay stocks are low and feed costs remain high, forcing some ranchers to cull their herds. District dairy producers report weak conditions. A stronger dollar and weak export demand led to declines in milk prices. 
 
- Return to top 
-
  Twelfth District--San Francisco
 
  Economic activity in the Twelfth District slowed further during the survey period of January through late February. Upward price pressures continued to ease in general along with the prices of energy and other commodities, and upward wage pressures were virtually nonexistent. Retail sales remained very sluggish with the exception of necessities such as basic groceries, and demand weakened further for service providers. District manufacturing activity continued to decline on net. Demand weakened for agricultural producers and fell further for oil extractors. District housing markets remained moribund, and demand for commercial real estate continued to fall. Contacts from financial institutions reported further weakening in loan demand and continued tight credit conditions. 
@@ -454,14 +430,4 @@ Retail sales remained anemic. Consumers continued to shift away from discretiona
  Activity in the District's housing markets remained mired at very low levels, and considerable demand declines were reported for commercial real estate. The pace of home sales stayed very slow in most areas, despite some pickup in recent months as price declines have increased affordability, and construction of new homes was limited. Conditions in the commercial office market deteriorated noticeably, as leasing activity slowed further and vacancy rates continued to rise. Contacts reported that restricted credit availability has held down construction activity in both sectors of late. Construction projects funded by state and local governments fell further during the survey period as a result of budgetary constraints. 
 
  Financial Institutions 
- District banking contacts reported that loan demand continued to weaken and credit conditions remained tight. Many businesses have scaled back their capital investment plans, causing demand for commercial and industrial loans to fall further, and the market for commercial and residential real estate loans continued to wane. Declining asset values and rising loan losses caused banks and other financial institutions, such as money management firms, to scale back activity and lay off significant numbers of employees. Credit quality continued to deteriorate, as weakness in corporate and household borrowers' balance sheets and income statements deepened, and bank lending standards remained stringent on net. 
-
- Return to top 
-
- Home | Monetary Policy | 
-
- 2009 calendar 
-
- Accessibility | Contact Us 
-
-Last update: March 4, 2009
+ District banking contacts reported that loan demand continued to weaken and credit conditions remained tight. Many businesses have scaled back their capital investment plans, causing demand for commercial and industrial loans to fall further, and the market for commercial and residential real estate loans continued to wane. Declining asset values and rising loan losses caused banks and other financial institutions, such as money management firms, to scale back activity and lay off significant numbers of employees. Credit quality continued to deteriorate, as weakness in corporate and household borrowers' balance sheets and income statements deepened, and bank lending standards remained stringent on net.

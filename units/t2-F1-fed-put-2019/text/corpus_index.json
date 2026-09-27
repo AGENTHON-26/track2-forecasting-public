@@ -18,6 +18,20 @@
       "file": "fomc_statement_20190501.txt"
     },
     {
+      "doc_id": "macro_release-2019-05-03",
+      "timestamp": "2019-05-03",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "empsit_2019-05-03.txt"
+    },
+    {
+      "doc_id": "macro_release-2019-05-10",
+      "timestamp": "2019-05-10",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "cpi_2019-05-10.txt"
+    },
+    {
       "doc_id": "fomc-minutes-20190501",
       "timestamp": "2019-05-22",
       "source": "Federal Reserve",

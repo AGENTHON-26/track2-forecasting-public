@@ -4,7 +4,7 @@
 at horizons [21] BD · unit `thousands of jobs (PAYEMS, as-published first-release vintage)` · split public-dev
 
 Inputs mounted read-only: `/input/panels/macro_monthly.parquet` (rows only through
-the as-of date) and `/input/text/` (3 dated documents, all timestamps <= as-of;
+the as-of date) and `/input/text/` (6 dated documents, all timestamps <= as-of;
 see `text/corpus_index.json`).
 
 Produce `forecast.parquet` with columns `[draw:int32, asset:string, horizon:int32,

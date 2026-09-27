@@ -71,12 +71,12 @@ end_date   = "2013-05-24"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches (full archive); Federal Reserve; official (see landmarks index)"
+source         = "BIS central bankers' speeches (full archive); BLS/BEA news release; Federal Reserve; official (see landmarks index)"
 path           = "text/"
 cutoff         = "2013-05-24"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement", "landmark"]
-n_documents    = 4
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "landmark", "macro_release"]
+n_documents    = 6
 notes          = "Two regime texts converge on one currency: the Fed's purchase-pace language (global funding) and the RBA's own easing bias as the mining-investment boom rolls over (domestic cycle). Both point the same way — the card tests whether agents SIZE a move when signals align, rather than hedging to symmetry."
 
 [targets]

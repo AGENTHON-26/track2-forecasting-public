@@ -25,6 +25,20 @@
       "file": "bis_lowe_2016-09-22.txt"
     },
     {
+      "doc_id": "macro_release-2016-10-07",
+      "timestamp": "2016-10-07",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "empsit_2016-10-07.txt"
+    },
+    {
+      "doc_id": "fomc-minutes-20160921",
+      "timestamp": "2016-10-12",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20160921_released_2016-10-12.txt"
+    },
+    {
       "doc_id": "bis_lowe_2016-10-18",
       "timestamp": "2016-10-18",
       "source": "BIS central bankers' speeches (full archive)",

@@ -11,6 +11,13 @@
       "file": "fomc_statement_20211103.txt"
     },
     {
+      "doc_id": "macro_release-2021-12-10",
+      "timestamp": "2021-12-10",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "cpi_2021-12-10.txt"
+    },
+    {
       "doc_id": "fomc_statement_20211215",
       "timestamp": "2021-12-15",
       "source": "official (see landmarks index)",

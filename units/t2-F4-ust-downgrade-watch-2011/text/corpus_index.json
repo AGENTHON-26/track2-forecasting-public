@@ -39,6 +39,13 @@
       "file": "bis_smaghi_2011-07-08.txt"
     },
     {
+      "doc_id": "fomc-minutes-20110622",
+      "timestamp": "2011-07-13",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20110622_released_2011-07-13.txt"
+    },
+    {
       "doc_id": "macro_release-2011-07-15",
       "timestamp": "2011-07-15",
       "source": "BLS",

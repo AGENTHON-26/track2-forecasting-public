@@ -25,6 +25,13 @@
       "file": "fomc_statement_20080805.txt"
     },
     {
+      "doc_id": "fomc-minutes-20080805",
+      "timestamp": "2008-08-26",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20080805_released_2008-08-26.txt"
+    },
+    {
       "doc_id": "bis_hoenig_2008-09-01",
       "timestamp": "2008-09-01",
       "source": "BIS central bankers' speeches",

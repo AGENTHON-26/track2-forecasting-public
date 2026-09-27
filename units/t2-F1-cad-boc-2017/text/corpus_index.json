@@ -32,6 +32,20 @@
       "file": "fomc_statement_20170614.txt"
     },
     {
+      "doc_id": "macro_release-2017-06-14",
+      "timestamp": "2017-06-14",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "cpi_2017-06-14.txt"
+    },
+    {
+      "doc_id": "fomc-minutes-20170614",
+      "timestamp": "2017-07-05",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20170614_released_2017-07-05.txt"
+    },
+    {
       "doc_id": "bis_poloz_2017-07-12",
       "timestamp": "2017-07-12",
       "source": "BIS central bankers' speeches (full archive)",

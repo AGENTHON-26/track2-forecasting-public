@@ -73,12 +73,12 @@ end_date   = "2008-09-12"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches; Federal Reserve"
+source         = "BIS central bankers' speeches; BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2008-09-12"
 cutoff_checked = true
 doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "macro_release"]
-n_documents    = 7
+n_documents    = 8
 notes          = "Same Friday as-of as the 2Y card, long-end target: systemic-risk text against a flight-to-quality channel PLUS a supply channel (rescue financing) pulling the opposite way. The 10Y tail is two-sided where the 2Y tail is one-sided — the pair tests whether agents differentiate tenors under the same corpus."
 
 [targets]

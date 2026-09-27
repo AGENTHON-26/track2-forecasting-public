@@ -33,6 +33,13 @@
       "file": "cpi_2019-10-10.txt"
     },
     {
+      "doc_id": "beige_book-2019-10-16",
+      "timestamp": "2019-10-16",
+      "source": "Federal Reserve (Beige Book)",
+      "doc_type": "beige_book",
+      "file": "beigebook_201910.txt"
+    },
+    {
       "doc_id": "fomc-statement-2019-10-30",
       "timestamp": "2019-10-30",
       "source": "Federal Reserve",
