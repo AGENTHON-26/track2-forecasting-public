@@ -1075,6 +1075,7 @@ _FAMILY_FOCUS: dict[str, str] = {
     #      "routine" although the warning was in their summaries -- one bullet among many routine
     #      ones about rates on hold. v4 says one such bullet is enough for 2.0+, and that "on hold"
     #      does not cancel it. Answers of 2.0+ went from 6% to 69%; those four cards now get 1.8-2.5.
+    #      Direction on the >2-sigma cards improved too: 10 right / 1 wrong (v3: 6 / 4).
     #
     # Measured (29 cards, 3 model runs x 3 draw seeds, random walk base, lower is better):
     #   random walk 0.4560 | previous paragraph 0.4200 (with floor) | v3 0.3603 | v4 0.3296

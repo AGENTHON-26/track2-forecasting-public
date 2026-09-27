@@ -275,7 +275,8 @@ is enough for 2.0+, "on hold" does not cancel it. Same protocol as above.
 | v4 + agreement gate on drift | 0.3291 | 0.2292 | 0.4363 |
 | shipped code path (median-of-3, fallback floor) | 0.3277 | | |
 
-Width answers of 2.0+: v3 6%, v4 69%. The four missed cards now get 1.8-2.5.
+Width answers of 2.0+: v3 6%, v4 69%. The four missed cards now get 1.8-2.5. Direction on the cells
+that moved more than 2 sigma: previous prompt 3 right / 7 wrong, v3 6 / 4, v4 10 / 1.
 
 Decisions: the 1.5 floor is now a FALLBACK (`forecast_models._text_was_silent`): it applies only
 when every asset on the card came back exactly neutral, i.e. the text half failed. That keeps
