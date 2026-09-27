@@ -398,6 +398,25 @@ class TestStage2Thinking(unittest.TestCase):
         self.assertIsNone(ts._extract_json_object('{"assets": [1, 2]]}x'))  # a real list: left alone
 
 
+class TestF4Prompt(unittest.TestCase):
+    _CTX = {"asof": "2007-07-20", "horizons": [21], "value_unit": "jpy_per_usd", "target_type": "level",
+            "family": "F4", "level": {"JPY": 121.15}, "sigma": {"JPY": 2.39}, "sigma_horizon": 21}
+
+    def test_f4_prompt_carries_the_width_scale_and_structure_rules(self):
+        system, _ = ts.build_adjustment_prompt([], ["JPY"], self._CTX)
+        self.assertIn("2.5-3.0 says they describe a shock in progress", system)
+        self.assertIn("a crowded position unwinds AGAINST the crowd", system)
+        self.assertIn("range [1.0, 3.0]", system)
+
+    def test_f4_width_range_is_1_to_3(self):
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 5.0, "skew": 0.0}}}
+        adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
+        self.assertEqual(adj["JPY"]["widen"], 3.0)
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 0.7, "skew": 0.0}}}
+        adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
+        self.assertEqual(adj["JPY"]["widen"], 1.0)
+
+
 class TestStage1Cache(unittest.TestCase):
     def test_second_call_is_served_from_cache_and_key_tracks_the_prompt(self):
         doc = {"doc_id": "d1", "doc_type": "fomc_minutes", "timestamp": "2024-01-01",

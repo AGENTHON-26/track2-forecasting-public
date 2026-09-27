@@ -168,7 +168,14 @@ _SKEW_CLAMP = (-1.0, 1.0)
 #: wider joint distribution has wider gaps between every pair of cells, and gaps are what is
 #: scored. Other families keep the wide clamp: F4 is single-cell (the joint weight is
 #: redistributed away entirely) and is scored on exactly the tail that widening helps.
-_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25)}
+_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (1.0, 3.0)}
+#: F4 v3 (2026-09-26): vol_scale 1.0 routine / 1.5-2.0 warning / 2.5-3.0 shock in progress, and
+#: never below 1.0 on this family. Measured on the 29 realized F4 cards, thinking on, 3 runs x 3
+#: draw seeds, with the 1.5 floor in forecast_models: 0.3562 vs 0.4085 floor-only and 0.4200 for
+#: the previous F4 paragraph; better on both odd/even halves, 15 wins / 11 losses. The gain is
+#: drift (width + drift alone 0.3525; skew adds nothing) and is concentrated in JPY carry 2007,
+#: JPY crowding 2024 and SVB 2023 -- the cards the market-structure rules were written around,
+#: so expect less on unseen cards.
 
 
 def _widen_clamp(family: str | None) -> tuple[float, float]:
@@ -1046,12 +1053,24 @@ _FAMILY_FOCUS: dict[str, str] = {
         "than a smaller, consistent set."
     ),
     "F4": (
-        "This is an F4 (tail/shock-from-text) card: the tail penalty is the primary score (20% "
-        "weight). The recent numeric history may look calm -- that is exactly what this family "
-        "tests. If the summaries foreshadow a shock (a surprise reading, an urgent tone, a "
-        "warning of exceptional measures), widen vol_scale and use skew to point the "
-        "distribution toward the side the shock would move prices, even if drift_sd itself stays "
-        "modest -- the tail, not the center, is what this card is scored on."
+        "This is an F4 (tail/shock-from-text) card. The card exists because the documents "
+        "foreshadow a shock that the recent numeric history does not show, and the tail "
+        "penalty -- pinball loss at the 1st/5th/95th/99th percentiles, a DISTANCE -- is the "
+        "primary score. The statistical forecast's width comes from calm history and is "
+        "almost always too narrow here. vol_scale is your main lever: 1.0 says the documents "
+        "are routine, 1.5-2.0 says they carry a warning, 2.5-3.0 says they describe a shock "
+        "in progress (a peg or floor being defended, emergency measures, funding or "
+        "liquidity stress, a crowded position, an unscheduled policy response). Answering "
+        "vol_scale 1.0 on this family is a design failure unless the summaries are genuinely "
+        "routine.\nDirection (skew, and drift_sd) matters too, but only commit when the "
+        "mechanism is clear. Market structure, not central-bank tone, decides these: (a) a "
+        "crowded position unwinds AGAINST the crowd -- a months-long net short is a coiled "
+        "rally in that asset, a crowded long a coiled sell-off; (b) a peg, floor or cap that "
+        "officials say they will defend is under strain, and the break goes the way the "
+        "market was pushing; (c) funding or liquidity stress sends Treasury yields DOWN and "
+        "safe havens (USD, JPY, CHF) UP whatever the last statement said about inflation; "
+        "(d) a taper or hike warning before the move sends yields UP. If none of these "
+        "applies, keep skew 0 and let vol_scale carry the answer."
     ),
     "default": (
         "Treat this like a general macro forecasting card: weigh the summaries for anything "
