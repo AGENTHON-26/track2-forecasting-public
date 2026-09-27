@@ -168,7 +168,35 @@ _SKEW_CLAMP = (-1.0, 1.0)
 #: wider joint distribution has wider gaps between every pair of cells, and gaps are what is
 #: scored. Other families keep the wide clamp: F4 is single-cell (the joint weight is
 #: redistributed away entirely) and is scored on exactly the tail that widening helps.
-_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25)}
+_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (1.5, 3.0)}
+
+#: F4 is WIDTH-ONLY (Nish, 2026-09-26). Measured on the 29 realized F4 cards with thinking on:
+#: the model's direction is right 3 / wrong 7 on the cells that moved >2 sigma, seven cells flip
+#: sign between identical runs, and its vol_scale never left 0.8-1.3 against a cap of 2.0. Width
+#: cannot point the wrong way and is what the family is scored on, so stage 2 asks F4 for ONE
+#: categorical answer and the code maps it; drift and skew are forced to 0 for the family.
+_F4_WIDTH_BANDS: dict[str, float] = {"routine": 1.5, "warning": 2.0, "shock": 3.0}
+
+
+def _f4_to_numeric(raw: dict[str, Any], assets: list[str]) -> dict[str, Any]:
+    """An F4 reply {asset: {"width": "routine|warning|shock", ...}} -> the numeric schema the
+    median and `to_adjustments` already understand: drift 0, skew 0, vol_scale = the band."""
+    per = _normalize_reply(raw, assets)
+    out: dict[str, Any] = {}
+    for a in assets:
+        spec = per.get(a)
+        if not isinstance(spec, dict):
+            continue
+        band = str(spec.get("width", spec.get("vol_scale", "routine"))).strip().lower()
+        if band not in _F4_WIDTH_BANDS:
+            try:  # a numeric vol_scale from an older-style reply: snap to the nearest band
+                v = float(band)
+                band = min(_F4_WIDTH_BANDS, key=lambda k: abs(_F4_WIDTH_BANDS[k] - v))
+            except ValueError:
+                band = "routine"
+        out[a] = {"drift_sd": 0.0, "vol_scale": _F4_WIDTH_BANDS[band], "skew": 0.0,
+                  "width": band, "evidence": spec.get("evidence", "")}
+    return {"assets": out}
 
 
 def _widen_clamp(family: str | None) -> tuple[float, float]:
@@ -243,7 +271,14 @@ def _stage2_sample(system: str, user: str, family: str | None,
             return None, f"did not parse: {content[:120]!r}; retry: {err2}"
     if raw is None:
         return None, f"did not parse: {content[:120]!r}"
+    if str(family) == "F4":
+        raw = _f4_to_numeric(raw, _reply_assets(raw))
     return raw, ""
+
+
+def _reply_assets(raw: dict[str, Any]) -> list[str]:
+    inner = raw.get("assets") if isinstance(raw.get("assets"), dict) else raw
+    return [k for k, v in inner.items() if isinstance(v, dict)] if isinstance(inner, dict) else []
 
 
 # ----------------------------------------------------------------------------- the entry point
@@ -1046,12 +1081,23 @@ _FAMILY_FOCUS: dict[str, str] = {
         "than a smaller, consistent set."
     ),
     "F4": (
-        "This is an F4 (tail/shock-from-text) card: the tail penalty is the primary score (20% "
-        "weight). The recent numeric history may look calm -- that is exactly what this family "
-        "tests. If the summaries foreshadow a shock (a surprise reading, an urgent tone, a "
-        "warning of exceptional measures), widen vol_scale and use skew to point the "
-        "distribution toward the side the shock would move prices, even if drift_sd itself stays "
-        "modest -- the tail, not the center, is what this card is scored on."
+        "This is an F4 (tail/shock-from-text) card. Every card in this family was built because "
+        "the documents foreshadow a shock that the recent numbers do not show, and it is scored on "
+        "how far the realized outcome falls outside the forecast's tails -- a distance, so a "
+        "too-narrow forecast is charged in proportion to the miss, on whichever side it lands. "
+        "Your ONLY job here is the width. Do not try to call the direction: on this family the "
+        "documents rarely settle it, and the code keeps the centre where the statistical forecast "
+        "put it.\n"
+        "Read the summaries for: a peg, floor or cap that officials say they will defend; "
+        "emergency, exceptional or unscheduled measures; funding, liquidity or banking stress; a "
+        "position that has been one-sided for months; a policy warning that markets have not yet "
+        "moved on; a surprise reading or an urgent tone. Then answer ONE word per asset:\n"
+        "  routine : the summaries are ordinary, nothing above points at this asset.\n"
+        "  warning : at least one summary carries a real warning that touches this asset.\n"
+        "  shock   : the summaries describe stress, strain or exceptional measures in progress.\n"
+        "Answering routine when a summary does describe strain is the failure this family is "
+        "designed to catch; answering shock on ordinary documents costs little. When in doubt "
+        "between two bands, take the wider one."
     ),
     "default": (
         "Treat this like a general macro forecasting card: weigh the summaries for anything "
@@ -1065,6 +1111,19 @@ def build_adjustment_prompt(
     summaries: list[dict[str, Any]], assets: list[str], ctx: dict[str, Any]
 ) -> tuple[str, str]:
     """(system, user). system carries the persistent rules and schema; user carries the case."""
+    if ctx.get("family") == "F4":
+        system = (
+            "You are a macro forecaster setting the WIDTH of a statistical forecast using document "
+            f"summaries. As-of date: {ctx['asof']}. Reason from the summaries given.\n\n"
+            f"{_FAMILY_FOCUS['F4']}\n\n"
+            "Every asset listed below must appear as a key. Reply with JSON only, no prose, no "
+            "markdown fence:\n"
+            '{"assets": {'
+            + ", ".join(f'"{a}": {{"width": "routine|warning|shock", "evidence": "<=15 words"}}'
+                        for a in assets)
+            + "}}"
+        )
+        return system, _adjustment_user_text(summaries, assets, ctx)
     system = (
         "You are a macro forecaster adjusting a statistical forecast using document summaries. "
         f"As-of date: {ctx['asof']}. Reason from the summaries given.\n\n"
@@ -1112,6 +1171,12 @@ def build_adjustment_prompt(
         + "}}"
     )
 
+    return system, _adjustment_user_text(summaries, assets, ctx)
+
+
+def _adjustment_user_text(summaries: list[dict[str, Any]], assets: list[str],
+                          ctx: dict[str, Any]) -> str:
+    """The case: target, per-asset level/sigma, cross-asset numbers, then the summaries."""
     lines = [
         f"Target: {ctx['target_type']} of each asset, {ctx['horizons']} business days after the as-of.",
         f"Value unit: {ctx['value_unit']}",
@@ -1158,7 +1223,7 @@ def build_adjustment_prompt(
     lines += ["", f"Document summaries ({len(summaries)}), newest first:"]
     for s in summaries:
         lines += [f"--- {s['doc_id']} | {s['timestamp']} | {s['doc_type']} ---", s["summary"], ""]
-    return system, "\n".join(lines)
+    return "\n".join(lines)
 
 
 def _log_ledger(ledger: dict[str, Any], assets: list[str], ctx: dict[str, Any]) -> None:
@@ -1372,10 +1437,13 @@ def to_adjustments(
         else:
             shift = clamped_drift * sigma
 
+        if ctx.get("family") == "F4":  # width-only family: see _F4_WIDTH_BANDS
+            shift, skew_c, clamped_drift = 0.0, 0.0, 0.0
         adjustments[a] = {"shift": float(shift), "widen": float(vol_c), "skew": float(skew_c)}
         ledger[a] = {
             **adjustments[a],
             "drift_sd": clamped_drift,
+            **({"width": spec.get("width")} if spec.get("width") else {}),
             "sigma": sigma,
             "because": str(spec.get("evidence") or "")[:300],
             "note": note,

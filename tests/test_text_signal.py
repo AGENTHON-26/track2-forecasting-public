@@ -398,6 +398,43 @@ class TestStage2Thinking(unittest.TestCase):
         self.assertIsNone(ts._extract_json_object('{"assets": [1, 2]]}x'))  # a real list: left alone
 
 
+class TestF4WidthOnly(unittest.TestCase):
+    _CTX = {"asof": "2007-07-20", "horizons": [21], "value_unit": "jpy_per_usd", "target_type": "level",
+            "family": "F4", "level": {"JPY": 121.15}, "sigma": {"JPY": 2.39}, "sigma_horizon": 21}
+
+    def test_f4_prompt_asks_for_one_word_and_no_direction(self):
+        system, user = ts.build_adjustment_prompt([], ["JPY"], self._CTX)
+        self.assertIn('"width": "routine|warning|shock"', system)
+        self.assertNotIn("drift_sd", system)
+        self.assertNotIn("skew", system)
+        self.assertIn("JPY: level", user)
+
+    def test_bands_map_to_width_and_direction_is_zero(self):
+        for band, widen in (("routine", 1.5), ("warning", 2.0), ("shock", 3.0), ("SHOCK ", 3.0)):
+            raw = ts._f4_to_numeric({"assets": {"JPY": {"width": band, "evidence": "x"}}}, ["JPY"])
+            adj, ledger = ts.to_adjustments(raw, ["JPY"], self._CTX)
+            self.assertEqual(adj["JPY"], {"shift": 0.0, "widen": widen, "skew": 0.0}, band)
+        self.assertEqual(ledger["JPY"]["width"], "shock")
+
+    def test_unknown_band_and_numeric_replies_are_handled(self):
+        raw = ts._f4_to_numeric({"assets": {"JPY": {"width": "huge"}}}, ["JPY"])
+        self.assertEqual(raw["assets"]["JPY"]["vol_scale"], 1.5)  # unknown word -> routine
+        raw = ts._f4_to_numeric({"assets": {"JPY": {"vol_scale": 2.4}}}, ["JPY"])
+        self.assertEqual(raw["assets"]["JPY"]["vol_scale"], 2.0)  # old numeric style snaps
+
+    def test_f4_forces_zero_direction_even_on_numeric_reply(self):
+        raw = {"assets": {"JPY": {"drift_sd": 1.0, "vol_scale": 2.0, "skew": -0.5}}}
+        adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
+        self.assertEqual(adj["JPY"], {"shift": 0.0, "widen": 2.0, "skew": 0.0})
+
+    def test_sample_converts_f4_reply_before_median(self):
+        reply = json.dumps({"assets": {"JPY": {"width": "warning", "evidence": "e"}}})
+        with mock.patch.object(ts, "call_model", return_value=(reply, "")):
+            raw, err = ts._stage2_sample("s", "u", "F4", None)
+        self.assertEqual(raw["assets"]["JPY"]["vol_scale"], 2.0)
+        self.assertEqual(raw["assets"]["JPY"]["drift_sd"], 0.0)
+
+
 class TestStage1Cache(unittest.TestCase):
     def test_second_call_is_served_from_cache_and_key_tracks_the_prompt(self):
         doc = {"doc_id": "d1", "doc_type": "fomc_minutes", "timestamp": "2024-01-01",
