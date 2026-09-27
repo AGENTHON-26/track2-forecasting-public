@@ -860,6 +860,11 @@ def load_context(text_dir: pathlib.Path, assets: list[str]) -> dict[str, Any]:
     return ctx
 
 
+#: OFF until measured on F1 (2026-09-26): the M2-centre context below is built and unit-tested,
+#: but no F1 sweep has scored it yet, so it ships disabled rather than untested.
+_MODEL_CONTEXT_ON = False
+
+
 def _model_context(unit: pathlib.Path, assets: list[str], ctx: dict[str, Any]) -> None:
     """On the cards whose base is a fitted model (F1 level -> M2), show stage 2 the model's own
     centre and width, and make `sigma` the model's sigma at the shortest horizon.
@@ -870,7 +875,7 @@ def _model_context(unit: pathlib.Path, assets: list[str], ctx: dict[str, Any]) -
     any failure leaves the walk-based level/sigma in place and no `model_centre` key, and the
     prompt then reads exactly as before.
     """
-    if ctx.get("family") != "F1" or ctx.get("target_type") != "level":
+    if not _MODEL_CONTEXT_ON or ctx.get("family") != "F1" or ctx.get("target_type") != "level":
         return
     try:
         import forecast_agent
@@ -1054,34 +1059,36 @@ _FAMILY_FOCUS: dict[str, str] = {
     #
     # What the previous, three-sentence paragraph produced (29 realized F4 cards, thinking on):
     #   - vol_scale always 0.8-1.3, never near the 2.0 cap, even on cards that moved 3-8 sigma.
-    #     The prompt gave a range but no meaning for any point in it, and the JSON template shows
+    #     It gave a range but no meaning for any point in it, and the JSON template shows
     #     "vol_scale": 1.0, so the model hugged 1.0.
-    #   - direction right 3 / wrong 7 on the cards that moved more than 2 sigma. It reasoned from
-    #     central-bank TONE ("inflation worries, so yields up"), which is the wrong frame for a
-    #     shock: 2008 funding stress, the 2011 downgrade watch and SVB all went the other way.
+    #   - direction right 3 / wrong 7 on the cards that moved more than 2 sigma: it reasoned from
+    #     central-bank TONE ("inflation worries, so yields up"), the wrong frame for a shock.
     #
-    # Why this version works:
-    #   1. It gives the numbers meanings: 1.0 routine, 1.5-2.0 warning, 2.5-3.0 shock in progress,
-    #      with a list of what a shock looks like. The model then used 1.0-2.5 instead of 0.8-1.3.
-    #   2. It replaces tone with market STRUCTURE for direction: a crowded position unwinds against
-    #      the crowd, a defended peg is under strain, funding stress sends Treasury yields down and
-    #      safe havens up, a taper warning sends yields up. Direction on the >2-sigma cards went
-    #      from 3 right / 7 wrong to 6 right / 4 wrong.
-    #   3. The 1.5 widen floor in forecast_models (`_FAMILY_WIDEN_FLOOR`) makes the direction bet
-    #      affordable: a wrong drift still lands inside a distribution at least 1.5x history's
-    #      width. Drift WITHOUT the floor lost more cards than it won (13 / 16).
+    # Why this version works -- three parts, added in two steps:
+    #   v3 (1) gives the numbers meanings: 1.0 routine, 1.5-2.0 warning, 2.5-3.0 shock in
+    #      progress. (2) replaces tone with market STRUCTURE for direction: a crowded position
+    #      unwinds against the crowd, a defended peg is under strain, funding stress sends
+    #      Treasury yields down and safe havens up, a taper warning sends yields up. Direction on
+    #      the >2-sigma cards went from 3 right / 7 wrong to 6 right / 4 wrong.
+    #   v4 (3) judges width by the SINGLE most alarming bullet, not the overall tone. v3 still
+    #      called NOK covid, covid rates, the 2013 taper warning and the 2011 downgrade watch
+    #      "routine" although the warning was in their summaries -- one bullet among many routine
+    #      ones about rates on hold. v4 says one such bullet is enough for 2.0+, and that "on hold"
+    #      does not cancel it. Answers of 2.0+ went from 6% to 69%; those four cards now get 1.8-2.5.
     #
     # Measured (29 cards, 3 model runs x 3 draw seeds, random walk base, lower is better):
-    #   random walk alone 0.4560 | + floor 1.5 0.4085 | + previous paragraph 0.4200 | + THIS 0.3562
-    #   Better on both odd/even halves; 15 wins / 11 losses against floor-only. Of the three values
-    #   the gain is drift: width + drift alone 0.3525, drift + floor 0.3539, skew adds nothing.
+    #   random walk 0.4560 | previous paragraph 0.4200 (with floor) | v3 0.3603 | v4 0.3296
+    #   v4 is better than v3 on both odd/even halves. Of the three values the gain is drift and
+    #   width; skew adds nothing. The always-on 1.5 floor is now a fallback only (see
+    #   forecast_models._FAMILY_WIDEN_FLOOR): with v4 it added nothing (0.3299 with it).
     #
-    # Caveat -- read before tuning further: the gain is concentrated in JPY carry 2007, JPY
-    # crowding 2024 and SVB 2023, the cards the structure rules were written around, and they
-    # were written after seeing which cards failed, on the same cards measured here. Expect less
-    # on unseen cards. Thinking is ON for F4 only (`_STAGE2_THINKING_BY_FAMILY`); with thinking
-    # off the model answers "no clear signal" on 24 of 29 F4 cards and none of this engages.
-    # Reproduce: NISH_TEXT_NOTES.md, "F4".
+    # Caveat -- read before tuning further: every rule and example here was written after seeing
+    # which of these same 29 cards failed, and v4's examples (outbreak, debt limit, reducing
+    # purchases) ARE the missed cards. Expect a smaller gain on unseen cards; the general rule
+    # ("one warning is enough") should travel better than the specific examples. It still loses
+    # 12 of 29 cards to the random walk -- calm cards it now widens for nothing. Thinking is ON
+    # for F4 only (`_STAGE2_THINKING_BY_FAMILY`); with thinking off the model answers "no clear
+    # signal" on 24 of 29 F4 cards and none of this engages. Reproduce: NISH_TEXT_NOTES.md, "F4".
     "F4": (
         "This is an F4 (tail/shock-from-text) card. The card exists because the documents "
         "foreshadow a shock that the recent numeric history does not show, and the tail "
@@ -1100,7 +1107,18 @@ _FAMILY_FOCUS: dict[str, str] = {
         "market was pushing; (c) funding or liquidity stress sends Treasury yields DOWN and "
         "safe havens (USD, JPY, CHF) UP whatever the last statement said about inflation; "
         "(d) a taper or hike warning before the move sends yields UP. If none of these "
-        "applies, keep skew 0 and let vol_scale carry the answer."
+        "applies, keep skew 0 and let vol_scale carry the answer.\nHow to read the summaries "
+        "for width -- this is where the model has gone wrong before: judge width by the "
+        "SINGLE most alarming thing in any summary, not by the overall tone. Most documents "
+        "in these corpora are routine central-bank commentary (rates on hold, inflation near "
+        "target) and a real warning usually appears once, as one bullet, in one document. "
+        "One such bullet is enough for at least 2.0, even if every other document is calm. "
+        "Examples that each warrant 2.0 or more on their own: an outbreak or epidemic "
+        "hitting activity or markets; a debt-limit, default or credit-rating fight; "
+        "officials discussing when to reduce or end asset purchases; a peg or floor being "
+        "defended; bank, funding or liquidity strain; positioning that has been one-sided "
+        "for months. Central banks being on hold does NOT cancel any of these -- calm policy "
+        "language before a shock is exactly what this family tests."
     ),
     "default": (
         "Treat this like a general macro forecasting card: weigh the summaries for anything "

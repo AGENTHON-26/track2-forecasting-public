@@ -343,6 +343,12 @@ class TestModelContext(unittest.TestCase):
     _F4 = _REPO / "units" / "t2-F4-jpy-carry-2007"
 
     @unittest.skipUnless(_F1.is_dir(), "needs the shipped units")
+    def test_f1_model_context_is_off_until_measured(self):
+        self.assertFalse(ts._MODEL_CONTEXT_ON)
+        ctx = ts.load_context(self._F1 / "text", ["CAD"])
+        self.assertNotIn("model_centre", ctx)
+
+    @mock.patch.object(ts, "_MODEL_CONTEXT_ON", True)
     def test_f1_level_card_gets_m2_centre_and_sigma(self):
         ctx = ts.load_context(self._F1 / "text", ["CAD"])
         self.assertEqual(ctx["family"], "F1")
@@ -406,6 +412,7 @@ class TestF4Prompt(unittest.TestCase):
         system, _ = ts.build_adjustment_prompt([], ["JPY"], self._CTX)
         self.assertIn("2.5-3.0 says they describe a shock in progress", system)
         self.assertIn("a crowded position unwinds AGAINST the crowd", system)
+        self.assertIn("judge width by the SINGLE most alarming thing", system)  # v4
         self.assertIn("range [1.0, 3.0]", system)
 
     def test_f4_width_range_is_1_to_3(self):

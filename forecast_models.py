@@ -39,16 +39,24 @@ _ASSET_COLS = ("asset", "asset_id")
 #: uninterpretable, so change it alone or not at all.
 _WINDOW = 260
 
-#: Per-family floor on the text's `widen` in the walk models. F4 cards are built around a shock
-#: the calm panel history does not show: text-off, 10 of 32 F4 cells land outside the walk's own
-#: 1%/99% (three of them 6-8 sigma out), and the scorer's tail term is a pinball DISTANCE, so a
-#: too-narrow tail is charged in proportion to the miss. Measured 2026-09-26 on the 29 realized
-#: F4 units (in-process, seed 0, 500 draws), composite mean / wins-losses vs the plain walk:
-#: floor 1.5 -> 0.4126 (17/12) text-off and 0.3878 (18/11) on top of the LLM's own answers, with
-#: the gain present on both halves of an odd/even split and the 15 calmest cards costing
-#: 0.0234 -> 0.0247. Floor 2.0 has a better mean (0.3714) but a losing record on one half, so it
-#: is not the default. The LLM's own `widen` still applies above the floor. Not applied to M2.
+#: Per-family FALLBACK width for the walk models, used only when the text half gave this card
+#: nothing (every asset exactly neutral: model call failed, timed out, ran out of budget, or no
+#: usable summaries). F4 cards are built around a shock the calm history does not show, so a
+#: text-less F4 card should still not draw history's too-narrow width. Measured 2026-09-26 on the
+#: 29 realized F4 cards (3 draw seeds): random walk 0.4560 -> 0.4085 with 1.5 applied to every
+#: card. When stage 2 DOES answer, the F4 v4 prompt already asks for enough width (69% of its
+#: answers are 2.0+), and an always-on floor added nothing (0.3296 without vs 0.3299 with), so it
+#: no longer overrides the model. See `text_signal._FAMILY_FOCUS["F4"]` for the prompt.
 _FAMILY_WIDEN_FLOOR = {"T2-F4": 1.5}
+
+
+def _text_was_silent(adjustments: dict[str, dict[str, float]], assets: list[str]) -> bool:
+    """True when every asset carries the exact neutral adjustment -- the text half's failure
+    shape (`read_text_signal` degrades to neutral rather than raising)."""
+    return all(adjustments.get(a, {}).get("shift", 0.0) == 0.0
+               and adjustments.get(a, {}).get("widen", 1.0) == 1.0
+               and adjustments.get(a, {}).get("skew", 0.0) == 0.0 for a in assets)
+
 
 #: ON since 2026-09-25, after running the exact comparison the previous comment here demanded:
 #: "skew forced on vs. off against ONE recorded set of model adjustments, not two fresh live
@@ -276,8 +284,10 @@ def _fit_walk(r: _Request) -> _WalkFit:
 
     return _WalkFit(
         centre=last + per_asset("shift", 0.0),
-        scale=D.std(axis=1) * np.maximum(per_asset("widen", 1.0),
-                                         _FAMILY_WIDEN_FLOOR.get(r.family or "", 1.0)),
+        scale=D.std(axis=1) * np.maximum(
+            per_asset("widen", 1.0),
+            _FAMILY_WIDEN_FLOOR.get(r.family or "", 1.0)
+            if _text_was_silent(r.adjustments, r.assets) else 1.0),
         chol=np.linalg.cholesky(corr),
         skew=per_asset("skew", 0.0) if SKEW_ENABLED else np.zeros(n),
     )

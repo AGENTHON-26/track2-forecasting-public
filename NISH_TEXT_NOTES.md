@@ -257,3 +257,30 @@ Also measured, not kept: M2 as the F4 base (18 level cards; tied with the walk o
 seeds: 0.6523 vs 0.6489 text off). More draws (1,000-5,000) do not change the expected score, but
 at 500 draws identical forecasts score 0.398-0.426 across seeds, so a single-seed F4 difference
 under ~0.03 is noise.
+
+### F4 prompt v4 (shipped) and the floor as a fallback (2026-09-26, latest)
+
+v3 still called four shock cards "routine" although the warning was in their summaries, as one
+bullet among many routine ones: NOK covid 2020 and covid rates 2020 (coronavirus hitting
+markets), taper warning 2013 (reducing the pace of purchases), US downgrade watch 2011 (debt
+limit). v4 = v3 + one paragraph: judge width by the single most alarming bullet, one real warning
+is enough for 2.0+, "on hold" does not cancel it. Same protocol as above.
+
+| arm | mean | even half | odd half |
+|---|---|---|---|
+| random walk | 0.4560 | 0.3360 | 0.5846 |
+| v3, no floor | 0.3603 | 0.2469 | 0.4818 |
+| v4, no floor | **0.3296** | 0.2351 | 0.4309 |
+| v4 + always-on floor 1.5 | 0.3299 | 0.2352 | 0.4313 |
+| v4 + agreement gate on drift | 0.3291 | 0.2292 | 0.4363 |
+| shipped code path (median-of-3, fallback floor) | 0.3277 | | |
+
+Width answers of 2.0+: v3 6%, v4 69%. The four missed cards now get 1.8-2.5.
+
+Decisions: the 1.5 floor is now a FALLBACK (`forecast_models._text_was_silent`): it applies only
+when every asset on the card came back exactly neutral, i.e. the text half failed. That keeps
+0.4085 instead of 0.4560 on a text-less F4 card and never overrides an answer (fires on 1 of 29
+cards with v4 answering, a calm one). The agreement gate was not built: it moved the mean by
+0.0005. Caveat: v4's examples are the cards that failed, on the same cards measured; expect less
+on unseen cards. The F1 M2-centre context (`_MODEL_CONTEXT_ON`) ships OFF until an F1 sweep
+measures it.
