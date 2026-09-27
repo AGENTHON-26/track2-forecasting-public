@@ -12,7 +12,7 @@ Give it one unit folder. It returns, for every (asset, horizon) cell the card as
 
 A draw is then `anchor + mu + sigma * eps(d)`, with the same date `d` used for every cell of the unit.
 The CLI stops before drawing and only reports the four ingredients. `draw_joint()` does the drawing
-(notebook 04's sampler); `forecast_models.py`'s `build_draws()` calls it for every F1 card.
+(notebook 04's sampler); `forecast_models.py`'s `build_draws()` calls it for monthly cards (any family).
 
 This is the same logic as notebooks `01_prep_xy` -> `02_split_units` -> `03_model_level` (section 5,
 the final fit), run on one unit instead of all of them. The penalties are not re-tuned here: the
@@ -75,6 +75,13 @@ def _wide(df: pd.DataFrame) -> pd.DataFrame:
     return df.pivot(index="date", columns=acol, values="value").sort_index().astype(float)
 
 
+def _frequency(stem: str, wide: pd.DataFrame) -> str:
+    """'monthly' for the macro_monthly panel, or any panel whose rows are more than 20 days apart
+    (median) -- hidden cards may ship a monthly panel under another name."""
+    gaps = pd.Series(wide.index).diff().dt.days.dropna()
+    return "monthly" if stem == "macro_monthly" or (len(gaps) and float(gaps.median()) > 20) else "daily"
+
+
 def read_unit(unit_dir: str | pathlib.Path) -> Unit:
     unit_dir = pathlib.Path(unit_dir)
     card = tomllib.loads((unit_dir / "card.toml").read_text())
@@ -83,11 +90,12 @@ def read_unit(unit_dir: str | pathlib.Path) -> Unit:
         raise ValueError(f"no panel .parquet in {unit_dir}")
     pq = panels[0]
     t = card["targets"]
-    return Unit(unit=card["task"]["id"], panel=pq.stem, wide=_wide(pd.read_parquet(pq)),
+    wide = _wide(pd.read_parquet(pq))
+    return Unit(unit=card["task"]["id"], panel=pq.stem, wide=wide,
                 asof=pd.Timestamp(card["provenance"]["data_cutoff"]),
                 assets=[str(a) for a in t["asset_ids"]], horizons=[int(h) for h in t["horizons"]],
                 target_type=t["target_type"], value_unit=t["value_unit"],
-                freq="monthly" if pq.stem == "macro_monthly" else "daily")
+                freq=_frequency(pq.stem, wide))
 
 
 def unit_from_panels(panels: dict, assets: list[str], horizons: list[int], asof: str,
@@ -107,7 +115,7 @@ def unit_from_panels(panels: dict, assets: list[str], horizons: list[int], asof:
         return Unit(unit=unit_id, panel=stem, wide=wide, asof=pd.Timestamp(asof),
                     assets=[str(a) for a in assets], horizons=[int(h) for h in horizons],
                     target_type=target_type, value_unit=value_unit,
-                    freq="monthly" if stem == "macro_monthly" else "daily")
+                    freq=_frequency(stem, wide))
     raise ValueError(f"no single panel holds all of {assets}")
 
 
@@ -261,8 +269,13 @@ class Fit:
     gamma: pd.Series = field(repr=False)   # log-variance coefficients (standardised features)
 
 
-def fit_m2(cell: CellData, lam_mu: float = LAM_MU, lam_sig: float = LAM_SIG) -> Fit:
-    """Location-scale ridge on every row whose outcome was observed by the as-of."""
+def fit_m2(cell: CellData, lam_mu: float = LAM_MU, lam_sig: float = LAM_SIG,
+           origin: pd.Timestamp | None = None) -> Fit:
+    """Location-scale ridge on every row whose outcome was observed by the as-of.
+
+    `origin` fits as of an earlier panel date instead (notebook 03's backtest `m2_fit`): only rows
+    whose outcome was observed by that date are used, and the prediction is made from its row.
+    """
     if cell.unit.target_type not in ("level", "log_return"):
         raise ValueError(f"{cell.unit.unit}: M2 covers level and log_return targets (notebook 03); "
                          f"this card's target_type is {cell.unit.target_type!r}")
@@ -272,7 +285,12 @@ def fit_m2(cell: CellData, lam_mu: float = LAM_MU, lam_sig: float = LAM_SIG) -> 
     odate, tdate = df["origin_date"].to_numpy(), df["target_date"].to_numpy()
     split = df["split"].to_numpy()
     complete = df[cell.features].notna().all(axis=1).to_numpy()
-    i = int(np.flatnonzero(split == "predict")[0])
+    if origin is None:
+        i = int(np.flatnonzero(split == "predict")[0])
+    else:
+        i = int(np.searchsorted(odate, np.datetime64(pd.Timestamp(origin), "ns")))
+        if i >= len(odate) or odate[i] != np.datetime64(pd.Timestamp(origin), "ns"):
+            raise ValueError(f"{cell.unit.unit} {cell.asset} h{cell.horizon}: no row at origin {origin}")
     origin = odate[i]
     m = (split == "train") & complete & (tdate <= origin)     # labelled, full feature row, resolved by the as-of
 

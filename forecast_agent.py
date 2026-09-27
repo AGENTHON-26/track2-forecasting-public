@@ -161,11 +161,10 @@ def main(argv: list[str] | None = None) -> int:
             "Base: M2 -- ridge location-scale fitted on panel history, joint bootstrap of "
             "standardised residuals (f1_pipeline/m2_unit.py).\n"
             if forecast_models.last_model() == forecast_models.M2 else
-            "Base: cumulative correlated Gaussian random walk from panel history -- one "
-            "accumulating path per draw, so horizons carry the covariance sqrt(h_j/h_k) rather "
-            "than being drawn independently; cross-asset correlation from a date-aligned, "
-            "gap-guarded estimate over the trailing 260 rows "
-            "(skew implemented but disabled pending measurement -- see _SKEW_ENABLED).\n"
+            f"Base: {forecast_models.last_model()} from panel history -- correlated across "
+            "assets (Cholesky), one accumulating path per draw on multi-horizon cards, Student-t "
+            "shocks and the family's window / widen / volatility settings "
+            "(forecast_models.WALK_SETTINGS).\n"
         )
         + f"Text used: {'yes' if used_text else 'no (baseline stub)'}.\n"
     )
