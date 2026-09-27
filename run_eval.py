@@ -52,7 +52,7 @@ _EXCLUDED_UNITS = {"t2-EXAMPLE-ust-curve-1m"}
 #: said and what the clamps did, on a unit that worked, so counting it as an issue would mark
 #: every healthy unit as broken and destroy the one signal that tells a real sweep from a
 #: silently-neutral one.
-_TEXT_SIGNAL_OK_MARKERS = ("source=llm", "[text_signal] adj ")
+_TEXT_SIGNAL_OK_MARKERS = ("source=llm", "[text_signal] adj ", "[text_signal] note:")
 
 
 def _extract_text_signal_issues(stderr: str) -> list[str]:
@@ -179,9 +179,21 @@ def main(argv: list[str] | None = None) -> int:
                           "endpoint. Keep this modest -- e.g. 4 -- since Stage 1's own "
                           "per-document summarization already runs 8-way in parallel WITHIN one "
                           "unit, so --concurrency 4 means up to 32 simultaneous calls, not 4.")
+    ap.add_argument("--strict-text", action="store_true",
+                     help="a unit with any text_signal failure (a dropped document, a failed or "
+                          "unparsed stage-2 reply) is reported as status 'text_failed' and left "
+                          "OUT of the family means, instead of being scored on a partial corpus "
+                          "-- use for measurement runs, so a rate-limited endpoint cannot "
+                          "silently degrade the numbers")
+    ap.add_argument("--family", default=None,
+                     help="run only units whose card [metadata].category equals this, e.g. T2-F4")
     a = ap.parse_args(argv)
 
     unit_dirs = [d for d in _iter_unit_dirs() if a.unit is None or d.name == a.unit]
+    if a.family:
+        unit_dirs = [d for d in unit_dirs
+                     if tomllib.loads((d / "card.toml").read_text())
+                     .get("metadata", {}).get("category") == a.family]
     if not unit_dirs:
         print(f"no unit matched {a.unit!r}", file=sys.stderr)
         return 1
@@ -202,6 +214,8 @@ def main(argv: list[str] | None = None) -> int:
     wall_seconds = round(time.perf_counter() - wall_start, 2)
 
     for result in results:
+        if a.strict_text and result.get("text_signal_issues") and result["status"] == "scored":
+            result["status"] = "text_failed"
         by_status[result["status"]].append(result)
         all_results.append(result)
         if result["status"] == "scored":
@@ -217,7 +231,8 @@ def main(argv: list[str] | None = None) -> int:
         avg_seconds = sum(per_unit_seconds) / len(per_unit_seconds) if per_unit_seconds else 0.0
         print(f"Ran {total} unit(s) in {wall_seconds:.1f}s wall-clock "
               f"(avg {avg_seconds:.1f}s/unit, concurrency={concurrency}):")
-        for status in ("scored", "gates_only", "inadmissible", "agent_crashed", "scorer_crashed"):
+        for status in ("scored", "text_failed", "gates_only", "inadmissible", "agent_crashed",
+                       "scorer_crashed"):
             items = by_status.get(status, [])
             if items:
                 print(f"  {status}: {len(items)}")
@@ -275,6 +290,7 @@ def main(argv: list[str] | None = None) -> int:
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "label": a.label,
         "gates_only_mode": a.gates_only,
+        "strict_text": a.strict_text,
         "total_units": len(unit_dirs),
         "status_counts": {status: len(items) for status, items in by_status.items()},
         "units_with_text_signal_issues": len(units_with_issues),

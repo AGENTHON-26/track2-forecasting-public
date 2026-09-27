@@ -21,7 +21,9 @@ from unittest import mock
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
-import text_signal as ts  # noqa: E402
+import text_signal as ts
+
+_REPO = pathlib.Path(__file__).resolve().parents[1]  # noqa: E402
 
 SHIPPED_TYPES = [
     "fomc_statement", "fomc_minutes", "cb_speech", "landmark",
@@ -334,6 +336,118 @@ class TestToAdjustments(unittest.TestCase):
         raw = {"UST_2Y": {"drift_sd": 0.3, "vol_scale": 1.0, "skew": 0.0}}
         out, _ = ts.to_adjustments(raw, ["UST_2Y"], self._CTX)
         self.assertAlmostEqual(out["UST_2Y"]["shift"], 0.3 * 0.20)
+
+
+class TestModelContext(unittest.TestCase):
+    _F1 = _REPO / "units" / "t2-F1-cad-boc-2017"
+    _F4 = _REPO / "units" / "t2-F4-jpy-carry-2007"
+
+    @unittest.skipUnless(_F1.is_dir(), "needs the shipped units")
+    def test_f1_model_context_is_off_until_measured(self):
+        self.assertFalse(ts._MODEL_CONTEXT_ON)
+        ctx = ts.load_context(self._F1 / "text", ["CAD"])
+        self.assertNotIn("model_centre", ctx)
+
+    @mock.patch.object(ts, "_MODEL_CONTEXT_ON", True)
+    def test_f1_level_card_gets_m2_centre_and_sigma(self):
+        ctx = ts.load_context(self._F1 / "text", ["CAD"])
+        self.assertEqual(ctx["family"], "F1")
+        self.assertIn("CAD", ctx.get("model_centre", {}))
+        self.assertGreater(ctx["sigma"]["CAD"], 0.0)
+        system, user = ts.build_adjustment_prompt([], ["CAD"], ctx)
+        self.assertIn("model centre", user)
+        self.assertIn("ALREADY moved its centre", system)
+
+    @unittest.skipUnless(_F4.is_dir(), "needs the shipped units")
+    def test_walk_card_has_no_model_centre_but_gets_trailing_move(self):
+        ctx = ts.load_context(self._F4 / "text", ["JPY"])
+        self.assertNotIn("model_centre", ctx)
+        self.assertIn("JPY", ctx["cross"].get("trailing_sigma", {}))
+        system, user = ts.build_adjustment_prompt([], ["JPY"], ctx)
+        self.assertNotIn("model centre", user)
+        self.assertIn("Trailing move already realized", user)
+        self.assertNotIn("ALREADY moved its centre", system)
+
+
+class TestStage2Thinking(unittest.TestCase):
+    def test_thinking_is_per_family(self):
+        with mock.patch.object(ts, "_STAGE2_THINKING", False), \
+             mock.patch.dict(ts._STAGE2_THINKING_BY_FAMILY, {"F4": True}, clear=True):
+            self.assertTrue(ts._stage2_thinking("F4"))
+            self.assertFalse(ts._stage2_thinking("F1"))
+            self.assertFalse(ts._stage2_thinking(None))
+
+    def test_unparsed_thinking_sample_is_retried_without_thinking(self):
+        good = json.dumps({"assets": {"JPY": {"drift_sd": 0.5, "vol_scale": 2.0, "skew": -0.5}}})
+        cut = '{"assets": {"JPY": {"drift_sd": 0.5, "vol_scale": 2.'
+        with mock.patch.dict(ts._STAGE2_THINKING_BY_FAMILY, {"F4": True}, clear=True), \
+             mock.patch.object(ts, "call_model", side_effect=[(cut, ""), (good, "")]) as call:
+            raw, err = ts._stage2_sample("sys", "usr", "F4", None)
+        self.assertEqual(call.call_count, 2)
+        self.assertTrue(call.call_args_list[0].kwargs["thinking"])
+        self.assertFalse(call.call_args_list[1].kwargs["thinking"])
+        self.assertEqual(raw["assets"]["JPY"]["vol_scale"], 2.0)
+        self.assertEqual(err, "")
+
+    def test_no_retry_when_family_thinking_is_off(self):
+        with mock.patch.dict(ts._STAGE2_THINKING_BY_FAMILY, {}, clear=True), \
+             mock.patch.object(ts, "_STAGE2_THINKING", False), \
+             mock.patch.object(ts, "call_model", return_value=("nope", "")) as call:
+            raw, err = ts._stage2_sample("sys", "usr", "F1", None)
+        self.assertEqual(call.call_count, 1)
+        self.assertIsNone(raw)
+        self.assertIn("did not parse", err)
+
+    def test_stray_closing_bracket_is_repaired(self):
+        raw = ts._extract_json_object('{"assets": {"CHF": {"drift_sd": 0.0, "vol_scale": 1.0}}]}')
+        self.assertEqual(raw["assets"]["CHF"]["vol_scale"], 1.0)
+        self.assertIsNone(ts._extract_json_object('{"assets": [1, 2]]}x'))  # a real list: left alone
+
+
+class TestF4Prompt(unittest.TestCase):
+    _CTX = {"asof": "2007-07-20", "horizons": [21], "value_unit": "jpy_per_usd", "target_type": "level",
+            "family": "F4", "level": {"JPY": 121.15}, "sigma": {"JPY": 2.39}, "sigma_horizon": 21}
+
+    def test_f4_prompt_carries_the_width_scale_and_structure_rules(self):
+        system, _ = ts.build_adjustment_prompt([], ["JPY"], self._CTX)
+        self.assertIn("2.5-3.0 says they describe a shock in progress", system)
+        self.assertIn("a crowded position unwinds AGAINST the crowd", system)
+        self.assertIn("judge width by the SINGLE most alarming thing", system)  # v4
+        self.assertIn("range [1.0, 3.0]", system)
+
+    def test_f4_width_range_is_1_to_3(self):
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 5.0, "skew": 0.0}}}
+        adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
+        self.assertEqual(adj["JPY"]["widen"], 3.0)
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 0.7, "skew": 0.0}}}
+        adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
+        self.assertEqual(adj["JPY"]["widen"], 1.0)
+
+
+class TestStage1Cache(unittest.TestCase):
+    def test_second_call_is_served_from_cache_and_key_tracks_the_prompt(self):
+        doc = {"doc_id": "d1", "doc_type": "fomc_minutes", "timestamp": "2024-01-01",
+               "text": "x" * (ts._PASSTHROUGH_CHARS + 10)}
+        with tempfile.TemporaryDirectory() as d, \
+             mock.patch.dict(os.environ, {"TEXT_SIGNAL_CACHE_DIR": d}), \
+             mock.patch.object(ts, "call_model", return_value=("- a point", "")) as call:
+            first = ts.summarize_doc(doc)
+            second = ts.summarize_doc(doc)
+            self.assertEqual(call.call_count, 1)
+            self.assertEqual(first["summary"], second["summary"])
+            self.assertTrue(second.get("cached"))
+            with mock.patch.object(ts, "_BULLETS", ts._BULLETS + 1):  # prompt changed -> miss
+                ts.summarize_doc(doc)
+            self.assertEqual(call.call_count, 2)
+
+    def test_no_cache_when_variable_is_unset(self):
+        doc = {"doc_id": "d1", "doc_type": "fomc_minutes", "timestamp": "2024-01-01",
+               "text": "x" * (ts._PASSTHROUGH_CHARS + 10)}
+        env = {k: v for k, v in os.environ.items() if k != "TEXT_SIGNAL_CACHE_DIR"}
+        with mock.patch.dict(os.environ, env, clear=True), \
+             mock.patch.object(ts, "call_model", return_value=("- a point", "")) as call:
+            ts.summarize_doc(doc); ts.summarize_doc(doc)
+        self.assertEqual(call.call_count, 2)
 
 
 class TestReadTextSignalStage2(unittest.TestCase):
