@@ -186,3 +186,102 @@ Open (prompt work):
 4. 3 runs, always. Per-pass overall was 84/80/83 on identical inputs.
 5. Higher recall has not yet been shown to move the composite score — run the scorer old vs new
    over the 90 realized units next.
+
+## F4 — tail/shock cards (2026-09-26)
+
+Scored in-process with the real composite (`qfbench2_track_forecasting.scoring._composite`, card
+weights, single-cell renormalisation, seed 0, 500 draws) over the 29 realized F4 units. The numbers
+reproduce `eval_reports/*.json` exactly for the text-off arm.
+
+**What F4 is scored on.** All but two F4 cards are single-cell, so the composite is
+0.714 x CRPS + 0.286 x tail, and the tail term is `pinball` — a distance, not coverage. Text-off,
+10 of 32 F4 cells fall outside the random walk's own 1%/99% (hike-cycle-2021Q4b +8.1 sigma,
+nok-covid-2020 +6.3, chf-floor-strain-2015 -6.1). A too-narrow tail is charged in proportion.
+
+**What the LLM had been doing.** With replies that actually arrive, the deployed stage 2 gives
+vol_scale 0.8-1.3 (cap 2.0) and |skew| <= 0.3 on every F4 card, and on chf-floor it narrowed and
+pointed the wrong way. Direction is right 19 / wrong 9 overall but **6 right / 5 wrong on the
+|z|>2 cards** — a coin flip where it matters. In the 2026-09-22 report the six worst F4 units
+scored identical to text-off: those replies had failed or truncated (thinking on can hit
+max_tokens mid-JSON; seen on factor-stress-2008).
+
+| arm (29 units) | mean | wins/losses vs walk |
+|---|---|---|
+| random walk, text off | 0.4563 | — |
+| walk, widen x1.5 (text off) | 0.4126 | 17/12 |
+| walk, widen x2 (text off) | 0.3908 | 16/13 |
+| LLM answers as deployed | 0.4111 | 15/14 |
+| LLM answers + F4 floor 1.5 | **0.3878** | **18/11** |
+| LLM answers + F4 floor 2.0 | 0.3714 | 16/13 (7/8 on one half) |
+| Student-t innovations alone | 0.4782 | 9/20 |
+| M2 on F4 level cards | 0.4498 | 10/8 |
+| directional jump keyed on the LLM's sign | 0.3642 | 11/18 |
+
+Kept: **F4 widen floor 1.5** in `build_draws` (`_FAMILY_WIDEN_FLOOR`) — helps on both halves of an
+odd/even split, costs the 15 calmest cards 0.0234 -> 0.0247, and the LLM's own widen still applies
+above it. Also kept: one no-thinking retry when the stage-2 reply does not parse
+(`_STAGE2_RESERVE` 1 -> 2). Not kept: skew on (+0.01 worse), directional jumps (mean improves,
+most units lose), M2 for F4, and a v2 "shock block" prompt (explicit shock_prob / size, vol cap 3):
+without thinking the 120B mostly returns the template zeros ("no shock signals; routine") and
+overshoots when it fires.
+
+Endpoint note: 36 rpm with 8 workers hit 429s and a 40-minute read timeout partway through a 31-unit
+sweep; 12 rpm / 3 workers was clean. 429 retries spend the 25-request unit budget and end in neutral.
+
+### F4 prompt v3 and thinking (2026-09-26, later)
+
+After dev's #14 merge (thinking off, median-of-3), stage 2 answered exact neutral on 24 of 29 F4
+cards, so text added nothing on F4. Thinking is now ON for F4 only (`_STAGE2_THINKING_BY_FAMILY`),
+same 4,000-token cap; a reply cut mid-JSON is re-asked once without thinking (seen 1 in ~130).
+
+All rows: 29 realized F4 cards, random walk base, 3 model runs x 3 draw seeds, lower is better.
+Summaries cached, so only the stage-2 prompt differs between rows.
+
+| arm | mean | even half | odd half | wins / losses vs floor |
+|---|---|---|---|---|
+| random walk alone | 0.4560 | 0.3360 | 0.5846 | 12 / 17 |
+| + floor 1.5 (text off) | 0.4085 | 0.3011 | 0.5236 | — |
+| + previous F4 paragraph | 0.4200 | 0.2815 | 0.5684 | 9 / 20 |
+| + width-only (routine/warning/shock) | 0.3898 | 0.2889 | 0.4978 | 13 / 15 |
+| + v3, all three values (shipped) | 0.3562 | 0.2492 | 0.4708 | 15 / 11 |
+| v3, width + drift only | 0.3525 | 0.2425 | 0.4704 | 15 / 11 |
+| v3, drift only (width left to floor) | 0.3539 | 0.2429 | 0.4728 | 14 / 12 |
+| v3, width + skew only | 0.4077 | 0.3054 | 0.5172 | 9 / 17 |
+
+Why v3 works and its caveat: the comment above `_FAMILY_FOCUS["F4"]` in `text_signal.py`.
+Short version: meanings for the width numbers, market-structure rules for direction instead of
+central-bank tone, and the floor making the direction bet affordable. The gain sits on JPY carry
+2007, JPY crowding 2024 and SVB 2023, and the rules were written after seeing those cards.
+
+Also measured, not kept: M2 as the F4 base (18 level cards; tied with the walk once averaged over
+seeds: 0.6523 vs 0.6489 text off). More draws (1,000-5,000) do not change the expected score, but
+at 500 draws identical forecasts score 0.398-0.426 across seeds, so a single-seed F4 difference
+under ~0.03 is noise.
+
+### F4 prompt v4 (shipped) and the floor as a fallback (2026-09-26, latest)
+
+v3 still called four shock cards "routine" although the warning was in their summaries, as one
+bullet among many routine ones: NOK covid 2020 and covid rates 2020 (coronavirus hitting
+markets), taper warning 2013 (reducing the pace of purchases), US downgrade watch 2011 (debt
+limit). v4 = v3 + one paragraph: judge width by the single most alarming bullet, one real warning
+is enough for 2.0+, "on hold" does not cancel it. Same protocol as above.
+
+| arm | mean | even half | odd half |
+|---|---|---|---|
+| random walk | 0.4560 | 0.3360 | 0.5846 |
+| v3, no floor | 0.3603 | 0.2469 | 0.4818 |
+| v4, no floor | **0.3296** | 0.2351 | 0.4309 |
+| v4 + always-on floor 1.5 | 0.3299 | 0.2352 | 0.4313 |
+| v4 + agreement gate on drift | 0.3291 | 0.2292 | 0.4363 |
+| shipped code path (median-of-3, fallback floor) | 0.3277 | | |
+
+Width answers of 2.0+: v3 6%, v4 69%. The four missed cards now get 1.8-2.5. Direction on the cells
+that moved more than 2 sigma: previous prompt 3 right / 7 wrong, v3 6 / 4, v4 10 / 1.
+
+Decisions: the 1.5 floor is now a FALLBACK (`forecast_models._text_was_silent`): it applies only
+when every asset on the card came back exactly neutral, i.e. the text half failed. That keeps
+0.4085 instead of 0.4560 on a text-less F4 card and never overrides an answer (fires on 1 of 29
+cards with v4 answering, a calm one). The agreement gate was not built: it moved the mean by
+0.0005. Caveat: v4's examples are the cards that failed, on the same cards measured; expect less
+on unseen cards. The F1 M2-centre context (`_MODEL_CONTEXT_ON`) ships OFF until an F1 sweep
+measures it.

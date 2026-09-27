@@ -151,6 +151,34 @@ class TestBuildDrawsWithSkew(unittest.TestCase):
         self.assertEqual(out.shape, (1000, 1, 1))
 
 
+class TestFamilyWidenFloor(unittest.TestCase):
+    """The F4 floor is a FALLBACK: it applies only when the text half gave the card nothing."""
+
+    def _draw(self, adj, family):
+        table, asof, _ = _panel("A")
+        return fa.build_draws({"p": table}, ["A"], [21], asof, {"A": adj}, n_draws=20_000,
+                              seed=0, family=family)
+
+    def test_silent_text_on_f4_gets_the_fallback_width(self):
+        plain = self._draw(dict(NEUTRAL), None)
+        f2 = self._draw(dict(NEUTRAL), "T2-F2")
+        f4 = self._draw(dict(NEUTRAL), "T2-F4")
+        np.testing.assert_array_equal(plain, f2)  # no fallback for other families
+        ratio = f4[:, 0, 0].std() / plain[:, 0, 0].std()
+        self.assertAlmostEqual(ratio, fm._FAMILY_WIDEN_FLOOR["T2-F4"], delta=0.02)
+        self.assertAlmostEqual(f4[:, 0, 0].mean(), plain[:, 0, 0].mean(),
+                               delta=plain[:, 0, 0].std() * 0.05)  # the centre does not move
+
+    def test_an_answered_f4_card_uses_the_model_width_even_below_the_fallback(self):
+        plain = self._draw(dict(NEUTRAL), None)
+        answered = self._draw({"shift": 0.0, "widen": 1.2, "skew": 0.0}, "T2-F4")
+        self.assertAlmostEqual(answered[:, 0, 0].std() / plain[:, 0, 0].std(), 1.2, delta=0.02)
+
+    def test_llm_widen_above_the_fallback_still_applies(self):
+        plain = self._draw(dict(NEUTRAL), None)
+        wide = self._draw({"shift": 0.0, "widen": 2.0, "skew": 0.0}, "T2-F4")
+        self.assertAlmostEqual(wide[:, 0, 0].std() / plain[:, 0, 0].std(), 2.0, delta=0.02)
+
 if __name__ == "__main__":
     unittest.main()
 

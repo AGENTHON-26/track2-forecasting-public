@@ -36,6 +36,7 @@ from __future__ import annotations
 import argparse
 import collections
 import contextlib
+import hashlib
 import json
 import math
 import os
@@ -55,7 +56,10 @@ NEUTRAL = {"shift": 0.0, "widen": 1.0, "skew": 0.0}
 
 #: Documents shorter than this are already small; summarizing them only loses detail.
 _PASSTHROUGH_CHARS = 3_000
-_WORKERS = 8
+#: Both pace knobs can be lowered for LOCAL runs, where a personal build.nvidia.com key 429s well
+#: under the House pace (2026-09-26: 36 rpm / 8 workers dropped 5 of 7 documents on one card;
+#: 8 rpm / 2 workers was clean). Unset in the scoring image, so the House defaults apply there.
+_WORKERS = int(os.environ.get("TEXT_SIGNAL_WORKERS", "") or 8)
 #: A ceiling, not a target: a normal reply is ~400 tokens. Set well above that so a reply that runs
 #: long comes back complete rather than cut off mid-sentence.
 _MAX_TOKENS = 4_000
@@ -78,7 +82,9 @@ _MAX_TOKENS_THINKING = 4_000
 _MAX_SUMMARY_CHARS = 12_000
 _TIMEOUT_SEC = 300.0
 #: Seconds to wait before each retry of an overloaded (429 / 5xx) reply.
-_RETRY_WAITS = (2.0, 5.0, 10.0)
+_RETRY_WAITS: tuple[float, ...] = tuple(
+    float(x) for x in os.environ.get("TEXT_SIGNAL_RETRY_WAITS", "").split(",") if x.strip()
+) or (2.0, 5.0, 10.0)  # e.g. TEXT_SIGNAL_RETRY_WAITS=15,30,60,120 for a patient local run
 
 #: HTTP codes worth another attempt, on top of every 5xx.
 #:
@@ -102,7 +108,7 @@ _RETRYABLE_CODES = frozenset({404, 429})
 #: no visible failure (see PUN_TEXT_NOTES.md, "silent rate-limit fallback"). Local eval sweeps
 #: should keep --concurrency at 1 for now -- this only coordinates calls within one process, not
 #: across the separate subprocesses run_eval.py spawns per unit.
-_RATE_LIMIT_RPM = 36
+_RATE_LIMIT_RPM = int(os.environ.get("TEXT_SIGNAL_RPM", "") or 36)
 _rate_lock = threading.Lock()
 _request_times: collections.deque[float] = collections.deque()
 
@@ -123,7 +129,8 @@ def _throttle() -> None:
 #: House rule: 25 admitted requests per unit, charged on admission -- a retry, a failed call or a
 #: lost response spends a slot too. Stage 1 spends up to one per document (plus retries); stage 2
 #: needs exactly one, so one is held back for it. The busiest unit needs 16 with no retries.
-_REQUEST_BUDGET = 25
+#: TEXT_SIGNAL_BUDGET raises this for LOCAL runs only; the House rule is 25.
+_REQUEST_BUDGET = int(os.environ.get("TEXT_SIGNAL_BUDGET", "") or 25)
 #: Raised 1 -> 3 alongside median-of-3 self-consistency below: three stage-2 attempts must always
 #: fit, regardless of how many slots stage 1's document summaries already spent.
 _STAGE2_RESERVE = 3
@@ -161,7 +168,9 @@ _SKEW_CLAMP = (-1.0, 1.0)
 #: wider joint distribution has wider gaps between every pair of cells, and gaps are what is
 #: scored. Other families keep the wide clamp: F4 is single-cell (the joint weight is
 #: redistributed away entirely) and is scored on exactly the tail that widening helps.
-_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25)}
+_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (1.0, 3.0)}
+#: F4 is 1.0-3.0 so the prompt's "shock in progress = 2.5-3.0" band is reachable, and a reply
+#: can never NARROW an F4 card. Why F4 is set up this way: the comment above `_FAMILY_FOCUS["F4"]`.
 
 
 def _widen_clamp(family: str | None) -> tuple[float, float]:
@@ -203,6 +212,41 @@ _STAGE2_THINKING = False
 #: budget a typical F3 unit spends ~5-6 of.
 _STAGE2_SAMPLES = 3
 
+#: Stage-2 thinking per family, overriding `_STAGE2_THINKING`. F4 ON (Nish, 2026-09-26): with
+#: thinking off the 120B answers exact neutral ("no clear directional signal") on 24 of 29 F4
+#: cards, so the text half contributes nothing on the family whose whole premise is the text.
+#: The output cap stays at 4,000 tokens (House rule) for thinking and non-thinking calls alike;
+#: a thinking reply that runs out of tokens mid-JSON is re-asked ONCE without thinking, see
+#: `_stage2_sample`.
+_STAGE2_THINKING_BY_FAMILY: dict[str, bool] = {"F4": True}
+
+
+def _stage2_thinking(family: str | None) -> bool:
+    return _STAGE2_THINKING_BY_FAMILY.get(str(family), _STAGE2_THINKING)
+
+
+def _stage2_sample(system: str, user: str, family: str | None,
+                   budget: "_Budget | None") -> tuple[dict[str, Any] | None, str]:
+    """One stage-2 sample: (parsed reply, error). A thinking-on reply that does not parse --
+    typically the reasoning ate the 4,000-token cap and the JSON was cut -- is retried once
+    without thinking, budget permitting; the retry spends a slot like any other request."""
+    thinking = _stage2_thinking(family)
+    content, err = call_model(system, user, thinking=thinking, budget=budget, reserved=True)
+    if content is None:
+        return None, err
+    raw = _extract_json_object(content)
+    if raw is None and thinking:
+        print("[text_signal] note: thinking reply did not parse; retrying without thinking",
+              file=sys.stderr)
+        content2, err2 = call_model(system, user, thinking=False, budget=budget, reserved=True)
+        if content2 is not None:
+            content, raw = content2, _extract_json_object(content2)
+        elif err2:
+            return None, f"did not parse: {content[:120]!r}; retry: {err2}"
+    if raw is None:
+        return None, f"did not parse: {content[:120]!r}"
+    return raw, ""
+
 
 # ----------------------------------------------------------------------------- the entry point
 def read_text_signal(
@@ -232,14 +276,9 @@ def read_text_signal(
         # transport error on one attempt does not abort the others; only zero usable replies does.
         replies, sample_errs = [], []
         for _ in range(_STAGE2_SAMPLES):
-            content, err = call_model(system, user, thinking=_STAGE2_THINKING, budget=budget,
-                                       reserved=True)
-            if content is None:
-                sample_errs.append(err)
-                continue
-            raw = _extract_json_object(content)
+            raw, err = _stage2_sample(system, user, ctx.get("family"), budget)
             if raw is None:
-                sample_errs.append(f"did not parse: {content[:120]!r}")
+                sample_errs.append(err)
                 continue
             replies.append(raw)
 
@@ -591,6 +630,13 @@ def summarize_doc(doc: dict[str, Any], budget: _Budget | None = None) -> dict[st
         out["summary"] = text.strip()
     else:
         summary, err = None, ""
+        cache_path = _cache_path(doc, text)
+        if cache_path is not None and cache_path.is_file():
+            with contextlib.suppress(Exception):
+                hit = json.loads(cache_path.read_text(encoding="utf-8"))
+                out.update(summary=hit["summary"], summarized=True, cached=True)
+                out["summary_chars"] = len(out["summary"] or "")
+                return out
         # Two attempts: once in ~50 calls the model returned a bare "-" and nothing else.
         for _ in range(2):
             try:
@@ -613,8 +659,29 @@ def summarize_doc(doc: dict[str, Any], budget: _Budget | None = None) -> dict[st
                 continue
             break
         out["summary"], out["error"], out["summarized"] = summary, err, summary is not None
+        if summary is not None and cache_path is not None:
+            with contextlib.suppress(Exception):
+                cache_path.parent.mkdir(parents=True, exist_ok=True)
+                cache_path.write_text(json.dumps({"summary": summary}), encoding="utf-8")
     out["summary_chars"] = len(out["summary"] or "")
     return out
+
+
+def _cache_path(doc: dict[str, Any], text: str) -> pathlib.Path | None:
+    """LOCAL stage-1 cache: $TEXT_SIGNAL_CACHE_DIR/<sha256>.json, or None when the variable is
+    unset (always unset in the scoring image). The key covers everything that decides a summary
+    -- the document, its prompt, the reminder, the bullet count and the model -- so a prompt or
+    model change misses cleanly and the cache never hands back a stale summary."""
+    root = os.environ.get("TEXT_SIGNAL_CACHE_DIR", "").strip()
+    if not root:
+        return None
+    model = os.environ.get("MODEL_NAME", "").strip() or "nvidia/nemotron-3-super-120b-a12b"
+    key = "\x1f".join([
+        str(doc.get("doc_id", "")), str(doc.get("doc_type", "")), str(doc.get("timestamp", "")),
+        prompt_for(doc.get("doc_type", "default"), str(doc.get("timestamp", ""))),
+        _REMINDER.format(bullets=_BULLETS), model, text,
+    ])
+    return pathlib.Path(root) / (hashlib.sha256(key.encode("utf-8")).hexdigest() + ".json")
 
 
 def summarize_corpus(text_dir: pathlib.Path, budget: _Budget | None = None) -> list[dict[str, Any]]:
@@ -789,7 +856,45 @@ def load_context(text_dir: pathlib.Path, assets: list[str]) -> dict[str, Any]:
         else:
             ctx["sigma"][a] = 0.0  # no scale is knowable -> shift stays 0, widen still works
     ctx["sigma_horizon"] = h0
+    _model_context(unit, assets, ctx)
     return ctx
+
+
+#: OFF until measured on F1 (2026-09-26): the M2-centre context below is built and unit-tested,
+#: but no F1 sweep has scored it yet, so it ships disabled rather than untested.
+_MODEL_CONTEXT_ON = False
+
+
+def _model_context(unit: pathlib.Path, assets: list[str], ctx: dict[str, Any]) -> None:
+    """On the cards whose base is a fitted model (F1 level -> M2), show stage 2 the model's own
+    centre and width, and make `sigma` the model's sigma at the shortest horizon.
+
+    Without this the prompt says the statistical forecast "assumes the summaries say nothing"
+    while M2 has already moved the centre off the level from the panel's own history, so a
+    directional signal M2 priced in gets added a second time by `shift`. Degrades silently:
+    any failure leaves the walk-based level/sigma in place and no `model_centre` key, and the
+    prompt then reads exactly as before.
+    """
+    if not _MODEL_CONTEXT_ON or ctx.get("family") != "F1" or ctx.get("target_type") != "level":
+        return
+    try:
+        import forecast_agent
+        from f1_pipeline import m2_unit as m2
+
+        panels = forecast_agent._read_panels(unit)
+        fits = [m2.fit_m2(c) for c in m2.build_features(
+            m2.unit_from_panels(panels, assets, ctx["horizons"], ctx["asof"], target_type="level"))]
+    except Exception as exc:
+        print(f"[text_signal] note: no model context ({type(exc).__name__}: {exc})", file=sys.stderr)
+        return
+    h0 = ctx["sigma_horizon"]
+    centre: dict[str, float] = {}
+    for f in fits:
+        if f.horizon == h0 and math.isfinite(f.anchor + f.mu) and f.sigma > 0:
+            centre[f.asset] = float(f.anchor + f.mu)
+            ctx["sigma"][f.asset] = float(f.sigma)
+    if centre:
+        ctx["model_centre"] = centre
 
 
 def _panel_stats(
@@ -857,10 +962,11 @@ def _cross_asset_stats(
     covariance it will actually draw from -- so the correlations quoted here are the ones the
     sampler uses, not a different estimate the model would then be arguing against.
 
-    Returns {} for a single-asset card (nothing to be cross about) or on any failure.
+    Returns {} on any failure. A single-asset card gets only `trailing_sigma` (nothing to be
+    cross about, but "what is already priced" is just as absent there -- 2026-09-26, F4 work).
     """
     out: dict[str, Any] = {}
-    if len(assets) < 2:
+    if not assets or any(a not in hist for a in assets):
         return out
     try:
         import numpy as np
@@ -873,8 +979,8 @@ def _cross_asset_stats(
         steps = np.diff(wide, axis=1)[:, -260:]
         if steps.shape[1] < 30:
             return out
-        corr = np.corrcoef(steps)
-        if np.all(np.isfinite(corr)):
+        corr = np.corrcoef(steps) if len(assets) > 1 else None
+        if corr is not None and np.all(np.isfinite(corr)):
             out["corr"] = {assets[i]: {assets[j]: float(corr[i, j]) for j in range(len(assets))}
                            for i in range(len(assets))}
 
@@ -946,13 +1052,74 @@ _FAMILY_FOCUS: dict[str, str] = {
         "set of numbers that is individually plausible but pairwise incoherent scores worse here "
         "than a smaller, consistent set."
     ),
+    # ---- F4: why this paragraph looks the way it does (Nish, 2026-09-26) -------------------------
+    # F4 cards are built so the recent numbers look calm and a shock lands inside the window. The
+    # score is mostly how far the outcome falls outside the forecast's tails (pinball loss, a
+    # DISTANCE), so a too-narrow or wrong-way forecast is charged in proportion to the miss.
+    #
+    # What the previous, three-sentence paragraph produced (29 realized F4 cards, thinking on):
+    #   - vol_scale always 0.8-1.3, never near the 2.0 cap, even on cards that moved 3-8 sigma.
+    #     It gave a range but no meaning for any point in it, and the JSON template shows
+    #     "vol_scale": 1.0, so the model hugged 1.0.
+    #   - direction right 3 / wrong 7 on the cards that moved more than 2 sigma: it reasoned from
+    #     central-bank TONE ("inflation worries, so yields up"), the wrong frame for a shock.
+    #
+    # Why this version works -- three parts, added in two steps:
+    #   v3 (1) gives the numbers meanings: 1.0 routine, 1.5-2.0 warning, 2.5-3.0 shock in
+    #      progress. (2) replaces tone with market STRUCTURE for direction: a crowded position
+    #      unwinds against the crowd, a defended peg is under strain, funding stress sends
+    #      Treasury yields down and safe havens up, a taper warning sends yields up. Direction on
+    #      the >2-sigma cards went from 3 right / 7 wrong to 6 right / 4 wrong.
+    #   v4 (3) judges width by the SINGLE most alarming bullet, not the overall tone. v3 still
+    #      called NOK covid, covid rates, the 2013 taper warning and the 2011 downgrade watch
+    #      "routine" although the warning was in their summaries -- one bullet among many routine
+    #      ones about rates on hold. v4 says one such bullet is enough for 2.0+, and that "on hold"
+    #      does not cancel it. Answers of 2.0+ went from 6% to 69%; those four cards now get 1.8-2.5.
+    #      Direction on the >2-sigma cards improved too: 10 right / 1 wrong (v3: 6 / 4).
+    #
+    # Measured (29 cards, 3 model runs x 3 draw seeds, random walk base, lower is better):
+    #   random walk 0.4560 | previous paragraph 0.4200 (with floor) | v3 0.3603 | v4 0.3296
+    #   v4 is better than v3 on both odd/even halves. Of the three values the gain is drift and
+    #   width; skew adds nothing. The always-on 1.5 floor is now a fallback only (see
+    #   forecast_models._FAMILY_WIDEN_FLOOR): with v4 it added nothing (0.3299 with it).
+    #
+    # Caveat -- read before tuning further: every rule and example here was written after seeing
+    # which of these same 29 cards failed, and v4's examples (outbreak, debt limit, reducing
+    # purchases) ARE the missed cards. Expect a smaller gain on unseen cards; the general rule
+    # ("one warning is enough") should travel better than the specific examples. It still loses
+    # 12 of 29 cards to the random walk -- calm cards it now widens for nothing. Thinking is ON
+    # for F4 only (`_STAGE2_THINKING_BY_FAMILY`); with thinking off the model answers "no clear
+    # signal" on 24 of 29 F4 cards and none of this engages. Reproduce: NISH_TEXT_NOTES.md, "F4".
     "F4": (
-        "This is an F4 (tail/shock-from-text) card: the tail penalty is the primary score (20% "
-        "weight). The recent numeric history may look calm -- that is exactly what this family "
-        "tests. If the summaries foreshadow a shock (a surprise reading, an urgent tone, a "
-        "warning of exceptional measures), widen vol_scale and use skew to point the "
-        "distribution toward the side the shock would move prices, even if drift_sd itself stays "
-        "modest -- the tail, not the center, is what this card is scored on."
+        "This is an F4 (tail/shock-from-text) card. The card exists because the documents "
+        "foreshadow a shock that the recent numeric history does not show, and the tail "
+        "penalty -- pinball loss at the 1st/5th/95th/99th percentiles, a DISTANCE -- is the "
+        "primary score. The statistical forecast's width comes from calm history and is "
+        "almost always too narrow here. vol_scale is your main lever: 1.0 says the documents "
+        "are routine, 1.5-2.0 says they carry a warning, 2.5-3.0 says they describe a shock "
+        "in progress (a peg or floor being defended, emergency measures, funding or "
+        "liquidity stress, a crowded position, an unscheduled policy response). Answering "
+        "vol_scale 1.0 on this family is a design failure unless the summaries are genuinely "
+        "routine.\nDirection (skew, and drift_sd) matters too, but only commit when the "
+        "mechanism is clear. Market structure, not central-bank tone, decides these: (a) a "
+        "crowded position unwinds AGAINST the crowd -- a months-long net short is a coiled "
+        "rally in that asset, a crowded long a coiled sell-off; (b) a peg, floor or cap that "
+        "officials say they will defend is under strain, and the break goes the way the "
+        "market was pushing; (c) funding or liquidity stress sends Treasury yields DOWN and "
+        "safe havens (USD, JPY, CHF) UP whatever the last statement said about inflation; "
+        "(d) a taper or hike warning before the move sends yields UP. If none of these "
+        "applies, keep skew 0 and let vol_scale carry the answer.\nHow to read the summaries "
+        "for width -- this is where the model has gone wrong before: judge width by the "
+        "SINGLE most alarming thing in any summary, not by the overall tone. Most documents "
+        "in these corpora are routine central-bank commentary (rates on hold, inflation near "
+        "target) and a real warning usually appears once, as one bullet, in one document. "
+        "One such bullet is enough for at least 2.0, even if every other document is calm. "
+        "Examples that each warrant 2.0 or more on their own: an outbreak or epidemic "
+        "hitting activity or markets; a debt-limit, default or credit-rating fight; "
+        "officials discussing when to reduce or end asset purchases; a peg or floor being "
+        "defended; bank, funding or liquidity strain; positioning that has been one-sided "
+        "for months. Central banks being on hold does NOT cancel any of these -- calm policy "
+        "language before a shock is exactly what this family tests."
     ),
     "default": (
         "Treat this like a general macro forecasting card: weigh the summaries for anything "
@@ -968,8 +1135,7 @@ def build_adjustment_prompt(
     """(system, user). system carries the persistent rules and schema; user carries the case."""
     system = (
         "You are a macro forecaster adjusting a statistical forecast using document summaries. "
-        f"As-of date: {ctx['asof']}. Nothing after this date is known to you; reason only from "
-        "the summaries given, never from outside knowledge of what happened later.\n\n"
+        f"As-of date: {ctx['asof']}. Reason from the summaries given.\n\n"
         f"{_FAMILY_FOCUS.get(ctx['family'], _FAMILY_FOCUS['default'])}\n\n"
         "For EACH asset give three numbers:\n"
         f"  drift_sd  : where the centre of the distribution should move, in standard deviations "
@@ -984,7 +1150,15 @@ def build_adjustment_prompt(
         "Quote conventions matter for direction: a unit like usd_per_eur RISES when the dollar "
         "WEAKENS, while jpy_per_usd RISES when the dollar STRENGTHENS. Check the value unit given "
         "below before choosing a sign, and answer 0 if the convention makes you unsure.\n\n"
-        "The statistical forecast already assumes the summaries say nothing. Answering all zeros "
+        + (
+            "The statistical forecast below has ALREADY moved its centre off the as-of level "
+            "(`model centre`), from the panel's own history alone. drift_sd is what the summaries "
+            "add BEYOND that move, not the whole move: 0 means the model's centre is right, and a "
+            "signal the model has visibly priced in should not be added again. "
+            if ctx.get("model_centre") else
+            "The statistical forecast already assumes the summaries say nothing. "
+        )
+        + "Answering all zeros "
         "for every asset is identical to not reading them -- if a summary gives you something "
         "concrete to react to, react to it; the ranges above already bound how far. Remember "
         "that a decision already delivered is priced into the level given below -- what usually "
@@ -1019,6 +1193,9 @@ def build_adjustment_prompt(
         sig = ctx["sigma"].get(a, 0.0)
         head = (f"  {a}: level {lvl:.6f}, sigma {sig:.6f}" if lvl is not None
                 else f"  {a}: level unknown, sigma {sig:.6f}")
+        mc = (ctx.get("model_centre") or {}).get(a)
+        if mc is not None and lvl is not None:
+            head += f", model centre {mc:.6f} ({mc - lvl:+.6f} vs level, {(mc - lvl) / sig:+.2f} sigma)" if sig else f", model centre {mc:.6f}"
         note = _ASSET_NOTES.get(a)
         lines.append(f"{head}  -- {note}" if note else head)
 
@@ -1102,6 +1279,15 @@ def _extract_json_object(content: str) -> dict[str, Any] | None:
     if start < 0:
         return None
     blob = content[start:].strip()
+    out = _parse_blob(blob)
+    if out is None and "]" in blob and "[" not in blob:
+        # Seen 2026-09-26 on every reply for one F4 card: a stray `]` before the final brace
+        # (`..."}}]}`). No list was ever opened, so dropping unmatched closers changes nothing.
+        out = _parse_blob(blob.replace("]", ""))
+    return out
+
+
+def _parse_blob(blob: str) -> dict[str, Any] | None:
     for end in range(len(blob), 0, -1):
         if blob[end - 1] != "}":
             continue

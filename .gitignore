@@ -38,3 +38,4 @@ proprietary-DO-NOT-PUSH/
 # derived: wrapped copies of unit text for the summary-coverage eval (rebuild: python3 tools/summary_key.py)
 tools/summary_eval/src/
 tools/summary_eval/audit_tasks/
+.text_cache/
