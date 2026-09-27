@@ -1,0 +1,11 @@
+{
+  "monthly_model": "M2",
+  "validation_ratio_m2_over_walk": 0.66,
+  "test_ratio_m2_over_walk": 0.4813,
+  "cards": [
+    "t2-F1-cpi-glidepath-2023",
+    "t2-F1-sahm-watch-2024",
+    "t2-F4-covid-nfp-2020",
+    "t2-F4-cpi-vintage-2022"
+  ]
+}
