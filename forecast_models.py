@@ -10,7 +10,7 @@ turning numbers into a distribution; nothing here reads the text corpus or touch
 THREE MODELS, chosen by `_select_model`:
 
     M2                ridge location-scale + a joint bootstrap of standardised residuals, from
-                      f1_pipeline. F1 level cards only -- that is where it was fitted.
+                      f1_pipeline. F1 cards only (level and log_return) -- that is where it was fitted.
     cumulative walk   one accumulating correlated path per draw. Multi-horizon cards.
     random walk       one correlated draw per horizon. Everything else.
 
@@ -59,7 +59,7 @@ _WINDOW = 260
 #:
 #: STILL UNVALIDATED ON F4. The replay above covers F3 only, because no F4 sweep has been recorded
 #: since the ledger landed. Do that before trusting skew to earn anything on the family it is
-#: really for. M2 (F1 level cards) ignores skew by design -- its residual pool already carries the
+#: really for. M2 (F1 cards) ignores skew by design -- its residual pool already carries the
 #: empirical shape.
 SKEW_ENABLED = True
 
@@ -85,6 +85,12 @@ def build_draws(
                        target_type, family)
     name, model = _select_model(family, target_type, horizons)
     try:
+        out = model(request)
+    except _TooLittleHistory as why:
+        # Not a failure: M2 declines a daily card with too little history to fit, and the card
+        # gets the walk its shape would get without M2 (cumulative for multi-horizon).
+        name, model = _walk_for(horizons)
+        print(f"[{M2}] {why}; using the {name}", file=sys.stderr)
         out = model(request)
     except Exception as exc:
         # A card that raises scores the pre-committed worst case (4.0); the walk scores ~1.0. So
@@ -138,8 +144,11 @@ def _select_model(family: str | None, target_type: str | None,
                   horizons: list[int]) -> tuple[str, "_Model"]:
     """THE SWITCH. Which model runs this card, and why.
 
-        F1, level target   -> M2                 ridge location-scale + residual bootstrap.
-                                                 21 of 23 F1 units. Measured 0.832x the walk on
+        F1 (level or        -> M2                ridge location-scale + residual bootstrap.
+        log_return target)                       All 23 F1 units -- except a daily card with fewer
+                                                 than 1,000 training rows, which M2 hands to the
+                                                 walk below (`_TooLittleHistory`; today the 2003,
+                                                 2004 and 2005 cards). Measured 0.832x the walk on
                                                  F1's own units; measured WORSE than the walk on
                                                  F3 (1.045x, and it cannot even load 4 of 17 of
                                                  them), so it stays where it was tuned. This is
@@ -150,8 +159,8 @@ def _select_model(family: str | None, target_type: str | None,
                                                  of an asset are correlated at sqrt(h_j/h_k)
                                                  instead of independent. Today that is exactly
                                                  F3's 22 units.
-        everything else    -> random walk        one draw per horizon. Today: all 27 F2 units, all
-                                                 31 F4 units, and F1's 2 log_return units.
+        everything else    -> random walk        one draw per horizon. Today: all 27 F2 units and
+                                                 all 31 F4 units.
 
     ON THE MIDDLE BRANCH BEING SHAPE, NOT FAMILY. It reads as "F3's model", and today it selects
     exactly F3, because F3 is currently the only family shipping a multi-horizon walk card. But
@@ -169,21 +178,35 @@ def _select_model(family: str | None, target_type: str | None,
     Both walks share their entire fitting step (`_fit_walk`) and differ only in how the legs are
     put together -- see each function.
     """
-    if target_type == "level" and family in _M2_FAMILIES:
+    if target_type in _M2_TARGETS and family in _M2_FAMILIES:
         return M2, _m2_model
+    return _walk_for(horizons)
+
+
+def _walk_for(horizons: list[int]) -> tuple[str, "_Model"]:
+    """The walk a card gets on its shape alone: cumulative for multi-horizon, else random."""
     if len(horizons) > 1:
         return CUMULATIVE_WALK, _cumulative_walk_model
     return RANDOM_WALK, _random_walk_model
 
 
-#: Families whose LEVEL cards use M2 (f1_pipeline/m2_unit.py). Tuned on F1 only (f1_pipeline
+#: Families whose cards use M2 (f1_pipeline/m2_unit.py). Tuned on F1 only (f1_pipeline
 #: notebooks 01-04), and measured worse than the walk everywhere else, so it stays here. This is
 #: the only family-keyed routing decision: M2 is a fitted model, and a family is the right scope
 #: for "where was this fitted". The walk split below is about card shape instead.
 _M2_FAMILIES = {"T2-F1"}
 
+#: Target types M2 fits. A log_return card is the same model with anchor 0: M2 predicts the
+#: cumulative log return sum(log(1+r)) over the horizon directly (f1_pipeline notebook 03, section 4.4).
+_M2_TARGETS = {"level", "log_return"}
 
-# ---------------------------------------------------------------- model 1: M2 (F1 level cards)
+
+# ---------------------------------------------------------------- model 1: M2 (F1 cards)
+class _TooLittleHistory(Exception):
+    """M2 declining a card on purpose, not an error: a daily panel with fewer than
+    `m2_unit.MIN_TRAIN_DAILY` training rows, where M2 measured worse than the walk."""
+
+
 def _m2_model(r: _Request) -> np.ndarray:
     """Ridge centre, ridge log-variance width, and a joint bootstrap of standardised residuals
     sharing one historical date per draw (f1_pipeline/m2_unit.py; notebooks 01-04).
@@ -192,8 +215,11 @@ def _m2_model(r: _Request) -> np.ndarray:
     """
     from f1_pipeline import m2_unit as m2
 
-    unit = m2.unit_from_panels(r.panels, r.assets, r.horizons, r.asof, target_type="level")
+    unit = m2.unit_from_panels(r.panels, r.assets, r.horizons, r.asof, target_type=r.target_type)
     fits = [m2.fit_m2(c) for c in m2.build_features(unit)]  # asset-major, then horizon: card order
+    if m2.too_little_history(unit, fits):
+        raise _TooLittleHistory(f"{min(f.n_train for f in fits)} training rows on a daily panel "
+                                f"(M2 needs {m2.MIN_TRAIN_DAILY})")
     shift = [r.adjustments.get(f.asset, {}).get("shift", 0.0) for f in fits]
     widen = [r.adjustments.get(f.asset, {}).get("widen", 1.0) for f in fits]
     samples = m2.draw_joint(fits, r.n_draws, r.seed, shift, widen)

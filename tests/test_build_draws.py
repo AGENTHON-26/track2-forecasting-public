@@ -374,11 +374,11 @@ class TestModelDispatch(unittest.TestCase):
 
     def test_the_routing_table(self):
         cases = {
-            # F1 level cards are M2's home: measured 0.832x the walk on F1's own units. This is
-            # the only family-keyed branch, because M2 is a fitted model.
+            # F1 cards are M2's home: measured 0.832x the walk on F1's own units. This is the
+            # only family-keyed branch, because M2 is a fitted model.
             ("T2-F1", "level", (126, 189)): fm.M2,
-            # ...but M2 covers level targets only, so F1's 2 log_return units take a walk.
-            ("T2-F1", "log_return", (127,)): fm.RANDOM_WALK,
+            # ...and that includes F1's 2 log_return units (anchor 0, cumulative log return).
+            ("T2-F1", "log_return", (127,)): fm.M2,
             # Multi-horizon -> the path is accumulated. Today this is exactly F3's 22 units.
             ("T2-F3", "level", (63, 126)): fm.CUMULATIVE_WALK,
             ("T2-F3", "log_return", (21, 63)): fm.CUMULATIVE_WALK,
@@ -403,6 +403,18 @@ class TestModelDispatch(unittest.TestCase):
             self.assertEqual(name, expected,
                              f"{family}/{target_type}/h={list(horizons)} routed to {name}")
             self.assertTrue(callable(model))
+
+    def test_short_daily_history_hands_the_card_to_the_walk(self):
+        """On a daily panel with fewer than m2_unit.MIN_TRAIN_DAILY training rows M2 loses to the
+        walk (f1_pipeline notebook 03, section 4.1), so the card gets the walk for its shape."""
+        for n, horizons, expected in ((700, [126, 189], fm.CUMULATIVE_WALK),
+                                      (700, [126], fm.RANDOM_WALK),
+                                      (1700, [126, 189], fm.M2)):
+            table, asof = _multi_panel(["A"], n=n, seed=5)
+            out = fa.build_draws({"p": table}, ["A"], horizons, asof, {"A": dict(NEUTRAL)}, 300, 0,
+                                 target_type="level", family="T2-F1")
+            self.assertEqual(out.shape, (300, 1, len(horizons)))
+            self.assertEqual(fm.last_model(), expected, f"n={n}, horizons={horizons}")
 
     def test_m2_failure_falls_back_instead_of_losing_the_card(self):
         """M2 refuses cards whose assets span two panel files. A raise would score the card at the

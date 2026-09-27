@@ -12,14 +12,15 @@ Give it one unit folder. It returns, for every (asset, horizon) cell the card as
 
 A draw is then `anchor + mu + sigma * eps(d)`, with the same date `d` used for every cell of the unit.
 The CLI stops before drawing and only reports the four ingredients. `draw_joint()` does the drawing
-(notebook 04's sampler); `forecast_agent.py`'s `build_draws()` calls it for F1 level cards.
+(notebook 04's sampler); `forecast_models.py`'s `build_draws()` calls it for every F1 card.
 
 This is the same logic as notebooks `01_prep_xy` -> `02_split_units` -> `03_model_level` (section 5,
 the final fit), run on one unit instead of all of them. The penalties are not re-tuned here: the
 defaults `lam_mu = lam_sig = 10` are the global choice notebook 03 made by backtest.
 
-Scope matches notebook 03: **level targets only**. Features are still built for cumulative-log-return
-units, but fitting one raises an error.
+Scope matches notebook 03: **every F1 cell, level and cumulative log-return.** On a log-return cell the
+anchor is 0 and the target is the cumulative log return `sum(log(1 + r))` over the next h trading days,
+so `mu` is the expected cumulative log return and a draw is `mu + sigma * eps(d)`.
 
     python f1_pipeline/m2_unit.py units/t2-F1-hawkish-cut-2024
     python f1_pipeline/m2_unit.py units/t2-F1-pause-2006 --out out/m2/pause-2006
@@ -48,6 +49,7 @@ LAM_MU, LAM_SIG = 10.0, 10.0      # notebook 03, section 4.2: argmin on origins 
 WINSOR = 4.0                      # standardised features clipped at +-4
 SIGMA_CLAMP = (0.25, 4.0)         # sigma kept within 1/4x .. 4x the constant-sigma estimate
 MU_CLAMP_SIGMAS = 3.0             # |mu| <= 3 x constant sigma
+MIN_TRAIN_DAILY = 1000            # notebook 03 section 4.1: fewer rows on a daily panel -> M2 loses to the walk
 
 
 # ============================================================================
@@ -261,8 +263,8 @@ class Fit:
 
 def fit_m2(cell: CellData, lam_mu: float = LAM_MU, lam_sig: float = LAM_SIG) -> Fit:
     """Location-scale ridge on every row whose outcome was observed by the as-of."""
-    if cell.unit.target_type != "level":
-        raise ValueError(f"{cell.unit.unit}: M2 covers level targets only (notebook 03); "
+    if cell.unit.target_type not in ("level", "log_return"):
+        raise ValueError(f"{cell.unit.unit}: M2 covers level and log_return targets (notebook 03); "
                          f"this card's target_type is {cell.unit.target_type!r}")
     df = cell.frame
     mean_cols = [c for c in cell.features if not is_scale_feature(c)]
@@ -303,6 +305,20 @@ def fit_m2(cell: CellData, lam_mu: float = LAM_MU, lam_sig: float = LAM_SIG) -> 
                sigma_const=sig0, calib_c=c,
                eps=pd.Series(r / sig, index=pd.DatetimeIndex(odate[m], name="origin_date"), name="eps"),  # 3. shape
                beta=pd.Series(beta[1:], mean_cols), gamma=pd.Series(gamma[1:], vol_cols))
+
+
+def too_little_history(unit: Unit, fits: list[Fit]) -> bool:
+    """True when M2 should not forecast this card: a DAILY panel whose shortest cell has fewer
+    than MIN_TRAIN_DAILY training rows.
+
+    Notebook 03 (section 4.1, and 4.4 for log returns): below ~1,000 rows M2 loses to the random
+    walk on every daily panel -- rates 1.32x, FX 1.07x, factors 1.64x. The targets overlap: at
+    h = 126 two neighbouring rows share 125 of their 126 days, so 462 rows are only ~4 independent
+    examples, too few for ~20 ridge coefficients. Monthly panels are exempt: ~260 rows there and
+    M2 still wins (0.68x). The decision is per card (its shortest cell), so a card never mixes M2
+    draws with walk draws.
+    """
+    return unit.freq == "daily" and min(f.n_train for f in fits) < MIN_TRAIN_DAILY
 
 
 # ============================================================================
