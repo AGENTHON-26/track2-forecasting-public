@@ -169,13 +169,8 @@ _SKEW_CLAMP = (-1.0, 1.0)
 #: scored. Other families keep the wide clamp: F4 is single-cell (the joint weight is
 #: redistributed away entirely) and is scored on exactly the tail that widening helps.
 _WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (1.0, 3.0)}
-#: F4 v3 (2026-09-26): vol_scale 1.0 routine / 1.5-2.0 warning / 2.5-3.0 shock in progress, and
-#: never below 1.0 on this family. Measured on the 29 realized F4 cards, thinking on, 3 runs x 3
-#: draw seeds, with the 1.5 floor in forecast_models: 0.3562 vs 0.4085 floor-only and 0.4200 for
-#: the previous F4 paragraph; better on both odd/even halves, 15 wins / 11 losses. The gain is
-#: drift (width + drift alone 0.3525; skew adds nothing) and is concentrated in JPY carry 2007,
-#: JPY crowding 2024 and SVB 2023 -- the cards the market-structure rules were written around,
-#: so expect less on unseen cards.
+#: F4 is 1.0-3.0 so the prompt's "shock in progress = 2.5-3.0" band is reachable, and a reply
+#: can never NARROW an F4 card. Why F4 is set up this way: the comment above `_FAMILY_FOCUS["F4"]`.
 
 
 def _widen_clamp(family: str | None) -> tuple[float, float]:
@@ -1052,6 +1047,41 @@ _FAMILY_FOCUS: dict[str, str] = {
         "set of numbers that is individually plausible but pairwise incoherent scores worse here "
         "than a smaller, consistent set."
     ),
+    # ---- F4: why this paragraph looks the way it does (Nish, 2026-09-26) -------------------------
+    # F4 cards are built so the recent numbers look calm and a shock lands inside the window. The
+    # score is mostly how far the outcome falls outside the forecast's tails (pinball loss, a
+    # DISTANCE), so a too-narrow or wrong-way forecast is charged in proportion to the miss.
+    #
+    # What the previous, three-sentence paragraph produced (29 realized F4 cards, thinking on):
+    #   - vol_scale always 0.8-1.3, never near the 2.0 cap, even on cards that moved 3-8 sigma.
+    #     The prompt gave a range but no meaning for any point in it, and the JSON template shows
+    #     "vol_scale": 1.0, so the model hugged 1.0.
+    #   - direction right 3 / wrong 7 on the cards that moved more than 2 sigma. It reasoned from
+    #     central-bank TONE ("inflation worries, so yields up"), which is the wrong frame for a
+    #     shock: 2008 funding stress, the 2011 downgrade watch and SVB all went the other way.
+    #
+    # Why this version works:
+    #   1. It gives the numbers meanings: 1.0 routine, 1.5-2.0 warning, 2.5-3.0 shock in progress,
+    #      with a list of what a shock looks like. The model then used 1.0-2.5 instead of 0.8-1.3.
+    #   2. It replaces tone with market STRUCTURE for direction: a crowded position unwinds against
+    #      the crowd, a defended peg is under strain, funding stress sends Treasury yields down and
+    #      safe havens up, a taper warning sends yields up. Direction on the >2-sigma cards went
+    #      from 3 right / 7 wrong to 6 right / 4 wrong.
+    #   3. The 1.5 widen floor in forecast_models (`_FAMILY_WIDEN_FLOOR`) makes the direction bet
+    #      affordable: a wrong drift still lands inside a distribution at least 1.5x history's
+    #      width. Drift WITHOUT the floor lost more cards than it won (13 / 16).
+    #
+    # Measured (29 cards, 3 model runs x 3 draw seeds, random walk base, lower is better):
+    #   random walk alone 0.4560 | + floor 1.5 0.4085 | + previous paragraph 0.4200 | + THIS 0.3562
+    #   Better on both odd/even halves; 15 wins / 11 losses against floor-only. Of the three values
+    #   the gain is drift: width + drift alone 0.3525, drift + floor 0.3539, skew adds nothing.
+    #
+    # Caveat -- read before tuning further: the gain is concentrated in JPY carry 2007, JPY
+    # crowding 2024 and SVB 2023, the cards the structure rules were written around, and they
+    # were written after seeing which cards failed, on the same cards measured here. Expect less
+    # on unseen cards. Thinking is ON for F4 only (`_STAGE2_THINKING_BY_FAMILY`); with thinking
+    # off the model answers "no clear signal" on 24 of 29 F4 cards and none of this engages.
+    # Reproduce: NISH_TEXT_NOTES.md, "F4".
     "F4": (
         "This is an F4 (tail/shock-from-text) card. The card exists because the documents "
         "foreshadow a shock that the recent numeric history does not show, and the tail "

@@ -227,3 +227,33 @@ overshoots when it fires.
 
 Endpoint note: 36 rpm with 8 workers hit 429s and a 40-minute read timeout partway through a 31-unit
 sweep; 12 rpm / 3 workers was clean. 429 retries spend the 25-request unit budget and end in neutral.
+
+### F4 prompt v3 and thinking (2026-09-26, later)
+
+After dev's #14 merge (thinking off, median-of-3), stage 2 answered exact neutral on 24 of 29 F4
+cards, so text added nothing on F4. Thinking is now ON for F4 only (`_STAGE2_THINKING_BY_FAMILY`),
+same 4,000-token cap; a reply cut mid-JSON is re-asked once without thinking (seen 1 in ~130).
+
+All rows: 29 realized F4 cards, random walk base, 3 model runs x 3 draw seeds, lower is better.
+Summaries cached, so only the stage-2 prompt differs between rows.
+
+| arm | mean | even half | odd half | wins / losses vs floor |
+|---|---|---|---|---|
+| random walk alone | 0.4560 | 0.3360 | 0.5846 | 12 / 17 |
+| + floor 1.5 (text off) | 0.4085 | 0.3011 | 0.5236 | — |
+| + previous F4 paragraph | 0.4200 | 0.2815 | 0.5684 | 9 / 20 |
+| + width-only (routine/warning/shock) | 0.3898 | 0.2889 | 0.4978 | 13 / 15 |
+| + v3, all three values (shipped) | 0.3562 | 0.2492 | 0.4708 | 15 / 11 |
+| v3, width + drift only | 0.3525 | 0.2425 | 0.4704 | 15 / 11 |
+| v3, drift only (width left to floor) | 0.3539 | 0.2429 | 0.4728 | 14 / 12 |
+| v3, width + skew only | 0.4077 | 0.3054 | 0.5172 | 9 / 17 |
+
+Why v3 works and its caveat: the comment above `_FAMILY_FOCUS["F4"]` in `text_signal.py`.
+Short version: meanings for the width numbers, market-structure rules for direction instead of
+central-bank tone, and the floor making the direction bet affordable. The gain sits on JPY carry
+2007, JPY crowding 2024 and SVB 2023, and the rules were written after seeing those cards.
+
+Also measured, not kept: M2 as the F4 base (18 level cards; tied with the walk once averaged over
+seeds: 0.6523 vs 0.6489 text off). More draws (1,000-5,000) do not change the expected score, but
+at 500 draws identical forecasts score 0.398-0.426 across seeds, so a single-seed F4 difference
+under ~0.03 is noise.
