@@ -39,6 +39,13 @@
       "file": "bis_wilkins_2014-11-13.txt"
     },
     {
+      "doc_id": "fomc-minutes-20141029",
+      "timestamp": "2014-11-19",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20141029_released_2014-11-19.txt"
+    },
+    {
       "doc_id": "cftc_cot_crude_2014",
       "timestamp": "2014-11-28",
       "source": "CFTC",

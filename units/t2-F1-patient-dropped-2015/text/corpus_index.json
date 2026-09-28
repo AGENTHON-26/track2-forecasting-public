@@ -33,6 +33,13 @@
       "file": "cpi_2015-02-26.txt"
     },
     {
+      "doc_id": "macro_release-2015-03-06",
+      "timestamp": "2015-03-06",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "empsit_2015-03-06.txt"
+    },
+    {
       "doc_id": "fomc-statement-2015-03-18",
       "timestamp": "2015-03-18",
       "source": "Federal Reserve",

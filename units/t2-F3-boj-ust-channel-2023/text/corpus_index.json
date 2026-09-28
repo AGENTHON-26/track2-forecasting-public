@@ -4,6 +4,13 @@
   "note": "Frozen dated corpus; every timestamp <= asof (gate g2_cutoff_resource). Minutes/COT timestamps are PUBLIC RELEASE dates, not meeting/report dates.",
   "documents": [
     {
+      "doc_id": "boj_ycc_20221220",
+      "timestamp": "2022-12-20",
+      "source": "official (see landmarks index)",
+      "doc_type": "landmark",
+      "file": "boj_ycc_20221220.txt"
+    },
+    {
       "doc_id": "bis_guindos_2023-05-17",
       "timestamp": "2023-05-17",
       "source": "BIS central bankers' speeches",

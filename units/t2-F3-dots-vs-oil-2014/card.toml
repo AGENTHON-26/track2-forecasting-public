@@ -72,7 +72,7 @@ end_date   = "2014-12-17"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "Federal Reserve"
+source         = "BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2014-12-17"
 cutoff_checked = true

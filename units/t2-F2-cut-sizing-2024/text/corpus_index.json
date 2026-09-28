@@ -26,8 +26,8 @@
       "note": "minutes of the 20240731 meeting, public release 2024-08-21"
     },
     {
-      "doc_id": "beige_book-2024-08-31",
-      "timestamp": "2024-08-31",
+      "doc_id": "beige_book-2024-09-04",
+      "timestamp": "2024-09-04",
       "source": "Federal Reserve (Beige Book)",
       "doc_type": "beige_book",
       "file": "beigebook_202408.txt"
@@ -38,6 +38,13 @@
       "source": "BIS central bankers' speeches (full archive)",
       "doc_type": "cb_speech",
       "file": "bis_waller_2024-09-06.txt"
+    },
+    {
+      "doc_id": "macro_release-2024-09-06",
+      "timestamp": "2024-09-06",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "empsit_2024-09-06.txt"
     }
   ]
 }

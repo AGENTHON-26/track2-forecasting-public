@@ -77,7 +77,7 @@ path           = "text/"
 cutoff         = "2020-10-30"
 cutoff_checked = true
 doc_types      = ["beige_book", "corporate_8k", "fomc_statement"]
-n_documents    = 4
+n_documents    = 5
 notes          = "Joint companion to the marginal MOM card: the SEC filings put a binary readout inside the window. On a readout the factor complex FLIPS together as one coherent scenario across MOM/HML/SMB — a joint distribution, not independent per-factor draws. Independent marginals cannot represent the flip."
 
 [targets]

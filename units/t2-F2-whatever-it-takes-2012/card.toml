@@ -75,8 +75,8 @@ source         = "ECB (all_ECB_speeches.csv); Federal Reserve; official (see lan
 path           = "text/"
 cutoff         = "2012-07-27"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement", "landmark"]
-n_documents    = 6
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "landmark"]
+n_documents    = 7
 notes          = "Corpus centers on a 2012-07-26 central-bank address containing an unconditional commitment regarding the currency's integrity, alongside two earlier ECB communications, an FOMC statement, and a Beige Book. At the as-of date, speculative EUR positioning is heavily short and sovereign spreads are elevated."
 
 [targets]

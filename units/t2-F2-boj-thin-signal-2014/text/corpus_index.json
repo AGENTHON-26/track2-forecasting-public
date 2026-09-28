@@ -32,6 +32,13 @@
       "file": "beigebook_201409.txt"
     },
     {
+      "doc_id": "fomc-minutes-20140917",
+      "timestamp": "2014-10-08",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20140917_released_2014-10-08.txt"
+    },
+    {
       "doc_id": "bis_kuroda_2014-10-10",
       "timestamp": "2014-10-10",
       "source": "BIS central bankers' speeches (full archive)",

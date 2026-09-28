@@ -73,12 +73,12 @@ end_date   = "2021-12-31"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "Federal Reserve"
+source         = "BLS/BEA news release; Federal Reserve; official (see landmarks index)"
 path           = "text/"
 cutoff         = "2021-12-31"
 cutoff_checked = true
-doc_types      = ["beige_book", "fomc_minutes", "fomc_statement", "macro_release"]
-n_documents    = 5
+doc_types      = ["beige_book", "fomc_minutes", "fomc_statement", "landmark", "macro_release"]
+n_documents    = 7
 notes          = "Companion to the repo's exemplar F4 card, three months later: the asset-purchase reduction pace accelerated, the dot plot shifted to multiple hikes for the coming year, and the 'transitory' characterisation was retired — yet the 2Y still sits at 0.73. The statement text demands a right tail far beyond anything in the trailing panel history; the dots and the reduction pace quantify the hawkish branch."
 
 [targets]

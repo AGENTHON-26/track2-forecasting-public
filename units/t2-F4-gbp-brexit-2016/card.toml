@@ -77,8 +77,8 @@ source         = "BIS central bankers' speeches; Federal Reserve"
 path           = "text/"
 cutoff         = "2016-05-31"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 5
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement"]
+n_documents    = 6
 notes          = "A scheduled binary referendum falls inside the window and its date is known ex-ante. Central-bank texts in the corpus quantify a conditional tail before the event (a warned, potentially sharp depreciation if one branch resolves); polls are close to even. The institutional warnings turn a binary political outcome into an estimable two-sided tail, with neither branch presumed."
 
 [targets]

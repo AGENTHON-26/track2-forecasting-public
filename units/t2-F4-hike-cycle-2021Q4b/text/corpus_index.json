@@ -4,6 +4,13 @@
   "note": "Frozen dated corpus; every timestamp <= asof (gate g2_cutoff_resource). Minutes/COT timestamps are PUBLIC RELEASE dates, not meeting/report dates.",
   "documents": [
     {
+      "doc_id": "fomc_statement_20210922",
+      "timestamp": "2021-09-22",
+      "source": "official (see landmarks index)",
+      "doc_type": "landmark",
+      "file": "fomc_statement_20210922.txt"
+    },
+    {
       "doc_id": "beige_book-2021-10-31",
       "timestamp": "2021-10-31",
       "source": "Federal Reserve (Beige Book)",
@@ -24,6 +31,13 @@
       "doc_type": "fomc_minutes",
       "file": "fomc_minutes_20211103_released_2021-11-24.txt",
       "note": "minutes of the 20211103 meeting, public release 2021-11-24"
+    },
+    {
+      "doc_id": "beige_book-2021-12-01",
+      "timestamp": "2021-12-01",
+      "source": "Federal Reserve (Beige Book)",
+      "doc_type": "beige_book",
+      "file": "beigebook_202112.txt"
     },
     {
       "doc_id": "macro_release-2021-12-10",

@@ -71,12 +71,12 @@ end_date   = "2013-12-18"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "Federal Reserve"
+source         = "BLS/BEA news release; Federal Reserve; official (see landmarks index)"
 path           = "text/"
 cutoff         = "2013-12-18"
 cutoff_checked = true
-doc_types      = ["beige_book", "fomc_minutes", "fomc_statement", "macro_release"]
-n_documents    = 5
+doc_types      = ["beige_book", "fomc_minutes", "fomc_statement", "landmark", "macro_release"]
+n_documents    = 6
 notes          = "A long-anticipated reduction in the purchase pace arrives at the as-of meeting, paired with strengthened forward guidance. The corpus therefore contains BOTH a supply-negative and a guidance-positive signal, and positioning commentary at the as-of is one-sided. Weigh the two texts and the positioning evidence without presuming which force dominates over the horizon."
 
 [targets]

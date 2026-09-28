@@ -38,6 +38,13 @@
       "source": "official (see landmarks index)",
       "doc_type": "landmark",
       "file": "powell_jackson_hole_2022.txt"
+    },
+    {
+      "doc_id": "macro_release-2022-09-02",
+      "timestamp": "2022-09-02",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "empsit_2022-09-02.txt"
     }
   ]
 }

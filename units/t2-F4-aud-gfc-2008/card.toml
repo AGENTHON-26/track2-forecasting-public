@@ -77,8 +77,8 @@ source         = "BIS central bankers' speeches; BIS central bankers' speeches (
 path           = "text/"
 cutoff         = "2008-09-12"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 6
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement"]
+n_documents    = 7
 notes          = "A pre-shock Friday for a commodity/carry currency: RBA texts have already turned (first cut delivered) while US systemic-risk texts accumulate. In the systemic branch, carry, commodities and liquidity can hit AUD together — BNP08 crash geometry on the target side of carry — but the branch is conditional and its size over the horizon is left open."
 
 [targets]
