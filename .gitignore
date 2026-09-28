@@ -39,3 +39,7 @@ proprietary-DO-NOT-PUSH/
 tools/summary_eval/src/
 tools/summary_eval/audit_tasks/
 .text_cache/
+
+# derived: $TEXT_SIGNAL_CACHE_DIR, the local stage-1 summary cache tools/f3_arms.py writes to so
+# an arm comparison varies only the stage-2 prompt. Rebuilt on demand, never read in the image.
+.cache/
