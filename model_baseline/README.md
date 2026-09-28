@@ -55,6 +55,7 @@ monthly cards has a realized outcome in the team eval, so the eval does not move
 | `05_ewma_vol.ipynb` | notebook 5: the walk's sd as an **EWMA** (weights halve every `halflife` steps) instead of a flat window; halflife and `widen` tuned per family on train, kept per family if better on validation (only F4 kept it), test opened once against the Student-t walk |
 | `06_monthly_m2_vs_walk.ipynb` | notebook 6: M2 against the latest walk on the 4 monthly cards; decided on validation (M2 0.660x the walk), confirmed on test (0.481x) → M2 better on monthly cards; **not used** (one model for every card since 2026-09-27) |
 | `07_cumulative_walk_model.ipynb` | notebook 7: **the whole production model in its first cell** (`read_unit` → `fit_walk` → `draw_walk`, plus `forecast_unit`), then what the output looks like on an F1 card (1 asset × 2 horizons), an F3 card (2 assets × 2 horizons, Cholesky) and an F4 card (EWMA sd), what the text's shift / widen / skew do, and a check: identical to `forecast_models.build_draws` on all 103 cards, text off and on |
+| `cumulative_walk_anatomy.html` | the model explained with numbers only, for the team: equation, family settings, and two real cards worked draw by draw (open in a browser, no server). No realized outcomes in it |
 | `data/cards.csv` | one row per card: shape, frequency, panels, train / test sizes |
 | `data/targets.parquet` | every card's train / purged / validation / test / predict rows (written by notebook 1) |
 | `data/steps.parquet` | every card's steps, one row per date and asset (written by notebook 1) |
