@@ -1,0 +1,5 @@
+family,setting,window,widen,nu,halflife
+T2-F1,window 130 / widen 0.9 / nu 5 / halflife 21,130,0.9,5,21
+T2-F2,window 520 / widen 0.9 / nu 4 / EWMA off,520,0.9,4,
+T2-F3,window 260 / widen 1.0 / nu 4 / halflife 126,260,1.0,4,126
+T2-F4,window 42 / widen 0.9 / normal / halflife 63,42,0.9,,63
