@@ -71,12 +71,12 @@ end_date   = "2021-06-17"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches (full archive); Federal Reserve"
+source         = "BIS central bankers' speeches (full archive); BLS/BEA news release; Federal Reserve; official (see landmarks index)"
 path           = "text/"
 cutoff         = "2021-06-17"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 3
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "landmark", "macro_release"]
+n_documents    = 6
 notes          = "SNB communication keeps the franc 'highly valued' with willingness to intervene — an asymmetric policy reaction function stated in text. Appreciation pressure runs into an intervention brake; the distribution should be tighter on one side than the other."
 
 [targets]

@@ -43,8 +43,6 @@ Prepared at the Federal Reserve Bank of Philadelphia and based on information co
 
  Labor market conditions were unchanged or somewhat softer in most Districts compared with the last report. Wage increases were typically characterized as moderate. Boston reported mostly modest wage increases except for greater hikes in salaries at information technology companies. Philadelphia reported moderate wage gains and limited hiring. Cleveland noted wage pressures in the energy sector but not in manufacturing or construction. Atlanta received scattered reports of wage increases, mainly in the professional services and the energy sectors, and more generally in coastal areas undergoing rebuilding after storm damage. Chicago indicated that labor markets have weakened and there was little wage pressure other than for a few skilled trades. Kansas City reported steady wage pressure but noted that there were shortages of qualified workers in the energy sector. Dallas also noted shortages of workers in the energy sector but indicated that wage pressure was mild overall. San Francisco reported some easing in upward wage pressure as firms in that District have been reducing staff counts, although demand remained strong for skilled workers in the resource extraction and information technology industries.
 
- Return to top 
-
  First District--Boston
 
  Business contacts in the First District report little further deterioration in the pace of activity in the second quarter or recent months compared with the last report, although actual results are quite mixed. Retailers--partly because many respondents this time are discounters--say their sales are increasing, and so do software and information technology firms, but real estate markets in the region remain very slow and most responding manufacturers indicate unit sales or orders are down compared with last year. Manufacturers report ongoing hikes in their selling prices. According to most respondents, the near-term outlook is for "more of the same" or further slowing, with some signs of improvement expected in 2009.
@@ -89,8 +87,6 @@ Residential real estate markets in New England continue to show significant year
 
  The number of months of supply is generally higher in New England markets than it was last summer, but it has decreased from its peak earlier this year. One exception is Massachusetts, where contacts report a decrease in listings of houses and condos in response to falling prices that has made the market more balanced, even though sales have declined since last year. Several contacts are optimistic that the housing bill recently passed in Congress will have positive effects on New England markets.
 
- Return to top 
-
  Second District--New York
 
  The Second District's economy has shown signs of stabilizing since the last report, though not in all sectors. Manufacturers report that business activity has steadied in recent weeks, after weakening for a number of months, and factories continue to report fairly widespread increases in both input costs and selling prices. Contacts at non-manufacturing firms generally also report some stabilization in business conditions but continue to indicate modest declines in employment. Consumer confidence was reported to be at record lows in July. Still, retail sales remained on or close to plan in July and early August, and were up slightly from a year earlier; moreover, tourism activity in New York City has firmed. Housing markets have been mixed but generally softer, and office markets have slackened. Finally, bankers report weakening demand for both residential and commercial mortgages, widespread declines in refinancing activity, continued tightening in credit standards, and increasing delinquency rates on home mortgages. 
@@ -116,8 +112,6 @@ New York State manufacturers report some stabilization in business activity in e
 
  Financial Developments 
 Contacts at small to medium-sized banks in the District report weakening demand for both residential and commercial mortgages but little change in demand for consumer or commercial and industrial loans. Bankers also indicate a widespread decrease in refinancing activity: 42 percent of bankers report a decrease and just 3 percent report an increase. For all loan categories, respondents again indicate a tightening of credit standards. The percentage of bankers reporting higher standards ranged from 26 percent in the commercial and industrial loan category to 36 percent in the commercial mortgage category; no respondents indicate eased standards for any type of loan. Respondents note an upturn in the spreads of loan rates over cost of funds in the consumer loan and commercial mortgage categories, though little or no change in spreads is reported for residential mortgages and commercial and industrial loans. Contacts report an increase in the average deposit rate. Finally, bankers report an increase in the delinquency rate for residential mortgages, with one in four respondents indicating a rising delinquency rate and just 4 percent a lower rate. Little change in delinquencies is noted in other loan categories. 
-
- Return to top 
 
  Third District--Philadelphia
 
@@ -146,8 +140,6 @@ Residential real estate activity in the District continued to be sluggish in Aug
  Prices and Wages 
 Reports of increases in input costs and output prices were about as prevalent in August as they were in July. Firms in the region noted increases in the prices of food products, chemicals, industrial materials, and metals. Several retailers noted recent large increases in price quotes from suppliers of many types of merchandise. Although many firms said their customers have been resistant to price increases, a significant number of firms said they have raised their prices in response to rising costs. Most of the firms reporting on employment costs in August said wage increases remained moderate. Firms also indicated that hiring is currently limited to the "most critical positions."
 
- Return to top 
-
  Fourth District--Cleveland
 
  Economic activity in the Fourth District has weakened somewhat since mid-July. Factory output was largely stable, though auto production declined. Residential construction remains weak, with no improvement expected going into 2009. Most commercial builders told us that business is steady; however, a growing number of them reported a decline in inquiries. Sales by District retailers showed a small improvement during July. Demand for business loans was relatively stable, while lending to households was flat to declining. Energy production was steady to increasing. And the market for freight transport services has softened. 
@@ -175,8 +167,6 @@ Reports of increases in input costs and output prices were about as prevalent in
 
  Transportation 
  The market for freight transport services has been relatively soft since our last report. Freight executives told us that the auto, consumer products, and housing industries are primarily responsible for declining demand. Several executives commented that the transport market has hit bottom; however, they do not expect a turnaround until sometime after the first of the year. Rising fuel prices remain the biggest cost increase confronting our contacts. Most shippers continue to pass it through to their customers via a surcharge. Capital expenditures remain on target, but are below 2007 levels for most companies. Little change in capital spending is expected during the coming months. For the most part, hiring was limited to driver turnover, and any wage increases fell within industry norms. 
-
- Return to top 
 
  Fifth District--Richmond
 
@@ -212,8 +202,6 @@ Residential real estate agents across the District reported continued weakness i
  Agriculture 
  Since our last report, most of the District continued to suffer from dry conditions, despite spotty rainfall in a few places. In Maryland and North Carolina, analysts reported that the lack of rain had heightened farmers' concerns about inadequate soil moisture and crop development. Similarly, scattered rainfall brought some relief to parts of Virginia but most of the Commonwealth continued to suffer from dry conditions, reducing potential crop yields. Accordingly, corn silage yields were down and producers also expected corn for grain yield to be below normal. On the other hand, the peach harvest in South Carolina was on schedule, the tomato harvest was completed, and the harvest was near completion for cantaloupes and watermelons.
 
- Return to top 
-
  Sixth District--Atlanta
 
  Reports from contacts for July and August continued to describe weak levels of economic activity throughout the Sixth District. Retailers reported that sales were below expectations while inventories were higher than a year earlier. Both commercial and residential construction activity was weak. Most manufacturers reported lower production levels along with higher input prices. District banks continued to note tighter lending standards. Food, energy, and raw materials prices were elevated, but wage costs were not rising in most parts of the District.
@@ -242,8 +230,6 @@ Residential real estate agents across the District reported continued weakness i
  Agriculture 
  Most District growers affected by poor soil moisture levels benefited from increased precipitation in July and August. Drought conditions still persisted in many northwestern Georgia counties. Many District growers continued to report higher costs of fuel and fertilizers.
 
- Return to top 
-
  Seventh District--Chicago
 
  Economic activity in the Seventh District remained sluggish in July and August. Consumer spending was flat and labor market conditions weakened. Residential construction declined and nonresidential construction showed further signs of slowing. Manufacturing activity was steady. Consumer lending was little changed, while there was some growth in business lending. Cost pressures from material and energy prices remained elevated, while wage pressures continued to be low. The condition of corn and soybean crops improved.
@@ -269,8 +255,6 @@ Consumer spending was little changed since the previous reporting period. Althou
  Agriculture 
  Crop conditions improved in the District as sufficient moisture remained from earlier rains to offset dry weather in August. Replanted fields may boost soybean production above current published estimates. Contacts reported that corn and soybean fields were at least two weeks behind the typical stages of development, making crop yields more vulnerable than usual to an early frost. Concerns about risks for 2009 grew as farmers faced higher planting costs while having fewer options to lock in prices for their crops. These circumstances have led parties in transactions to more fully investigate the financial health of their counterparties. Hay supplies improved with new cuttings, and pastures were in good shape. Corn and soybean prices fell during the reporting period. However, livestock producers still struggled with high feed costs. Hog producers benefited from higher hog prices. Lower corn prices eased margins for several ethanol producers reducing delays and allowing some new plants to start production.
 
- Return to top 
-
  Eighth District--St. Louis
 
  Overall economic conditions in the Eighth District have softened since our previous report. Contacts noted declining activity in services and manufacturing. Compared with a year ago, retail sales were flat in July and the first half of August, while auto sales declined. Home sales and construction continued to decline throughout the District, while commercial real estate reports were mixed. Overall lending activity at a sample of District banks declined during the three-month period ending in July.
@@ -295,8 +279,6 @@ A survey of senior loan officers at a sample of District banks showed a modest d
 
  Agriculture and Natural Resources 
 Development of the District's major crops remains behind its 5-year average. The overall condition of corn, soybeans, rice, and sorghum has improved slightly or acquired roughly the same percentage of poor ratings as in our previous report; however, a higher percentage of cotton was rated in poor condition. As of August 1, yields for the major crops in each District state were expected to be at least 88 percent of last year's yields.
-
- Return to top 
 
  Ninth District--Minneapolis
 
@@ -331,8 +313,6 @@ Labor markets loosened somewhat since the last report. Minnesota's unemployment 
 
  Prices for many commodities and energy have decreased since mid July, but remain at relatively high levels. Several metal and grain prices, including aluminum, copper, lead, corn and soybeans, decreased significantly. Minnesota gasoline prices were 38 cents per gallon lower in mid-August than in mid-July; however, they were 68 cents higher than a year ago. Some school districts have moved to a four-day week in order to reduce fuel and energy costs. A bank director noted that medical insurance prices increased 7 percent this year, while health care costs to businesses increased only 5 percent due to benefit reductions and product shifts. 
 
- Return to top 
-
  Tenth District--Kansas City
 
  Economic growth in the Tenth District improved slightly in late July and early August. Retail and restaurant sales rose, although auto sales remained weak. Manufacturing activity rebounded after weakening in early summer, and expectations for the next six months were positive. Residential real estate sales experienced a modest improvement, but sales volume and home prices remained well below year-ago levels. Commercial real estate activity held steady despite many contacts reporting an additional tightening of credit, but bankers reported a slight reduction in overall loan demand. Energy activity remained robust, and agricultural conditions were favorable. Labor markets softened, but some firms continued to report labor shortages. Wage pressures were largely unchanged, and most firms did not expect future wage increases. Additional gains in raw materials prices resulted in higher prices for finished products.
@@ -359,8 +339,6 @@ Agricultural conditions remained favorable in late July and August. Wheat yields
 
  Wages and Prices 
  Price pressures continued to increase in late July and early August, but wage pressures remained steady. Prices of final manufactured products rose further as District factories faced surging raw material prices and fuel surcharges. Some retailers reported higher prices in the current survey period, but most expected prices to stabilize over the next three months. Restaurant contacts indicated that menu prices were flat despite increased food costs. Some contacts continued to report labor shortages, but wage pressures remained largely unchanged. Most respondents did not expect to raise wages in the next three months. However, a number of firms were instituting more flexible work schedules or shorter work weeks to alleviate employee concerns with high gasoline prices. District layoff announcements exceeded hiring announcements in July, but hiring announcements rebounded in August with net hiring gains erasing July's losses.
-
- Return to top 
 
  Eleventh District--Dallas
 
@@ -415,8 +393,6 @@ Automotive industry contacts reported that several lenders had exited the auto l
  Agriculture 
 Rain improved soil moisture conditions in a few areas, but drought continues to stress crops across much of the District. Hurricane Dolly wiped out cotton and sorghum acreage in the Rio Grande Valley adding to crop losses. Livestock operators culled their herds at a higher-than-normal rate due to elevated feed costs and poor pasture conditions. Dairy farmers said high demand for products and a recent reprieve in grain prices had led to better conditions. 
 
- Return to top 
-
  Twelfth District--San Francisco
 
  Economic activity in the Twelfth District remained subdued during the survey period of late July through late August. Upward price pressures eased for food and energy-intensive items, but price inflation remained significant overall, while wage pressures fell further. Most retailers saw sluggish sales, and demand for services weakened. Manufacturing activity was mixed across sectors but appeared to expand on net, while demand remained strong for agricultural products and natural resources. The prolonged slump in District housing markets continued, and demand for commercial real estate remained somewhat weak. Contacts from financial institutions indicated that loan demand and credit quality slipped a bit further.
@@ -448,13 +424,3 @@ Rain improved soil moisture conditions in a few areas, but drought continues to 
  Financial Institutions 
 
  District banking contacts reported that loan demand fell on net relative to the previous survey period. Scattered reports indicated that some businesses have sidelined expansion projects, resulting in a pullback in the demand for commercial and industrial loans. Demand for new residential mortgages continued to be very weak, and lending standards remained quite restrictive for residential mortgages and construction loans. Asset quality deteriorated a bit further on net, with scattered reports of more severe deterioration and concerns about additional bank failures, especially among community banks that have been stressed by poorly performing construction loans.
-
- Return to top 
-
- Home | Monetary Policy | 
-
- 2008 calendar 
-
- Accessibility | Contact Us 
-
-Last update: October 1, 2008

@@ -75,8 +75,8 @@ source         = "BIS central bankers' speeches (full archive); Federal Reserve"
 path           = "text/"
 cutoff         = "2014-10-24"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 5
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement"]
+n_documents    = 6
 notes          = "Autumn governor speeches defend the inflation goal as oil drags inflation down and a major easing program's anniversary approaches — grounds for suspicion, not confirmation, of a policy shift in either direction. The card tests whether stated uncertainty is calibrated to the strength of the pre-as-of evidence."
 
 [targets]

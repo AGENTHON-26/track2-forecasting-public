@@ -88,7 +88,7 @@ path           = "text/"
 cutoff         = "2022-09-09"
 cutoff_checked = true
 doc_types      = ["beige_book", "fomc_minutes", "fomc_statement", "landmark", "macro_release"]
-n_documents    = 5
+n_documents    = 6
 notes          = "A CPI release date falls inside the horizon (known ex-ante) with Jackson Hole still ringing. The surprise branches must move MKT and HML together within each draw (rate-sensitive growth carries the factor exposure), so the two legs form a coherent joint scenario rather than independent per-factor noise. Signed co-movement through the print is the joint test."
 
 [targets]

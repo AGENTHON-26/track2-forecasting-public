@@ -77,8 +77,8 @@ source         = "BIS central bankers' speeches; Federal Reserve"
 path           = "text/"
 cutoff         = "2011-07-22"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 6
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement"]
+n_documents    = 7
 notes          = "Companion to the rates card at the same as-of: brinkmanship texts with the X-date inside the window, a rating agency on record, and European stress in the background. Equity draws need a fat left tail for the confidence-shock branch and a relief branch for a deal — the panel's calm summer tape prices neither."
 
 [targets]

@@ -75,8 +75,8 @@ source         = "ECB (all_ECB_speeches.csv); Federal Reserve"
 path           = "text/"
 cutoff         = "2019-03-01"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 6
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement"]
+n_documents    = 7
 notes          = "DKK is pegged to EUR (ERM-II +-2.25%, in practice far tighter), so USD/DKK is EUR/USD in disguise; ECB texts drive it. The honest distribution is EXTREMELY narrow around the EUR path — lazy wide tails are punished by CRPS over-dispersion (GR07)."
 
 [targets]

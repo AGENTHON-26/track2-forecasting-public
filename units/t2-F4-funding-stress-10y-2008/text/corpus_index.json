@@ -52,6 +52,13 @@
       "source": "Federal Reserve (Beige Book)",
       "doc_type": "beige_book",
       "file": "beigebook_200809.txt"
+    },
+    {
+      "doc_id": "macro_release-2008-09-05",
+      "timestamp": "2008-09-05",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "empsit_2008-09-05.txt"
     }
   ]
 }

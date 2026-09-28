@@ -18,6 +18,13 @@
       "file": "beigebook_202009.txt"
     },
     {
+      "doc_id": "beige_book-2020-10-21",
+      "timestamp": "2020-10-21",
+      "source": "Federal Reserve (Beige Book)",
+      "doc_type": "beige_book",
+      "file": "beigebook_202010.txt"
+    },
+    {
       "doc_id": "pfizer_8k_2020-10-27_pfe-09272020xex99",
       "timestamp": "2020-10-27",
       "source": "SEC EDGAR (8-K exhibit)",

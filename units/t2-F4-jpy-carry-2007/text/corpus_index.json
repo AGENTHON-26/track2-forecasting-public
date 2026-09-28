@@ -46,6 +46,13 @@
       "file": "fomc_statement_20070628.txt"
     },
     {
+      "doc_id": "fomc-minutes-20070628",
+      "timestamp": "2007-07-19",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20070628_released_2007-07-19.txt"
+    },
+    {
       "doc_id": "cftc_cot_japanese_2007",
       "timestamp": "2007-07-20",
       "source": "CFTC",

@@ -4,13 +4,14 @@
 at horizons [145, 165] BD · unit `percent (U-3, current vintage)` · split public-dev
 
 Inputs mounted read-only: `/input/panels/macro_monthly.parquet` (rows only through
-the as-of date) and `/input/text/` (6 dated documents, all timestamps <= as-of;
+the as-of date) and `/input/text/` (9 dated documents, all timestamps <= as-of;
 see `text/corpus_index.json`).
 
 Produce `forecast.parquet` with columns `[draw:int32, asset:string, horizon:int32,
 value:float64]`, n_draws >= 200 (>= 500 recommended),
 plus `forecast_meta.json`. `value` = level in the stated unit on the target date.
 
+Panel values are the vintage as published on the as-of date (2 August 2024), not later revisions; PCE indexes are on the base then in force (2017=100). The target stays on the current vintage, as the unit above states.
 
 Scoring: S = 0.5 x marginal CRPS + 0.3 x joint variogram + 0.2 x tail penalty (lower
 is better) against sealed realized outcomes.

@@ -73,12 +73,12 @@ end_date   = "2022-02-18"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches; ECB (all_ECB_speeches.csv); Federal Reserve"
+source         = "BIS central bankers' speeches; BLS/BEA news release; ECB (all_ECB_speeches.csv); Federal Reserve"
 path           = "text/"
 cutoff         = "2022-02-18"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 6
+doc_types      = ["beige_book", "cb_speech", "fomc_statement", "macro_release"]
+n_documents    = 7
 notes          = "Escalation warnings are published and explicit before the as-of — a rare case of governments pre-announcing a tail. Energy dependence means the geopolitical branch, if it materialises, could act as a terms-of-trade shock for the euro; the tail size is estimable from the corpus, though the branch is conditional and its direction over the horizon is left open."
 
 [targets]

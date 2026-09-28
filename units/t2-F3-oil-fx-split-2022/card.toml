@@ -72,12 +72,12 @@ end_date   = "2022-02-18"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches; Federal Reserve; official (see landmarks index)"
+source         = "BIS central bankers' speeches; BLS/BEA news release; Federal Reserve; official (see landmarks index)"
 path           = "text/"
 cutoff         = "2022-02-18"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement", "landmark"]
-n_documents    = 4
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "landmark", "macro_release"]
+n_documents    = 6
 notes          = "Published escalation warnings sit in the corpus while FX correlations still reflect the joint-dollar regime. In the conflict branch, energy exporters (NOK, CAD) and energy-exposed Europe (EUR, SEK) DECOUPLE — a within-G10 correlation break that trailing covariance cannot produce."
 
 [targets]

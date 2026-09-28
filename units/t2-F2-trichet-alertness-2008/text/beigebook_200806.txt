@@ -53,8 +53,6 @@ Prepared at the Federal Reserve Bank of Richmond and based on information collec
 
  Business contacts in most Districts reported moderate or limited wage growth in response to some loosening of labor market conditions. Contacts in the Boston, Chicago, Kansas City, and San Francisco Districts noted wage pressures for certain skilled labor positions in industries facing worker shortages.
 
- Return to top 
-
  First District--Boston
 
  Sales and revenue results at First District retailers and manufacturers continue to be mixed, but contacts indicate that business activity is generally softening. Respondents cite ongoing cost pressures; many manufacturers say they have raised or plan to raise prices. Revenue growth rates have slowed for software and information technology services firms in the region, and most staffing firms report little growth. Contacts in residential real estate cite some positive signs, but ongoing declines in home sales and prices. According to most respondents, the outlook remains uncertain. 
@@ -97,8 +95,6 @@ Commercial real estate contacts report that the Boston office building market, w
 
  Contacts in Massachusetts continue to report increased activity at open houses, and April's pending home sales numbers in the Boston area are said to look promising. However, one contact notes that financing issues could still prevent increased activity from translating into increased sales. 
 
- Return to top 
-
  Second District--New York
 
  The Second District's economy has been generally weaker since the last report. Manufacturers report that business activity remained sluggish in May, while cost pressures have been increasingly widespread. Contacts at non-manufacturing firms, in general, report continued deterioration in business conditions and anticipate little improvement in the months ahead. A major employment agency notes recent weakening in hiring activity and some general slackening in the labor markets. Retailers indicate mixed results for April and May; sales are said to be close to plan on average. 
@@ -124,8 +120,6 @@ Commercial real estate contacts report that the Boston office building market, w
 
  Financial Developments 
  Bankers report little change in loan demand in any loan category or in refinancing activity. Respondents indicate continued tightening of credit standards across all loan categories, most evidently in the commercial mortgage category. No bankers report eased standards for any type of loan. Respondents note an increase in the spreads of loan rates over cost of funds in all loan categories, especially in commercial and industrial loans. Bankers also report a decrease in average deposit rates. Finally, respondents indicate a rise in delinquencies in all loan categories, but most notably on consumer loans. 
-
- Return to top 
 
  Third District--Philadelphia
 
@@ -155,8 +149,6 @@ Commercial real estate contacts report that the Boston office building market, w
 
  Prices and Wages 
  Reports of increases in input costs and output prices from Third District business contacts continued to be as prevalent in May as in April, and for many of the same goods. Firms in the region noted increases in the prices of food products, chemicals, industrial materials, and metals. They also reported rising costs for energy. Firms noted increases in the prices of a wide range of imported goods, and they expect import prices to rise further. Most of the firms reporting on employment costs in May indicated that wage increases remained moderate. Some contacts noted that slower business activity or delays in expansion plans were resulting in reductions in current and prospective employment.
-
- Return to top 
 
  Fourth District--Cleveland
 
@@ -188,8 +180,6 @@ Commercial real estate contacts report that the Boston office building market, w
  Transportation 
  Freight transport has been flat since our last report, with volumes running below available capacity. Most carriers expect current market conditions to continue into the second half of 2008, with some modest improvement toward the end of the year. All our contacts noted a significant jump in fuel prices, which they were largely able to pass through via a surcharge. Freight pricing remains competitive; however, as excess capacity is removed from the system, some contacts believe prices will begin to strengthen. Capital expenditures were reported to be somewhat below projected plans. Carriers expect that future expenditures will not 
  increase until freight volumes start to pick up. Hiring was limited to driver turnover, and no change in wages was reported.
-
- Return to top 
 
  Fifth District--Richmond
 
@@ -229,8 +219,6 @@ Tourist activity was mixed across the District since our last report. Contacts a
  Agriculture 
  Cooler-than-normal temperatures in recent weeks slowed the planting and development of District crops. Soybeans, sweet corn, and cucumber plantings were well behind schedule in Maryland, while plantings of peanuts and soybeans were slightly behind in Virginia. Furthermore, corn was replanted in several counties of Virginia due to the cooler weather. Agricultural analysts noted that crop conditions remained in mostly good condition throughout the District, despite dry conditions in some areas of North and South Carolina. Small grain harvesting began in Virginia with the majority of the crop in good to excellent condition.
 
- Return to top 
-
  Sixth District--Atlanta
 
  Sixth District business contacts indicated that overall economic activity remained weak from mid-April through May. Several retailers and auto dealers reported that sales were disappointing, but tourism activity continued to be positive. Reports from homebuilders and Realtors indicated that home sales and prices remained below year-ago levels. However, most Florida homebuilders we contacted stated that new home sales were flat to slightly up on a year-over-year basis. District contractors indicated that commercial development remained soft and most industrial contacts reported that production and shipments were down from year-ago levels. Banking industry contacts reported loan demand for all types of loans was slightly lower. Labor markets displayed additional signs of weakness with contacts in several industries citing plans to limit hiring and, in some cases, reduce payrolls. Further price increases were noted in energy, metals, and agricultural goods. Business' ability to pass through higher input costs to customers varied. 
@@ -260,8 +248,6 @@ home prices throughout the District. New home inventories continued to moderate 
  Agriculture 
  Spring rains improved agricultural conditions across much of the District. However, some areas in Florida have had no significant rainfall since April. With dry pasture conditions, Florida ranchers are reporting hay shortages and are selling off livestock to relieve grazing pressures. Agricultural firms across the region noted higher costs of fuel, fertilizer, and feed. Market conditions for local poultry and cotton remained favorable because of strong global demand and a favorable international pricing environment.
 
- Return to top 
-
  Seventh District--Chicago
 
  Economic activity in the Seventh District expanded in April and May, but at a slower pace than in the previous reporting period. Consumer spending was sluggish, and labor market conditions weakened some, although they continued to vary by industry and location. Residential construction showed signs of stabilizing and nonresidential construction steadily increased. Manufacturing activity weakened slightly, but business conditions remained solid. Consumer lending declined, while business lending remained strong. Cost pressures from rising material and energy prices increased significantly from the previous reporting period, while wage pressures remained low. Delays in planting crops led to expectations of small losses in yield.
@@ -290,8 +276,6 @@ Manufacturing activity in the District weakened slightly from the previous repor
  Wet and cool weather resulted in widespread planting delays during April and May. Nonetheless, by the end of the reporting period corn planting was nearing completion and soybean planting was well underway. As a result, the emergence of corn and soybean plants was behind the normal pace in most of the District. However, contacts expected relatively small losses in yield, though some ground will require replanting. On the plus side, high levels of subsoil moisture provide some insurance against drought this summer. Corn prices drifted lower during the reporting period, while soybean prices picked up again. These price movements and high input costs for corn held back the shift toward extra corn acres. Milk, cattle, and hog prices 
  increased. Margins of livestock producers remained tight due to rising feed costs, which also were reported to be causing producers to pare back herds.
 
- Return to top 
-
  Eighth District--St. Louis
 
  Overall economic activity in the Eighth District has remained roughly flat since our previous report. Contacts in the manufacturing and services sectors noted slight increases. Retail and auto sales declined in April and early May compared with a year ago. April year-to-date home sales and residential construction continued to weaken throughout the District compared with the same period in 2007, while commercial real estate market conditions were mixed in the first quarter of 2008 relative to the fourth quarter of 2007. Lending activity at a sample of large District banks decreased moderately in the first quarter of 2008 relative to the fourth quarter of 2007.
@@ -319,8 +303,6 @@ A survey of senior loan officers at a sample of large District banks showed a mo
 
  Agriculture and Natural Resources 
  Frequent wet and cool weather conditions since early April have delayed planting and crop growth throughout the District. Planting of the major crops--corn, soybeans, sorghum, cotton, and rice--is behind its 5-year average pace. Corn and soybean planting in Missouri has been delayed more than in other states in the District, but cotton and rice planting is ahead of normal. Emergence of the major crops is also behind its normal pace throughout the District. 
-
- Return to top 
 
  Ninth District--Minneapolis
 
@@ -356,8 +338,6 @@ A survey of senior loan officers at a sample of large District banks showed a mo
  Significant price increases were noted for some metals, food, fertilizer, airline tickets and fuel. Prices for steel and aluminum were up 35 percent and more than 15 percent, respectively, over a year ago with most of the increase occurring in the past six months. A Montana bakery noted that flour prices increased 130 percent over the past three months, which led to a 25-cent to 50-cent increase in the price of a loaf of bread. Phosphate fertilizer prices were almost twice as high as last year, according to a bank director. A major Minnesota-based airline raised ticket prices in 
  May in response to increased fuel costs. In contrast, lumber prices were down more than 10 percent from a year ago.
 
- Return to top 
-
  Tenth District--Kansas City
 
  Economic growth in the Tenth District remained modest in early April and May. Overall, consumer spending was flat and below expectations. Manufacturing activity improved slightly due to rising exports. Residential real estate activity rose seasonally and commercial real estate activity held steady. High commodity prices fueled robust gains in energy and agricultural sectors. Labor markets expanded slightly with some firms noting labor shortages. Reports of wage pressures moderated, but input and finished goods prices rose further.
@@ -383,8 +363,6 @@ offering forward contracts for wheat due to price volatility and hefty margin ca
 
  Wages and Prices 
  Price pressures continued to build since the last survey period but wage pressures held steady. District manufacturers reported that rising raw materials prices, especially for steel and fuel, were contributing to higher prices for finished goods. Many District contacts reported paying fuel surcharges. Farmers reported that higher input costs, especially for fertilizer, chemicals, seed, and fuel, were trimming profit margins. Restaurants were also paying significantly higher prices for food and passing a portion of the increased cost to diners. Retail contacts reported higher selling prices since the last survey and expected further price increases in the coming months. Builders paid higher prices for some construction materials, such as roofing and metal supplies, though lumber prices were flat. District labor shortages persisted, especially for minimum-wage positions and technically skilled workers, but most firms did not plan to raise wages. District hiring announcements continued to outpace layoff announcements.
-
- Return to top 
 
  Eleventh District--Dallas
 
@@ -437,8 +415,6 @@ offering forward contracts for wheat due to price volatility and hefty margin ca
  Agriculture 
  Rain improved conditions in most areas, but poor moisture in the Texas High Plains has led to lower projections for wheat yields. Livestock are in good condition. Supplemental feeding continued in drier areas. High fuel and fertilizer costs are leading farmers to plant soybeans instead of corn. Costs are rising, and farmers hope prices will be favorable at harvest time. Producers say market volatility has made it harder to use forward contracts to lock in crop prices.
 
- Return to top 
-
  Twelfth District--San Francisco
 
  Economic activity in the Twelfth District appears to have changed little during the survey period of late April through the end of May. Upward price pressures were subdued for most products but remained severe for food and energy-intensive items, while wage pressures continued to ease in some sectors. Retail sales were weak and demand growth slowed for service providers. Manufacturing activity held steady or grew slightly on net, while producers of agricultural and natural resource products saw strong sales. Housing markets remained exceptionally weak despite scattered reports of improved sales, and demand for commercial real estate continued to soften in some areas. Banks and other financial institutions reported that loan demand was largely unchanged or fell slightly on net, and credit standards tightened further. 
@@ -465,13 +441,3 @@ Demand and sales grew at a strong pace for agricultural items and natural resour
 
  Financial Institutions 
 District banking contacts reported that lending activity was largely flat or fell slightly relative to the previous survey period. Reports on commercial and industrial lending suggested a slight easing overall, with some contacts reporting weak demand and others reporting little change. Lenders continued to tighten credit standards, which remained especially strict for residential mortgages and construction loans. Credit quality eroded a bit further, mainly for loans related to the housing sector, with the most significant adverse impacts on asset portfolios noted for smaller community banks.
-
- Return to top 
-
- Home | Monetary Policy | 
-
- 2008 calendar 
-
- Accessibility | Contact Us 
-
-Last update: June 11, 2008

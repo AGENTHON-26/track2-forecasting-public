@@ -1,0 +1,127 @@
+1 
+July 28, 202 3 
+Bank of Japan 
+ 
+Statement on Monetary Policy 
+ 
+1. At the Monetary Policy Meeting held today, the Policy Board of the Bank of Japan decided to 
+conduct yield curve control  with greater flexibility . The July 2023 Outlook for Economic 
+Activity and Prices (Outlook Report) shows that sustainable and stable achievement of the price 
+stability target of 2 percent , accompanied by wage increases, has not yet come in sight , and 
+thus the Bank  needs to patiently continue with monetary easing  under Quantitative and 
+Qualitative Monetary Easing (QQE) with Yield Curve Control. In this context, taking account 
+of extremely high uncertainties for economic activity and prices, it is appropriate for the Bank 
+to enhance the sustainability of monetary easing under the current framework by conducting 
+yield curve control with greater flexibility and nimbly responding to both upside and downside 
+risks to Japan's economic activity and prices. 
+The Bank decided on the following regarding yield curve control and the guidelines for asset 
+purchases. 
+(1) Yield curve control 
+a) The Bank decided , by a unanimous vote , to set the following guideline for market 
+operations for the intermeeting period. 
+The short-term policy interest rate: 
+The Bank will apply a negative interest rate of minus 0.1 percent to the Policy-Rate 
+Balances in current accounts held by financial institutions at the Bank. 
+The long-term interest rate: 
+The Bank will purchase a necessary amount of Japanese government bonds (JGBs) 
+without setting an upper limit  so that 10 -year JGB yields will remain at around zero 
+percent. 
+b) Conduct of yield curve control (an 8-1 majority vote) [Note] 
+The Bank will continue to allow 10-year JGB yields to fluctuate in the range of around 
+plus and minus 0.5 percentage points from the target level, while it will conduct yield 
+curve control with greater flexibility, regarding the upper and lower bounds of the range 
+2 
+as references, not as rigid limits, in its ma rket operations . The Bank  will offer to 
+purchase 10-year JGBs at 1.0 percent every business day through fixed -rate purchase 
+operations, unless it is highly likely that no bids will be submitted. 1  In order to 
+encourage the formation of a yield curve that is consistent with the above guideline for 
+market operations, the Bank will  continue with large-scale JGB purchases and make 
+nimble responses for each maturity  by, for example,  increasing the amount of JGB 
+purchases and conduct ing fixed-rate purchase operations and the Funds-Supplying 
+Operations against Pooled Collateral. 
+(2) Guidelines for asset purchases (a unanimous vote) 
+With regard to asset purchases other than JGB purchases, the Bank decided to set the 
+following guidelines. 
+a) The Bank will purchase exchange-traded funds (ETFs) and Japan real estate investment 
+trusts (J-REITs) as necessary with upper limits of about 12 trillion yen and about 180 
+billion yen, respectively, on annual paces of increase in their amounts outstanding. 
+b) The Bank will maintain the amount outstanding of CP at about 2 trillion yen . It will 
+purchase corporate bonds at about the same pace as prior to the COVID-19 pandemic, 
+so that their amount outstanding will gradually return to the pre-pandemic level of 
+about 3 trillion yen. In adjusting the amount outstanding of corporate bonds, the Bank 
+will give due consideration to their issuance conditions. 
+2. There are extremely high uncertainties for Japan 's economic activit y and prices, including 
+developments in overseas economic activity an d prices, developments in commodity prices, 
+and domestic firms ' wage- and price -setting behavior.  Under these circumstances, it is 
+necessary to pay due attention to developments in financial and foreign exchange markets and 
+their impact on Japan's economic activity and prices. 
+Japan's recent inflation rates, as measured by the consumer price index (CPI), are higher than 
+projected in the April 2023 Outlook Report, and wage growth has risen, partly on the back of 
+this year's annual spring labor-management wage negotiations. Signs of change have been seen 
+in firms' wage- and price-setting behavior, and inflation expectations have shown some upward 
+movements again. If upward movements in prices continue, the effects of monetary easing will 
+strengthen through a decline in real interest rates, while on the other hand , strictly capping 
+                                                   
+1 Although no bids are expected to be submitted under the current interest rate environment, the Bank will 
+offer fixed-rate purchase operations every business day for the time being. 
+3 
+long-term interest rates could affect the functioning of bond markets and the volatility in other 
+financial markets. Such effects are expected to be mitigated by conducting yield curve control 
+with greater flexibility. 
+Meanwhile, there are also significant downside risks to Japan's economic activity and prices, 
+including the impact of a tightening of global financial conditions on overseas economies. If 
+such downside risks materialize, the effects of monetary easing will be maintained through a 
+decline in long-term interest rates under the framework of yield curve control. 
+3. With extremely high uncertainties surrounding economies and financial markets at home an d 
+abroad, the Bank will patiently continue with monetary easing while nimbly responding to 
+developments in economic activity and prices as well as financial conditions. By doing so, it 
+will aim to achieve the price stability target of 2 percent in a sustai nable and stable manner, 
+accompanied by wage increases. 
+The Bank will continue with  QQE with Yield Curve Control, aiming to achieve the price 
+stability target, as long as it is necessary for maintaining that target in a stable manner. It will 
+continue expanding the monetary base until the year -on-year rate of increase in the observed 
+CPI (all items less fresh food) exceeds 2 percent and stays above the target in a stable manner. 
+The Bank will continue to maintain the stability of financing, mainly of firms,  and financial 
+markets, and will not hesitate to take additional easing measures if necessary. 
+ 
+[Note] V oting for the action: UEDA Kazuo, HIMINO Ryozo, UCHIDA Shinichi, ADACHI Seiji, NOGUCHI 
+Asahi, NAKAGAWA Junko, TAKATA Hajime, and TAMURA Naoki. V oting against the action: 
+NAKAMURA Toyoaki. While Nakamura Toyoaki was in favor of the idea of conducting yield curve 
+control with greater flexibility , he dissented, considering that it was more  desirable to allow greater 
+flexibility after confirming a rise in firms' earning power from sources such as the Financial Statements 
+Statistics of Corporations by Industry. 
+                                                   
+Reference 
+Meeting hours: 
+Thursday, July 27: 14:00-16:06 
+Friday, July 28: 9:00-12:21 
+Policy Board members present: 
+   UEDA Kazuo, Chairman (Governor) 
+   HIMINO Ryozo (Deputy Governor) 
+   UCHIDA Shinichi (Deputy Governor) 
+ADACHI Seiji 
+NAKAMURA Toyoaki 
+NOGUCHI Asahi 
+NAKAGAWA Junko 
+TAKATA Hajime 
+TAMURA Naoki 
+ 
+[Others present] 
+July 27 
+From the Ministry of Finance: 
+SAKAMOTO Motoru, Deputy Vice-Minister for Policy Planning and Coordination 
+ (14:00-16:06) 
+From the Cabinet Office: 
+INOUE Hiroyuki, Vice-Minister for Policy Coordination (14:00-16:06) 
+July 28 
+From the Ministry of Finance: 
+AKINO Kozo, State Minister of Finance (9:00-11:55, 12:03-12:21) 
+From the Cabinet Office: 
+FUJIMARU Satoshi, State Minister of Cabinet Office (9:00-11:55, 12:03-12:21) 
+Release dates and times: 
+Statement on Monetary Policy -- Friday, July 28 at 12:28 
+Outlook for Economic Activity and Prices (Outlook Report) 
+The Bank's View -- Friday, July 28 at 12:28 
+Full text -- Monday, July 31 at 14:00 
+Summary of Opinions -- Monday, August 7 at 8:50 
+Minutes of the Monetary Policy Meeting -- Wednesday, September 27 at 8:50 

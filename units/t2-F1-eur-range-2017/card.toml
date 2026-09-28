@@ -71,12 +71,12 @@ end_date   = "2017-09-07"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "ECB (all_ECB_speeches.csv); Federal Reserve"
+source         = "BLS/BEA news release; ECB (all_ECB_speeches.csv); Federal Reserve"
 path           = "text/"
 cutoff         = "2017-09-07"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 4
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "macro_release"]
+n_documents    = 7
 notes          = "A central-bank press conference flags the exchange rate as a source of uncertainty requiring monitoring after a strong currency run — classic soft verbal intervention. Historically such language can dampen trend extension; the test is drift versus range, with symmetric width around a text-conditioned center."
 
 [targets]

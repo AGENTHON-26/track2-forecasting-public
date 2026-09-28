@@ -32,6 +32,13 @@
       "file": "ecb_draghi_2012-07-09.txt"
     },
     {
+      "doc_id": "fomc-minutes-20120620",
+      "timestamp": "2012-07-11",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20120620_released_2012-07-11.txt"
+    },
+    {
       "doc_id": "draghi_whatever_it_takes_2012",
       "timestamp": "2012-07-26",
       "source": "official (see landmarks index)",

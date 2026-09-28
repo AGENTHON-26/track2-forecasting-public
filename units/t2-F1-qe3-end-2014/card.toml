@@ -71,12 +71,12 @@ end_date   = "2014-10-29"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "Federal Reserve"
+source         = "BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2014-10-29"
 cutoff_checked = true
 doc_types      = ["beige_book", "fomc_minutes", "fomc_statement", "macro_release"]
-n_documents    = 5
+n_documents    = 6
 notes          = "The asset-purchase program terminates at the as-of meeting while the statement retains its rate-timing reassurance. Consensus at the as-of says yields rise once purchases stop; the statement text hedges both ways, and the oil-price slide already visible in pre-asof data pushes the other way. Weigh the supply argument against the disinflation argument."
 
 [targets]

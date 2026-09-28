@@ -83,12 +83,12 @@ end_date   = "2022-01-05"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "Federal Reserve; official (see landmarks index)"
+source         = "BLS/BEA news release; Federal Reserve; official (see landmarks index)"
 path           = "text/"
 cutoff         = "2022-01-05"
 cutoff_checked = true
-doc_types      = ["beige_book", "fomc_minutes", "fomc_statement", "landmark"]
-n_documents    = 4
+doc_types      = ["beige_book", "fomc_minutes", "fomc_statement", "landmark", "macro_release"]
+n_documents    = 5
 notes          = "As-of the day the December minutes land — balance-sheet runoff discussion arrives years earlier than the market assumed. The rates panel is an INPUT; the targets are equity factors: a discount-rate shock reprices long-duration growth against value, so HML and MOM must co-move through the rates branch."
 
 [targets]

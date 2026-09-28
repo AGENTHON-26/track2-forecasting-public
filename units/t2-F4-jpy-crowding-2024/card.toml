@@ -73,12 +73,12 @@ end_date   = "2024-07-31"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "CFTC; Federal Reserve; official (see landmarks index)"
+source         = "BLS/BEA news release; CFTC; Federal Reserve; official (see landmarks index)"
 path           = "text/"
 cutoff         = "2024-07-31"
 cutoff_checked = true
-doc_types      = ["beige_book", "fomc_statement", "landmark", "positioning_report"]
-n_documents    = 5
+doc_types      = ["beige_book", "fomc_statement", "landmark", "macro_release", "positioning_report"]
+n_documents    = 7
 notes          = "BoJ 2024-07-31 hike + taper decision, March NIRP-exit context, the same-day FOMC statement, and the CFTC COT table showing speculative yen shorts near record extremes. BNP08 carry-crash conditions: a shrinking rate differential plus crowded positioning is the regime; whether the carry trade unwinds over the horizon is the forecasting question, so the tail deserves far more mass than trailing vol suggests."
 
 [targets]

@@ -71,7 +71,7 @@ end_date   = "2024-08-23"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches; Federal Reserve"
+source         = "BIS central bankers' speeches; BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2024-08-23"
 cutoff_checked = true

@@ -77,8 +77,8 @@ source         = "BIS central bankers' speeches; CFTC; Federal Reserve"
 path           = "text/"
 cutoff         = "2007-07-20"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement", "positioning_report"]
-n_documents    = 7
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "positioning_report"]
+n_documents    = 8
 notes          = "COT table (in corpus): speculative yen shorts near record as carry peaks. Subprime-fund stress texts accumulate through July. BNP08 conditions — crowded funding-currency shorts + building credit stress — make the carry-unwind tail material; whether it triggers over the horizon is the forecasting question, so keep a fat tail."
 
 [targets]
