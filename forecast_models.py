@@ -46,8 +46,13 @@ _WINDOW = 260
 #:   halflife  EWMA sd, weights halving every `halflife` steps (None = the plain sd of `window`)
 #: Test results against the previous step: Student-t 0.997x (78/103 cards better, 98% band 93.5% ->
 #: 96.1%); EWMA kept on F4 only, 0.994x there. A family not listed gets the plain production walk.
+#: F1 changed on 2026-09-28 to the family-global setting of the grid search in
+#: hyperparameter_tuning/01 (480 settings, 60/20/20 split, picked on validation): EWMA sd, halflife
+#: 21, widen 0.9. Against the old F1 setting (42 / 1.2 / nu 5 / window sd) it scored 0.974x on the
+#: grid's test block and 0.891x on the team eval's real outcomes (12 of 18 cards better); F2-F4 were
+#: kept, since their family globals did not beat production on either check.
 WALK_SETTINGS = {
-    "T2-F1": {"window": 42, "widen": 1.2, "nu": 5, "halflife": None},
+    "T2-F1": {"window": 130, "widen": 0.9, "nu": 5, "halflife": 21},
     "T2-F2": {"window": 130, "widen": 1.1, "nu": 4, "halflife": None},
     "T2-F3": {"window": 130, "widen": 1.2, "nu": 4, "halflife": None},
     "T2-F4": {"window": 260, "widen": 1.2, "nu": 5, "halflife": 63},

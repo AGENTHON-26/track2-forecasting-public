@@ -31,7 +31,7 @@ every card, which keeps the LLM half simple to tune.
 
 | family | window | widen | shocks | sd |
 |---|---|---|---|---|
-| F1 | 42 | 1.2 | Student-t, ν = 5 | window |
+| F1 | 130 | 0.9 | Student-t, ν = 5 | EWMA, half-life 21 (since 2026-09-28, from hyperparameter_tuning/01) |
 | F2 | 130 | 1.1 | Student-t, ν = 4 | window |
 | F3 | 130 | 1.2 | Student-t, ν = 4 | window |
 | F4 | 260 | 1.2 | Student-t, ν = 5 | EWMA, half-life 63 |
