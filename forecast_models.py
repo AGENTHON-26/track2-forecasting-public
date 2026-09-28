@@ -171,7 +171,10 @@ def _fit_walk(r: _Request) -> _WalkFit:
     hl = cfg["halflife"]
     steps = _step_frame(hist, r.assets, r.returns_target,
                         rows=max(cfg["window"], int(8 * hl) if hl else 0))
-    D = steps.iloc[-cfg["window"]:].to_numpy().T  # (n_assets, window): sd and correlation
+    # The last `window` steps always give the correlation between assets. They give the sd only when
+    # the family has no halflife; with one (F1, F4) the sd is the EWMA of the last 8 x halflife steps
+    # and `window` matters only on cards with more than one asset.
+    D = steps.iloc[-cfg["window"]:].to_numpy().T  # (n_assets, window)
     n = len(r.assets)
     sd = D.std(axis=1) if hl is None else _ewma_sd(steps.to_numpy()[-int(8 * hl):], hl)
 
