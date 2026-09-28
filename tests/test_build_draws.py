@@ -151,53 +151,27 @@ class TestBuildDrawsWithSkew(unittest.TestCase):
         self.assertEqual(out.shape, (1000, 1, 1))
 
 
-class TestFamilyWidenFloor(unittest.TestCase):
-    """The F4 floor is a FALLBACK: it applies only when the text half gave the card nothing, and
-    it is a floor on the TOTAL width (the family's widen times the text's), not a second
-    multiplier -- a silent F4 card is drawn at 1.5x its sd, as measured on dev, not 1.2 x 1.5."""
+class TestWiden(unittest.TestCase):
+    """widen = family widen x text widen, on every card, whether or not the text answered.
+    (The silent-text F4 floor of 1.5 was removed on 2026-09-27.)"""
 
-    def _no_floor(self, family):
-        with mock.patch.object(fm, "_FAMILY_WIDEN_FLOOR", {}):
-            table, asof, _ = _panel("A")
-            return fm._fit_walk(fm._Request({"p": table}, ["A"], [21], asof, {"A": dict(NEUTRAL)},
-                                            10, 0, "level", family))
-
-    def _with(self, adj, family):
+    def _scale(self, adj, family):
         table, asof, _ = _panel("A")
         return fm._fit_walk(fm._Request({"p": table}, ["A"], [21], asof, {"A": adj}, 10, 0,
-                                        "level", family))
+                                        "level", family)).scale
 
-    def test_silent_text_on_f4_gets_the_fallback_width(self):
-        f4, bare = self._with(dict(NEUTRAL), "T2-F4"), self._no_floor("T2-F4")
-        floor, family = fm._FAMILY_WIDEN_FLOOR["T2-F4"], fm.WALK_SETTINGS["T2-F4"]["widen"]
-        np.testing.assert_allclose(f4.scale / bare.scale, max(floor, family) / family, rtol=1e-12)
-        np.testing.assert_array_equal(f4.centre, bare.centre)  # the centre does not move
-        for fam in (None, "T2-F1", "T2-F2", "T2-F3"):  # no fallback for other families
-            np.testing.assert_array_equal(self._with(dict(NEUTRAL), fam).scale,
-                                          self._no_floor(fam).scale, err_msg=str(fam))
+    def test_silent_text_uses_the_family_widen_alone(self):
+        for fam in ("T2-F1", "T2-F2", "T2-F3", "T2-F4"):
+            silent = self._scale(dict(NEUTRAL), fam)
+            answered = self._scale({"shift": 0.0, "widen": 1.5, "skew": 0.0}, fam)
+            np.testing.assert_allclose(answered / silent, 1.5, rtol=1e-12, err_msg=fam)
 
-    def test_an_answered_f4_card_uses_the_model_width_even_below_the_fallback(self):
-        # 1.2 (family) x 1.1 (text) = 1.32 < 1.5: the text answered, so no floor.
-        answered = self._with({"shift": 0.0, "widen": 1.1, "skew": 0.0}, "T2-F4")
-        np.testing.assert_allclose(answered.scale / self._no_floor("T2-F4").scale, 1.1, rtol=1e-12)
-
-    def test_llm_widen_above_the_fallback_still_applies(self):
-        wide = self._with({"shift": 0.0, "widen": 2.0, "skew": 0.0}, "T2-F4")
-        np.testing.assert_allclose(wide.scale / self._no_floor("T2-F4").scale, 2.0, rtol=1e-12)
-
-    def test_the_floor_reaches_the_draws(self):
+    def test_the_text_widen_multiplies_the_family_widen(self):
         table, asof, _ = _panel("A")
-        args = ({"p": table}, ["A"], [21], asof, {"A": dict(NEUTRAL)}, 20_000, 0)
-        f4 = fa.build_draws(*args, family="T2-F4")
-        with mock.patch.object(fm, "_FAMILY_WIDEN_FLOOR", {}):
-            bare = fa.build_draws(*args, family="T2-F4")
-        ratio = max(fm._FAMILY_WIDEN_FLOOR["T2-F4"], fm.WALK_SETTINGS["T2-F4"]["widen"]) \
-            / fm.WALK_SETTINGS["T2-F4"]["widen"]
-        np.testing.assert_allclose(f4 - f4.mean(0), (bare - bare.mean(0)) * ratio, atol=1e-9)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        steps = np.diff(np.array([r["value"] for r in table.to_pylist()]))
+        cfg = fm.WALK_SETTINGS["T2-F2"]
+        got = self._scale({"shift": 0.0, "widen": 2.0, "skew": 0.0}, "T2-F2")
+        np.testing.assert_allclose(got, steps[-cfg["window"]:].std() * cfg["widen"] * 2.0, rtol=1e-12)
 
 
 def _bdays(n: int, start: str = "2018-01-01") -> list[str]:
@@ -483,15 +457,13 @@ class TestWalkSettings(unittest.TestCase):
     """The per-family settings of the main model (WALK_SETTINGS), and the Student-t shocks."""
 
     def test_family_settings_reach_the_fit(self):
-        """window, widen and nu come from the family; F4 uses the EWMA sd. (The silent-text F4
-        floor is switched off here -- TestFamilyWidenFloor covers it.)"""
+        """window, widen and nu come from the family; F4 uses the EWMA sd."""
         table, asof = _multi_panel(["A", "B"], n=900, seed=21, corr=0.3)
         steps = np.diff(np.array([[r["value"] for r in table.to_pylist() if r["asset"] == a] for a in ("A", "B")]), axis=1)
         for fam in ("T2-F1", "T2-F2", "T2-F3", "T2-F4"):
             cfg = fm.WALK_SETTINGS[fam]
-            with mock.patch.object(fm, "_FAMILY_WIDEN_FLOOR", {}):
-                fit = fm._fit_walk(fm._Request({"p": table}, ["A", "B"], [21], asof,
-                                               {a: dict(NEUTRAL) for a in "AB"}, 10, 0, "level", fam))
+            fit = fm._fit_walk(fm._Request({"p": table}, ["A", "B"], [21], asof,
+                                           {a: dict(NEUTRAL) for a in "AB"}, 10, 0, "level", fam))
             self.assertEqual(fit.nu, cfg["nu"], fam)
             if cfg["halflife"] is None:
                 want = steps[:, -cfg["window"]:].std(axis=1) * cfg["widen"]
