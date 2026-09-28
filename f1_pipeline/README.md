@@ -22,8 +22,10 @@ jupyter nbconvert --to notebook --execute --inplace 01_prep_xy.ipynb
 
 ## Scope
 
-Notebooks 03 and 04 cover **level targets only** — 21 units, 41 cells. The two cumulative-log-return
-units (`ai-mom-2024`, `fed-put-2019`) are prepared and split by 01–02 but not modelled.
+Notebooks 03 and 04 cover **every F1 unit** — 23 units, 43 cells: 41 level cells and 2
+cumulative-log-return cells (`ai-mom-2024`, `fed-put-2019`). A log-return cell is the same model with
+anchor 0: M2 predicts the cumulative log return `Σ log(1+r)` over the horizon. The penalties are chosen
+on the level cells only; the log-return cells use the same setting (notebook 03, §4.4).
 
 ## The model
 
@@ -38,7 +40,9 @@ move together.
 ## Known limits
 
 - Below ~1,000 training rows M2 is worse than a random walk (notebook 03, section 4.1). The three short
-  units (2003, 2004, 2005) sit there.
+  units (2003, 2004, 2005) sit there, so `forecast_models.build_draws()` hands any daily card with fewer
+  than `m2_unit.MIN_TRAIN_DAILY` (1,000) training rows to the walk instead. Monthly cards keep M2: ~260
+  rows there and M2 still wins. Notebooks 03–04 still fit and draw M2 for every unit.
 - The calibration constant `c` and the residual pool use in-sample residuals, which makes bands roughly
   9% too narrow.
 - The extreme 1% tails of each residual pool come from one or two historical episodes.

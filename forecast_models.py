@@ -7,23 +7,21 @@ turning numbers into a distribution; nothing here reads the text corpus or touch
     build_draws(panels, assets, horizons, asof, adjustments, n_draws, seed,
                 *, target_type=..., family=...) -> (n_draws, n_assets, n_horizons)
 
-THREE MODELS, chosen by `_select_model`:
+ONE MODEL for every card: the CUMULATIVE WALK. One correlated path per draw, from the last
+value, with Student-t shocks; each horizon is read off the path. Only its settings (window, widen,
+Student-t shocks, EWMA volatility) change by family, in `WALK_SETTINGS`. On a single-horizon card
+the path has one leg: centre + shock * scale * sqrt(steps).
 
-    M2                ridge location-scale + a joint bootstrap of standardised residuals, from
-                      f1_pipeline. F1 level cards only -- that is where it was fitted.
-    cumulative walk   one accumulating correlated path per draw. Multi-horizon cards.
-    random walk       one correlated draw per horizon. Everything else.
+One model on purpose (2026-09-27): the text's `shift`, `widen` and `skew` then mean the same thing
+on every card, which is what the LLM half is tuned against. M2 (f1_pipeline) stays a research
+model; it scored better on the 4 visible monthly cards (model_baseline notebook 06) but is not in
+production.
 
-The two walks share their whole fitting step (`_fit_walk`) and differ only in how the legs are
-combined, so neither is a copy of the other.
-
-Runs offline with numpy + pandas + pyarrow; the M2 path additionally imports f1_pipeline.
+Runs offline with numpy + pandas + pyarrow.
 """
 
 from __future__ import annotations
 
-import sys
-from collections.abc import Callable
 from dataclasses import dataclass
 
 import numpy as np
@@ -39,6 +37,27 @@ _ASSET_COLS = ("asset", "asset_id")
 #: uninterpretable, so change it alone or not at all.
 _WINDOW = 260
 
+#: The walk's settings per family -- the main model since 2026-09-27, chosen in model_baseline
+#: notebooks 02-05: tuned on each card's train dates, kept only if better than the previous model
+#: on validation, then judged once on test.
+#:   window    steps the sd and the cross-asset correlation are measured on
+#:   widen     multiplier on the sd (on top of the text's `widen`)
+#:   nu        Student-t degrees of freedom for the shocks (unit variance; None = normal)
+#:   halflife  EWMA sd, weights halving every `halflife` steps (None = the plain sd of `window`)
+#: Test results against the previous step: Student-t 0.997x (78/103 cards better, 98% band 93.5% ->
+#: 96.1%); EWMA kept on F4 only, 0.994x there. A family not listed gets the plain production walk.
+#: F1 changed on 2026-09-28 to the family-global setting of the grid search in
+#: hyperparameter_tuning/01 (480 settings, 60/20/20 split, picked on validation): EWMA sd, halflife
+#: 21, widen 0.9. Against the old F1 setting (42 / 1.2 / nu 5 / window sd) it scored 0.974x on the
+#: grid's test block and 0.891x on the team eval's real outcomes (12 of 18 cards better); F2-F4 were
+#: kept, since their family globals did not beat production on either check.
+WALK_SETTINGS = {
+    "T2-F1": {"window": 130, "widen": 0.9, "nu": 5, "halflife": 21},
+    "T2-F2": {"window": 130, "widen": 1.1, "nu": 4, "halflife": None},
+    "T2-F3": {"window": 130, "widen": 1.2, "nu": 4, "halflife": None},
+    "T2-F4": {"window": 260, "widen": 1.2, "nu": 5, "halflife": 63},
+}
+_PLAIN_WALK = {"window": _WINDOW, "widen": 1.0, "nu": None, "halflife": None}
 #: Per-family FALLBACK width for the walk models, used only when the text half gave this card
 #: nothing (every asset exactly neutral: model call failed, timed out, ran out of budget, or no
 #: usable summaries). F4 cards are built around a shock the calm history does not show, so a
@@ -78,8 +97,7 @@ def _text_was_silent(adjustments: dict[str, dict[str, float]], assets: list[str]
 #:
 #: STILL UNVALIDATED ON F4. The replay above covers F3 only, because no F4 sweep has been recorded
 #: since the ledger landed. Do that before trusting skew to earn anything on the family it is
-#: really for. M2 (F1 level cards) ignores skew by design -- its residual pool already carries the
-#: empirical shape.
+#: really for.
 SKEW_ENABLED = True
 
 def build_draws(
@@ -96,40 +114,18 @@ def build_draws(
 ) -> np.ndarray:
     """Joint draws with Nish's adjustments applied. Returns (n_draws, n_assets, n_horizons).
 
-    This function is only the dispatch. Pick the model in `_select_model`, read the model in its
-    own function below; nothing about one family's model is tangled into another's.
+    Every card takes the cumulative walk; `family` picks its settings (`WALK_SETTINGS`).
     """
-    global _last_model
-    request = _Request(panels, assets, horizons, asof, adjustments, n_draws, seed,
-                       target_type, family)
-    name, model = _select_model(family, target_type, horizons)
-    try:
-        out = model(request)
-    except Exception as exc:
-        # A card that raises scores the pre-committed worst case (4.0); the walk scores ~1.0. So
-        # any model failure falls back rather than propagating -- M2 in particular refuses cards
-        # whose assets span two panel files, which is 6 of the 22 F3 units and the reason M2 is
-        # not used there.
-        if name == RANDOM_WALK:
-            raise
-        print(f"[{name}] {type(exc).__name__}: {exc}; falling back to the random walk",
-              file=sys.stderr)
-        name, model = RANDOM_WALK, _random_walk_model
-        out = model(request)
-    _last_model = name
-    return out
+    return _cumulative_walk_model(_Request(panels, assets, horizons, asof, adjustments, n_draws,
+                                           seed, target_type, family))
 
 
 # ============================================================================
-#  The three models, and the switch that chooses between them.
+#  The request, and the walk.
 # ============================================================================
 @dataclass(frozen=True)
 class _Request:
-    """One card's forecast request, as every model receives it.
-
-    A single shape for all three models is what lets `_select_model` be a plain lookup instead of
-    three different call signatures at the call site.
-    """
+    """One card's forecast request: everything the walk needs, in one place."""
     panels: dict[str, "pa.Table"]
     assets: list[str]
     horizons: list[int]
@@ -146,117 +142,59 @@ class _Request:
         return self.target_type == "log_return"
 
 
-#: Model names. These reach the reader twice -- in the stderr fallback line and in
-#: forecast_rationale.md -- so they are constants rather than repeated literals.
-M2 = "M2"
-CUMULATIVE_WALK = "cumulative walk"
-RANDOM_WALK = "random walk"
-
-
-def _select_model(family: str | None, target_type: str | None,
-                  horizons: list[int]) -> tuple[str, "_Model"]:
-    """THE SWITCH. Which model runs this card, and why.
-
-        F1, level target   -> M2                 ridge location-scale + residual bootstrap.
-                                                 21 of 23 F1 units. Measured 0.832x the walk on
-                                                 F1's own units; measured WORSE than the walk on
-                                                 F3 (1.045x, and it cannot even load 4 of 17 of
-                                                 them), so it stays where it was tuned. This is
-                                                 the one branch that is about a family, because
-                                                 M2 is a fitted model and F1 is what it was fitted
-                                                 on.
-        more than 1 horizon -> cumulative walk   one accumulating path per draw, so the horizons
-                                                 of an asset are correlated at sqrt(h_j/h_k)
-                                                 instead of independent. Today that is exactly
-                                                 F3's 22 units.
-        everything else    -> random walk        one draw per horizon. Today: all 27 F2 units, all
-                                                 31 F4 units, and F1's 2 log_return units.
-
-    ON THE MIDDLE BRANCH BEING SHAPE, NOT FAMILY. It reads as "F3's model", and today it selects
-    exactly F3, because F3 is currently the only family shipping a multi-horizon walk card. But
-    the rule it encodes is not about F3: a value at horizon h_k IS reached by walking through
-    h_j, whatever family the card belongs to. Keying on `T2-F3` would make a correctness property
-    conditional on a metadata string.
-
-    That distinction is not hypothetical. Every shipped F2 and F4 dev unit is single-horizon, but
-    the organizers' own example cards in docs/CATEGORIES.md are not: F2's is "GBP/USD at horizons
-    21 BD and 63 BD" and F4's is "UST_2Y, UST_10Y at 63 BD and 126 BD". On a sealed card shaped
-    like either, a family switch would quietly hand back the cross-horizon structure -- and on the
-    F2 one it would cost the entire joint term, since a 1-asset 2-horizon card has exactly one
-    off-diagonal pair and that pair IS the cross-horizon pair.
-
-    Both walks share their entire fitting step (`_fit_walk`) and differ only in how the legs are
-    put together -- see each function.
-    """
-    if target_type == "level" and family in _M2_FAMILIES:
-        return M2, _m2_model
-    if len(horizons) > 1:
-        return CUMULATIVE_WALK, _cumulative_walk_model
-    return RANDOM_WALK, _random_walk_model
-
-
-#: Families whose LEVEL cards use M2 (f1_pipeline/m2_unit.py). Tuned on F1 only (f1_pipeline
-#: notebooks 01-04), and measured worse than the walk everywhere else, so it stays here. This is
-#: the only family-keyed routing decision: M2 is a fitted model, and a family is the right scope
-#: for "where was this fitted". The walk split below is about card shape instead.
-_M2_FAMILIES = {"T2-F1"}
-
-
-# ---------------------------------------------------------------- model 1: M2 (F1 level cards)
-def _m2_model(r: _Request) -> np.ndarray:
-    """Ridge centre, ridge log-variance width, and a joint bootstrap of standardised residuals
-    sharing one historical date per draw (f1_pipeline/m2_unit.py; notebooks 01-04).
-
-    `skew` is deliberately not applied: the residual pool already carries the empirical shape.
-    """
-    from f1_pipeline import m2_unit as m2
-
-    unit = m2.unit_from_panels(r.panels, r.assets, r.horizons, r.asof, target_type="level")
-    fits = [m2.fit_m2(c) for c in m2.build_features(unit)]  # asset-major, then horizon: card order
-    shift = [r.adjustments.get(f.asset, {}).get("shift", 0.0) for f in fits]
-    widen = [r.adjustments.get(f.asset, {}).get("widen", 1.0) for f in fits]
-    samples = m2.draw_joint(fits, r.n_draws, r.seed, shift, widen)
-    return samples.reshape(r.n_draws, len(r.assets), len(r.horizons))
-
-
-# ------------------------------------------------- models 2 & 3: the two correlated walks
+# ------------------------------------------------------------------------ the walk
 @dataclass(frozen=True)
 class _WalkFit:
-    """What both walks are fitted from -- everything that does not depend on how legs combine.
+    """What the walk is fitted from -- everything except how the path is drawn.
 
     Fitting is where all the care is (date alignment, gap guarding, log-return handling, the
-    PSD-repaired correlation), and it is identical for both walks. Keeping it here is what stops
-    the two models from being near-copies of each other: each is then five lines that say only
-    what makes it different.
+    PSD-repaired correlation), so it lives apart from the five lines that draw the path.
     """
     centre: np.ndarray          # last observed value (0 for a log-return card) + the text shift
     scale: np.ndarray           # per-asset daily sd, times the text's widen
     chol: np.ndarray            # lower-triangular factor of the cross-asset correlation
     skew: np.ndarray            # per-asset tail tilt, all zeros while SKEW_ENABLED is False
+    steps: np.ndarray           # (n_assets, n_horizons): each horizon in the asset's own panel steps
+    nu: float | None = None     # Student-t degrees of freedom of the shocks (None = normal)
 
-    def shock(self, rng: np.random.Generator, n_draws: int) -> np.ndarray:
-        """One correlated, optionally skew-tilted standard innovation per draw.
+    def shock(self, rng: np.random.Generator, n_draws: int,
+              rng_t: np.random.Generator | None = None) -> np.ndarray:
+        """One correlated, optionally skew-tilted, optionally Student-t standard innovation per draw.
 
-        Both walks draw their legs through here, so the cross-asset structure and the skew tilt
-        are defined once.
+        Every leg of the path is drawn here, so the cross-asset structure, the skew tilt and the
+        tail shape are defined once. The Student-t is multivariate: every asset of a draw shares one
+        chi-square, so assets have their extreme moves together and the correlation is unchanged;
+        (nu - 2) keeps the variance at 1, so `scale` means the same with or without it. The
+        chi-square comes from its own generator `rng_t`, so the normal part of each draw is the
+        same number as in the normal walk.
         """
         n = len(self.scale)
         z = rng.standard_normal((n_draws, n)) @ self.chol.T   # correlated across assets
         u = np.abs(rng.standard_normal((n_draws, n)))         # independent per asset -- skew only
-        return _skew_tilt(z, u, self.skew)
+        z = _skew_tilt(z, u, self.skew)
+        if self.nu is not None:
+            z = z * np.sqrt((self.nu - 2.0) / rng_t.chisquare(self.nu, size=(n_draws, 1)))
+        return z
 
 
 def _fit_walk(r: _Request) -> _WalkFit:
-    """Panels -> the scale, correlation and centre both walks draw from.
+    """Panels -> the scale, correlation and centre the walk draws from.
 
     Every correctness fix lives here rather than in either model, because none of them is about
     F3: the gap guard's worst case is an F2 transfer card (measured 1.40x inflated sd on
     t2-F2-fragile-five-brl-2013) and the log-return centring carries 11 F4 units.
     """
+    cfg = WALK_SETTINGS.get(r.family, _PLAIN_WALK)
     hist = {a: _series(r.panels, a, r.asof) for a in r.assets}
-    steps = _step_frame(hist, r.assets, r.returns_target)
-    D = steps.to_numpy().T                       # (n_assets, window)
+    hl = cfg["halflife"]
+    steps = _step_frame(hist, r.assets, r.returns_target,
+                        rows=max(cfg["window"], int(8 * hl) if hl else 0))
+    # The last `window` steps always give the correlation between assets. They give the sd only when
+    # the family has no halflife; with one (F1, F4) the sd is the EWMA of the last 8 x halflife steps
+    # and `window` matters only on cards with more than one asset.
+    D = steps.iloc[-cfg["window"]:].to_numpy().T  # (n_assets, window)
     n = len(r.assets)
+    sd = D.std(axis=1) if hl is None else _ewma_sd(steps.to_numpy()[-int(8 * hl):], hl)
 
     # A cumulative log-return target starts at 0; a level target starts at its last observed
     # value. Neither carries a drift term. For levels that is just the random walk. For log
@@ -282,19 +220,68 @@ def _fit_walk(r: _Request) -> _WalkFit:
     def per_asset(key: str, default: float) -> np.ndarray:
         return np.array([r.adjustments.get(a, {}).get(key, default) for a in r.assets])
 
+    # The family's widen times the text's -- the same rule on every card, whether or not the text
+    # answered. (A silent-text F4 floor of 1.5 was removed on 2026-09-27: the family settings were
+    # tuned and validated without it, model_baseline notebooks 02-05.)
+    widen = cfg["widen"] * per_asset("widen", 1.0)
+
     return _WalkFit(
         centre=last + per_asset("shift", 0.0),
-        scale=D.std(axis=1) * np.maximum(
-            per_asset("widen", 1.0),
-            _FAMILY_WIDEN_FLOOR.get(r.family or "", 1.0)
-            if _text_was_silent(r.adjustments, r.assets) else 1.0),
+        scale=sd * widen,
         chol=np.linalg.cholesky(corr),
         skew=per_asset("skew", 0.0) if SKEW_ENABLED else np.zeros(n),
+        steps=np.array([_panel_steps(hist[a], r.horizons, r.asof) for a in r.assets]),
+        nu=cfg["nu"],
     )
 
 
+def _ewma_sd(past: np.ndarray, halflife: float) -> np.ndarray:
+    """EWMA sd per column of `past` (rows oldest -> newest): a step's weight halves every
+    `halflife` steps back, around the weighted mean. Equals pandas' ewm(halflife).std(bias=True)."""
+    age = np.arange(len(past))[::-1]
+    w = 0.5 ** (age / halflife)
+    w = w / w.sum()
+    mean = w @ past
+    return np.sqrt(w @ (past - mean) ** 2)
+
+
+#: A panel whose rows are further apart than this (median, in calendar days) is a monthly panel.
+_MONTHLY_SPACING_DAYS = 20
+
+
+def _panel_steps(s: "pd.Series", horizons: list[int], asof: str) -> np.ndarray:
+    """The card's horizons, counted in steps (rows) of this asset's own panel.
+
+    `scale` is the sd of ONE STEP of the panel, so the walk's width is scale * sqrt(steps). On a
+    daily panel a step is a business day and the card's horizon already counts them: returned
+    unchanged. On a monthly panel a step is a month, but the card still states its horizon in
+    business days, so sqrt(21) would walk 21 MONTHS for a 21-business-day card (3.2x too wide on
+    t2-F4-covid-nfp-2020, 4.2x on t2-F1-cpi-glidepath-2023). There the horizon becomes the number
+    of months from the asset's LAST observation -- not the as-of, which monthly data lags by its
+    publication delay -- to the month of `asof + h business days`. That is the official baseline's
+    rule (docs/M0-BASELINE.md, section 3.7, whose table lists these four cards) and M2's
+    (f1_pipeline/m2_unit.steps_ahead_for). Backtest on the 4 monthly F1/F4 cards: walk 0.64x.
+
+    Assumes monthly cards keep stating business days, as every shipped one does; M0-BASELINE.md
+    section 8 says a restatement in panel steps is in preparation, and would need this revisited.
+    """
+    h = np.array([float(x) for x in horizons])
+    when = pd.to_datetime(pd.Series(s.index), errors="coerce").dropna()
+    if len(when) < 3 or not float(when.diff().dt.days.median()) > _MONTHLY_SPACING_DAYS:
+        return h
+    last = when.iloc[-1]
+    months = []
+    for x in horizons:
+        target = pd.Timestamp(asof) + pd.offsets.BDay(int(x))
+        k = 12 * (target.year - last.year) + (target.month - last.month)
+        months.append(float(k) if k > 0 else float(x))
+    return np.array(months)
+
+
 def _cumulative_walk_model(r: _Request) -> np.ndarray:
-    """F3. ONE accumulating path per draw: horizon h_k is reached by walking there through h_1.
+    """Every card. ONE accumulating path per draw: horizon h_k is reached by walking there through h_1.
+
+    A single-horizon card is one leg: centre + shock * scale * sqrt(steps).
 
     Each leg adds an increment of sd*sqrt(h_k - h_k-1), so after the leg ending at h_k the path
     has variance sd^2 * sum(h_j - h_j-1) = sd^2 * h_k -- identical to drawing that horizon on its
@@ -309,39 +296,17 @@ def _cumulative_walk_model(r: _Request) -> np.ndarray:
     rho. Do not "improve" it by pushing the correlation up.
     """
     fit = _fit_walk(r)
-    rng = np.random.default_rng(r.seed)
+    rng, rng_t = np.random.default_rng(r.seed), np.random.default_rng([r.seed, 7])
     out = np.empty((r.n_draws, len(r.assets), len(r.horizons)), dtype=float)
     path = np.zeros((r.n_draws, len(r.assets)))
-    prev = 0
+    prev = np.zeros(len(r.assets))
     for hi in np.argsort(r.horizons):            # cards ship ascending; don't rely on it
-        h = int(r.horizons[hi])
-        # max(..., 0) guards a duplicated or unsorted horizon against a silent NaN under sqrt.
-        path = path + fit.shock(rng, r.n_draws) * fit.scale * np.sqrt(max(h - prev, 0))
-        prev = h
+        steps = fit.steps[:, hi]                 # per asset, in its own panel's steps
+        # maximum(..., 0) guards a duplicated or unsorted horizon against a silent NaN under sqrt.
+        path = path + fit.shock(rng, r.n_draws, rng_t) * fit.scale * np.sqrt(np.maximum(steps - prev, 0))
+        prev = steps
         out[:, :, hi] = fit.centre + path        # write to the ORIGINAL index
     return out
-
-
-def _random_walk_model(r: _Request) -> np.ndarray:
-    """F2, F4, and F1's log_return units. Each horizon drawn independently from the anchor.
-
-    Assets are still correlated within a horizon (that is `fit.shock`); horizons are not
-    correlated with each other. Every card routed here is single-horizon, where that distinction
-    does not exist -- this and the cumulative walk produce the same distribution, from the same
-    number of draws off the same generator. It is the honest model for a single-horizon card and
-    keeps the reader from having to reason about an accumulation that never happens.
-    """
-    fit = _fit_walk(r)
-    rng = np.random.default_rng(r.seed)
-    out = np.empty((r.n_draws, len(r.assets), len(r.horizons)), dtype=float)
-    for hi, h in enumerate(r.horizons):
-        out[:, :, hi] = fit.centre + fit.shock(rng, r.n_draws) * fit.scale * np.sqrt(int(h))
-    return out
-
-
-#: A model turns one request into (n_draws, n_assets, n_horizons). Declared after the models so
-#: the names above are in scope.
-_Model = Callable[[_Request], np.ndarray]
 
 
 #: The skew-normal family's sample skewness is bounded (|.| < ~0.995 as shape -> infinity) and
@@ -376,7 +341,7 @@ def _skew_tilt(z: np.ndarray, u: np.ndarray, skew: np.ndarray) -> np.ndarray:
 
 
 def _step_frame(hist: dict[str, "pd.Series"], assets: list[str],
-                returns_target: bool) -> "pd.DataFrame":
+                returns_target: bool, rows: int = _WINDOW) -> "pd.DataFrame":
     """Per-asset histories -> one date-aligned matrix of steps, trimmed to the trailing window.
 
     Three things here are load-bearing and easy to undo by accident:
@@ -396,7 +361,7 @@ def _step_frame(hist: dict[str, "pd.Series"], assets: list[str],
         {a: (pd.Series(_log_return_steps(s.to_numpy()), index=s.index) if returns_target
              else _diff_without_gaps(s))
          for a, s in hist.items()}
-    )[assets].dropna().iloc[-_WINDOW:]
+    )[assets].dropna().iloc[-rows:]
     if len(frame) < 30:
         raise SystemExit(
             f"not enough overlapping history to estimate covariance ({len(frame)} rows)")
@@ -468,19 +433,3 @@ def _series(panels: dict[str, "pa.Table"], asset: str, asof: str) -> "pd.Series"
         f"asset {asset!r} not found in any panel at/before {asof}; "
         f"the panels carry {sorted(seen)}"
     )
-
-
-
-#: Which model produced the most recent `build_draws()` call. `forecast_agent.main()` reads it
-#: through `last_model()` for the rationale file; the models themselves never read it.
-_last_model = RANDOM_WALK
-
-
-def last_model() -> str:
-    """The model name the most recent `build_draws()` call actually used.
-
-    Not necessarily the one `_select_model` picked: an M2 failure falls back to the walk, and the
-    rationale should say what ran.
-    """
-    return _last_model
-

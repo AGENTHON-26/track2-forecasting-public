@@ -12,11 +12,11 @@ THE CONTRACT (do not change the shapes — this is what lets us integrate):
                                                      shape = (n_draws, n_assets, n_horizons)
 
 This file is the contract and the CLI: read the text signal, read the panels, call a model, write
-the three output files. The models themselves live in `forecast_models.py` -- M2, the cumulative
-walk and the random walk, and the switch that picks between them. `build_draws` is re-exported
-here so the contract above stays true at this import path.
+the three output files. The model lives in `forecast_models.py` -- the cumulative walk, one model for
+every card, with per-family settings. `build_draws` is re-exported here so the contract above stays
+true at this import path.
 
-Runs offline with numpy + pandas + pyarrow; the F1 M2 path also imports f1_pipeline/m2_unit.py.
+Runs offline with numpy + pandas + pyarrow.
 """
 
 from __future__ import annotations
@@ -30,7 +30,6 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-import forecast_models
 from forecast_models import build_draws  # re-exported: this is the documented contract path
 
 DEFAULT_DRAWS = 500
@@ -63,7 +62,7 @@ def read_text_signal(text_dir: pathlib.Path, assets: list[str]) -> dict[str, dic
 
 # ============================================================================
 #  OWNER: DEW  ·  the time-series / numbers part   branch: feat/model
-#  Lives in forecast_models.py: build_draws() and the three models behind it.
+#  Lives in forecast_models.py: build_draws() and the cumulative walk behind it.
 # ============================================================================
 
 # ============================================================================
@@ -157,16 +156,9 @@ def main(argv: list[str] | None = None) -> int:
     (out_dir / "forecast_rationale.md").write_text(
         f"# Forecast rationale — {unit_id}\n\n"
         f"Joint draws for {', '.join(assets)} at horizons {horizons}, as of {a.asof}.\n"
-        + (
-            "Base: M2 -- ridge location-scale fitted on panel history, joint bootstrap of "
-            "standardised residuals (f1_pipeline/m2_unit.py).\n"
-            if forecast_models.last_model() == forecast_models.M2 else
-            "Base: cumulative correlated Gaussian random walk from panel history -- one "
-            "accumulating path per draw, so horizons carry the covariance sqrt(h_j/h_k) rather "
-            "than being drawn independently; cross-asset correlation from a date-aligned, "
-            "gap-guarded estimate over the trailing 260 rows "
-            "(skew implemented but disabled pending measurement -- see _SKEW_ENABLED).\n"
-        )
+        + "Base: cumulative walk from panel history -- one path per draw from the last value, "
+          "correlated across assets (Cholesky), Student-t shocks, and the family's window / widen "
+          "/ volatility settings (forecast_models.WALK_SETTINGS).\n"
         + f"Text used: {'yes' if used_text else 'no (baseline stub)'}.\n"
     )
     print(f"wrote forecast.parquet + sidecars to {out_dir} "

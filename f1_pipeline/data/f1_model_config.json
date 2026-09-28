@@ -1,6 +1,6 @@
 {
   "model": "M2 ridge location-scale + empirical residual pool",
-  "scope": "target_type == level",
+  "scope": "every F1 cell: level + log_return (log_return: anchor 0, target = cumulative log return)",
   "lam_mu": 10.0,
   "lam_sig": 10.0,
   "winsor": 4.0,
@@ -11,7 +11,7 @@
   "mu_clamp_sigmas": 3.0,
   "selection": {
     "rule": "argmin mean ratio on the tuning period",
-    "tuned_on": "origins < 2018-01-01 with n_train >= 1000",
+    "tuned_on": "level cells, origins < 2018-01-01 with n_train >= 1000",
     "checked_on": "origins >= 2018-01-01",
     "holdout_ratio_to_M0": 0.8590545804134893,
     "holdout_cov90": 0.7529182879377432

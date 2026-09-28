@@ -151,36 +151,27 @@ class TestBuildDrawsWithSkew(unittest.TestCase):
         self.assertEqual(out.shape, (1000, 1, 1))
 
 
-class TestFamilyWidenFloor(unittest.TestCase):
-    """The F4 floor is a FALLBACK: it applies only when the text half gave the card nothing."""
+class TestWiden(unittest.TestCase):
+    """widen = family widen x text widen, on every card, whether or not the text answered.
+    (The silent-text F4 floor of 1.5 was removed on 2026-09-27.)"""
 
-    def _draw(self, adj, family):
+    def _scale(self, adj, family):
         table, asof, _ = _panel("A")
-        return fa.build_draws({"p": table}, ["A"], [21], asof, {"A": adj}, n_draws=20_000,
-                              seed=0, family=family)
+        return fm._fit_walk(fm._Request({"p": table}, ["A"], [21], asof, {"A": adj}, 10, 0,
+                                        "level", family)).scale
 
-    def test_silent_text_on_f4_gets_the_fallback_width(self):
-        plain = self._draw(dict(NEUTRAL), None)
-        f2 = self._draw(dict(NEUTRAL), "T2-F2")
-        f4 = self._draw(dict(NEUTRAL), "T2-F4")
-        np.testing.assert_array_equal(plain, f2)  # no fallback for other families
-        ratio = f4[:, 0, 0].std() / plain[:, 0, 0].std()
-        self.assertAlmostEqual(ratio, fm._FAMILY_WIDEN_FLOOR["T2-F4"], delta=0.02)
-        self.assertAlmostEqual(f4[:, 0, 0].mean(), plain[:, 0, 0].mean(),
-                               delta=plain[:, 0, 0].std() * 0.05)  # the centre does not move
+    def test_silent_text_uses_the_family_widen_alone(self):
+        for fam in ("T2-F1", "T2-F2", "T2-F3", "T2-F4"):
+            silent = self._scale(dict(NEUTRAL), fam)
+            answered = self._scale({"shift": 0.0, "widen": 1.5, "skew": 0.0}, fam)
+            np.testing.assert_allclose(answered / silent, 1.5, rtol=1e-12, err_msg=fam)
 
-    def test_an_answered_f4_card_uses_the_model_width_even_below_the_fallback(self):
-        plain = self._draw(dict(NEUTRAL), None)
-        answered = self._draw({"shift": 0.0, "widen": 1.2, "skew": 0.0}, "T2-F4")
-        self.assertAlmostEqual(answered[:, 0, 0].std() / plain[:, 0, 0].std(), 1.2, delta=0.02)
-
-    def test_llm_widen_above_the_fallback_still_applies(self):
-        plain = self._draw(dict(NEUTRAL), None)
-        wide = self._draw({"shift": 0.0, "widen": 2.0, "skew": 0.0}, "T2-F4")
-        self.assertAlmostEqual(wide[:, 0, 0].std() / plain[:, 0, 0].std(), 2.0, delta=0.02)
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_the_text_widen_multiplies_the_family_widen(self):
+        table, asof, _ = _panel("A")
+        steps = np.diff(np.array([r["value"] for r in table.to_pylist()]))
+        cfg = fm.WALK_SETTINGS["T2-F2"]
+        got = self._scale({"shift": 0.0, "widen": 2.0, "skew": 0.0}, "T2-F2")
+        np.testing.assert_allclose(got, steps[-cfg["window"]:].std() * cfg["widen"] * 2.0, rtol=1e-12)
 
 
 def _bdays(n: int, start: str = "2018-01-01") -> list[str]:
@@ -242,10 +233,10 @@ class TestJointStructure(unittest.TestCase):
         """
         assets = ["A", "B", "C", "D"]
         table, asof = _multi_panel(assets, seed=3, corr=0.3)
-        # family="T2-F3" selects the cumulative walk -- routing is explicit now, so a caller that
-        # does not name a joint-scored family gets independent horizons by design.
+        # Two horizons select the cumulative walk; family=None keeps the plain settings, so this
+        # pins the walk's structure rather than one family's tuning.
         out = fa.build_draws({"p": table}, assets, [63, 126], asof,
-                             {a: dict(NEUTRAL) for a in assets}, 20000, 0, family="T2-F3")
+                             {a: dict(NEUTRAL) for a in assets}, 20000, 0, family=None)
         expected = np.sqrt(63 / 126)
         for i, a in enumerate(assets):
             rho = np.corrcoef(out[:, i, 0], out[:, i, 1])[0, 1]
@@ -261,7 +252,7 @@ class TestJointStructure(unittest.TestCase):
         assets = ["A", "B"]
         table, asof = _multi_panel(assets, seed=4, corr=0.0)
         out = fa.build_draws({"p": table}, assets, [21, 84], asof,
-                             {a: dict(NEUTRAL) for a in assets}, 20000, 0, family="T2-F3")
+                             {a: dict(NEUTRAL) for a in assets}, 20000, 0, family=None)
         sd, _ = _panel_truth(table, assets)
         for i in range(len(assets)):
             for hi, h in enumerate([21, 84]):
@@ -290,7 +281,7 @@ class TestJointStructure(unittest.TestCase):
         assets = ["A", "B"]
         table, asof = _multi_panel(assets, seed=6, corr=0.7)
         out = fa.build_draws({"p": table}, assets, [21, 63], asof,
-                             {a: dict(NEUTRAL) for a in assets}, 20000, 0, family="T2-F3")
+                             {a: dict(NEUTRAL) for a in assets}, 20000, 0, family=None)
         _, corr_true = _panel_truth(table, assets)
         for hi in range(2):
             rho = np.corrcoef(out[:, 0, hi], out[:, 1, hi])[0, 1]
@@ -372,6 +363,35 @@ class TestAlignmentAndGaps(unittest.TestCase):
         self.assertGreater(sd_b, 10 * sd_a, "B (vol 5.0) must be the first output column")
 
 
+class TestMonthlyHorizonSteps(unittest.TestCase):
+    """On a monthly panel one step is a month, but cards state horizons in business days. The walk
+    must count months from the asset's last observation to asof + h business days (the official
+    baseline's rule, docs/M0-BASELINE.md section 3.7) -- not walk h months."""
+
+    def _monthly(self, n: int = 120):
+        rng = np.random.default_rng(3)
+        dates = [f"{2010 + i // 12}-{1 + i % 12:02d}-01" for i in range(n)]      # 2010-01 .. 2019-12
+        values = 100 + np.cumsum(rng.normal(0, 1, n))
+        return pa.table({"date": dates, "asset": ["X"] * n, "value": values.tolist()})
+
+    def test_monthly_horizon_is_counted_in_months_from_the_last_observation(self):
+        table = self._monthly()
+        # last observation 2019-12-01; the as-of lags it by two months, like published macro data
+        req = fm._Request({"m": table}, ["X"], [21, 63], "2020-01-31", {"X": dict(NEUTRAL)}, 4000, 0,
+                          "level", None)
+        fit = fm._fit_walk(req)
+        # 2020-01-31 + 21 BD = 2020-03-02 -> March, 3 months after Dec; + 63 BD = 2020-04-29 -> 4 months
+        np.testing.assert_array_equal(fit.steps, [[3.0, 4.0]])
+        out = fm._cumulative_walk_model(req)
+        for hi, k in enumerate((3, 4)):
+            self.assertAlmostEqual(out[:, 0, hi].std() / (fit.scale[0] * np.sqrt(k)), 1.0, delta=0.05)
+
+    def test_daily_horizon_is_unchanged(self):
+        table, asof = _multi_panel(["A"], n=400, seed=2)
+        req = fm._Request({"p": table}, ["A"], [21, 63], asof, {"A": dict(NEUTRAL)}, 10, 0, "level", None)
+        np.testing.assert_array_equal(fm._fit_walk(req).steps, [[21.0, 63.0]])
+
+
 class TestLogReturnTarget(unittest.TestCase):
     def test_log_return_centres_on_zero_not_the_last_return(self):
         """A cumulative log-return target starts at 0, with no drift extrapolation.
@@ -393,66 +413,80 @@ class TestLogReturnTarget(unittest.TestCase):
                                msg=f"log_return centre should be ~0, got {centre:.4f}")
 
 
-class TestModelDispatch(unittest.TestCase):
-    """The switch in `_select_model` -- which family gets which model.
+class TestOneModel(unittest.TestCase):
+    """Every card takes the cumulative walk -- no switch, no M2 (2026-09-27). The family only picks
+    the walk's settings, so the text's shift / widen / skew mean the same thing on every card."""
 
-    Routing is explicit and family-based, so it is worth pinning: a change here silently moves a
-    whole family onto a different model, and every one of these choices is a measured one.
-    """
+    def test_every_card_takes_the_cumulative_walk(self):
+        daily, asof = _multi_panel(["A", "B"], n=400, seed=5, corr=0.3)
+        n = 120
+        monthly = pa.table({"date": [f"{2010 + i // 12}-{1 + i % 12:02d}-01" for i in range(n)],
+                            "asset": ["X"] * n, "value": (100 + np.arange(n) * 0.1).tolist()})
+        cases = [({"p": daily}, ["A", "B"], [21, 63], asof, "level", "T2-F3"),
+                 ({"p": daily}, ["A"], [21], asof, "level", "T2-F2"),
+                 ({"p": daily}, ["A", "B"], [127], asof, "log_return", "T2-F1"),
+                 ({"p": daily}, ["B"], [21], asof, "level", "T2-F4"),
+                 ({"m": monthly}, ["X"], [140, 160], "2020-01-31", "level", "T2-F1"),  # monthly: was M2
+                 ({"p": daily}, ["A"], [21, 63], asof, None, None)]
+        for panels, assets, horizons, when, target, family in cases:
+            adj = {a: dict(NEUTRAL) for a in assets}
+            got = fa.build_draws(panels, assets, horizons, when, adj, 500, 3,
+                                 target_type=target, family=family)
+            want = fm._cumulative_walk_model(fm._Request(panels, assets, horizons, when, adj, 500, 3,
+                                                         target, family))
+            np.testing.assert_array_equal(got, want, err_msg=f"{family} {assets} {horizons}")
 
-    def test_the_routing_table(self):
-        cases = {
-            # F1 level cards are M2's home: measured 0.832x the walk on F1's own units. This is
-            # the only family-keyed branch, because M2 is a fitted model.
-            ("T2-F1", "level", (126, 189)): fm.M2,
-            # ...but M2 covers level targets only, so F1's 2 log_return units take a walk.
-            ("T2-F1", "log_return", (127,)): fm.RANDOM_WALK,
-            # Multi-horizon -> the path is accumulated. Today this is exactly F3's 22 units.
-            ("T2-F3", "level", (63, 126)): fm.CUMULATIVE_WALK,
-            ("T2-F3", "log_return", (21, 63)): fm.CUMULATIVE_WALK,
-            # Single-horizon -> one draw per horizon. All 27 F2 and all 31 F4 units today.
-            ("T2-F2", "level", (21,)): fm.RANDOM_WALK,
-            ("T2-F4", "log_return", (21,)): fm.RANDOM_WALK,
-            # The reason the middle branch tests shape and not family: the organizers' own
-            # example cards in docs/CATEGORIES.md are multi-horizon for BOTH F2 ("GBP/USD at
-            # horizons 21 BD and 63 BD") and F4 ("UST_2Y, UST_10Y at 63 BD and 126 BD"), even
-            # though no shipped dev unit in those families is. A sealed card shaped like either
-            # must still get its cross-horizon structure -- on the F2 shape that pair is the
-            # entire off-diagonal of the variogram.
-            ("T2-F2", "level", (21, 63)): fm.CUMULATIVE_WALK,
-            ("T2-F4", "level", (63, 126)): fm.CUMULATIVE_WALK,
-            # An unknown or absent family must still produce a forecast, and must not lose the
-            # path just because its metadata is unfamiliar.
-            ("T2-F9", "level", (21, 63)): fm.CUMULATIVE_WALK,
-            (None, None, (21,)): fm.RANDOM_WALK,
-        }
-        for (family, target_type, horizons), expected in cases.items():
-            name, model = fm._select_model(family, target_type, list(horizons))
-            self.assertEqual(name, expected,
-                             f"{family}/{target_type}/h={list(horizons)} routed to {name}")
-            self.assertTrue(callable(model))
+    def test_single_horizon_is_one_leg(self):
+        """By hand: value = last + z * sqrt((nu-2)/W) * sd * widen * sqrt(h), the walk explained
+        in the chat on t2-F2-higher-for-longer-2023 -- one asset, one horizon, F2 settings."""
+        table, asof = _multi_panel(["A"], n=400, seed=8)
+        cfg, n, h, seed = fm.WALK_SETTINGS["T2-F2"], 1000, 63, 4
+        out = fa.build_draws({"p": table}, ["A"], [h], asof, {"A": dict(NEUTRAL)}, n, seed,
+                             target_type="level", family="T2-F2")[:, 0, 0]
+        values = np.array([r["value"] for r in table.to_pylist()])
+        steps = np.diff(values)[-cfg["window"]:]
+        rng, rng_t = np.random.default_rng(seed), np.random.default_rng([seed, 7])
+        z = rng.standard_normal((n, 1))[:, 0]
+        rng.standard_normal((n, 1))                                  # the skew draw (skew = 0)
+        t = np.sqrt((cfg["nu"] - 2) / rng_t.chisquare(cfg["nu"], size=(n, 1)))[:, 0]
+        by_hand = values[-1] + z * t * steps.std() * cfg["widen"] * np.sqrt(h)
+        np.testing.assert_allclose(out, by_hand, rtol=0, atol=1e-12)
 
-    def test_m2_failure_falls_back_instead_of_losing_the_card(self):
-        """M2 refuses cards whose assets span two panel files. A raise would score the card at the
-        pre-committed worst case (4.0); the walk scores ~1.0, so the fallback is worth a lot."""
-        assets = ["A", "B"]
-        table, asof = _multi_panel(assets, seed=11, corr=0.2)
-        with mock.patch.object(fm, "_m2_model", side_effect=ValueError("no single panel")):
-            out = fa.build_draws({"p": table}, assets, [21], asof,
-                                 {a: dict(NEUTRAL) for a in assets}, 500, 0,
-                                 target_type="level", family="T2-F1")
-        self.assertEqual(out.shape, (500, 2, 1))
-        self.assertEqual(fm.last_model(), fm.RANDOM_WALK)
 
-    def test_single_horizon_walks_agree(self):
-        """On a single horizon the cumulative and independent walks are the same model.
+class TestWalkSettings(unittest.TestCase):
+    """The per-family settings of the main model (WALK_SETTINGS), and the Student-t shocks."""
 
-        This is what makes the routing safe for F2 (27 units) and F4 (31), all single-horizon:
-        sending them to the plain walk is a naming choice, not a behaviour change.
-        """
-        assets = ["A", "B"]
-        table, asof = _multi_panel(assets, seed=12, corr=0.4)
-        args = ({"p": table}, assets, [21], asof, {a: dict(NEUTRAL) for a in assets}, 4000, 0)
-        cumulative = fa.build_draws(*args, family="T2-F3")
-        independent = fa.build_draws(*args, family="T2-F2")
-        np.testing.assert_allclose(cumulative, independent, rtol=0, atol=0)
+    def test_family_settings_reach_the_fit(self):
+        """window, widen and nu come from the family; F4 uses the EWMA sd."""
+        table, asof = _multi_panel(["A", "B"], n=900, seed=21, corr=0.3)
+        steps = np.diff(np.array([[r["value"] for r in table.to_pylist() if r["asset"] == a] for a in ("A", "B")]), axis=1)
+        for fam in ("T2-F1", "T2-F2", "T2-F3", "T2-F4"):
+            cfg = fm.WALK_SETTINGS[fam]
+            fit = fm._fit_walk(fm._Request({"p": table}, ["A", "B"], [21], asof,
+                                           {a: dict(NEUTRAL) for a in "AB"}, 10, 0, "level", fam))
+            self.assertEqual(fit.nu, cfg["nu"], fam)
+            if cfg["halflife"] is None:
+                want = steps[:, -cfg["window"]:].std(axis=1) * cfg["widen"]
+            else:
+                want = fm._ewma_sd(steps.T[-int(8 * cfg["halflife"]):], cfg["halflife"]) * cfg["widen"]
+            np.testing.assert_allclose(fit.scale, want, rtol=1e-12, err_msg=fam)
+
+    def test_ewma_sd_matches_pandas(self):
+        x = np.random.default_rng(3).normal(0, 1, (400, 2))
+        import pandas as pd
+        ref = pd.DataFrame(x).ewm(halflife=63, adjust=True).std(bias=True).iloc[-1].to_numpy()
+        np.testing.assert_allclose(fm._ewma_sd(x, 63), ref, rtol=1e-9)
+
+    def test_student_t_keeps_variance_and_correlation_and_fattens_tails(self):
+        """Same sd per cell, same correlation between assets, more mass beyond 3 sd."""
+        table, asof = _multi_panel(["A", "B"], n=900, seed=22, corr=0.6)
+        base = {"window": 130, "widen": 1.0, "halflife": None}
+        with mock.patch.dict(fm.WALK_SETTINGS, {"TN": {**base, "nu": None}, "TT": {**base, "nu": 4}}):
+            args = ({"p": table}, ["A", "B"], [21], asof, {a: dict(NEUTRAL) for a in "AB"}, 200_000, 0)
+            normal = fa.build_draws(*args, target_type="level", family="TN")[:, :, 0]
+            student = fa.build_draws(*args, target_type="level", family="TT")[:, :, 0]
+        zn, zt = normal - normal.mean(0), student - student.mean(0)
+        np.testing.assert_allclose(zt.std(0) / zn.std(0), 1.0, atol=0.02)
+        self.assertAlmostEqual(np.corrcoef(zt.T)[0, 1], np.corrcoef(zn.T)[0, 1], delta=0.02)
+        beyond = lambda z: np.mean(np.abs(z / z.std(0)) > 3)
+        self.assertGreater(beyond(zt), 2 * beyond(zn))
