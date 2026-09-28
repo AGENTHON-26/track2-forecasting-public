@@ -12,7 +12,7 @@ Give it one unit folder. It returns, for every (asset, horizon) cell the card as
 
 A draw is then `anchor + mu + sigma * eps(d)`, with the same date `d` used for every cell of the unit.
 The CLI stops before drawing and only reports the four ingredients. `draw_joint()` does the drawing
-(notebook 04's sampler); `forecast_models.py`'s `build_draws()` calls it for monthly cards (any family).
+(notebook 04's sampler). Research model: production (`forecast_models.py`) stopped calling it on 2026-09-27.
 
 This is the same logic as notebooks `01_prep_xy` -> `02_split_units` -> `03_model_level` (section 5,
 the final fit), run on one unit instead of all of them. The penalties are not re-tuned here: the

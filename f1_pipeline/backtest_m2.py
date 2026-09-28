@@ -8,10 +8,11 @@ at each one, forecasts the card's cells three ways:
 
 - **M2** (`m2_unit.fit_m2(cell, origin=...)`, then `draw_joint`) -- fitted only on rows whose outcome
   was already observed at that origin, exactly like notebook 03's backtest.
-- **random walk** (`forecast_models._random_walk_model`) -- the production walk, given the panel
-  truncated at the origin.
-- **cumulative walk** (`forecast_models._cumulative_walk_model`) -- the same, drawn as one path;
-  identical to the random walk on a single-horizon card.
+- **random walk** (`random_walk` below) -- each horizon drawn on its own from the walk's fit. A
+  research baseline: production dropped it on 2026-09-27.
+- **cumulative walk** (`forecast_models._cumulative_walk_model`) -- the production model (every card
+  since 2026-09-27), given the panel truncated at the origin; identical to the random walk on a
+  single-horizon card.
 
 Each forecast is scored with the Track 2 composite (0.5 CRPS + 0.3 variogram + 0.2 tail pinball, the
 weights every F1/F2/F4 card declares) against what the panel shows the target did next. Only panel
@@ -101,6 +102,18 @@ def _origins(cells: list[m2.CellData], freq: str) -> list[pd.Timestamp]:
     return [pd.Timestamp(o) for o in keep[::STRIDE[freq]]]
 
 
+def random_walk(req: "fm._Request") -> np.ndarray:
+    """Each horizon drawn on its own from the walk's fit (horizons independent). Research only:
+    production has used the cumulative walk for every card since 2026-09-27. On a single-horizon
+    card the two are the same numbers."""
+    fit = fm._fit_walk(req)
+    rng, rng_t = np.random.default_rng(req.seed), np.random.default_rng([req.seed, 7])
+    out = np.empty((req.n_draws, len(req.assets), len(req.horizons)))
+    for hi in range(len(req.horizons)):
+        out[:, :, hi] = fit.centre + fit.shock(rng, req.n_draws, rng_t) * fit.scale * np.sqrt(fit.steps[:, hi])
+    return out
+
+
 def backtest_card(unit_dir: str | pathlib.Path, n_draws: int = N_DRAWS) -> list[dict]:
     """One row per (origin, model) with the composite and its parts. A card M2 cannot fit returns a
     single row with `status` saying why."""
@@ -139,7 +152,7 @@ def backtest_card(unit_dir: str | pathlib.Path, n_draws: int = N_DRAWS) -> list[
         n_train = min(f.n_train for f in fits)
         req = fm._Request(small, assets, horizons, str(o.date()), neutral, n_draws, k, ttype, fam)
         models = {"M2": lambda: m2.draw_joint(fits, n_draws, k),
-                  "random walk": lambda: fm._random_walk_model(req).reshape(n_draws, -1),
+                  "random walk": lambda: random_walk(req).reshape(n_draws, -1),
                   "cumulative walk": lambda: fm._cumulative_walk_model(req).reshape(n_draws, -1)}
         for name, draw in models.items():
             try:
