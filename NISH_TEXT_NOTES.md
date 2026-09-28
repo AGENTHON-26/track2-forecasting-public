@@ -311,3 +311,14 @@ doubled drift bring the calm-card cost back, and the WARNING checklist item help
 flags generic risks (cyber attacks, bank NPLs) and is worse on one half. Where v5 still misses:
 NOK Feb 2020 and the 2013 taper warning (warning seen, not connected to the asset), and 2008
 10-year funding stress (the "stress sends yields down" rule does not hold there).
+
+Re-measured on the corpus after #41 (59 documents added, 86 F4 files touched), same protocol:
+
+| setup | all 29 | even | odd | 11 shock cards | 18 other cards |
+|---|---|---|---|---|---|
+| random walk | 0.4560 | 0.3360 | 0.5846 | 1.1256 | 0.0468 |
+| v5 | 0.3589 | 0.2390 | 0.4873 | 0.8718 (10 better / 1 worse) | 0.0454 (8 / 10) |
+| v5, shipped code path (median-of-3) | 0.3431 | 0.2310 | 0.4633 | 0.8343 | 0.0429 |
+
+v5 improves on the new corpus (0.3781 -> 0.3589) and stays even with the random walk on the
+18 cards no rule was written from. v4 was not re-run on the new corpus.
