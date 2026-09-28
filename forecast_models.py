@@ -58,6 +58,24 @@ WALK_SETTINGS = {
     "T2-F4": {"window": 260, "widen": 1.2, "nu": 5, "halflife": 63},
 }
 _PLAIN_WALK = {"window": _WINDOW, "widen": 1.0, "nu": None, "halflife": None}
+#: Per-family FALLBACK width for the walk models, used only when the text half gave this card
+#: nothing (every asset exactly neutral: model call failed, timed out, ran out of budget, or no
+#: usable summaries). F4 cards are built around a shock the calm history does not show, so a
+#: text-less F4 card should still not draw history's too-narrow width. Measured 2026-09-26 on the
+#: 29 realized F4 cards (3 draw seeds): random walk 0.4560 -> 0.4085 with 1.5 applied to every
+#: card. When stage 2 DOES answer it is not overridden: with the F4 v5 prompt an always-on floor
+#: scored 0.3715 vs 0.3781 overall but made the 18 calm cards worse (7 better / 11 worse vs the
+#: walk), so it only covers failure. See `text_signal._FAMILY_FOCUS["F4"]` for the prompt.
+_FAMILY_WIDEN_FLOOR = {"T2-F4": 1.5}
+
+
+def _text_was_silent(adjustments: dict[str, dict[str, float]], assets: list[str]) -> bool:
+    """True when every asset carries the exact neutral adjustment -- the text half's failure
+    shape (`read_text_signal` degrades to neutral rather than raising)."""
+    return all(adjustments.get(a, {}).get("shift", 0.0) == 0.0
+               and adjustments.get(a, {}).get("widen", 1.0) == 1.0
+               and adjustments.get(a, {}).get("skew", 0.0) == 0.0 for a in assets)
+
 
 #: ON since 2026-09-25, after running the exact comparison the previous comment here demanded:
 #: "skew forced on vs. off against ONE recorded set of model adjustments, not two fresh live

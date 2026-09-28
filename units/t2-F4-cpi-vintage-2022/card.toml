@@ -70,7 +70,7 @@ asset_ids  = ["CPI_ALL"]
 frequency  = "monthly"
 start_date = "2000-01-03"
 end_date   = "2022-05-31"
-notes      = "Truncated at the as-of date minus a 45-day publication lag by construction; leakage guard re-checks at runtime."
+notes      = "Truncated at the as-of date minus a 45-day publication lag by construction; leakage guard re-checks at runtime. Values are the ALFRED vintage as published on the as-of date (31 May 2022, including revisions released that day), not later revisions; PCE_ALL and PCE_CORE are on the index base then in force (2012=100, not today's 2017=100)."
 
 [text]
 source         = "BLS/BEA news release; Federal Reserve; official (see landmarks index)"
@@ -79,7 +79,7 @@ cutoff         = "2022-05-31"
 cutoff_checked = true
 doc_types      = ["beige_book", "fomc_minutes", "fomc_statement", "landmark", "macro_release"]
 n_documents    = 8
-notes          = "Forecast the next CPI index level AS FIRST PUBLISHED — targets use the as-published (first-release) values, not later revisions (see data/vintage_example/). Panel truncated with a 45-day publication lag: the intervening print was not yet public at the as-of date. Prior CPI release texts (in corpus) document the recent trend and breadth commentary; real-time energy-price discussion is the incremental signal the panel cannot show yet, and the sign and size of the surprise remain open."
+notes          = "Forecast the June 2022 CPI index level AS FIRST PUBLISHED (released in July 2022), one print beyond the May 2022 print that is next at the as-of date — targets use the as-published (first-release) values, not later revisions (see docs/CATEGORIES.md and docs/MONTHLY-HORIZONS.md). Panel truncated with a 45-day publication lag: its last observation is April 2022, and the intervening May 2022 print was not yet public at the as-of date. Prior CPI release texts (in corpus) document the recent trend and breadth commentary; real-time energy-price discussion is the incremental signal the panel cannot show yet, and the sign and size of the surprise remain open."
 
 [targets]
 asset_ids        = ["CPI_ALL"]

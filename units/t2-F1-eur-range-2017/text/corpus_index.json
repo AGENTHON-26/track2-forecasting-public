@@ -18,6 +18,20 @@
       "file": "beigebook_201707.txt"
     },
     {
+      "doc_id": "macro_release-2017-08-11",
+      "timestamp": "2017-08-11",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "cpi_2017-08-11.txt"
+    },
+    {
+      "doc_id": "fomc-minutes-20170726",
+      "timestamp": "2017-08-16",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20170726_released_2017-08-16.txt"
+    },
+    {
       "doc_id": "ecb_draghi_2017-08-23",
       "timestamp": "2017-08-23",
       "source": "ECB (all_ECB_speeches.csv)",
@@ -30,6 +44,13 @@
       "source": "ECB (all_ECB_speeches.csv)",
       "doc_type": "cb_speech",
       "file": "ecb_draghi_2017-08-25.txt"
+    },
+    {
+      "doc_id": "macro_release-2017-09-01",
+      "timestamp": "2017-09-01",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "empsit_2017-09-01.txt"
     }
   ]
 }

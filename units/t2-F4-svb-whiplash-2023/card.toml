@@ -73,7 +73,7 @@ end_date   = "2023-03-08"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches; Federal Reserve; SEC EDGAR (8-K exhibit)"
+source         = "BIS central bankers' speeches; BLS/BEA news release; Federal Reserve; SEC EDGAR (8-K exhibit)"
 path           = "text/"
 cutoff         = "2023-03-08"
 cutoff_checked = true

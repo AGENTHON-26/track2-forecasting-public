@@ -1,85 +1,4 @@
-FRB: Beige Book - April 17, 2013 
-
- skip to main navigation 
- skip to secondary navigation 
- skip to content 
-
- What's New · 
- What's Next · 
- Site Map · 
- A-Z Index · 
- Careers · 
- RSS · 
- All Videos · 
- Current FAQs · 
- Contact Us 
-
- Search 
- Advanced Search 
-
- About the Fed 
-
- News & Events 
-
- Monetary Policy 
-
- Banking Information & Regulation 
-
- Payment Systems 
-
- Economic Research & Data 
-
- Consumer Information 
-
- Community Development 
-
- Reporting Forms 
-
- Publications 
-
- skip to content 
-
- Menu 
-
- Home 
-
- > Monetary Policy 
-
- > Beige Book 
-
- Print 
-
- Beige Book - April 17, 2013 
-
- Full Report 
-
- Summary 
-
- Boston 
-
- New York 
-
- Philadelphia 
-
- Cleveland 
-
- Richmond 
-
- Atlanta 
-
- Chicago 
-
- St. Louis 
-
- Minneapolis 
-
- Kansas City 
-
- Dallas 
-
- San Francisco 
-
-Full Report
+Beige Book - April 17, 2013 
 
 Summary of Commentary on Current Economic Conditions by Federal Reserve District 
 
@@ -150,8 +69,6 @@ Prepared at the Federal Reserve Bank of Dallas based on information collected on
 
  Contacts in the Richmond District noted input and finished goods prices rose at a slower pace since the last report, and Chicago District contacts said commodity prices were down slightly.
 
- Return to top 
-
 First District--Boston 
 
  Economic activity in the First District continues to expand modestly according to business contacts, although conditions are somewhat mixed across individual firms. Retailers generally cite slower than expected sales, and tourism has softened, partly on account of unseasonal weather. Over half of responding First District manufacturers report demand improvements in the first quarter; the rest are less upbeat. Most consulting and advertising firms say business is strong. Reports from the commercial real estate sector are more positive in this round than previously, with leasing activity improving in some markets. In the residential sector, limited inventory is said to be constraining home sales in the region, but median home prices are rising modestly. Contacts say hiring reflects demand growth, so few firms are adding substantially to headcounts except in the consulting sector. Price pressures are minimal. Most respondents expect current trends to continue, yielding modest to moderate growth in the second quarter and the second half of the year.
@@ -187,8 +104,6 @@ First District--Boston
 
  Contacts express concern that low inventory levels in the next several months could discourage buyers and continue to be a significant factor limiting the growth of sales. On the other hand, inventory levels may rise with the beginning of the busy spring season. In addition, rising prices will eventually lure into the market sellers who have been waiting for the value of their homes to pick up before listing them.
 
- Return to top 
-
 Second District--New York 
 
  Economic growth in the Second District has picked up somewhat since the last report. Business contacts continue to report moderate input price pressures but most report their selling prices remain steady. There has been fairly broad-based strengthening in labor market conditions. Retailers report that sales have generally been strong and ahead of plan in March, and auto sales have remained fairly robust. Tourism activity has generally been strong in recent weeks, though Broadway theaters have been in a bit of a slump. Commercial and especially residential real estate markets have strengthened since the last report. Finally, bankers report widespread increases in loan demand, continued narrowing in loan spreads, and further modest declines in delinquency rates.
@@ -212,8 +127,6 @@ Second District--New York
 
  Financial Developments 
  Small- to medium-sized banks report an increase in demand for commercial loans and mortgages but little change in demand for consumer loans and residential mortgages. Bankers report an uptick in demand for refinancing. Credit standards are reported to be unchanged across all loan categories. Respondents indicate a decrease in spreads of loan rates over costs of funds for all loan categories--particularly for consumer loans, where roughly one in four bankers reports lower spreads and no respondent reports higher spreads. Respondents also indicate continued decreases in average deposit rates. Finally, bankers report continued modest declines in delinquency rates on all categories of loans.
-
- Return to top 
 
 Third District--Philadelphia 
 
@@ -247,8 +160,6 @@ Third District--Philadelphia
  Prices and Wages 
  Overall, price levels continued to increase slightly, similar to the previous Beige Book. Manufacturing firms reported only modest cost pressures and a slight decline in prices received--essentially unchanged from last period. Auto dealers reported no changes in pricing. Homebuilders continued to note higher prices, especially for lumber and labor costs. Higher-end homebuilders reported some ability to make price increases stick. Real estate contacts continued to report that low-end house prices are firm or rising slightly, while high-end home prices are still falling in most markets. Outside of homebuilders, contacts continued to report that wages rose only slightly, if at all. Contacts continued to relay a wide range of costs and strategies to provide medical insurance benefits for their employees; their decision processes remain fraught with confusion and uncertainty.
 
- Return to top 
-
 Fourth District--Cleveland 
 
  Business activity in the Fourth District expanded at a moderate pace during the past six weeks. Manufacturing orders and production were mostly higher. The momentum seen in residential construction since the beginning of the year, including multi family, has been maintained. Nonresidential construction activity increased slightly, but remains below levels seen in the second half of last year. Retail sales volume between mid-February and mid-March was higher relative to the lackluster post-holiday period, while new motor vehicle sales posted moderate gains on a year-over-year basis. Conventional and unconventional natural gas and oil production was stable, but a pickup is expected later in the year as additional gas processing units come on line. Output at coal mines trended lower. Freight transport volume exceeded projections made late last year. Demand for business and consumer credit was higher when compared to early in the first quarter.
@@ -280,8 +191,6 @@ Fourth District--Cleveland
 
  Freight Transportation 
  For the most part, our contacts reported that shipping volume was somewhat higher than expected for this time of year, although no product area stands out. Freight executives are more optimistic about growth prospects than earlier in the year, and some believe that their growth projections for 2013 may be too low. Diesel-fuel prices have started to trend down from high levels, which carriers passed through via surcharges. Costs associated with equipment and maintenance items were stable. Capital spending was generally down in the first quarter of this year relative to late last year. However, our contacts believe that spending will begin to pick up in the second quarter. One executive stated that he has an aggressive spending plan in place, which includes capacity and footprint expansion. Hiring is for replacement and capacity expansion. New hours-of-service regulations (federal) may prompt additional hiring, but it will put upward pressure on shipping prices. Wage pressures are contained.
-
- Return to top 
 
 Fifth District--Richmond 
 
@@ -316,8 +225,6 @@ Fifth District--Richmond
 
  Labor Markets 
  Assessments of labor market activity were mixed since our last report. On the one hand, manufacturing firms in the Carolinas reported temporary layoffs due to softness in orders, and contacts in sectors from real estate to wholesale trade to manufacturing said that they were reducing staff or not expanding due to the Affordable Care Act. On the other hand, a Maryland firm planned to add 200 to 250 engineers as a result of the recent pick-up in construction, and a lumber firm increased its average employee work week. Moreover, contacts from a number of temp agencies cited stronger demand for workers, resulting in part from uncertainty about federal fiscal policies. The highest demand was for information technology workers; short supply pushed up their wages. Demand for telecommunication workers picked up, as carriers upgraded systems. Additionally, demand for automobile industry workers strengthened. According to our latest surveys, average wages at non-retail services firms rose more quickly, while manufacturing wages rose at a slower pace in recent weeks and retail wages declined.
-
- Return to top 
 
 Sixth District--Atlanta
 
@@ -355,8 +262,6 @@ Sixth District--Atlanta
 
  Drought conditions improved significantly in Georgia, southeastern Alabama, and the Florida panhandle. Since the last report, monthly soybean and corn prices rose moderately, while broiler prices reached record highs. Cotton prices continued to be below year-ago levels, but rose modestly since the last report. Driven by increasing global demand and low interest rates, contacts reported continued investment in new, more efficient equipment reducing both labor and fuel costs.
 
- Return to top 
-
 Seventh District--Chicago
 
  Economic activity in the Seventh District expanded at a modest pace in March. In general, contacts remained cautiously optimistic about the economic outlook. Growth in consumer spending edged lower, while growth in business spending picked up. Manufacturing production growth slowed. Residential construction continued to rise at a moderate pace, and nonresidential construction increased slightly. Credit conditions remained favorable. Cost pressures were largely unchanged, and wage pressures remained moderate. Prices for corn, soybeans, milk, and hogs fell, while cattle prices were little changed on net.
@@ -382,8 +287,6 @@ Seventh District--Chicago
  Agriculture 
  Cold weather delayed field work during the reporting period, but there was little concern expressed by contacts that planting would be seriously delayed. Corn and soybean prices dropped based on expectations of a larger crop this year and current stocks that are not as tight as anticipated. Contacts indicated that the number of soybean acres should be higher than the prior year in the District, while corn acres should be lower. Farmers seemed to increase their levels of crop insurance relative to last year. Milk prices moved lower during the reporting period, but remained above the levels of a year ago. Hog prices fell and were under year-ago levels. Cattle prices moved sideways during the reporting period, but were below the levels of a year ago. Some livestock producers were reportedly taking advantage of low long-term interest rates by refinancing and lengthening the maturity of their debt.
 
- Return to top 
-
 Eighth District--St. Louis
 
  The economy of the Eighth District has expanded at a moderate pace since our previous report. Recent reports of planned activity in manufacturing have been positive, while recent reports of planned activity in the service sector have been mixed. Residential real estate market conditions have continued to improve throughout most of the District, and commercial and industrial real estate market conditions have also improved in many areas of the District. Total lending at a sample of small and midsized District banks remained largely unchanged from mid-December 2012 to mid-March 2013.
@@ -403,8 +306,6 @@ Eighth District--St. Louis
 
  Agriculture and Natural Resources 
  Farmers in the District's states expect to plant more sorghum and soybeans in 2013 than was planted in 2012; they also anticipate planting less corn, cotton, and rice. Additionally, Arkansas and Mississippi farmers expect to significantly increase corn acreage while reducing cotton and rice acreage. As of early April, over 90 percent of the District's winter wheat crop was rated in fair or better condition, and over 60 percent was rated as good to excellent. Year-to-date coal production in the District's states (excluding eastern Kentucky) at the end of February was 4.7 percent lower than the same period last year. Similarly, coal production for February was 5.7 percent lower than February 2012.
-
- Return to top 
 
 Ninth District--Minneapolis
 
@@ -439,8 +340,6 @@ Ninth District--Minneapolis
 
  Overall price increases were modest. Minnesota gasoline prices decreased about 20 cents per gallon from late February to early April. Some metals prices also decreased since the last report. Meanwhile, bank directors noted increases in health care insurance costs. Prices for framing lumber have increased steadily over the past couple months.
 
- Return to top 
-
 Tenth District--Kansas City 
 
  The Tenth District economy expanded moderately in March, and expectations for future activity strengthened. District contacts reported stronger-than-expected consumer spending and anticipated additional gains this spring. Improvements in residential and commercial real estate market conditions exceeded typical seasonal trends with robust sales, higher prices and brisk construction activity. Although District manufacturing activity softened, factory managers projected a rebound in orders, production, and shipments. Bankersreported stable loan demand, improving loan quality, and stronger deposits. Persistent drought hindered winter crop development, while crop insurance payments lessened the demand for operating loans. District contacts expected oil drilling activity to strengthen as seasonal demand supports higher oil and gasoline prices. The prices of raw materials for manufacturing, construction and food services rose, with some pass-through to finished goods prices. Though more companies anticipated hiring additional workers in the coming months, wage pressures remained subdued except for specialized positions at transportation, high-tech, energy and construction firms.
@@ -465,8 +364,6 @@ Tenth District--Kansas City
 
  Wages and Prices 
  Wage pressures remained relatively subdued during the survey period, raw materials prices climbed, and some finished goods prices rose. More firms indicated they would be adding staff in the coming months to handle an anticipated increase in business activity, but most were not planning to raise wages. However, some companies, particularly those recruiting workers with specialized skills such as engineers, software developers, and commercial truck drivers, were increasing salaries. The cost of raw materials for manufacturing remained elevated, and some firms were raising finished goods prices. Some construction supply companies reported passing along higher prices for building materials, particularly lumber, to customers. Retail prices edged up, and retailers expected prices to trend higher during the next few months. Restaurant owners planned further menu price increases due to rising food costs.
-
- Return to top 
 
  Eleventh District--Dallas
 
@@ -515,8 +412,6 @@ Tenth District--Kansas City
  Agriculture 
  Drought conditions worsened slightly across the District over the reporting period. Nearly half of the Texas wheat crop was in poor or very poor condition, and spring crops were largely being planted into very dry soil. Texas feedlots continued to run negative margins, due in part to feed costs remaining elevated. Cotton was a bright spot, with continued strong demand and rising prices.
 
- Return to top 
-
 Twelfth District--San Francisco 
 
  Economic activity in the Twelfth District expanded at a modest pace during the reporting period of late February through early April. Price increases for most final goods and services were limited, and upward wage pressures were minimal overall. Sales of many retail items rose, and most business and consumer services gained further. District manufacturing activity appeared to increase on net. Production activity and sales grew for agricultural producers. Demand for both homes and commercial real estate properties continued to expand on balance. Contacts from financial institutions reported increased loan demand.
@@ -542,80 +437,3 @@ Twelfth District--San Francisco
 
  Financial Institutions 
  Contacts from financial institutions reported that loan demand improved. Ramped-up mortgage and automobile lending continued to spur growth in overall loan demand. Banking contacts again highlighted ample liquidity and generally stiff competition among lenders for well-qualified business borrowers. Contacts also pointed to a recent buildup of privately held technology companies poised for public offerings. Despite the clear potential for action, the pace of initial public offerings and new venture capital deals in the District's Internet and digital media subsectors has been relatively slow. By contrast, private equity financing has shown steady growth in recent months. Reports indicated modest improvement in credit quality for both business and consumer loans.
-
- Return to top 
-
- Other Formats
-
- PDF 
-
- More Information
-
- Beige Book Home 
-
- View Archive 
-
- Frequently Asked Questions 
-
- Last update: 
-
- December 23, 2016 
-
- This page uses Javascript. Your browser either doesn't support Javascript or you have it turned off.
-
- To see this page as it is meant to appear please use a Javascript enabled browser.
-
- Related pages:
-
- Beige Book 2016 
-
- Beige Book 2015 
-
- Beige Book 2014 
-
- Beige Book 2013 
-
- Beige Book 2011 
-
- Beige Book 2010 
-
- Beige Book 2009 
-
- Beige Book 2008 
-
- Beige Book 2007 
-
- Beige Book 2006 
-
- Beige Book 2005 
-
- Beige Book 2004 
-
- Beige Book 2003 
-
- Beige Book 2002 
-
- Beige Book 2001 
-
- Beige Book 2000 
-
- Beige Book 1999 
-
- Beige Book 1998 
-
- Beige Book 1997 
-
- Beige Book 1996 
-
- Beige Book - November 30, 2016 Beige Book - October 19, 2016 Beige Book - September 7, 2016 Beige Book - July 13, 2016 Beige Book - June 1, 2016 Beige Book - April 13, 2016 Beige Book - March 2, 2016 Beige Book - January 13, 2016 Beige Book - December 2, 2015 Beige Book - October 14, 2015 Beige Book - September 2, 2015 Beige Book - July 15, 2015 Beige Book - June 3, 2015 Beige Book - April 15, 2015 Beige Book - March 4, 2015 Beige Book - January 14, 2015 Beige Book - December 3, 2014 Beige Book - October 15, 2014 Beige Book - September 3, 2014 Beige Book - July 16, 2014 Beige Book - June 4, 2014 Beige Book - April 16, 2014 Beige Book - March 5, 2014 Beige Book - January 15, 2014 Beige Book - December 4, 2013 Beige Book -- October 16, 2013 Beige Book - September 4, 2013 Beige Book - July 17, 2013 Beige Book - June 5, 2013 Beige Book - April 17, 2013 Beige Book - March 6, 2013 Beige Book - January 16, 2013 Beige Book - November 28, 2012 Beige Book - October 10, 2012 Beige Book - August 29, 2012 Beige Book - July 18, 2012 Beige Book - June 6, 2012 Beige Book - April 11, 2012 Beige Book - February 29, 2012 Beige Book - January 11, 2012 Beige Book - November 30, 2011 Beige Book - October 19, 2011 Beige Book - September 7, 2011 Beige Book - July 27, 2011 Beige Book - June 8, 2011 Beige Book - April 13, 2011 Beige Book - March 2, 2011 Beige Book - January 12, 2011 Beige Book - December 1, 2010 Beige Book - October 20, 2010 Beige Book - September 8, 2010 Beige Book - July 28, 2010 Beige Book - June 9, 2010 Beige Book - April 14, 2010 Beige Book - March 3, 2010 Beige Book - January 13, 2010 Beige Book - December 2, 2009 Beige Book - October 21, 2009 Beige Book - September 9, 2009 Beige Book - July 29, 2009 Beige Book - June 10, 2009 Beige Book - April 15, 2009 Beige Book - March 4, 2009 Beige Book - January 14, 2009 Beige Book - December 3, 2008 Beige Book - October 15, 2008 Beige Book - September 3, 2008 Beige Book - July 23, 2008 Beige Book - June 11, 2008 Beige Book - April 16, 2008 Beige Book - March 5, 2008 Beige Book - January 16, 2008 Beige Book - November 28, 2007 Beige Book - October 17, 2007 Beige Book - September 5, 2007 Beige Book - July 25, 2007 Beige Book - June 13, 2007 Beige Book - April 25, 2007 Beige Book - March 7, 2007 Beige Book - January 17, 2007 Beige Book - November 29, 2006 Beige Book - October 12, 2006 Beige Book - September 6, 2006 Beige Book - July 26, 2006 Beige Book - June 14, 2006 Beige Book - April 26, 2006 Beige Book - March 15, 2006 Beige Book - January 18, 2006 Beige Book - November 30, 2005 Beige Book - October 19, 2005 Beige Book - September 7, 2005 Beige Book - July 27, 2005 Beige Book - June 15, 2005 Beige Book - April 20, 2005 Beige Book - March 9, 2005 Beige Book - January 19, 2005 Beige Book - December 1, 2004 Beige Book - October 27, 2004 Beige Book - September 8, 2004 Beige Book - July 28, 2004 Beige Book - June 16, 2004 Beige Book - April 21, 2004 Beige Book - March 3, 2004 Beige Book - January 14, 2004 Beige Book - November 26, 2003 Beige Book - October 15, 2003 Beige Book - July 30, 2003 Beige Book - June 11, 2003 Beige Book - April 23, 2003 Beige Book - March 5, 2003 Beige Book - January 15, 2003 Beige Book - November 27, 2002 Beige Book - October 23, 2002 Beige Book - September 11, 2002 Beige Book - July 31, 2002 Beige Book - June 12, 2002 Beige Book - April 24, 2002 Beige Book - March 6, 2002 Beige Book - January 16, 2002 Beige Book - November 28, 2001 Beige Book - October 24, 2001 Beige Book - September 19, 2001 Beige Book - August 8, 2001 Beige Book - June 13, 2001 Beige Book - May 2, 2001 Beige Book - March 7, 2001 Beige Book - January 17, 2001 Beige Book - December 6, 2000 Beige Book - November 1, 2000 Beige Book - September 20, 2000 Beige Book - August 9, 2000 Beige Book - June 14, 2000 Beige Book - May 3, 2000 Beige Book - March 8, 2000 Beige Book - January 19, 2000 Beige Book - December 8, 1999 Beige Book - November 3, 1999 Beige Book - September 22, 1999 Beige Book - August 11, 1999 Beige Book - June 16, 1999 Beige Book - May 5, 1999 Beige Book - March 17, 1999 Beige Book - January 20, 1999 Beige Book - December 9, 1998 Beige Book - November 4, 1998 Beige Book - September 16,1998 Beige Book - August 5, 1998 Beige Book - June 17, 1998 Beige Book - May 6, 1998 Beige Book - March 18, 1998 Beige Book - January 21, 1998 Beige Book - December 3, 1997 Beige Book - October 29, 1997 Beige Book - September 17, 1997 Beige Book - August 6, 1997 Beige Book - June 18, 1997 Beige Book - May 7, 1997 Beige Book - March 12, 1997 Beige Book - January 22,1997 Beige Book - December 4, 1996 Beige Book - October 30, 1996 
-
- Home 
- | Monetary Policy 
-
- Accessibility 
- Contact Us 
- Disclaimer 
- Website Policies 
- FOIA 
-
- PDF Reader

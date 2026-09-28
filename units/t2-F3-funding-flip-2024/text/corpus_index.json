@@ -32,6 +32,27 @@
       "file": "bis_ueda_2024-07-03.txt"
     },
     {
+      "doc_id": "fomc-minutes-20240612",
+      "timestamp": "2024-07-03",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20240612_released_2024-07-03.txt"
+    },
+    {
+      "doc_id": "macro_release-2024-07-05",
+      "timestamp": "2024-07-05",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "empsit_2024-07-05.txt"
+    },
+    {
+      "doc_id": "macro_release-2024-07-11",
+      "timestamp": "2024-07-11",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "cpi_2024-07-11.txt"
+    },
+    {
       "doc_id": "cftc_cot_japanese_2024",
       "timestamp": "2024-07-26",
       "source": "CFTC",

@@ -1,12 +1,12 @@
 # Provenance — Track 2 text corpus and numeric panels
 
-Track 2 ships **631 text files (26.87 MB)** and **116 Parquet panels (13.22 MB)** inside the
+Track 2 ships **692 text files (29.73 MB)** and **116 Parquet panels (13.22 MB)** inside the
 repository. This file says where they came from.
 
 **The per-file record lives in each unit's `manifest.json`**, in the `source` and `license` fields.
 That is the authoritative record: it is per-file, it is machine-checked in CI, and it is what a tool
 should read. This document is the human-readable summary of the same information — it groups the
-files so you can see the shape of the corpus without reading 1,160 manifest entries. **Where this
+files so you can see the shape of the corpus without reading 1,219 manifest entries. **Where this
 summary and a manifest entry disagree, the manifest entry is the one to trust**, and the
 disagreement is a bug in this file worth reporting.
 
@@ -15,9 +15,9 @@ Two things are worth knowing before anything else:
 1. **The repository's `LICENSE` (MIT) is our licence for our own work.** It does not govern the
    third-party documents in this corpus, and we do not offer it over them. About 99% of the corpus
    was written by someone other than the organizers.
-2. **A large majority of the corpus is U.S. Government work and is in the public domain** — 437 of
-   the 631 files (22.84 MB). You may do essentially anything with those, including commercially.
-   For most of the remaining 181 files — speeches and statements by non-US central banks, plus a
+2. **A large majority of the corpus is U.S. Government work and is in the public domain** — 492 of
+   the 692 files (25.68 MB). You may do essentially anything with those, including commercially.
+   For 185 of the remaining 200 files — speeches and statements by non-US central banks, plus a
    few corporate documents — **the issuing institution's own terms govern**, and we assert no
    redistribution grant of our own. They are here as frozen evidence for an offline benchmark. See
    [What we do not know](#what-we-do-not-know).
@@ -44,33 +44,33 @@ position below is stated explicitly rather than left to a link.
 ## What is here
 
 Counts are file **instances** on disk. Units each carry their own copy of the documents they use, so
-the same document often appears in several units: the 631 instances are **412 distinct documents**.
+the same document often appears in several units: the 692 instances are **448 distinct documents**.
 Sizes are the bytes on disk.
 
-### U.S. Government works — public domain (437 files, 22.84 MB)
+### U.S. Government works — public domain (492 files, 25.68 MB)
 
 | Group | Files | Distinct | Bytes | What it is |
 |---|---:|---:|---:|---|
-| Federal Reserve Board | 328 | 188 | 16,267,687 | FOMC statements and minutes, Beige Book, Bernanke/Powell testimony and speeches |
-| Bureau of Labor Statistics | 53 | 41 | 6,557,966 | CPI and Employment Situation news releases |
+| Federal Reserve Board | 353 | 202 | 15,923,663 | FOMC statements and minutes, Beige Book, Bernanke/Powell testimony and speeches |
+| Bureau of Labor Statistics | 83 | 60 | 9,879,581 | CPI and Employment Situation news releases |
 | Fed Board officials via BIS | 50 | 34 | 1,095,291 | Speeches by Board of Governors officials, copy obtained from BIS |
 | CFTC Commitments of Traders | 6 | 5 | 25,521 | Weekly positioning, as an organizer-formatted extract |
 
-### Non-US central banks — issuer's terms govern (174 files, 3.42 MB)
+### Non-US central banks — issuer's terms govern (178 files, 3.44 MB)
 
 | Group | Files | Distinct | Bytes | Principal speakers |
 |---|---:|---:|---:|---|
-| European Central Bank | 100 | 74 | 1,692,878 | Draghi, Trichet, Lagarde, Guindos, Praet, Schnabel, Elderson, Cœuré |
-| Bank of Japan | 32 | 25 | 913,781 | Kuroda, Ueda, Wakatabe, Shirakawa, Adachi; plus 3 policy statements |
-| Bank of England | 13 | 9 | 468,989 | Carney, Paul Fisher, Cunliffe; plus 1 MPC statement |
+| European Central Bank | 100 | 74 | 1,690,381 | Draghi, Trichet, Lagarde, Guindos, Praet, Schnabel, Elderson, Cœuré |
+| Bank of Japan | 35 | 27 | 938,725 | Kuroda, Ueda, Wakatabe, Shirakawa, Adachi; plus 4 policy statements (6 copies) |
+| Bank of England | 13 | 9 | 468,147 | Carney, Paul Fisher, Cunliffe; plus 1 MPC statement |
 | Reserve Bank of Australia | 11 | 8 | 229,688 | Stevens, Lowe |
 | People's Bank of China | 7 | 4 | 91,642 | Hu Xiaolian, Yi Gang |
 | Bank of Canada | 6 | 6 | 86,243 | Poloz, Wilkins |
-| Swiss National Bank | 3 | 3 | 62,061 | Jordan |
+| Swiss National Bank | 4 | 4 | 64,178 | Jordan; plus 1 press release (15 January 2015) |
 | Reserve Bank of India | 1 | 1 | 26,104 | Patra |
 | Bank Indonesia | 1 | 1 | 13,870 | Martowardojo |
 
-**Two of these 174 carry an explicit permission on the page**, in the ECB's standard press footer:
+**Two of these 178 carry an explicit permission on the page**, in the ECB's standard press footer:
 *"Reproduction is permitted provided that the source is acknowledged."* They are
 `units/t2-F2-whatever-it-takes-2012/text/draghi_whatever_it_takes_2012.txt` (line 42) and
 `units/t2-F3-dollar-squeeze-2020/text/bis_schnabel_2020-02-27.txt` (line 563). We reproduce them and
@@ -79,13 +79,13 @@ for literally over the bytes of every text file in the tree, with a planted cont
 search fires; **it appears in those two files and nowhere else**, and no variant wording of it
 appears anywhere.
 
-### Other (20 files)
+### Other (22 files)
 
 | Group | Files | Distinct | Bytes | What it is |
 |---|---:|---:|---:|---|
 | Corporate SEC 8-K exhibits | 7 | 5 | 431,707 | Pfizer, Moderna, SVB Financial Group, Apple earnings/announcement exhibits |
 | Regional Federal Reserve Banks | 8 | 5 | 207,061 | Dudley, Hoenig, Potter, Williams (New York, Kansas City) |
-| Organizer-written text | 5 | 3 | 2,403 | 1 exemplar stub in the example unit, 4 synthetic regression fixtures |
+| Organizer-written text | 7 | 3 | 2,969 | 1 exemplar stub in the example unit, 6 synthetic regression fixtures |
 
 ### Numeric panels (116 Parquet files, 13.22 MB)
 
@@ -95,7 +95,7 @@ appears anywhere.
 | `g10_fx_daily` | 40 | 10 G10 currencies vs USD | Federal Reserve H.10 via FRED — public domain |
 | `factors_daily` | 16 | MKT, SMB, HML, MOM, BAB, QMJ | **Kenneth R. French Data Library and AQR — see below** |
 | `em_transfer_early` | 5 | CNY, INR, BRL | **Source not established — see below** |
-| `macro_monthly` | 4 | CPI, PCE, NFP, unemployment rate | BLS and BEA via FRED — public domain |
+| `macro_monthly` | 4 | CPI, PCE, NFP, unemployment rate | BLS and BEA via FRED, as the ALFRED vintage published on each card's as-of date (index base as then published) — public domain |
 
 All five panel types carry **raw published values redistributed as-is** — yields in percent, quoted
 FX rates, raw CPI index levels, raw daily factor returns. They are not derived series we own. The
@@ -136,11 +136,12 @@ Bank of Australia, the People's Bank of China, the Bank of Canada, the Swiss Nat
 Reserve Bank of India, and Bank Indonesia. Copies were obtained from the issuing institutions and
 from the BIS *Central bankers' speeches* collection.
 
-Plainly: these 174 files are here **for non-commercial academic research**, as frozen evidence for an
-offline benchmark. Apart from the two ECB files noted above, **we do not assert a redistribution
-grant over them** and the MIT `LICENSE` does not convey one. Any use beyond reading them inside this
-benchmark — redistribution, mirroring, commercial use, inclusion in another published dataset — is
-between you and the issuing institution.
+Plainly: these 178 files are here **for non-commercial academic research**, as frozen evidence for an
+offline benchmark. Apart from the two ECB files noted above and the SNB press release noted below,
+whose issuers state reuse terms, **we do not assert a redistribution grant over them** and the MIT
+`LICENSE` does not convey one. Any use beyond reading them inside this benchmark — redistribution,
+mirroring, commercial use, inclusion in another published dataset — is between you and the issuing
+institution.
 
 All nine institutions are named in `THIRD-PARTY-NOTICES.md`, and that file and this one are kept
 consistent with each other.
@@ -149,9 +150,17 @@ Three specific facts inside this set, each read off the documents themselves:
 
 - **One Swiss National Bank file carries an SNB copyright notice on its face.**
   `units/t2-F1-chf-highly-valued-2021/text/bis_jordan_2021-04-30.txt` carries `© Swiss National Bank`
-  at lines 16 and 154, alongside a release embargo line. **The other two SNB files do not** — read
-  end to end, `bis_jordan_2014-11-23.txt` and `bis_jordan_2014-12-01.txt` contain no copyright notice
-  of any kind, and their manifest entries say so.
+  at lines 16 and 154, alongside a release embargo line. **The other two SNB speeches do not** —
+  read end to end, `bis_jordan_2014-11-23.txt` and `bis_jordan_2014-12-01.txt` contain no copyright
+  notice of any kind, and their manifest entries say so. Neither does the SNB press release of
+  15 January 2015, `units/t2-F1-chf-highly-valued-2021/text/snb_floor_discontinued_20150115.txt`: it
+  shows the SNB Communications contact lines and no copyright or permission notice. Its manifest
+  entry records the SNB's terms as governing (`LicenseRef-Source-Terms`). **Those terms are on the
+  SNB's copyright page, not on the document:** <https://www.snb.ch/en/srv/disclaimer_copyright>
+  allows the information and data the SNB provides on its website to be saved, translated (with
+  reference to the source), transmitted or used in other ways "for non-commercial purposes,
+  compatible with the purpose of such information or data". The benchmark uses the release on that
+  basis and names the SNB as its source.
 - **Six Bank of Japan files carry a fourth-party commercial right.** Five copies of
   `bis_wakatabe_2020-02-05.txt` and one of `bis_kuroda_2018-05-10.txt` embed IHS Markit chart data
   marked with IHS Markit's copyright and database right. **Even permission from the Bank of Japan
@@ -186,7 +195,7 @@ doing so would manufacture a claim we cannot support. **Unresolved; needs an own
 
 Our own work is covered by the repository's `LICENSE` (MIT):
 
-- the **5 organizer-written text files** — 1 exemplar stub in the example unit and 4 synthetic
+- the **7 organizer-written text files** — 1 exemplar stub in the example unit and 6 synthetic
   regression fixtures;
 - the **104 `manifest.json`**, **104 `card.toml`**, **104 `forecast_card.md`**, **103
   `forecast_spec.json`** and **104 `text/corpus_index.json`** files, plus the example unit's
@@ -209,26 +218,70 @@ ours.** Measured over the bytes:
   the style of FOMC minutes. Note that the file's own trailer calls itself a "representative public
   excerpt", which overstates it — treat the manifest entry, not the trailer, as the record.
 
+## How the text was cleaned
+
+Most documents were saved from web pages, and the saved text carried the site around the document:
+menus, search boxes, "Return to top" links, footers, and lists of related news filled in on the
+day the page was fetched. Those lists can name events after the document's own date. The unit
+texts have therefore been passed through **one committed module, `scripts/declutter_corpus.py`**
+(standard library only). Its docstring states every rule; nothing was removed by hand.
+
+- **What it removes:** site navigation before the document body and after it, page footers, inline
+  "Return to top" / "Back to top" separators, the ECB "SEE ALSO" related-content block, the
+  Bank of England related-news blocks, and a bare "Last Modified Date:" page label (with its date)
+  left at the very end of a BLS release. Line endings become LF.
+- **What it keeps:** the document itself, including its front matter. A Beige Book keeps its title,
+  release date and "This report was prepared at the Federal Reserve Bank of ... based on
+  information collected on or before ..." preamble; a BLS release keeps its release header and
+  dateline; the FOMC minutes of 2007-2011 keep the date line the page prints just above its
+  footer (for example "February 18, 2009"). The 2024 Beige Books are 13 web pages saved into one
+  file; the module cleans each page on its own, so every District report is kept.
+- **Guards:** a file whose prose would fall below half of what it was, or a multi-page file with a
+  page left almost empty, is refused and left untouched. None was refused.
+- **Reissued BLS releases.** Four BLS files carried a note that the release was reissued *after*
+  its publication date: `cpi_2011-07-15.txt` (reissued 18 August 2011, in 2 units) and
+  `empsit_2020-02-07.txt` and `empsit_2020-03-06.txt` (reissued 23 September 2020, in
+  `t2-F4-covid-nfp-2020`). The module removes such a note by an explicit rule, and every removal
+  is listed in [`corpus-cleaning/reissue-notes-removed.tsv`](corpus-cleaning/reissue-notes-removed.tsv)
+  (paths relative to `units/`). **The tables in those four files are still the reissued versions.**
+  Per the removed notes, the 2011 reissue corrected the April-June 2011 data in Table 7 (the
+  chained CPI, C-CPI-U) and did not change the text; the 2020 reissue corrected a limited number of
+  series in household-survey tables A-8, A-9, A-13 and A-14 and did not affect the official
+  unemployment rate. Notes about a same-day reissue are kept. (The same rule also removes a
+  numbered table footnote saying a table was reissued after the release date; no unit text has
+  one.)
+
+To check a unit's text, run `python3 scripts/declutter_corpus.py --check units`; it exits 0 when
+every file is already clean and writes nothing.
+
+Beige Book timestamps in `text/corpus_index.json` are never earlier than the Beige Book's public
+release date (read off the document's own dateline), and every one is on or before its card's as-of
+date. Many are the last day of the release month rather than the release day itself; a timestamp
+later than the release is conservative for the cutoff gate.
+
 ---
 
 ## What we do not know
 
 These are gaps, not formalities, and none of them is filled with a guess.
 
-**1. We cannot say where 621 of the 631 text files were retrieved from.**
+**1. We cannot say where 653 of the 692 text files were retrieved from.**
 
-We can establish the **issuing institution for 631 of 631 files** by reading the documents — that is
-what the rights question turns on, and it is solid. We **cannot** establish the **exact retrieval URL
-or retrieval date** for all but 10: the 6 PBoC files carrying inline `bis.org` URLs and the 4
-synthetic fixtures, which have no external source. **No URL or date has been invented to fill that
-gap**, and none should be added later without evidence.
+We can establish the **issuing institution for 692 of 692 files** by reading the documents — that is
+what the rights question turns on, and it is solid. An **official source URL** is recorded for 33
+files: the 6 PBoC files carrying inline `bis.org` URLs, and the 27 copies of the 13 landmark
+documents listed with their URLs in [`LANDMARKS.md`](LANDMARKS.md). The 6 synthetic fixtures have no
+external source. For the other 653 files we **cannot** establish the **exact retrieval URL**, and
+no retrieval date is recorded for any file. **No URL or date has been invented to fill that gap**,
+and none should be added later without evidence.
 
-**2. The reuse terms for 179 files are not established.**
+**2. The reuse terms for 182 files are not established.**
 
-For 172 of the 174 non-US central bank files and the 7 corporate exhibits, we know **who issued
+For 175 of the 178 non-US central bank files and the 7 corporate exhibits, we know **who issued
 them** with certainty and we do **not** know **what the terms permit**. No evidence exists anywhere in
-this repository that any grant was ever obtained from those institutions or companies. The two ECB
-files described above are the exception: their permission is printed on the document.
+this repository that any grant was ever obtained from those institutions or companies. The
+exceptions are the two ECB files described above, whose permission is printed on the document, and
+the SNB press release, whose terms the SNB publishes on its copyright page.
 
 **3. The rights basis for 8 regional Federal Reserve Bank files is genuinely unsettled.**
 
@@ -261,16 +314,19 @@ the dependency; it does not obtain a grant. **Unresolved.**
 
 **7. The generator code is not in this repository.**
 
-103 manifests cite `scripts/make_public_dev_copy.py`, but **no `scripts/` directory exists here**.
-The "raw, not derived" conclusion for the panels therefore rests on the panel documentation plus the
+103 manifests cite `scripts/make_public_dev_copy.py`, but **that script is not in this repository**:
+the `scripts/` directory here holds only `check_public_sync.sh` and `declutter_corpus.py`. The
+"raw, not derived" conclusion for the panels therefore rests on the panel documentation plus the
 measured value ranges, **not** on reading the code that built them.
 
-**8. There is still one dangling pointer class.**
+**8. The landmarks pointer now resolves.**
 
-`"see landmarks index"` appears **40** times across 38 unit files, and **no landmarks index exists
-anywhere in the tree**. (The other two classes are gone: `"see PROVENANCE.md chain"` no longer appears
-anywhere under `units/`, and the `data/PROVENANCE.md` that 237 pointers under `units/` refer to is
-this file.)
+`"see landmarks index"` appears **51** times across 48 unit files (24 `card.toml`, 24
+`text/corpus_index.json`). Until this revision no landmarks index existed anywhere in the tree; it
+is now [`data/LANDMARKS.md`](LANDMARKS.md), which lists all 13 landmark documents with their
+official source URLs. (The other two pointer classes were already gone: `"see PROVENANCE.md chain"`
+no longer appears anywhere under `units/`, and the `data/PROVENANCE.md` that 340 references in 212
+files under `units/` point to is this file.)
 
 ---
 
@@ -303,11 +359,11 @@ classification here was derived by reading documents, and reading can be wrong.
 
 Everything above was **measured on this tree**, not inferred from filenames.
 
-- **Enumeration.** 631 `.txt` files totalling 28,172,892 bytes and 116 unit Parquet panels totalling
-  13,861,919 bytes, via a bytes-safe walk. Five paths contain non-ASCII characters (`bis_cœuré_*` ×3,
+- **Enumeration.** 692 `.txt` files totalling 31,174,771 bytes and 116 unit Parquet panels totalling
+  13,860,758 bytes, from the committed tree (`git ls-tree -r -l`). Five paths contain non-ASCII characters (`bis_cœuré_*` ×3,
   `bis_constâncio_*` ×2) and are handled with Unicode NFC normalisation.
 - **Classification by content, not filename.** Every speech document had its byline read to identify
-  the issuing institution. **This matters: the filename lies for 174 of 631 files.** Every `bis_*`
+  the issuing institution. **This matters: the filename lies for 174 of 692 files.** Every `bis_*`
   file carries a filename implying BIS, and **BIS authored none of them** — behind that prefix sit 50
   U.S. Fed Board works, 8 regional Reserve Bank works, and 116 foreign works from 9 institutions.
 - **Traps caught by reading, which filename or keyword matching would have got wrong:**
@@ -322,17 +378,23 @@ Everything above was **measured on this tree**, not inferred from filenames.
   - The example unit's two "stubs" — one is verbatim Fed text and one is ours. Reading the trailer
     would have got both wrong; only sentence-level comparison against the real releases separates
     them.
-- **Path rules verified.** 17 mutually exclusive rules were compiled and run against all 631 paths:
-  **0 files matched more than one rule, 0 matched none**, and byte totals reconcile exactly to
-  28,172,892. A planted `bis_UNKNOWNPERSON_*.txt` control matched nothing — the rules **fail safe**.
+- **Path rules verified.** The figures in this revision come from an ordered set of file-name
+  rules in which every `bis_*` speaker is mapped to the institution read off the byline. It
+  classifies all 692 paths, **stops with an error on any path or speaker it does not know** (so the
+  rules fail safe), and its byte totals reconcile exactly to 31,174,771. Run on the tree before the
+  cleaning pass, with the 4 regression fixtures that existed when this file was first written, the
+  same rules reproduce every text-file figure of the first version of this file (631 files,
+  28,172,892 bytes, every group's files, distinct documents and bytes).
 - **Detectors proved before use.** Every search was positive-controlled before a clean result was
   accepted. Three census claims were corrected this way: the IHS Markit files number **6, not 4**; an
   over-strict pattern produced a **false negative** on the Apple copyright notice, which a second
   check confirmed is genuinely present; and the SNB copyright notice, first recorded against all
   three `bis_jordan_*` files, is present in **one**.
-- **Integrity.** sha256 and length were recomputed for all **1,160** manifest entries against disk:
-  **1,160 OK, 0 mismatches.** No file bytes were modified in establishing any of this; the corrections
-  described above are to manifest metadata and to this document.
+- **Integrity.** sha256 and length were recomputed for all **1,219** manifest entries against disk:
+  **1,219 OK, 0 mismatches.** Apart from the cleaning pass described in
+  [How the text was cleaned](#how-the-text-was-cleaned), no file bytes were modified in establishing
+  any of this; the other corrections are to manifest metadata and to this document.
 
-*Counts describe the `release-20260828` staging tree as measured against it directly. Re-measure
-before publishing if the tree has changed since.*
+*Counts describe this tree as re-measured on 2026-09-25, after the practice-corpus cleaning pass;
+the unit Parquet total was re-measured on 2026-09-27, after the monthly practice panels were
+rebuilt. Re-measure before publishing if the tree has changed since.*

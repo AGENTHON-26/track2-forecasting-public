@@ -147,7 +147,7 @@ modes you will encounter:
 2. **Official scoring (`restricted`).** Your container runs on an internal eval network with
    **no open internet**. The only permitted egress is through the organizer's audited proxy to:
    - the organizer-hosted model endpoint (open models served via NIM/vLLM; free, with a
-     per-run budget) — **and nothing else**.
+     per-unit request budget) — **and nothing else**.
 
    Vendor model APIs (`api.anthropic.com`, `api.openai.com`,
    `generativelanguage.googleapis.com`, any other) are **refused by the proxy** (policy
@@ -166,7 +166,7 @@ At scoring time your container receives this environment:
 | `NO_PROXY` | Hosts that must bypass the proxy |
 | `MODEL_ENDPOINT` | The **origin** of the House route — `scheme://host:port`, **no path**. The OpenAI-compatible API is served under `/v1`: `POST $MODEL_ENDPOINT/v1/chat/completions`. `$MODEL_ENDPOINT/chat/completions` (no `/v1`) is refused with 403 |
 | `MODEL_TOKEN` | The per-unit bearer credential. Send `Authorization: Bearer $MODEL_TOKEN` on every request; without it the route answers 401 |
-| `MODEL_NAME` | The pinned house-model id served at `MODEL_ENDPOINT` — use it in your client calls |
+| `MODEL_NAME` | The runtime alias of the House model — use it as the `model` field of every request. The model identity and snapshot you disclose in `models[]` are in the [House model guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/HOUSE-MODEL.md) |
 | `QFBENCH_NETWORK` | `restricted` (or `none` for local smoke runs) |
 | Your API keys | **None exist.** The harness injects no participant API key and there is no mechanism to supply one (policy 2026-08-04) |
 
@@ -664,7 +664,7 @@ practice panel carry the asset far enough to touch the target date, does it hold
 that (asset, date), does that row's value equal the sealed one — and we re-run it as the sealed set
 is finalized, rather than treating one clean result as settled.
 
-The current run: **0 exposed**, pooling all 146,692 `(asset, date, value)` rows from every
+The current run: **0 exposed**, pooling all 148,680 `(asset, date, value)` rows from every
 published panel against every sealed answer that exists today. The honest scope of that number is
 that only a small fraction of the sealed units have a resolved outcome yet; the rest resolve in
 the
@@ -707,7 +707,7 @@ availability is announced separately.
 Include dependencies and permitted artifacts in the image before submission. Cold image pulls
 consume the unit clock; previously reported pull timings are historical observations, not a
 current startup guarantee. See the
-[Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/DEVELOPMENT-RUNTIME.md)
+[Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/DEVELOPMENT-RUNTIME.md)
 for process, temporary-space and output limits, and the
 [image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/IMAGE-SUBMISSIONS.md)
 for anonymous public pulls and organizer-confirmed private mirrors. The writable image layer,
@@ -748,6 +748,16 @@ verification within that same phase, with no separate participant Verification s
 If two Final submissions finish this track with the same ranking score, the tie is broken in
 favour of the one uploaded earlier.
 Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates and task/data cutoffs are unchanged.
+
+**Last Development runs start by 20:00 UTC on Monday 12 October 2026.** A scheduled
+maintenance window on **Tuesday 13 October 2026, 08:00–12:00 UTC** stops the evaluation fleet,
+and new Development runs stop starting twelve hours before it so that every run started by
+then keeps its full 12-hour stage clock. The 23:59 AoE close on 12 October is 11:59 UTC on
+13 October, inside that window. An upload that has not started by 20:00 UTC on 12 October,
+whenever it was made, is not run; a run starts only when a worker is free, so upload well
+before that evening. An upload made during the window shows `Submitting` until 12:00 UTC and
+is not run. The window changes nothing about scoring, limits or the submission contract
+([issue #18](https://github.com/Agenthon-2026/track2-forecasting-public/issues/18)).
 
 At the participant Development opening, Track 2 allows **5 uploads per team per day**
 and **20 total uploads per team for this track during Development**. Use your team's single

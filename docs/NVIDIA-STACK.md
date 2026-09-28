@@ -80,8 +80,7 @@ reproducibility.
 - Scoring semantics and the composite: [CONCEPTS.md](CONCEPTS.md); task families:
   [CATEGORIES.md](CATEGORIES.md).
 - The rationale requirement and how reviewers read it: [RATIONALE-REVIEW.md](RATIONALE-REVIEW.md).
-- *(In review)* a reference end-to-end submission — baseline CLI + gate-passing image
-  ([#10](https://github.com/Agenthon-2026/track2-forecasting-public/pull/10)) — and a solver
-  playbook distilling what measurably works
-  ([#11](https://github.com/Agenthon-2026/track2-forecasting-public/pull/11)); both will be
-  linked here once merged.
+- A reference end-to-end submission — the baseline `forecast` CLI and the gate-passing reference
+  image built by the repo-root [`Dockerfile`](../Dockerfile); run it as in
+  [Running your Docker agent end-to-end](../README.md#running-your-docker-agent-end-to-end). A
+  solver playbook distilling what measurably works: [SOLVER-PLAYBOOK.md](SOLVER-PLAYBOOK.md).

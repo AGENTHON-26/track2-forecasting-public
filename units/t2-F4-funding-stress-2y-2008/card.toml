@@ -73,12 +73,12 @@ end_date   = "2008-09-12"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches; Federal Reserve"
+source         = "BIS central bankers' speeches; BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2008-09-12"
 cutoff_checked = true
 doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "macro_release"]
-n_documents    = 7
+n_documents    = 8
 notes          = "As-of Friday 2008-09-12. The corpus knows: GSE conservatorship (Sep-7), a failing broker-dealer in the headlines, August minutes fretting about financial fragility. It does NOT know the weekend outcome. Draws need a systemic branch (2Y toward zero) alongside a muddle-through branch."
 
 [targets]

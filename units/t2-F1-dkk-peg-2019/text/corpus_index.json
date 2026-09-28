@@ -39,6 +39,13 @@
       "file": "beigebook_201901.txt"
     },
     {
+      "doc_id": "fomc-minutes-20190130",
+      "timestamp": "2019-02-20",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20190130_released_2019-02-20.txt"
+    },
+    {
       "doc_id": "ecb_draghi_2019-02-22",
       "timestamp": "2019-02-22",
       "source": "ECB (all_ECB_speeches.csv)",

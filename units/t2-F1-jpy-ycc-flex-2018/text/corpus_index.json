@@ -44,6 +44,13 @@
       "source": "Federal Reserve",
       "doc_type": "fomc_statement",
       "file": "fomc_statement_20180613.txt"
+    },
+    {
+      "doc_id": "macro_release-2018-07-12",
+      "timestamp": "2018-07-12",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "cpi_2018-07-12.txt"
     }
   ]
 }

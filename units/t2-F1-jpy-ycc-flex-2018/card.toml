@@ -71,12 +71,12 @@ end_date   = "2018-07-31"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches; Federal Reserve"
+source         = "BIS central bankers' speeches; BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2018-07-31"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 6
+doc_types      = ["beige_book", "cb_speech", "fomc_statement", "macro_release"]
+n_documents    = 7
 notes          = "BoJ widens the tolerated 10Y JGB band while insisting easing persists — a tweak dressed as continuity. Distinguishing a technical adjustment from the start of normalization is precisely the text-reading task; the rate differential still dominates the level."
 
 [targets]

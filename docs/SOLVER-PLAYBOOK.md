@@ -11,7 +11,7 @@ mixtures (20/30) with fat tails (28/30)**. Follow the metric, not your point est
 You submit **draws** (a Monte-Carlo sample of the target's value at each horizon), not a point.
 The metric is a CRPS composite, **lower is better**:
 
-    S = 0.5 · CRPS_marginal  +  0.3 · S_joint (variogram)  +  0.2 · P_tail (PIT calibration)
+    S = 0.5 · CRPS_marginal  +  0.3 · S_joint (variogram)  +  0.2 · P_tail (pinball loss at 1/5/95/99%)
 
 Three consequences that dictate everything below:
 

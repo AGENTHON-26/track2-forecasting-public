@@ -72,12 +72,12 @@ end_date   = "2024-07-26"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "BIS central bankers' speeches; CFTC; Federal Reserve; official (see landmarks index)"
+source         = "BIS central bankers' speeches; BLS/BEA news release; CFTC; Federal Reserve; official (see landmarks index)"
 path           = "text/"
 cutoff         = "2024-07-26"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement", "landmark", "positioning_report"]
-n_documents    = 5
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "landmark", "macro_release", "positioning_report"]
+n_documents    = 8
 notes          = "As-of ahead of back-to-back central-bank meetings: positioning reports show crowded funder shorts, policy speeches hint at normalization, and prior intervention is on the record. A carry-unwind branch would realign the funders (JPY, CHF) against the carry longs (AUD, NZD) into a correlation regime different from the as-of history. Draws must be able to represent that branch as a coherent joint scenario across the four crosses (correlated moves, not independent per-asset noise); correlations estimated on trailing data alone cannot."
 
 [targets]

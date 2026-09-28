@@ -410,9 +410,10 @@ class TestF4Prompt(unittest.TestCase):
 
     def test_f4_prompt_carries_the_width_scale_and_structure_rules(self):
         system, _ = ts.build_adjustment_prompt([], ["JPY"], self._CTX)
-        self.assertIn("2.5-3.0 says they describe a shock in progress", system)
+        self.assertIn("2.5-3.0 says a shock that bears on it is already under way", system)
         self.assertIn("a crowded position unwinds AGAINST the crowd", system)
-        self.assertIn("judge width by the SINGLE most alarming thing", system)  # v4
+        self.assertIn("judge by the single most relevant alarming item", system)  # v5
+        self.assertIn("RELEVANCE: the warning must plausibly move THIS asset", system)  # v5
         self.assertIn("range [1.0, 3.0]", system)
 
     def test_f4_width_range_is_1_to_3(self):

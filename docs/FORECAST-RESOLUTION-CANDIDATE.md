@@ -6,10 +6,13 @@ canonical scorer, normalization, gates and aggregate. It does not change `score_
 ordinary C1/C2 verifier, CLI, worker, factory or live scoring path. Every returned result is
 explicitly non-rankable and lists the remaining adoption/evidence gaps.
 
-This module requires the coupled Hub `candidate-2` implementation. Existing public toolkit
-tags do not provide it. Install and test the reviewed pair together; do not skip the new tests
-or claim a public-tag CI run exercised this candidate. The normal scorer has no new import of
-this module, so its existing entrypoints do not select this path implicitly.
+This module requires the coupled Hub `candidate-2` implementation
+(`qfbench2_common.contracts.forecast_protocol`). Toolkit tag `v2.4.4`, the version this
+repository pins, carries it; the public CI installs `v2.4.4` and runs this candidate's synthetic
+tests (`tests/test_resolution.py`, `tests/test_candidate_cutoff.py`), and private staging
+additionally tests against a pinned toolkit candidate commit. Do not skip the new tests. The
+normal scorer has no new import of this module, so its existing entrypoints do not select this
+path implicitly.
 
 The organizer supplies three signed document byte strings and immutable retained byte maps:
 

@@ -71,7 +71,7 @@ end_date   = "2018-09-28"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime."
 
 [text]
-source         = "CFTC; Federal Reserve"
+source         = "BLS/BEA news release; CFTC; Federal Reserve"
 path           = "text/"
 cutoff         = "2018-09-28"
 cutoff_checked = true

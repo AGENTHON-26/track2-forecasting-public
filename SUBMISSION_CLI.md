@@ -37,7 +37,7 @@ window; setup/provisioning and container creation/execution after activation can
 retrying under the same allocation resets neither the window nor request counters. Credentials
 last at most 7,200 seconds from issue and never beyond that fixed end. Deployment and verification
 remain required before opening; this changes no compute allowance.
-See the [Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/DEVELOPMENT-RUNTIME.md)
+See the [Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/DEVELOPMENT-RUNTIME.md)
 for applied limits and pending access status. Development settings do not certify Final resources.
 
 Build a `linux/amd64` image identified by its immutable digest. Follow the
@@ -77,7 +77,12 @@ Tracks 2, 3 and 4 retain 5 per day.
 Development runs through **October 12, 2026**. The joint **Final + Verification phase runs
 October 13–25, 2026**. Each team makes **one final submission per track**; organizers perform
 verification within that same phase, with no separate participant Verification submission.
+If two Final submissions finish this track with the same ranking score, the tie is broken in
+favour of the one uploaded earlier.
 Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates and task/data cutoffs are unchanged.
+New Development runs stop starting at 20:00 UTC on Monday 12 October 2026, before a maintenance
+window on Tuesday 13 October, 08:00–12:00 UTC; an upload that has not started by then is not run
+([issue #18](https://github.com/Agenthon-2026/track2-forecasting-public/issues/18)).
 See the [Development submission limits](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/DEVELOPMENT-RUNTIME.md#submission-limits-at-the-development-opening).
 
 ## Network modes (per unit card, `[environment].network`)
@@ -88,7 +93,7 @@ internet** in official scoring.
 | Mode | Who | Meaning |
 |---|---|---|
 | `none` | **Simulation (T3)** | Fully offline (`--network=none`). Exactly the historical closed-resource behavior; any attempted outbound connection fails the run. |
-| `restricted` | **Agent tracks (T1 coding, T2 forecasting, T4 Explainability)** | No open internet. Egress **only** through the organizer's audited proxy to the **organizer-hosted model endpoint** given by `MODEL_ENDPOINT` (open models, free to use, per-run budget). Every connection is logged (domain, bytes, timestamps); the log is the audit artifact for verification within the joint Final + Verification phase. |
+| `restricted` | **Agent tracks (T1 coding, T2 forecasting, T4 Explainability)** | No open internet. Egress **only** through the organizer's audited proxy to the **organizer-hosted model endpoint** given by `MODEL_ENDPOINT` (open models, free to use, per-unit request budget). Every connection is logged (domain, bytes, timestamps); the log is the audit artifact for verification within the joint Final + Verification phase. |
 
 > ### ⚠️ Agent tracks: there is no third-party model-API access
 >
@@ -101,9 +106,9 @@ internet** in official scoring.
 >
 > There is one model access: the **House endpoint** — call `$MODEL_ENDPOINT/v1/chat/completions`
 > with `MODEL_NAME` and the `MODEL_TOKEN` bearer (see the environment contract below). Free,
-> metered per run, and optional on this track. **Bring-your-own models and adapters are not part
-> of this competition** (ruling of 2026-09-18): no LoRA adapter path, no in-image language-model
-> weights path, nothing fetched at run time.
+> metered per unit (25 admitted requests), and optional on this track. **Bring-your-own models
+> and adapters are not part of this competition** (ruling of 2026-09-18): no LoRA adapter path,
+> no in-image language-model weights path, nothing fetched at run time.
 >
 > **No participant API keys exist.** The harness injects none and there is no mechanism for a
 > submission to supply one, so a vendor key would have nothing to reach even if you had one.
@@ -146,7 +151,7 @@ server.
 | `HTTP_PROXY` / `HTTPS_PROXY` | the audited egress proxy. **Read these from the environment; never hardcode a proxy host** — the address is an operational detail and it has changed. Most HTTP clients honour them automatically |
 | `NO_PROXY` | hosts that must bypass the proxy |
 | `MODEL_ENDPOINT` | the **origin** of the organizer-hosted House route (`scheme://host:port`, no path). The OpenAI-compatible API is served under `/v1`: `POST $MODEL_ENDPOINT/v1/chat/completions`. `$MODEL_ENDPOINT/chat/completions` (no `/v1`) is refused with 403. This is the **only** model API you can reach |
-| `MODEL_NAME` | the pinned house-model id served at `MODEL_ENDPOINT` (use it in your client calls; published with the model pin) |
+| `MODEL_NAME` | the runtime alias of the House model (use it as the `model` field of every request); the model identity and snapshot for `models[]` are in the [House model guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/HOUSE-MODEL.md) |
 | `MODEL_TOKEN` | the per-unit bearer credential. Send `Authorization: Bearer $MODEL_TOKEN` on every request; without it the route answers 401. With the OpenAI client: `OpenAI(base_url=os.environ["MODEL_ENDPOINT"].rstrip("/") + "/v1", api_key=os.environ["MODEL_TOKEN"])`. Full contract: [Calling the House route](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/HOUSE-MODEL.md#calling-the-house-route) |
 | `QFBENCH_NETWORK` | `restricted` (or `none` for simulation / local fallback) |
 
@@ -154,8 +159,9 @@ server.
 
 1. **Vendor-side tools OFF.** Web search, code execution, retrieval, and any other vendor-side
    tool MUST be disabled in every API call. Enforced by rule + audit of the proxy logs.
-2. **Pin model versions.** The house endpoint serves a pinned model id (`MODEL_NAME`). Floating
-   aliases (`*-latest`) are not reproducible and are rejected at verification.
+2. **Pin model versions.** The house endpoint serves one pinned model snapshot, called through the
+   `MODEL_NAME` runtime alias. Floating aliases (`*-latest`) are not reproducible and are
+   rejected at verification.
 3. **Disclose training cutoffs.** The training cutoff of every model used MUST be declared in
    submission metadata (`models[].training_cutoff` in `submission.json`).
    See the [artifact policy](docs/ARTIFACT-POLICY.md) for local learned models, provenance and

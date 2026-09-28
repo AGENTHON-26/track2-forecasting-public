@@ -77,8 +77,8 @@ source         = "BIS central bankers' speeches; Federal Reserve"
 path           = "text/"
 cutoff         = "2016-09-30"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_statement"]
-n_documents    = 6
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement"]
+n_documents    = 7
 notes          = "The panel has stabilised and BoE texts focus on stimulus transmission. The known unknown is political — a party-conference calendar starts inside the window and the constitutional-process stance is undefined. Thin-signal tail card: the corpus justifies variance, and thin-liquidity microstructure justifies a jump component."
 
 [targets]

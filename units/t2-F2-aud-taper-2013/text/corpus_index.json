@@ -25,11 +25,25 @@
       "file": "fomc_statement_20130501.txt"
     },
     {
+      "doc_id": "macro_release-2013-05-03",
+      "timestamp": "2013-05-03",
+      "source": "BLS",
+      "doc_type": "macro_release",
+      "file": "empsit_2013-05-03.txt"
+    },
+    {
       "doc_id": "bernanke_jec_testimony_2013",
       "timestamp": "2013-05-22",
       "source": "official (see landmarks index)",
       "doc_type": "landmark",
       "file": "bernanke_jec_testimony_2013.txt"
+    },
+    {
+      "doc_id": "fomc-minutes-20130501",
+      "timestamp": "2013-05-22",
+      "source": "Federal Reserve (FOMC)",
+      "doc_type": "fomc_minutes",
+      "file": "fomc_minutes_20130501_released_2013-05-22.txt"
     }
   ]
 }

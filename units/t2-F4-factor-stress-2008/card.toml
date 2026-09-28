@@ -73,12 +73,12 @@ end_date   = "2008-09-12"
 notes      = "Truncated at the as-of date by construction; leakage guard re-checks at runtime. Reporting lag: French/AQR factor libraries publish with a multi-week lag; values are final library data, not what was downloadable on the as-of date."
 
 [text]
-source         = "BIS central bankers' speeches; Federal Reserve"
+source         = "BIS central bankers' speeches; BLS/BEA news release; Federal Reserve"
 path           = "text/"
 cutoff         = "2008-09-12"
 cutoff_checked = true
-doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement"]
-n_documents    = 6
+doc_types      = ["beige_book", "cb_speech", "fomc_minutes", "fomc_statement", "macro_release"]
+n_documents    = 7
 notes          = "The factor expression of the pre-shock September-2008 corpus: whether a systemic branch materializes, and how the market and quality-minus-junk legs co-move in it, is the forecasting question. Draw the two legs as one coherent joint scenario (a conditional correlation that can tighten in the tail), not independent per-asset noise."
 
 [targets]

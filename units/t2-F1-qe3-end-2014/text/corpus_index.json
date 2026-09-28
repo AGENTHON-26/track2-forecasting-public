@@ -26,6 +26,13 @@
       "note": "minutes of the 20140917 meeting, public release 2014-10-08"
     },
     {
+      "doc_id": "beige_book-2014-10-15",
+      "timestamp": "2014-10-15",
+      "source": "Federal Reserve (Beige Book)",
+      "doc_type": "beige_book",
+      "file": "beigebook_201410.txt"
+    },
+    {
       "doc_id": "macro_release-2014-10-22",
       "timestamp": "2014-10-22",
       "source": "BLS",
