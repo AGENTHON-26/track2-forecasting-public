@@ -1007,6 +1007,54 @@ def _cross_asset_stats(
 # ----------------------------------------------------------------------------- stage 2: prompts
 #: One paragraph per family, spliced into the shared frame below. Weights and "what's primary"
 #: are from docs/CATEGORIES.md, not invented here.
+# The cross-asset rules the F3 prompt argues direction from. Defined once and used by BOTH the
+# shipped paragraph and the experimental `_F3_FOCUS_V2` below, so the two cannot drift apart.
+#
+# Written this way for one measured reason: an earlier revision stated these in economic terms
+# ("funding stress sends JPY and CHF UP", meaning the yen and franc appreciate) while the SERIES
+# are quoted both ways -- JPY is USD/JPY, so "JPY up" in the data is the yen WEAKENING, the
+# opposite instruction. Measured with tools/f3_arms.py: funding-flip-2024 got 15.4% of its
+# pairwise gap directions right, answering JPY +0.33 into the 2024 carry unwind that took USD/JPY
+# -10.98 sigma. So every FX rule here names THE SIGN TO WRITE for that series, never "the
+# currency strengthens". Keep it that way.
+#
+# The curve block is worked numeric shapes rather than a description for the same kind of reason:
+# term-premium-steepener-2023 -- the card's own name -- answered a flattener (2Y +0.16, 30Y 0.00)
+# against a realized steepening (2Y -0.07, 30Y +0.45) when the rule was merely described.
+_F3_MARKET_RULES = (
+    "DIRECTION COMES FROM MARKET STRUCTURE, NOT FROM CENTRAL-BANK TONE:\n"
+    "  - US CURVE cards (UST_2Y / 5Y / 10Y / 30Y): the scored gap IS the slope. Policy-path news "
+    "(hikes, cuts, guidance) moves the FRONT end more; term premium, issuance, taper or long-run "
+    "inflation risk moves the LONG end more. Answer it as a shape, not a level -- worked "
+    "examples:\n"
+    "      term premium rising / heavy issuance / long end cheapening (a STEEPENER):\n"
+    "          UST_2Y 0.0, UST_5Y +0.3, UST_10Y +0.6, UST_30Y +0.8\n"
+    "      policy path repriced hawkish, long end anchored (a FLATTENER):\n"
+    "          UST_2Y +0.8, UST_5Y +0.5, UST_10Y +0.2, UST_30Y +0.1\n"
+    "    Decide which of those two shapes the documents describe, then scale it. Giving every "
+    "tenor the same drift_sd claims the curve does not move at all; that is rarely true and it "
+    "is exactly the claim the score reads.\n"
+    "  - FX cards: the axis is safe haven against high beta -- but the sign you write depends on "
+    "HOW EACH SERIES IS QUOTED, and they are quoted both ways, so translate before answering. In "
+    "a risk-off, funding-stress or carry-unwind episode the yen and the franc APPRECIATE, which "
+    "means the series USD/JPY and USD/CHF FALL: write JPY and CHF NEGATIVE. The high-beta "
+    "currencies depreciate, which is a POSITIVE number for NOK, SEK, BRL, INR, CAD and DKK "
+    "(quoted currency-per-USD, so the series RISES as they weaken) and a NEGATIVE number for "
+    "EUR, GBP, AUD and NZD (quoted USD-per-currency, so the series FALLS as they weaken). "
+    "Risk-on reverses every sign in this paragraph. A policy divergence -- one central bank "
+    "moving while another holds -- moves the pair between them even when no document names it.\n"
+    "  - A POSITION THAT HAS BEEN ONE-SIDED FOR MONTHS UNWINDS AGAINST THE CROWD. A long-running "
+    "carry trade funded in yen does not end with the yen drifting weaker; it ends with the yen "
+    "rallying hard, i.e. USD/JPY sharply NEGATIVE. Treat a crowded position as a coiled move in "
+    "the opposite direction, not a continuation.\n"
+    "  - EQUITY FACTOR cards (MKT / HML / SMB / MOM): factors split, they do not move together. A "
+    "rate or growth shock rotates between value (HML) and momentum (MOM); a funding or liquidity "
+    "event hits small-minus-big (SMB) hardest.\n"
+    "  - MIXED cards (a rate and a currency): higher US yields with a hawkish Fed is a STRONGER "
+    "dollar; higher US yields driven by supply or a credit worry is a WEAKER one. Decide which "
+    "of the two the documents describe, and say so in the evidence field.\n\n"
+)
+
 _FAMILY_FOCUS: dict[str, str] = {
     "F1": (
         "This is an F1 (continuation-with-context) card: marginal CRPS is the primary score "
@@ -1037,15 +1085,9 @@ _FAMILY_FOCUS: dict[str, str] = {
         "about several, so the work is carrying the implication across. \"No asset-specific "
         "signal\" is therefore not a reason to answer 0 -- it is the normal starting position, "
         "and answering 0 for that reason is the single most common way to fail this family. "
-        "Reason down the chain instead:\n"
-        "  - policy stays restrictive -> short yields held up, long yields lag -> the curve "
-        "flattens: that is a DIFFERENT number for the 2Y than for the 30Y.\n"
-        "  - broad-based inflation -> upward rate pressure AND pressure on equity factor "
-        "returns, in opposite directions.\n"
-        "  - one central bank moves while another holds -> the currency pair between them moves, "
-        "even when neither document names the pair.\n"
         "Only answer 0 for an asset when your scenario genuinely implies nothing for it -- not "
         "when the documents merely fail to name it.\n\n"
+        + _F3_MARKET_RULES +
         "Work out ONE coherent macro scenario from the summaries, then derive every asset's "
         "numbers from that same scenario. Before answering, check your own work: for each pair of "
         "assets, does drift_sd[i] - drift_sd[j] say what your scenario says about that pair? A "
@@ -1053,6 +1095,9 @@ _FAMILY_FOCUS: dict[str, str] = {
         "than a smaller, consistent set."
     ),
     # ---- F4: why this paragraph looks the way it does (Nish, 2026-09-28) -------------------------
+    # F3's own unshipped variant lives below the dict as `_F3_FOCUS_V2`; the rules both paragraphs
+    # share are `_F3_MARKET_RULES`, above.
+    # ---------------------------------------------------------------------------------------------
     # F4 cards are built so the recent numbers look calm and a shock lands inside the window. The
     # score is mostly how far the outcome falls outside the forecast's tails (pinball loss, a
     # DISTANCE): too narrow is charged in proportion to the miss, too wide costs a little on
@@ -1135,6 +1180,110 @@ _FAMILY_FOCUS: dict[str, str] = {
     ),
 }
 
+# ---- F3 v2: the same three ideas that worked on F4, aimed at F3's own lever -------------------
+# Not shipped until measured -- swap in with `_FAMILY_FOCUS["F3"] = _F3_FOCUS_V2` (tools/f3_arms.py).
+#
+# What v1 (above) already got right and this keeps: the variogram scores DIFFERENCES, and "no
+# asset-specific signal" is not a reason to answer 0. That moved the zero rate 81% -> 63%.
+#
+# What v1 leaves on the table, by analogy with Nish's F4 v3/v4 (NISH_TEXT_NOTES.md, "F4"):
+#   1. No MEANING for any drift_sd magnitude. F4's width answers hugged 1.0 for exactly this
+#      reason until v3 named the bands. F3's measured-strongest lever is drift_sd (oracle 0.747
+#      normalized composite, against ~0.993 for a correlation field), and it is the one number
+#      here with no ladder attached.
+#   2. Direction argued from tone, not structure. v1's three chains are real but vague ("the
+#      curve flattens", "opposite directions"); F4 gained most from naming mechanical rules.
+#      F3's asset universe is narrow enough to do this properly -- 12 of 22 cards contain
+#      UST_10Y, and the set is {UST curve} u {G10 FX} u {Fama-French factors}.
+#   3. Corroboration treated as required. F4's fix was "one alarming bullet is enough"; F3's
+#      version is "one document establishing a regime propagates to every asset".
+#
+# Deliberately NOT copied from F4: the widen bands (1.5-3.0) and the widen floor. Those are right
+# for F4 -- single-cell, joint weight redistributed away, scored on tail DISTANCE -- and wrong
+# here: F3 pays the full 0.3 on the variogram and its joint term is monotone increasing in widen
+# above 1.0 (measured: +46% at widen 2.0). F3's clamp stays (0.85, 1.25).
+#
+# --- revision history, measured with tools/f3_arms.py (20 units, 3 model runs x 3 draw seeds) ---
+# rev 1: mean 0.8858 against 0.9112 for the shipped paragraph and 0.9254 text-off. REJECTED, and
+#   the mean is why it nearly shipped anyway: paired t -0.73, wins 7/20, and dropping the two best
+#   units turns the gain POSITIVE. The decisive metric was direction, not score -- of the 307
+#   pairwise gaps it committed to, 52.4% pointed the right way. It had done exactly what it was
+#   built to do mechanically (zero rate 57.5% -> 17.8%) and learned nothing: louder, not smarter.
+#   Two causes, both fixed in rev 2:
+#     (a) THE FX RULE WAS INVERTED AGAINST THE DATA. It read "funding stress sends the dollar, JPY
+#         and CHF UP", meaning the yen and franc appreciate -- but JPY is USD/JPY and CHF is
+#         USD/CHF, so "up" in the SERIES is the yen WEAKENING, the opposite instruction. Same
+#         inversion on NOK/SEK. Measured damage: funding-flip-2024 got 15.4% of its gaps right,
+#         answering JPY +0.33 (yen weaker) into the 2024 carry unwind that took USD/JPY -10.98
+#         sigma; scandies-stress-2022 got 14.3%. Rev 2 states every FX rule as the sign to WRITE
+#         for that series, never as "the currency strengthens".
+#     (b) THE CURVE RULE WAS DESCRIBED, NOT DEMONSTRATED. term-premium-steepener-2023 -- the
+#         card's own name -- scored 37.2%: the model answered a flattener (2Y +0.16, 30Y 0.00)
+#         against a realized steepening (2Y -0.07, 30Y +0.45). Rev 2 replaces the description
+#         with two worked numeric shapes to pick between.
+#   Also added in rev 2: Nish's crowded-position rule, which is precisely the funding-flip case.
+_F3_FOCUS_V2 = (
+    "This is an F3 (cross-asset reasoning) card: the joint variogram is the primary score "
+    "(30% weight). It compares the DIFFERENCES between your assets -- |asset_i - asset_j| for "
+    "every pair -- against what actually happened. Two consequences. First, a constant added to "
+    "every asset is free: it changes no difference, so it changes nothing. Second, giving every "
+    "asset the SAME number scores exactly like answering all zeros -- both say 'no pair moves "
+    "relative to any other'. What you are being asked for is a set of GAPS, not a set of levels.\n\n"
+
+    "EXPECT THE DOCUMENTS NOT TO MENTION MOST OF THESE ASSETS. That is the design of this card "
+    "type, not a gap in the evidence: the text discusses one market and the card asks about "
+    "several, so the work is carrying the implication across. \"No asset-specific signal\" is "
+    "therefore not a reason to answer 0 -- it is the normal starting position, and answering 0 "
+    "for that reason is the single most common way to fail this family. Only answer 0 for an "
+    "asset when your scenario genuinely implies nothing for it.\n\n"
+
+    "HOW BIG A NUMBER -- drift_sd bands:\n"
+    "  0.0       the scenario genuinely implies nothing for this asset.\n"
+    "  0.2-0.4   a second-order implication: this asset moves because something else does.\n"
+    "  0.5-0.9   the scenario directly implies this asset moves.\n"
+    "  1.0-1.5   this asset is the direct subject of what the documents describe.\n"
+    "On any card where your scenario distinguishes the assets at all, the gap between your "
+    "most-affected and least-affected asset should be at least 0.5. A card answered "
+    "0.1 / 0.1 / 0.1 / 0.1 has told the score nothing.\n\n"
+
+    + _F3_MARKET_RULES +
+
+    "ONE DOCUMENT IS ENOUGH. These corpora are mostly routine commentary, and the regime that "
+    "drives the card usually appears in a single summary, as one item among many ordinary ones. "
+    "The other summaries being routine, or not naming an asset, does not cancel it: take that one "
+    "regime and propagate it across every asset with the rules above. A decision already "
+    "delivered is priced in; what is not priced is what the summaries say about the path from "
+    "here, and that is still a reason for two assets to move by DIFFERENT amounts.\n\n"
+
+    "Work out ONE coherent macro scenario from the summaries, then derive every asset's numbers "
+    "from that same scenario. Before answering, check your own work: for each pair of assets, "
+    "does drift_sd[i] - drift_sd[j] say what your scenario says about that pair? A set of numbers "
+    "that is individually plausible but pairwise incoherent scores worse here than a smaller, "
+    "consistent set."
+)
+
+#: Families whose JSON skeleton shows DIFFERENTIATED example values instead of the same
+#: "drift_sd": 0.0 for every asset. Empty = current shipped behaviour; tools/f3_arms.py sets
+#: {"F3"} for the arm that measures it.
+#:
+#: Why this is a candidate at all: Nish measured the model hugging whatever the template shows
+#: (F4's skeleton showed "vol_scale": 1.0 and the answers never left 1.0 -- NISH_TEXT_NOTES.md).
+#: Ours shows "drift_sd": 0.0 on EVERY asset, i.e. the example answer is the all-zero, all-
+#: identical reply -- which on F3 is provably worth the same as not reading the documents.
+_DIFFERENTIATED_EXAMPLE_FAMILIES: set[str] = set()
+
+#: The placeholder pattern cycled across assets when the family is in the set above. Mixed signs
+#: and magnitudes, so the shape being demonstrated is "these differ", not "these are all X".
+_EXAMPLE_DRIFTS = (0.6, -0.4, 0.3, 0.0, -0.8, 0.2)
+
+
+def _example_drift(i: int, family: str | None) -> float:
+    """The drift_sd shown for asset `i` in the JSON skeleton. 0.0 everywhere unless this family
+    opts into differentiated placeholders -- see `_DIFFERENTIATED_EXAMPLE_FAMILIES`."""
+    if str(family) not in _DIFFERENTIATED_EXAMPLE_FAMILIES:
+        return 0.0
+    return _EXAMPLE_DRIFTS[i % len(_EXAMPLE_DRIFTS)]
+
 
 def build_adjustment_prompt(
     summaries: list[dict[str, Any]], assets: list[str], ctx: dict[str, Any]
@@ -1156,7 +1305,12 @@ def build_adjustment_prompt(
         "  skew      : tail tilt in [-1, 1]. Positive = the upside tail is the fatter one.\n\n"
         "Quote conventions matter for direction: a unit like usd_per_eur RISES when the dollar "
         "WEAKENS, while jpy_per_usd RISES when the dollar STRENGTHENS. Check the value unit given "
-        "below before choosing a sign, and answer 0 if the convention makes you unsure.\n\n"
+        "below before choosing a sign"
+        # On a joint card "answer 0 when unsure" is the wrong fallback and contradicts the family
+        # paragraph: F3's assets are quoted in BOTH directions, so the cards where the convention
+        # is hardest are exactly the cards where the sign of the gap carries the score.
+        + (".\n\n" if str(ctx.get("family")) == "F3" else
+           ", and answer 0 if the convention makes you unsure.\n\n")
         + (
             "The statistical forecast below has ALREADY moved its centre off the as-of level "
             "(`model centre`), from the panel's own history alone. drift_sd is what the summaries "
@@ -1176,13 +1330,19 @@ def build_adjustment_prompt(
         "appear as a key -- an asset you omit is scored as 'no view', which on a joint card is "
         "itself a claim about that asset relative to the others. Reply with JSON only, no prose, "
         "no markdown fence:\n"
+        + (
+            "The numbers in the skeleton below are PLACEHOLDERS showing the shape of a "
+            "differentiated answer -- they are not a recommendation, and a reply that copies "
+            "them is wrong.\n"
+            if str(ctx.get("family")) in _DIFFERENTIATED_EXAMPLE_FAMILIES else ""
+        )
         # Every asset, not assets[:2]: a 10-asset card used to be shown a 2-key skeleton, which
         # is exactly the shape of reply that then came back.
-        '{"assets": {'
+        + '{"assets": {'
         + ", ".join(
-            f'"{a}": {{"drift_sd": 0.0, "vol_scale": 1.0, "skew": 0.0, '
-            '"evidence": "<=15 words"}'
-            for a in assets
+            f'"{a}": {{"drift_sd": {_example_drift(i, ctx.get("family"))}, '
+            '"vol_scale": 1.0, "skew": 0.0, "evidence": "<=15 words"}'
+            for i, a in enumerate(assets)
         )
         + "}}"
     )
