@@ -1052,74 +1052,81 @@ _FAMILY_FOCUS: dict[str, str] = {
         "set of numbers that is individually plausible but pairwise incoherent scores worse here "
         "than a smaller, consistent set."
     ),
-    # ---- F4: why this paragraph looks the way it does (Nish, 2026-09-26) -------------------------
+    # ---- F4: why this paragraph looks the way it does (Nish, 2026-09-28) -------------------------
     # F4 cards are built so the recent numbers look calm and a shock lands inside the window. The
     # score is mostly how far the outcome falls outside the forecast's tails (pinball loss, a
-    # DISTANCE), so a too-narrow or wrong-way forecast is charged in proportion to the miss.
+    # DISTANCE): too narrow is charged in proportion to the miss, too wide costs a little on
+    # every calm card.
     #
-    # What the previous, three-sentence paragraph produced (29 realized F4 cards, thinking on):
-    #   - vol_scale always 0.8-1.3, never near the 2.0 cap, even on cards that moved 3-8 sigma.
-    #     It gave a range but no meaning for any point in it, and the JSON template shows
-    #     "vol_scale": 1.0, so the model hugged 1.0.
-    #   - direction right 3 / wrong 7 on the cards that moved more than 2 sigma: it reasoned from
+    # What the original three-sentence paragraph produced (29 realized F4 cards, thinking on):
+    #   - vol_scale always 0.8-1.3, never near the cap, even on cards that moved 3-8 sigma. It
+    #     gave a range but no meaning for any point in it, so the model hugged 1.0.
+    #   - direction right 3 / wrong 7 on the cells that moved more than 2 sigma: it reasoned from
     #     central-bank TONE ("inflation worries, so yields up"), the wrong frame for a shock.
     #
-    # Why this version works -- three parts, added in two steps:
-    #   v3 (1) gives the numbers meanings: 1.0 routine, 1.5-2.0 warning, 2.5-3.0 shock in
-    #      progress. (2) replaces tone with market STRUCTURE for direction: a crowded position
-    #      unwinds against the crowd, a defended peg is under strain, funding stress sends
-    #      Treasury yields down and safe havens up, a taper warning sends yields up. Direction on
-    #      the >2-sigma cards went from 3 right / 7 wrong to 6 right / 4 wrong.
-    #   v4 (3) judges width by the SINGLE most alarming bullet, not the overall tone. v3 still
-    #      called NOK covid, covid rates, the 2013 taper warning and the 2011 downgrade watch
-    #      "routine" although the warning was in their summaries -- one bullet among many routine
-    #      ones about rates on hold. v4 says one such bullet is enough for 2.0+, and that "on hold"
-    #      does not cancel it. Answers of 2.0+ went from 6% to 69%; those four cards now get 1.8-2.5.
-    #      Direction on the >2-sigma cards improved too: 10 right / 1 wrong (v3: 6 / 4).
+    # What this version does, and why each part is here:
+    #   - WIDTH gets meanings: 1.0 nothing threatens this asset, 1.5-2.0 a real warning bears on
+    #     it, 2.5-3.0 a shock bearing on it is under way.
+    #   - WHAT COUNTS AS A WARNING: judge by the single most relevant alarming item, not the
+    #     overall tone (a real warning is often one bullet among routine ones), with shocks
+    #     described by KIND -- financial, sovereign/fiscal, policy regime change, currency
+    #     pressure, binary political events, geopolitical/trade, supply, public health,
+    #     one-sided positioning. No event, country or date from our practice cards is named.
+    #   - RELEVANCE: the warning must reach THIS asset through a stated channel; long-short
+    #     factor portfolios are hedged against broad macro warnings. This is what stops calm
+    #     cards being widened because a warning appears somewhere in the corpus.
+    #   - DIRECTION from market structure, not tone: crowded positions unwind against the crowd,
+    #     a defended peg is under strain, financial stress sends safe-haven yields down and
+    #     safe-haven currencies up, withdrawn stimulus sends yields up; otherwise drift 0.
+    #
+    # Why v5 and not the higher-scoring v4 (0.3297): v4 listed the very shocks it had missed on
+    # these cards. Split by whether a card was used to write the rules: on the 11 shock cards
+    # used, v4 1.126 -> 0.771; on the 18 others, v4 was WORSE than the random walk (0.0468 ->
+    # 0.0598, 7 better / 11 worse). v5 is even with the walk on those 18 (0.0485, 9 / 9) and
+    # keeps about 60% of v4's gain on the shock cards -- the more honest estimate for unseen
+    # cards.
     #
     # Measured (29 cards, 3 model runs x 3 draw seeds, random walk base, lower is better):
-    #   random walk 0.4560 | previous paragraph 0.4200 (with floor) | v3 0.3603 | v4 0.3296
-    #   v4 is better than v3 on both odd/even halves. Of the three values the gain is drift and
-    #   width; skew adds nothing. The always-on 1.5 floor is now a fallback only (see
-    #   forecast_models._FAMILY_WIDEN_FLOOR): with v4 it added nothing (0.3299 with it).
-    #
-    # Caveat -- read before tuning further: every rule and example here was written after seeing
-    # which of these same 29 cards failed, and v4's examples (outbreak, debt limit, reducing
-    # purchases) ARE the missed cards. Expect a smaller gain on unseen cards; the general rule
-    # ("one warning is enough") should travel better than the specific examples. It still loses
-    # 12 of 29 cards to the random walk -- calm cards it now widens for nothing. Thinking is ON
-    # for F4 only (`_STAGE2_THINKING_BY_FAMILY`); with thinking off the model answers "no clear
-    # signal" on 24 of 29 F4 cards and none of this engages. Reproduce: NISH_TEXT_NOTES.md, "F4".
+    #   random walk 0.4560 | original paragraph 0.4200 | v5 0.3781 (even half 0.2621, odd 0.5025)
+    # Tried and NOT kept, all measured: doubling drift in code (0.3578, but calm cards 0.0620);
+    # an always-on 1.5 width floor (0.3715, calm cards worse); a WARNING item in every stage-1
+    # checklist (0.3677, but worse on one half and on calm cards). Thinking is ON for F4 only
+    # (`_STAGE2_THINKING_BY_FAMILY`); with it off the model answers "no clear signal" on 24 of 29
+    # F4 cards. Reproduce: NISH_TEXT_NOTES.md, "F4".
     "F4": (
-        "This is an F4 (tail/shock-from-text) card. The card exists because the documents "
-        "foreshadow a shock that the recent numeric history does not show, and the tail "
-        "penalty -- pinball loss at the 1st/5th/95th/99th percentiles, a DISTANCE -- is the "
-        "primary score. The statistical forecast's width comes from calm history and is "
-        "almost always too narrow here. vol_scale is your main lever: 1.0 says the documents "
-        "are routine, 1.5-2.0 says they carry a warning, 2.5-3.0 says they describe a shock "
-        "in progress (a peg or floor being defended, emergency measures, funding or "
-        "liquidity stress, a crowded position, an unscheduled policy response). Answering "
-        "vol_scale 1.0 on this family is a design failure unless the summaries are genuinely "
-        "routine.\nDirection (skew, and drift_sd) matters too, but only commit when the "
-        "mechanism is clear. Market structure, not central-bank tone, decides these: (a) a "
-        "crowded position unwinds AGAINST the crowd -- a months-long net short is a coiled "
-        "rally in that asset, a crowded long a coiled sell-off; (b) a peg, floor or cap that "
-        "officials say they will defend is under strain, and the break goes the way the "
-        "market was pushing; (c) funding or liquidity stress sends Treasury yields DOWN and "
-        "safe havens (USD, JPY, CHF) UP whatever the last statement said about inflation; "
-        "(d) a taper or hike warning before the move sends yields UP. If none of these "
-        "applies, keep skew 0 and let vol_scale carry the answer.\nHow to read the summaries "
-        "for width -- this is where the model has gone wrong before: judge width by the "
-        "SINGLE most alarming thing in any summary, not by the overall tone. Most documents "
-        "in these corpora are routine central-bank commentary (rates on hold, inflation near "
-        "target) and a real warning usually appears once, as one bullet, in one document. "
-        "One such bullet is enough for at least 2.0, even if every other document is calm. "
-        "Examples that each warrant 2.0 or more on their own: an outbreak or epidemic "
-        "hitting activity or markets; a debt-limit, default or credit-rating fight; "
-        "officials discussing when to reduce or end asset purchases; a peg or floor being "
-        "defended; bank, funding or liquidity strain; positioning that has been one-sided "
-        "for months. Central banks being on hold does NOT cancel any of these -- calm policy "
-        "language before a shock is exactly what this family tests."
+        "This is an F4 (tail/shock-from-text) card. The documents may foreshadow a shock "
+        "that the recent numeric history does not show. The card is scored mostly on how far "
+        "the realized outcome falls outside the forecast's tails (pinball loss at the "
+        "1st/5th/95th/99th percentiles, a DISTANCE): a forecast that is too narrow is "
+        "charged in proportion to the miss, and a forecast wider than needed costs a little "
+        "on every calm card.\nWIDTH (vol_scale) is your main lever. 1.0 says nothing in the "
+        "summaries threatens THIS asset over the horizon; 1.5-2.0 says a real warning bears "
+        "on it; 2.5-3.0 says a shock that bears on it is already under way.\nWHAT COUNTS AS A "
+        "WARNING: judge by the single most relevant alarming item, not by the overall tone. "
+        "A real warning often appears once, as one bullet, among routine commentary, and "
+        "routine policy language does not cancel it. Shocks come in recurring kinds: "
+        "financial stress (bank, funding or liquidity strain, a credit event, forced "
+        "selling); sovereign or fiscal stress (debt-limit or default risk, a rating action, "
+        "a budget or bond-market crisis); a policy regime change (a central bank signalling "
+        "a sharp change in rates or asset purchases, an unscheduled move, abandoning a "
+        "target, peg or cap); currency pressure (a peg or floor being defended, "
+        "intervention); political events with a binary outcome (elections, referendums); "
+        "geopolitical or trade shocks (war, sanctions, tariffs); supply shocks (energy or "
+        "commodity disruption); public-health emergencies; and positioning that has been "
+        "one-sided for months.\nRELEVANCE: the warning must plausibly move THIS asset within "
+        "the horizon -- ask how it reaches the asset. A warning about another economy or "
+        "market counts only through a clear channel (trade, funding, safe-haven flows, "
+        "commodity prices). Long-short factor portfolios (value, momentum, size, quality) "
+        "are hedged against the broad market, so a general macro warning is not by itself a "
+        "warning for them; it needs something about that style (crowding, a sharp reversal, "
+        "a sector the factor is concentrated in).\nDIRECTION (drift_sd, skew): commit only "
+        "when the mechanism is clear, and use market structure rather than the tone of "
+        "central-bank statements: a crowded position unwinds AGAINST the crowd; a peg, floor "
+        "or cap that officials say they will defend is under strain, and the break goes the "
+        "way the market was pushing; financial stress sends safe-haven government bond "
+        "yields DOWN and safe-haven currencies (USD, JPY, CHF) UP; a signal that stimulus "
+        "will be withdrawn sends yields UP. If no mechanism clearly applies, keep drift_sd "
+        "and skew at 0 and let vol_scale carry the answer."
     ),
     "default": (
         "Treat this like a general macro forecasting card: weigh the summaries for anything "

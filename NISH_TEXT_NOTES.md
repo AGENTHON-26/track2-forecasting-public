@@ -285,3 +285,29 @@ cards with v4 answering, a calm one). The agreement gate was not built: it moved
 0.0005. Caveat: v4's examples are the cards that failed, on the same cards measured; expect less
 on unseen cards. The F1 M2-centre context (`_MODEL_CONTEXT_ON`) ships OFF until an F1 sweep
 measures it.
+
+### F4 prompt v5 (shipped 2026-09-28) -- chosen over v4 for overfitting
+
+v4's example list named the very shocks it had missed on these cards. Splitting the 29 cards by
+whether they were used to write the rules exposes it (3 model runs x 3 draw seeds):
+
+| setup | all 29 | even | odd | 11 shock cards used for the rules | 18 other cards |
+|---|---|---|---|---|---|
+| random walk | 0.4560 | 0.3360 | 0.5846 | 1.1256 | 0.0468 |
+| v4 | 0.3297 | 0.2352 | 0.4310 | 0.7713 (10 better / 1 worse) | 0.0598 (7 / 11) |
+| **v5 (shipped)** | **0.3781** | 0.2621 | 0.5025 | 0.9175 (8 / 3) | **0.0485 (9 / 9)** |
+| v5 + always-on floor 1.5 | 0.3715 | 0.2601 | 0.4908 | 0.8986 (9 / 2) | 0.0493 (7 / 11) |
+| v5 + drift x2 in code | 0.3578 | 0.2381 | 0.4862 | 0.8420 (7 / 4) | 0.0620 (7 / 11) |
+| v5 + WARNING item in stage-1 checklists | 0.3677 | 0.2704 | 0.4719 | 0.8813 (9 / 2) | 0.0538 (8 / 10) |
+
+Shipped code path (median-of-3, fallback floor): 0.3713.
+
+v5 describes shocks by kind (no event, country or date from the practice cards), adds a
+RELEVANCE rule (the warning must reach this asset through a stated channel; factor portfolios are
+hedged against broad macro warnings), and keeps the width meanings and the market-structure
+direction rules. It is even with the random walk on the 18 cards not used to write any rule and
+keeps about 60% of v4's gain on the shock cards. None of the add-ons passed: the floor and the
+doubled drift bring the calm-card cost back, and the WARNING checklist item helps shock cards but
+flags generic risks (cyber attacks, bank NPLs) and is worse on one half. Where v5 still misses:
+NOK Feb 2020 and the 2013 taper warning (warning seen, not connected to the asset), and 2008
+10-year funding stress (the "stress sends yields down" rule does not hold there).

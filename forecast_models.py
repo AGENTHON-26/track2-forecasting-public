@@ -44,9 +44,9 @@ _WINDOW = 260
 #: usable summaries). F4 cards are built around a shock the calm history does not show, so a
 #: text-less F4 card should still not draw history's too-narrow width. Measured 2026-09-26 on the
 #: 29 realized F4 cards (3 draw seeds): random walk 0.4560 -> 0.4085 with 1.5 applied to every
-#: card. When stage 2 DOES answer, the F4 v4 prompt already asks for enough width (69% of its
-#: answers are 2.0+), and an always-on floor added nothing (0.3296 without vs 0.3299 with), so it
-#: no longer overrides the model. See `text_signal._FAMILY_FOCUS["F4"]` for the prompt.
+#: card. When stage 2 DOES answer it is not overridden: with the F4 v5 prompt an always-on floor
+#: scored 0.3715 vs 0.3781 overall but made the 18 calm cards worse (7 better / 11 worse vs the
+#: walk), so it only covers failure. See `text_signal._FAMILY_FOCUS["F4"]` for the prompt.
 _FAMILY_WIDEN_FLOOR = {"T2-F4": 1.5}
 
 
