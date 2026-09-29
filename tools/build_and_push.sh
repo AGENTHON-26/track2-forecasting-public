@@ -46,7 +46,15 @@ DIGEST="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["conta
 echo
 echo "== cross-checking the digest and the platform =="
 docker buildx imagetools inspect "${REPO}:${TAG}"
-INSPECTED="$(docker buildx imagetools inspect "${REPO}:${TAG}" --format '{{.Manifest.Digest}}')"
+# `--format '{{.Manifest.Digest}}'` is NOT reliable here: for a single-platform OCI image the
+# manifest is a plain manifest rather than an index, buildx does not populate `.Manifest` for the
+# template, and instead of erroring it silently renders its DEFAULT three-line block. The compare
+# below then puts a digest against "Name: ... MediaType: ... Digest: ..." and reports a mismatch
+# for an image that is perfectly fine (seen 2026-09-28, both sides sha256:239022d2). Ask for the
+# manifest as JSON and read the field, falling back to the text block if that ever changes shape.
+INSPECTED="$(docker buildx imagetools inspect "${REPO}:${TAG}" --format '{{json .Manifest}}' 2>/dev/null \
+  | python3 -c 'import json,sys; print(json.load(sys.stdin)["digest"])' 2>/dev/null \
+  || docker buildx imagetools inspect "${REPO}:${TAG}" | awk "/^Digest:/{print \$2; exit}")"
 if [ "$DIGEST" != "$INSPECTED" ]; then
   echo "DIGEST MISMATCH: build reported $DIGEST, registry reports $INSPECTED" >&2
   exit 1

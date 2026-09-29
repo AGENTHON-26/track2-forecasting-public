@@ -43,3 +43,9 @@ tools/summary_eval/audit_tasks/
 # derived: $TEXT_SIGNAL_CACHE_DIR, the local stage-1 summary cache tools/f3_arms.py writes to so
 # an arm comparison varies only the stage-2 prompt. Rebuilt on demand, never read in the image.
 .cache/
+
+# generated per push, never committed: submission.json pins one image digest and goes stale the
+# moment you rebuild, and a stale committed copy is how someone submits the wrong image.
+# Regenerate with tools/make_descriptor.py; submission.zip is its build product.
+submission.json
+submission.zip
