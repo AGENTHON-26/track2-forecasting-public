@@ -79,9 +79,9 @@ unit above.
 | that it passes the admissibility gates (g0–g3) | your CRPS composite |
 | that the `baselines/` scaffolds run against the same panel (their forecast is a placeholder — see below) | anything about the scored baseline, or whether you beat it |
 
-Accuracy feedback comes from submitting: the Development leaderboard scores you on units you
-have not seen. Use the practice units to get *admissible*, and the leaderboard to find out how
-good you are.
+Accuracy feedback comes from submitting: the Development leaderboard scores you on this
+repository's `validation` units, against outcomes that are not shipped with them. Use the
+practice units to get *admissible*, and the leaderboard to find out how good you are.
 
 The held-out evaluation units are sealed in the private repository and are a different, later
 window — nothing in this practice data reaches them.
@@ -734,8 +734,10 @@ writable workspace allowance from a card's memory or disk field.
 4. Build your agent image; verify it writes a valid `forecast.parquet`, `forecast_meta.json`
    and a non-blank `forecast_rationale.md`.
 5. Run the smoke scorer against the exemplar card.
-6. Score your model against the validation cards in `units/`.
-7. Optionally run the text-ablated variant and compare scores.
+6. Run your agent on the validation cards in `units/` and check that every output is admissible.
+   They carry no answers, so this checks form, not accuracy (see "They carry no answers" above).
+7. Optionally build a text-ablated variant too. How it compares with your agent shows only on
+   the Development leaderboard, after you submit both.
 8. Pack and upload: `qfbench2 submission pack --descriptor submission.json --team-number <N> --out submission.zip`,
    then upload `submission.zip` on the track's CodaBench competition page (see
    ["How an upload is made"](SUBMISSION_CLI.md#how-an-upload-is-made)).
