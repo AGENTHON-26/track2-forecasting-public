@@ -178,7 +178,15 @@ def mine_unit(
                     f"asset {asset!r} horizon {h}bd: no sibling panel extends "
                     f"{target_idx - len(series) + 1} row(s) further than we have"
                 )
-            rows.append((asset, h, series[target_idx][1]))
+            if targets.get("target_type") == "log_return":
+                # Return panels ship one per-step log return per row, and a log_return target is
+                # the CUMULATIVE return over the horizon (docs/M0-BASELINE.md 3.2/3.6: anchor 0,
+                # the walk sums the steps). Log returns add, so the answer is the sum of the h
+                # rows after the as-of -- not the single row at as-of + h, which is one day's move.
+                value = sum(v for _, v in series[asof_idx + 1 : target_idx + 1])
+            else:
+                value = series[target_idx][1]  # a level target: the value on day as-of + h
+            rows.append((asset, h, value))
     return unit_id, rows, ""
 
 
