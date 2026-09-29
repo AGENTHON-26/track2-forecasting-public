@@ -404,6 +404,23 @@ class TestStage2Thinking(unittest.TestCase):
         self.assertIsNone(ts._extract_json_object('{"assets": [1, 2]]}x'))  # a real list: left alone
 
 
+class TestF4SkewOff(unittest.TestCase):
+    _CTX = {"asof": "2007-07-20", "horizons": [21], "value_unit": "jpy_per_usd", "target_type": "level",
+            "family": "F4", "level": {"JPY": 121.15}, "sigma": {"JPY": 2.39}, "sigma_horizon": 21}
+
+    def test_f4_drops_skew_but_keeps_drift_and_width(self):
+        raw = {"assets": {"JPY": {"drift_sd": -0.5, "vol_scale": 2.0, "skew": -0.6}}}
+        adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
+        self.assertEqual(adj["JPY"]["skew"], 0.0)
+        self.assertAlmostEqual(adj["JPY"]["shift"], -0.5 * 2.39)
+        self.assertEqual(adj["JPY"]["widen"], 2.0)
+
+    def test_other_families_keep_skew(self):
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 1.0, "skew": -0.6}}}
+        adj, _ = ts.to_adjustments(raw, ["JPY"], {**self._CTX, "family": "F2"})
+        self.assertEqual(adj["JPY"]["skew"], -0.6)
+
+
 class TestF4Prompt(unittest.TestCase):
     _CTX = {"asof": "2007-07-20", "horizons": [21], "value_unit": "jpy_per_usd", "target_type": "level",
             "family": "F4", "level": {"JPY": 121.15}, "sigma": {"JPY": 2.39}, "sigma_horizon": 21}

@@ -161,10 +161,15 @@ class TestWiden(unittest.TestCase):
                                         "level", family)).scale
 
     def test_silent_text_uses_the_family_widen_alone(self):
+        # ...except on a family with a failure fallback (F4, 2026-09-29): a card the text half gave
+        # NOTHING draws family widen x _FAMILY_WIDEN_FLOOR, because an F4 card is built around a
+        # shock and history's width is the wrong default there. An answered card is unaffected.
         for fam in ("T2-F1", "T2-F2", "T2-F3", "T2-F4"):
             silent = self._scale(dict(NEUTRAL), fam)
             answered = self._scale({"shift": 0.0, "widen": 1.5, "skew": 0.0}, fam)
-            np.testing.assert_allclose(answered / silent, 1.5, rtol=1e-12, err_msg=fam)
+            fallback = fm._FAMILY_WIDEN_FLOOR.get(fam, 1.0)
+            np.testing.assert_allclose(answered / silent, 1.5 / fallback, rtol=1e-12, err_msg=fam)
+        self.assertEqual(fm._FAMILY_WIDEN_FLOOR, {"T2-F4": 1.25})
 
     def test_the_text_widen_multiplies_the_family_widen(self):
         table, asof, _ = _panel("A")
@@ -465,11 +470,12 @@ class TestWalkSettings(unittest.TestCase):
             fit = fm._fit_walk(fm._Request({"p": table}, ["A", "B"], [21], asof,
                                            {a: dict(NEUTRAL) for a in "AB"}, 10, 0, "level", fam))
             self.assertEqual(fit.nu, cfg["nu"], fam)
+            fallback = fm._FAMILY_WIDEN_FLOOR.get(fam, 1.0)   # silent text: F4's failure fallback
             if cfg["halflife"] is None:
                 want = steps[:, -cfg["window"]:].std(axis=1) * cfg["widen"]
             else:
                 want = fm._ewma_sd(steps.T[-int(8 * cfg["halflife"]):], cfg["halflife"]) * cfg["widen"]
-            np.testing.assert_allclose(fit.scale, want, rtol=1e-12, err_msg=fam)
+            np.testing.assert_allclose(fit.scale, want * fallback, rtol=1e-12, err_msg=fam)
 
     def test_ewma_sd_matches_pandas(self):
         x = np.random.default_rng(3).normal(0, 1, (400, 2))
@@ -490,3 +496,36 @@ class TestWalkSettings(unittest.TestCase):
         self.assertAlmostEqual(np.corrcoef(zt.T)[0, 1], np.corrcoef(zn.T)[0, 1], delta=0.02)
         beyond = lambda z: np.mean(np.abs(z / z.std(0)) > 3)
         self.assertGreater(beyond(zt), 2 * beyond(zn))
+
+
+class TestF4Trend(unittest.TestCase):
+    """F4 (2026-09-29): the official baseline's own drift -- steps x mean step over the trailing
+    300 -- fills in where the text gave that asset no centre view, on LEVEL targets. A stated
+    view replaces it; a log_return card keeps its zero centre; other families have no trend."""
+
+    def _draw(self, adj, family, n=400):
+        rng = np.random.default_rng(3)
+        vals = 100.0 + np.cumsum(rng.standard_normal(n) * 0.5 + 0.05)   # a clearly trending level
+        dates = _bdays(n)
+        table = pa.table({"date": dates, "asset": ["A"] * n, "value": vals.tolist()})
+        out = fa.build_draws({"p": table}, ["A"], [21], dates[-1], {"A": adj}, 20000, 0,
+                             target_type="level", family=family)
+        return out[:, 0, 0], float(vals[-1]), float(np.diff(vals[-300:]).mean())
+
+    def test_silent_text_on_f4_follows_the_trend(self):
+        f4, last, mu = self._draw(dict(NEUTRAL), "T2-F4")
+        self.assertAlmostEqual(f4.mean(), last + 21 * mu, delta=0.15)
+
+    def test_a_text_view_on_the_centre_replaces_the_trend(self):
+        out, last, _ = self._draw({"shift": -2.0, "widen": 1.0, "skew": 0.0}, "T2-F4")
+        self.assertAlmostEqual(out.mean(), last - 2.0, delta=0.15)
+
+    def test_a_text_widen_without_a_view_keeps_the_trend(self):
+        out, last, mu = self._draw({"shift": 0.0, "widen": 2.0, "skew": 0.0}, "T2-F4")
+        self.assertAlmostEqual(out.mean(), last + 21 * mu, delta=0.3)
+
+    def test_other_families_have_no_trend(self):
+        for family in ("T2-F1", "T2-F2", "T2-F3"):
+            self.assertEqual(fm._trend_cfg(family)["trend"], 0.0)
+            out, last, _ = self._draw(dict(NEUTRAL), family)
+            self.assertAlmostEqual(out.mean(), last, delta=0.15, msg=family)

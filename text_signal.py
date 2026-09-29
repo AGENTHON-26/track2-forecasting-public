@@ -159,6 +159,11 @@ class _Budget:
 _DRIFT_SD_CLAMP = 1.5
 _WIDEN_CLAMP = (0.60, 2.00)
 _SKEW_CLAMP = (-1.0, 1.0)
+#: Families whose replies keep `drift_sd` and `vol_scale` but drop `skew`. F4 (2026-09-29): on the
+#: 29 realized F4 cards, leaderboard metric vs rebuilt M0, recorded v5 answers, skew off scored
+#: 0.838 vs 0.842 with 19 cards better / 5 worse -- a second directional bet on top of drift that
+#: only adds noise. The model is still asked for it (one schema for every family); it is zeroed here.
+_SKEW_OFF_FAMILIES = {"F4"}
 
 #: F3 pays 0.3 on the joint variogram, and that term is monotone increasing in the width of the
 #: draws above 1.0: measured on the 20 F3 units, a global vol multiplier of 1.0 / 1.25 / 1.50 /
@@ -1675,6 +1680,8 @@ def to_adjustments(
         if vol_c != vol:
             note = (note + "; " if note else "") + f"vol_scale {vol:.2f} clamped"
         skew_c = min(max(skew, _SKEW_CLAMP[0]), _SKEW_CLAMP[1])
+        if ctx.get("family") in _SKEW_OFF_FAMILIES:
+            skew_c = 0.0
 
         sigma = float(ctx["sigma"].get(a, 0.0))
         if not math.isfinite(sigma) or sigma <= 0:
