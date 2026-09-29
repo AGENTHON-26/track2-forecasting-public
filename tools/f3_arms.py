@@ -227,9 +227,9 @@ def run_arm(arm: str, units: list[dict], runs: int, seeds: int, n_draws: int) ->
             for a, d in drifts.items():
                 total_cells += 1
                 zero_cells += (abs(d) < 1e-9)
-            r, n = gap_direction(u, drifts)
-            dir_right += r
-            dir_committed += n
+            right, n_pairs = gap_direction(u, drifts)
+            dir_right += right
+            dir_committed += n_pairs
             for s in range(seeds):
                 per_unit[u["unit_id"]].append(composite(u, adj, n_draws, s))
         print(f"  [{arm}] model run {r + 1}/{n_runs} done", file=sys.stderr)

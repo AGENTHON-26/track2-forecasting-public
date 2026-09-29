@@ -218,7 +218,30 @@ _STAGE2_SAMPLES = 3
 #: The output cap stays at 4,000 tokens (House rule) for thinking and non-thinking calls alike;
 #: a thinking reply that runs out of tokens mid-JSON is re-asked ONCE without thinking, see
 #: `_stage2_sample`.
-_STAGE2_THINKING_BY_FAMILY: dict[str, bool] = {"F4": True}
+#:
+#: F3 ON (2026-09-28), measured with tools/f3_arms.py on this branch's base -- dev's cumulative
+#: walk, the FX-corrected F3 paragraph -- over 20 units, 4 model runs x 3 draw seeds:
+#:
+#:     textoff    0.9299                       zero  --      gap-dir  --      (floor)
+#:     off        0.9209                       zero 47.9%    gap-dir 60.9% of 253 pairs
+#:     ON         0.9022                       zero 13.0%    gap-dir 66.9% of 372 pairs
+#:
+#: The reason this went on where the wider F3 "v2" package did not: thinking improves the model's
+#: DIRECTIONAL SKILL, not just its willingness to answer. It commits to 47% more pairwise gaps AND
+#: gets a higher share of them right (two-proportion z +1.56); v2 raised commitment at slightly
+#: worse accuracy, which is betting bigger rather than better. 66.9% over 372 pairs is z +6.53
+#: against a coin flip, so the skill is real even though the composite gain is not yet separable
+#: (paired t -0.58, 9 of 20 cards improve). The 20% trimmed mean (-0.0190) matches the raw mean
+#: (-0.0187), i.e. the gain is not one lucky card, and the biggest contributor (divergence-2014)
+#: is not a card any rule here was written from.
+#:
+#: Read this with the row above it: with thinking OFF, F3's text half is very close to inert
+#: (0.9209 against a 0.9299 floor, paired t -0.44, and dropping one card turns it positive).
+#:
+#: Known cost: the no-thinking retry fired on 16 of 80 calls (20%) -- thinking truncates the JSON
+#: that often at the 4,000-token cap. It recovered all but 2. Each retry spends a slot against the
+#: 25-per-unit budget, on top of the ~6-16 an F3 card already uses.
+_STAGE2_THINKING_BY_FAMILY: dict[str, bool] = {"F3": True, "F4": True}
 
 
 def _stage2_thinking(family: str | None) -> bool:
