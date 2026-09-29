@@ -1,0 +1,88 @@
+# Agenthon 2026 -- Track 2 (Time-Series Forecasting) -- Development phase
+# Submission 01, scored 2026-09-29.
+#
+# primary_score: 0.9528   (unweighted mean of the 71 per-unit scores; lower is better, 1.0000 = organizer reference)
+# units_scored: 71/71, zero failures on either side
+# units_beating_reference: 44 of 71
+#
+# family means: F1 0.9779 (n=18, 6 past 1.20)  F2 0.9813 (n=15, 4 past 1.20)  F3 0.9063 (n=16, 1 past 1.20)  F4 0.9467 (n=22, 6 past 1.20)
+#
+# PROVENANCE -- this result came from exactly this code and this image:
+#   git commit : 198b5c8   (tag: submission-01-dev)
+#   image      : ghcr.io/tharitsaengsuwan/t2-forecast-agent@sha256:239022d2c35ce6cd487fd7a37e3eaf0e5091113216c38a7e4da10dca53a85d2a
+#   agent      : cumulative-walk model (forecast_models.WALK_SETTINGS) + two-stage LLM text signal
+#                stage-2 thinking ON for F3/F4, F3 reasoning_budget 2200, median-of-3 sampling
+#
+# Rows are sorted by family then score. Load with:  pd.read_csv(path, comment='#')
+unit,family,outcome,score
+t2-F1-pause-2006,F1,scored,0.4365
+t2-F1-conflicting-texts-2024,F1,scored,0.5760
+t2-F1-greater-confidence-2024,F1,scored,0.6632
+t2-F1-chf-highly-valued-2021,F1,scored,0.6966
+t2-F1-jpy-ycc-flex-2018,F1,scored,0.7474
+t2-F1-liftoff-telegraph-2015,F1,scored,0.7494
+t2-F1-qe3-end-2014,F1,scored,0.7938
+t2-F1-normalization-2017,F1,scored,0.8089
+t2-F1-cad-boc-2017,F1,scored,0.8676
+t2-F1-considerable-period-2003,F1,scored,0.9730
+t2-F1-eur-range-2017,F1,scored,1.0054
+t2-F1-ust-positioning-2018,F1,scored,1.0610
+t2-F1-fed-put-2019,F1,scored,1.2033
+t2-F1-dkk-peg-2019,F1,scored,1.3214
+t2-F1-patient-dropped-2015,F1,scored,1.3769
+t2-F1-measured-pace-2004,F1,scored,1.4045
+t2-F1-aud-on-hold-2016,F1,scored,1.4331
+t2-F1-ai-mom-2024,F1,scored,1.4834
+t2-F2-powell-pivot-2019,F2,scored,0.4262
+t2-F2-trichet-alertness-2008,F2,scored,0.5391
+t2-F2-taper-begins-2013,F2,scored,0.5919
+t2-F2-cnh-tradewar-2018,F2,scored,0.6628
+t2-F2-credit-crunch-2007,F2,scored,0.7759
+t2-F2-draghi-precommit-2014,F2,scored,0.8217
+t2-F2-trade-war-escalation-2019,F2,scored,0.8272
+t2-F2-fragile-five-inr-2013,F2,scored,0.9449
+t2-F2-qe2-jackson-hole-2010,F2,scored,0.9668
+t2-F2-considerable-removal-2004,F2,scored,0.9889
+t2-F2-act-as-appropriate-2019,F2,scored,1.1615
+t2-F2-fragile-five-brl-2013,F2,scored,1.3833
+t2-F2-some-pain-2022,F2,scored,1.4947
+t2-F2-aud-taper-2013,F2,scored,1.5385
+t2-F2-opec-cad-2014,F2,scored,1.5958
+t2-F3-funding-flip-2024,F3,scored,0.5514
+t2-F3-scandies-stress-2022,F3,scored,0.5952
+t2-F3-dots-vs-oil-2014,F3,scored,0.7025
+t2-F3-dollar-vortex-2022,F3,scored,0.7683
+t2-F3-rates-into-factors-2022,F3,scored,0.7684
+t2-F3-inversion-persistence-2019,F3,scored,0.7746
+t2-F3-vaccine-rotation-2020,F3,scored,0.8185
+t2-F3-taper-steepener-2013,F3,scored,0.8316
+t2-F3-hiking-year-curve-2018,F3,scored,0.8356
+t2-F3-dollar-squeeze-2020,F3,scored,0.9217
+t2-F3-cpi-shock-cross-2022,F3,scored,0.9604
+t2-F3-conundrum-joint-2005,F3,scored,0.9858
+t2-F3-oil-fx-split-2022,F3,scored,1.0991
+t2-F3-bear-flattener-2022,F3,scored,1.1242
+t2-F3-fragile-five-joint-2013,F3,scored,1.1745
+t2-F3-divergence-2014,F3,scored,1.5889
+t2-F4-factor-stress-2008,F4,scored,0.4927
+t2-F4-powell-december-2018,F4,scored,0.5179
+t2-F4-mkt-selloff-2011,F4,scored,0.5482
+t2-F4-momentum-reversal-2009,F4,scored,0.6250
+t2-F4-aud-gfc-2008,F4,scored,0.6601
+t2-F4-china-stress-mkt-2015,F4,scored,0.6602
+t2-F4-taper-warning-2013,F4,scored,0.7146
+t2-F4-china-panic-2016,F4,scored,0.7425
+t2-F4-jpy-carry-2007,F4,scored,0.7923
+t2-F4-quant-crowding-2007,F4,scored,0.8198
+t2-F4-hike-cycle-2021Q4b,F4,scored,0.9178
+t2-F4-ust-downgrade-watch-2011,F4,scored,0.9913
+t2-F4-hml-covid-2020,F4,scored,1.0064
+t2-F4-vaccine-timeline-2020,F4,scored,1.0449
+t2-F4-eur-warnings-2022,F4,scored,1.0943
+t2-F4-nok-covid-2020,F4,scored,1.1022
+t2-F4-funding-stress-10y-2008,F4,scored,1.2331
+t2-F4-qe1-expansion-2009,F4,scored,1.2758
+t2-F4-funding-stress-2y-2008,F4,scored,1.3196
+t2-F4-gbp-conference-2016,F4,scored,1.3958
+t2-F4-ust10y-supply-2023,F4,scored,1.4261
+t2-F4-cpi-friday-2022,F4,scored,1.4468
