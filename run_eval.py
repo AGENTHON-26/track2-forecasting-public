@@ -141,8 +141,13 @@ def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
         # composite_score directly to an admissible payload. Check for that key's presence,
         # not a "scored" boolean that only exists in the no-realized (gates-only) branch.
         if "composite_score" in payload:
+            lb_score, m0_composite, m0_error = _score_against_m0(unit_dir, card, payload,
+                                                                   realized_path, pathlib.Path(tmp))
             return {"unit_id": unit_id, "status": "scored",
+                    "lb_score": lb_score,
                     "composite": payload["composite_score"],
+                    "m0_composite": m0_composite,
+                    "m0_error": m0_error,
                     "marginal_crps": payload.get("marginal_crps"),
                     "joint_variogram": payload.get("joint_variogram"),
                     "tail_penalty": payload.get("tail_penalty"),
@@ -152,6 +157,35 @@ def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
         return {"unit_id": unit_id, "status": "gates_only",
                 "category": card.get("metadata", {}).get("category"),
                 "text_signal_issues": text_signal_issues, "text_ledger": text_ledger}
+
+
+def _score_against_m0(unit_dir: pathlib.Path, card: dict, ours: dict, realized_path: pathlib.Path,
+                      tmp: pathlib.Path) -> tuple[float | None, float | None, str]:
+    """The leaderboard's own per-card number: each score component divided by M0's on this card.
+
+    M0 is rebuilt from docs/M0-BASELINE.md (`m0_baseline.py`) and scored by the same scorer
+    subprocess as our forecast, so both sides go through identical code. The agent runs with
+    its default --seed 0, which is what the submitted image runs too -- that is why units the
+    text did not touch reproduce the leaderboard to four decimals.
+    """
+    import m0_baseline
+
+    try:
+        m0_dir = tmp / "m0"
+        m0_dir.mkdir()
+        m0_forecast = m0_dir / "forecast.parquet"
+        m0_baseline.write_forecast(unit_dir, m0_forecast)
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "scoring" / "scoring.py"), "score",
+             "--card", str(unit_dir / "card.toml"), "--forecast", str(m0_forecast),
+             "--realized", str(realized_path)],
+            capture_output=True, text=True, cwd=REPO_ROOT,
+        )
+        m0 = json.loads(result.stdout)
+        weights = m0_baseline.card_weights(card, int(ours.get("cell_count", 1)))
+        return m0_baseline.normalized(ours, m0, weights), m0["composite_score"], ""
+    except Exception as exc:  # the raw composite is still reported; only the ratio is missing
+        return None, None, f"{type(exc).__name__}: {exc}"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -202,6 +236,7 @@ def main(argv: list[str] | None = None) -> int:
 
     by_status = defaultdict(list)
     composites_by_category = defaultdict(list)
+    lb_by_category = defaultdict(list)
     all_results = []
     concurrency = max(1, a.concurrency)
     wall_start = time.perf_counter()
@@ -220,6 +255,8 @@ def main(argv: list[str] | None = None) -> int:
         all_results.append(result)
         if result["status"] == "scored":
             composites_by_category[result.get("category", "?")].append(result["composite"])
+            if result.get("lb_score") is not None:
+                lb_by_category[result.get("category", "?")].append(result["lb_score"])
         if a.unit:
             print(json.dumps(result, indent=2))
 
@@ -271,6 +308,15 @@ def main(argv: list[str] | None = None) -> int:
                   "thing\nabout a sweep that went wrong.")
             print(f"{'=' * 78}")
 
+        if lb_by_category and not untrusted:
+            all_lb = [v for vals in lb_by_category.values() for v in vals]
+            print("\nLEADERBOARD-STYLE score (lower is better; 1.0 = the organizers' M0 baseline, rebuilt "
+                  "from docs/M0-BASELINE.md; each unit counts equally, as on the leaderboard):")
+            print(f"  primary: {sum(all_lb) / len(all_lb):.4f} over {len(all_lb)} scored unit(s), "
+                  f"{sum(v < 1 for v in all_lb)} beating M0")
+            for cat, vals in sorted(lb_by_category.items()):
+                print(f"  {cat}: n={len(vals)} mean={sum(vals)/len(vals):.4f} "
+                      f"min={min(vals):.4f} max={max(vals):.4f}")
         if composites_by_category and not untrusted:
             print("\nComposite score by family (lower is better; 1.0 = text-blind baseline on the "
                   "REAL leaderboard -- this raw composite is NOT normalized the same way, so treat "
@@ -286,6 +332,14 @@ def main(argv: list[str] | None = None) -> int:
         cat: {"n": len(vals), "mean": sum(vals) / len(vals), "min": min(vals), "max": max(vals)}
         for cat, vals in composites_by_category.items()
     }
+    all_lb = [v for vals in lb_by_category.values() for v in vals]
+    leaderboard_summary = {
+        "primary": sum(all_lb) / len(all_lb) if all_lb else None,
+        "units": len(all_lb),
+        "beating_m0": sum(v < 1 for v in all_lb),
+        "families": {cat: {"n": len(vals), "mean": sum(vals) / len(vals)}
+                     for cat, vals in lb_by_category.items()},
+    }
     report = {
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "label": a.label,
@@ -300,6 +354,8 @@ def main(argv: list[str] | None = None) -> int:
         "wall_seconds": wall_seconds,
         "avg_unit_seconds": round(sum(per_unit_seconds) / len(per_unit_seconds), 2) if per_unit_seconds else 0.0,
         "concurrency": concurrency,
+        # The number the leaderboard reports: per-unit score / M0's, equal-weight mean.
+        "leaderboard_summary": leaderboard_summary,
         "family_summary": family_summary,
         "units": {r["unit_id"]: r for r in all_results},
     }
