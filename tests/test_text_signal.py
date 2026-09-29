@@ -785,3 +785,88 @@ class TestMedianOfThree(unittest.TestCase):
 
     def test_stage2_reserve_covers_all_three_samples(self):
         self.assertGreaterEqual(ts._STAGE2_RESERVE, ts._STAGE2_SAMPLES)
+
+
+class TestReasoningBudget(unittest.TestCase):
+    """`reasoning_budget` caps the thinking trace so the answer still fits under the 4,000-token
+    House output cap -- measured need: 20% of F3 thinking calls were cut mid-JSON.
+
+    It is a per-call argument chosen per family, NOT a global: the right ceiling depends on how
+    long the answer is, and stage 1's summaries are an order of magnitude longer than stage 2's
+    JSON. These tests pin that scoping, because a global would silently truncate stage 1 and
+    would also change F4's measured thinking configuration without anyone measuring it.
+    """
+
+    @staticmethod
+    def _body(**kwargs):
+        reply = mock.MagicMock()
+        reply.__enter__.return_value.read.return_value = json.dumps(
+            {"choices": [{"message": {"content": "ok"}}]}).encode()
+        env = {"MODEL_ENDPOINT": "https://h/v1", "MODEL_TOKEN": "t"}
+        with mock.patch.dict(os.environ, env), \
+             mock.patch.object(ts.urllib.request, "urlopen", return_value=reply) as open_:
+            ts.call_model("s", "u", **kwargs)
+        return json.loads(open_.call_args[0][0].data.decode())
+
+    def test_not_sent_when_the_caller_passes_nothing(self):
+        self.assertEqual(self._body(thinking=True)["chat_template_kwargs"],
+                         {"enable_thinking": True})
+
+    def test_sent_inside_chat_template_kwargs(self):
+        self.assertEqual(self._body(thinking=True, reasoning_budget=2200)["chat_template_kwargs"],
+                         {"enable_thinking": True, "reasoning_budget": 2200})
+
+    def test_never_sent_without_thinking(self):
+        # No trace to cap; sending it would just be noise in the request.
+        self.assertEqual(self._body(thinking=False, reasoning_budget=2200)["chat_template_kwargs"],
+                         {"enable_thinking": False})
+
+    def test_refused_when_not_below_max_tokens(self):
+        # The model requires reasoning_budget < max_tokens; at or above the cap it leaves no room
+        # for the answer at all, so it is dropped rather than sent.
+        body = self._body(thinking=True, reasoning_budget=ts._MAX_TOKENS_THINKING)
+        self.assertNotIn("reasoning_budget", body["chat_template_kwargs"])
+
+    def test_only_f3_is_capped(self):
+        # F4's thinking-on configuration is a separately measured result (Nish, v5) obtained with
+        # an uncapped trace -- capping it silently would change her arm. F1/F2 have no thinking
+        # at all, so a budget there would be dead config.
+        self.assertEqual(ts._stage2_reasoning_budget("F3"), 2200)
+        for fam in ("F1", "F2", "F4", None):
+            self.assertIsNone(ts._stage2_reasoning_budget(fam))
+
+    def test_f3s_budget_leaves_room_for_its_widest_card(self):
+        # Not a magic number: the trace closes at the first newline after the budget and at worst
+        # at budget + 500, and the widest shipped F3 card is 10 assets at roughly 60 tokens each.
+        budget = ts._STAGE2_REASONING_BUDGET_BY_FAMILY["F3"]
+        self.assertLess(budget, ts._MAX_TOKENS_THINKING)
+        self.assertGreater(ts._MAX_TOKENS_THINKING - (budget + 500), 10 * 60)
+
+    def test_setting_one_family_does_not_reach_another(self):
+        # The whole point of per-family: F4's thinking config is a separate measured result.
+        with mock.patch.dict(ts._STAGE2_REASONING_BUDGET_BY_FAMILY, {"F3": 2200}, clear=True):
+            self.assertEqual(ts._stage2_reasoning_budget("F3"), 2200)
+            self.assertIsNone(ts._stage2_reasoning_budget("F4"))
+
+    def test_stage_one_never_sends_it(self):
+        # summarize_doc calls call_model without the argument, so a stage-1 summary keeps the
+        # full token budget even if some family caps stage 2.
+        reply = mock.MagicMock()
+        reply.__enter__.return_value.read.return_value = json.dumps(
+            {"choices": [{"message": {"content": "- held rates"}}]}).encode()
+        env = {"MODEL_ENDPOINT": "https://h/v1", "MODEL_TOKEN": "t"}
+        doc = {"doc_id": "d", "timestamp": "2024-01-01", "doc_type": "fomc_minutes",
+               "text": "y" * 10_000}
+        with mock.patch.dict(os.environ, env), \
+             mock.patch.dict(ts._STAGE2_REASONING_BUDGET_BY_FAMILY, {"F3": 2200}, clear=True), \
+             mock.patch.object(ts, "_THINKING", True), \
+             mock.patch.object(ts.urllib.request, "urlopen", return_value=reply) as open_:
+            ts.summarize_doc(doc)
+        body = json.loads(open_.call_args[0][0].data.decode())
+        self.assertNotIn("reasoning_budget", body["chat_template_kwargs"])
+
+    def test_headroom_arithmetic_leaves_room_for_the_widest_card(self):
+        # Documented overshoot: the trace closes at the first newline after the budget, at worst
+        # at budget + 500. The widest shipped F3 card has 10 assets at ~60 tokens each.
+        headroom = ts._MAX_TOKENS_THINKING - (2200 + 500)
+        self.assertGreater(headroom, 10 * 60)
