@@ -31,11 +31,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Pinned. The scorer's own CI was red for a week because a pinned type checker met an unpinned
 # numpy; a submission image that floats its deps has the same failure mode with worse timing.
 #
-# `pandas` is back for `f1_pipeline/m2_unit.py`: F1 level cards now fit through M2 (ridge
-# location-scale + empirical residual pool) instead of the random walk, and both
-# `forecast_agent.py` (line ~14) and `m2_unit.py`'s own `read_unit()` (`pd.read_parquet`) need it.
-# It is NOT needed by `qfbench2_track_forecasting/cli.py` any more -- that package is not in this
-# image; the reference CLI ignores `--text` entirely and would score the text-blind floor.
+# `pandas` is required by `forecast_models.py`, which imports it at module scope for the
+# date-aligned step frame every card's forecast is fitted from. (It used to be here for
+# `f1_pipeline/m2_unit.py`, when F1 level cards went through M2; M2 left production on
+# 2026-09-27 -- see the COPY block below.) It is NOT needed by
+# `qfbench2_track_forecasting/cli.py` -- that package is not in this image; the reference CLI
+# ignores `--text` entirely and would score the text-blind floor.
 #
 # `qfbench2-common` is no longer imported at run time either (the agent path is numpy + pandas +
 # pyarrow + stdlib), but the line stays: `.github/workflows/ci.yml` greps THIS FILE for
@@ -54,27 +55,46 @@ RUN pip install --no-cache-dir \
         "qfbench2-common @ https://github.com/Agenthon-2026/Agenthon2026-public/archive/refs/tags/v2.4.4.tar.gz#subdirectory=common"
 
 WORKDIR /work
-# The TEAM agent, not the text-blind reference CLI. `forecast_agent.py` does a bare
-# `from text_signal import read_text_signal`, so both files must sit on the same path. F1 level
-# cards additionally need `f1_pipeline/m2_unit.py` (`from f1_pipeline import m2_unit`); no
-# `__init__.py` is required -- `f1_pipeline` resolves as an implicit namespace package under
-# `PYTHONPATH=/opt`. Only the module itself is copied, not `f1_pipeline/data/`: that directory
-# holds notebook/backtest output, and `m2_unit.py` reads nothing from it at run time, only the
-# unit's own panel under `/input`.
-COPY forecast_agent.py text_signal.py /opt/
+# The TEAM agent, not the text-blind reference CLI. Three modules, all resolved by bare name, so
+# all three must sit on the same path:
+#   forecast_agent.py   the contract and the CLI; `from forecast_models import build_draws`
+#   forecast_models.py  the model -- the cumulative walk and its per-family WALK_SETTINGS. Split
+#                       out of forecast_agent.py on 2026-09-26. MISSING THIS IS THE WHOLE IMAGE:
+#                       forecast_agent imports it at module scope, so the agent cannot start.
+#   text_signal.py      the LLM half; `from text_signal import read_text_signal`
+#
+# `WALK_SETTINGS` is a literal dict in forecast_models.py, so nothing under `model_baseline/` is
+# needed at run time -- that directory is notebook output that chose those numbers, not input to
+# them. Same for `f1_pipeline/data/`.
+#
+# `f1_pipeline/m2_unit.py` is NOT on the forecast path any more (M2 left production 2026-09-27;
+# every card now takes the cumulative walk). It is still copied because `text_signal._model_context`
+# imports it when `_MODEL_CONTEXT_ON` is enabled, and that flag is a one-line change -- leaving the
+# module out would turn flipping it into a silent degradation rather than a working feature. No
+# `__init__.py` is required: `f1_pipeline` resolves as an implicit namespace package under
+# `PYTHONPATH=/opt`, and it pulls in no dependency that is not already installed above.
+COPY forecast_agent.py forecast_models.py text_signal.py /opt/
 COPY f1_pipeline/m2_unit.py /opt/f1_pipeline/m2_unit.py
 ENV PYTHONPATH=/opt
 
 # Fail the BUILD if the agent cannot import, rather than the scoring run.
 #
-# `forecast_agent.read_text_signal` catches any exception from the `text_signal` import and
-# returns exact neutral adjustments, so an image missing that module builds, runs, exits 0,
-# passes g0-g3 and silently scores as the text-blind baseline -- the one failure mode that wastes
-# a submission with no error visible anywhere. `f1_pipeline.m2_unit` has no such fallback: a
-# missing or broken import there raises inside `build_draws()` for every T2-F1 level card and the
-# unit fails outright, so it belongs in the same build-time check for the same reason -- fail loud
-# here, not silently (or loudly but expensively) during scoring.
-RUN python3 -c "import forecast_agent, text_signal; from f1_pipeline import m2_unit"
+# Each of the three is here for a different failure mode:
+#
+#   text_signal      `forecast_agent.read_text_signal` CATCHES any exception from this import and
+#                    returns exact neutral, so an image missing it builds, runs, exits 0, passes
+#                    g0-g3 and silently scores the text-blind baseline -- a wasted submission with
+#                    no error visible anywhere.
+#   forecast_models  the opposite: imported at module scope with no fallback, so a missing copy is
+#                    an immediate crash on every unit. Loud, but only once the scoring run starts.
+#   f1_pipeline      only reached behind `_MODEL_CONTEXT_ON`, but checked here so the copy above
+#                    cannot rot unnoticed.
+#
+# The second line checks the CONTRACT rather than the import: `build_draws` is documented as
+# living at `forecast_agent.build_draws` and is re-exported there from forecast_models. An import
+# that succeeds while that name is gone would still fail every unit.
+RUN python3 -c "import forecast_agent, forecast_models, text_signal; from f1_pipeline import m2_unit" \
+ && python3 -c "import forecast_agent; assert forecast_agent.build_draws is not None"
 
 # The verb, as an executable on PATH.
 RUN printf '#!/bin/sh\nexec python3 /opt/forecast_agent.py "$@"\n' \

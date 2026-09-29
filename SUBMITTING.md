@@ -18,9 +18,15 @@ in favour of the earlier upload.
 
 ## 1. What is in the image, and why
 
-Three files: `forecast_agent.py`, `text_signal.py`, and `f1_pipeline/m2_unit.py`. Nothing else —
-not `f1_pipeline/data/` (14 MB of notebook/backtest output; `m2_unit.py` reads nothing from it at
-run time, only the unit's own panel under `/input`), not the notebooks, not `f1_pipeline/README.md`.
+Four files: `forecast_agent.py`, `forecast_models.py`, `text_signal.py`, and
+`f1_pipeline/m2_unit.py`. Nothing else — not `model_baseline/` (notebook output that *chose* the
+model's settings; `WALK_SETTINGS` is a literal dict in `forecast_models.py`, so nothing is read
+from disk at run time), not `f1_pipeline/data/`, not the notebooks, not `tools/`.
+
+`forecast_models.py` was split out of `forecast_agent.py` on 2026-09-26 and holds the model itself
+— the cumulative walk and its per-family settings. **`forecast_agent.py` imports it at module
+scope**, so an image without it cannot start at all; it is the one file whose absence breaks
+everything, and it post-dates the first version of this document.
 
 `forecast` is a `/usr/local/bin` shim that execs `python3 /opt/forecast_agent.py "$@"`. There is
 deliberately **no `ENTRYPOINT`**: the harness invokes
@@ -33,27 +39,37 @@ also add a positional argument to absorb the verb.
 **The reference CLI (`qfbench2_track_forecasting`) is not in the image.** Its own docstring says it
 "ignores `--text` entirely"; shipping it would score the text-blind floor.
 
-**`pandas` is back, for a different reason than it left.** It was first dropped alongside the
-reference CLI (its only importer at the time), then re-added when `forecast_agent.py` grew an M2
-dispatch: `T2-F1` level cards now fit through `f1_pipeline/m2_unit.py` (ridge location-scale +
-empirical residual pool) instead of the shared random walk, and both `forecast_agent.py` and
-`m2_unit.py`'s own `read_unit()` (`pd.read_parquet`) need it. Other families still use the random
-walk and never touch pandas at runtime, but the dependency is unconditional in the image since
-`forecast_agent.py` imports `f1_pipeline.m2_unit` regardless of which unit it happens to run.
-`f1_pipeline` needs no `__init__.py` — it resolves as an implicit Python namespace package under
-`PYTHONPATH=/opt`, since only the one file is copied in.
+**`pandas` is required by `forecast_models.py`**, which imports it at module scope for the
+date-aligned step frame every card is fitted from. (History, because the reason changed twice: it
+was first dropped alongside the reference CLI, its only importer at the time; then re-added for
+the M2 dispatch; M2 left production on 2026-09-27 and pandas stayed, now for the model itself.)
+
+**M2 is no longer on the forecast path.** Every card takes the cumulative walk
+(`forecast_models.WALK_SETTINGS` picks per-family settings). `f1_pipeline/m2_unit.py` is still
+copied in for one reason: `text_signal._model_context` imports it when `_MODEL_CONTEXT_ON` is
+enabled, and that flag is a one-line change — leaving the module out would turn flipping it into a
+silent degradation rather than a working feature. It adds no dependency that is not already
+installed. `f1_pipeline` needs no `__init__.py` — it resolves as an implicit Python namespace
+package under `PYTHONPATH=/opt`, since only the one file is copied in.
 
 **`qfbench2-common` stays in the Dockerfile** even though the agent never imports it.
 `.github/workflows/ci.yml` greps this Dockerfile for `refs/tags/vX.Y.Z.tar.gz` and fails the build
 with "could not find a pinned toolkit install" if the line disappears.
 
-**The build-time import check covers all three modules, not just two, and asymmetrically.**
-`forecast_agent.read_text_signal` catches any exception from the `text_signal` import and falls
-back to neutral — a missing `text_signal.py` still builds, runs, exits 0, passes every gate, and
-silently scores text-blind. `f1_pipeline.m2_unit` has no such fallback: a missing or broken import
-there raises inside `build_draws()` and fails every `T2-F1` level-card unit outright. Both belong
-in the same `RUN python3 -c "..."` check for the same underlying reason — fail loud at build time,
-not silently (`text_signal`) or expensively (`m2_unit`, unit-by-unit) during scoring.
+**The build-time import check covers all four modules, asymmetrically, because each fails
+differently:**
+
+- `text_signal` — `forecast_agent.read_text_signal` **catches** any exception from this import and
+  falls back to neutral, so a missing copy still builds, runs, exits 0, passes every gate, and
+  silently scores text-blind. The worst failure mode there is: a wasted submission, no error
+  anywhere.
+- `forecast_models` — the opposite. Imported at module scope with no fallback, so a missing copy
+  crashes every unit. Loud, but only once scoring starts.
+- `f1_pipeline.m2_unit` — only reached behind `_MODEL_CONTEXT_ON`, checked so the COPY cannot rot.
+
+A second check asserts `forecast_agent.build_draws` still resolves. That name is the documented
+contract path and is re-exported from `forecast_models`; an import that succeeds while the name is
+gone would still fail every unit.
 
 **`.dockerignore` is an allowlist**, not a denylist. `.env` holds `MODEL_API_KEY` and sits at the
 repo root, so a denylist that forgets one line publishes a credential to a public registry. Because
@@ -61,7 +77,9 @@ repo root, so a denylist that forgets one line publishes a credential to a publi
 lets Docker traverse into the directory at all (the leading `*` stops it there), `f1_pipeline/*`
 re-excludes everything inside it, then `!f1_pipeline/m2_unit.py` allows that one file back in. This
 cuts the build context from ~470 MB (`.venv` 422 M, `units/` 44 M, `f1_pipeline/data/` 14 M) to
-three files — pull time is charged against the unit clock.
+four files — pull time is charged against the unit clock. **Adding a module to the image means
+editing two files**: the `COPY` in the Dockerfile and the allowlist here. Missing the second is
+silent — the build just cannot see the file.
 
 ## 2. One-time setup
 
@@ -126,8 +144,13 @@ Three units worth covering, because they exercise different shapes:
 | Unit | `--asof` | Covers |
 |---|---|---|
 | `t2-EXAMPLE-ust-curve-1m` | 2024-06-28 | 4 assets × 1 horizon — the joint/co-movement path |
-| `t2-F1-cad-boc-2017` | 2017-07-12 | 1 asset × 2 horizons `[126, 189]` — the **M2** path (`f1_pipeline/m2_unit.py`), not the random walk; check the rationale says `Base: M2 --` |
-| `t2-F4-covid-mkt-2020` | 2020-02-19 | tail family, random-walk path |
+| `t2-F1-cad-boc-2017` | 2017-07-12 | 1 asset × 2 horizons `[126, 189]` — the multi-horizon accumulation path |
+| `t2-F4-covid-mkt-2020` | 2020-02-19 | tail family, single cell |
+| `t2-F3-funding-flip-2024` | 2024-07-26 | 4 assets × 2 horizons — the widest shape, and the family the LLM half is tuned on |
+
+Every one of them should now report `Base: cumulative walk` in the rationale. **An earlier version
+of this table told you to check for `Base: M2 --` on the F1 card; that is wrong since 2026-09-27**
+and a correct build will not print it.
 
 **Pass means:** exit 0; all three of `forecast.parquet`, `forecast_meta.json`,
 `forecast_rationale.md` present with the rationale non-empty; `"admissible": true` with
@@ -234,7 +257,8 @@ schema cannot see. Hand-writing fails in four ways:
 |---|---|
 | Image is arm64 | `imagetools inspect` → `linux/amd64`; in-container `platform.machine()` → `x86_64` |
 | `text_signal.py` missing → **silent** text-blind scoring | build-time import check; absence of `[text_signal] unavailable` on stderr |
-| `f1_pipeline/m2_unit.py` missing → every `T2-F1` level-card unit fails outright | build-time import check (`from f1_pipeline import m2_unit`) |
+| `forecast_models.py` missing → the agent cannot import and every unit fails | build-time import check + the `build_draws` contract assert |
+| `f1_pipeline/m2_unit.py` missing → `_MODEL_CONTEXT_ON`, if enabled, degrades silently | build-time import check (`from f1_pipeline import m2_unit`) |
 | Verb unresolvable / shim points at the wrong module | `docker run … forecast --help` exit 0, plus a full offline unit run |
 | GHCR package still private | the credential-free `ghcr.io/token` + manifest `HEAD` → 200 |
 | Wrong/stale digest, or an attestation-index digest | `--metadata-file` digest == `imagetools inspect` digest; clean-room pull by digest |
@@ -288,12 +312,16 @@ cost.
    0755, the `USER runner` (uid 1000) process cannot write it. macOS Docker Desktop virtualizes
    bind ownership so it will not reproduce here. Low risk: the shipped reference Dockerfile uses
    the same `USER runner`, so the harness demonstrably accommodates it.
-9. **M2's own documented limits carry into the image unchanged** (`f1_pipeline/README.md`): below
-   ~1,000 training rows it is worse than a random walk (three short units sit there); the
-   calibration constant and residual pool use in-sample residuals, making bands ~9% too narrow;
-   and the 1% tails of each residual pool rest on one or two historical episodes. M2 also only
-   covers `T2-F1` **level** targets — the two cumulative-log-return F1 units
-   (`ai-mom-2024`, `fed-put-2019`) still use the random walk.
+9. **~~M2's documented limits carry into the image~~ — no longer applicable.** M2 left the
+   forecast path on 2026-09-27; every card now takes the cumulative walk. The module is still in
+   the image only for the disabled `_MODEL_CONTEXT_ON` path (§1).
+10. **The LLM half now spends more of the 25-request budget than it used to.** Stage 2 samples
+    three times (median-of-3) and, on F3 and F4, runs with thinking on — and a thinking reply that
+    does not parse is re-asked once without it. Measured worst case on the heaviest unit
+    (`t2-F2-ecb-qe-telegraph-2014`, 15 documents): 15 stage-1 + 3 stage-2 = 18 of 25, or 21 with
+    every stage-2 sample retried. It fits, and `_Budget` reserves the stage-2 slots so stage 1
+    can never starve them, but the headroom is smaller than the "16 with room to spare" this
+    document originally assumed.
 
 ## 8. What was verified, and when
 
@@ -313,6 +341,10 @@ cost.
   carries the four columns the `samples` representation mandates
   (`draw:int32, asset:string, horizon:int32, value:double`) and exactly
   `n_draws × assets × horizons` rows.
+
+> **Superseded.** The two entries below describe the image as it was before `forecast_models.py`
+> existed and while M2 was still on the forecast path. Kept as history; read the 2026-09-28 entry
+> at the end for the current state.
 
 **2026-09-25**, re-verified after rebasing onto `dev` and adding `f1_pipeline/m2_unit.py` +
 `pandas` (§1):
@@ -335,3 +367,33 @@ cost.
 
 Not yet done at either point: the push to GHCR, the descriptor, and the upload — all three need
 credentials.
+
+
+**2026-09-28**, re-verified after rebasing `feat/docker` onto `dev` — 82 commits, including the
+model rewrite (M2 out, cumulative walk everywhere), the `forecast_models.py` split, and the F3
+text work:
+
+- **The rebase found a real break.** `forecast_agent.py` imports `forecast_models` at module
+  scope, and neither the Dockerfile `COPY` nor the `.dockerignore` allowlist mentioned it — that
+  file post-dates this branch. The build-time import check caught it, which is what it is for.
+  Both files fixed; the allowlist is the half that is easy to miss, because omitting it fails
+  silently at context-collection time rather than at `COPY`.
+- Built `--platform linux/amd64`, clean.
+- Ran four unit shapes under `--network=none`, all **`admissible=True … labels=[]`** from
+  `qfbench2 smoke`, all three output files present, no NaN/inf in any draw:
+  `t2-EXAMPLE-ust-curve-1m` (4×1), `t2-F1-cad-boc-2017` (1×2), `t2-F4-covid-mkt-2020` (1×1),
+  `t2-F3-funding-flip-2024` (4×2). All report `Base: cumulative walk`.
+- **Both input layouts verified**, and they agree bit-for-bit: the repo layout (panels at the unit
+  root, exercising `_read_panels`'s parent fallback) and a hand-staged `panels/` tree, which is
+  what the harness actually mounts. Note 7 above is still the standing caveat.
+- **Live path verified from inside the container** (no `--network=none`, `--env-file .env`):
+  `source=llm family=F3 docs=8 requests=10/25`, per-asset ledger printed, real adjustments
+  applied. Offline runs only prove the agent degrades gracefully; this proves it works.
+- **`reasoning_budget` is honoured by the House route** — measured directly, three calls on one
+  prompt: uncapped 593 completion tokens, `reasoning_budget=2200` 447, `=200` 289. Worth recording
+  because `docs/HOUSE-MODEL.md` says the organizers pass it through but "make no promise about
+  their effect"; this is the first measurement either way. It does **not** eliminate the stage-2
+  retry — that fires on any unparseable reply, not only a truncated one.
+- Repo suite: **see pytest**.
+
+Still not done, all three needing credentials: the GHCR push, the descriptor, and the upload.
