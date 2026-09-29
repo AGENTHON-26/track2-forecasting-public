@@ -369,3 +369,19 @@ With 5 recorded answers per card: median of the first 3 = 0.826, of the last 3 =
 5 = 0.843. More samples do not help; the family mean moves about +-0.02 with the draw of
 answers, and one card can move 0.43 (funding-stress-10y-2008). So quote the shipped path as
 ~0.89 on LB22, not 0.880. Submission 01's real F4 was 0.947 with the pre-trend, skew-on code.
+
+### Drift size in the prompt (v6, shipped 2026-09-29)
+
+v6 = v5 + a size scale for drift_sd, as width has one: 1.0 for a warning not yet in the price,
+1.5 (the cap) when the mechanism is in motion, 0 otherwise. Fresh answers, 3 per card.
+
+| F4, LB metric, shipped model | all 29 | even | odd | LB22 | 11 rule cards | 18 others | better / worse |
+|---|---|---|---|---|---|---|---|
+| v5 | 0.826 | 0.829 | 0.823 | 0.880 | 0.865 | 0.802 | |
+| v5 + drift x1.5 in code | 0.804 | 0.796 | 0.813 | 0.863 | 0.849 | 0.776 | 17 / 5 |
+| **v6 prompt** | **0.798** | 0.784 | 0.814 | 0.884 | 0.854 | **0.764** | 19 / 7 |
+
+The model's |drift| median went 0.3 -> 1.0 and "no view" answers 29% -> 10%. v6 is the least
+certain change here: not visible on the 22 leaderboard units, bootstrap P(no gain) 33% (v5 and
+v6 are different answer draws, and answer noise alone is ~0.02). It ships because the gain is on
+the cards no rule was written from and it is the model deciding the size, not a hidden multiplier.
