@@ -322,3 +322,50 @@ Re-measured on the corpus after #41 (59 documents added, 86 F4 files touched), s
 
 v5 improves on the new corpus (test method: 0.3781 -> 0.3589; the agent itself scores 0.3431) and stays even with the random walk on the
 18 cards no rule was written from. v4 was not re-run on the new corpus.
+
+## F4 on the leaderboard metric (2026-09-29, overnight)
+
+Everything below is scored the way the leaderboard scores: each component divided by the
+organizers' M0 baseline rebuilt from `docs/M0-BASELINE.md` (`m0_baseline.py`, validated to four
+decimals on 22 units of submission 01), with the corrected return-card answers (#21). Text-on
+rows replay the recorded v5 answers through the real `to_adjustments` and `build_draws`, mean of
+3 draw seeds. "LB22" is the 22 F4 units that appear on the Development leaderboard.
+
+### Time-series side
+
+| text OFF, F4 | all 29 | even | odd | LB22 |
+|---|---|---|---|---|
+| submitted model (no trend) | 1.004 | 1.066 | 0.938 | 1.060 |
+| + M0's trend (steps x mean step, last 300) | 0.956 | 0.957 | 0.954 | 0.971 |
+| + trend + 1.25 fallback width | 0.918 | 0.923 | 0.912 | 0.945 |
+
+The trend is M0's own centre rule, not a tuned number. Level targets only: on the 11 F4
+log_return cards it hurts (0.788 -> 0.832, 4 better / 7 worse), which is Pun's earlier finding
+for the log-return centre, re-measured on corrected answers. Same rule text-off on the other
+families: F1 1.031 -> 0.960, F2 1.078 -> 1.059, F3 0.967 -> 0.994 (worse); so it ships for F4
+only and the other families are Pun's call. A trend window of 130 or 60 is far worse (noisy
+mean); half-weight (0.5) is close on F4 and better on F3, if Pun wants it there.
+
+### With the text (recorded v5 answers)
+
+| F4, LB metric | all 29 | even | odd | LB22 | better / worse |
+|---|---|---|---|---|---|
+| submitted (no trend, skew on) | 0.842 | 0.835 | 0.849 | 0.899 | |
+| trend added on top of every text view | 0.840 | 0.806 | 0.876 | 0.873 | 14 / 15 |
+| skew off | 0.838 | 0.826 | 0.851 | 0.895 | 19 / 5 |
+| skew off + trend **where the text has no view** (shipped) | 0.826 | 0.829 | 0.823 | 0.880 | |
+| shipped + drift x1.5 | 0.804 | 0.796 | 0.813 | 0.863 | 19 / 6 |
+| text silent, before / after (trend + 1.25) | 1.004 / 0.918 | | | 1.060 / 0.945 | |
+
+Rules that came out of this: a text view on the centre REPLACES the historical drift (adding
+both double-counts: better on one half, worse on the other); skew adds nothing on top of drift;
+the text's own width is fine as answered (widen^k for k in 0.5..1.5 is flat within noise).
+Robustness of "skew off + drift x1.5": bootstrap over cards P(no gain) 3.9%, worst
+leave-one-out still -0.02; no single card carries it.
+
+### Answer noise
+
+With 5 recorded answers per card: median of the first 3 = 0.826, of the last 3 = 0.842, of all
+5 = 0.843. More samples do not help; the family mean moves about +-0.02 with the draw of
+answers, and one card can move 0.43 (funding-stress-10y-2008). So quote the shipped path as
+~0.89 on LB22, not 0.880. Submission 01's real F4 was 0.947 with the pre-trend, skew-on code.
