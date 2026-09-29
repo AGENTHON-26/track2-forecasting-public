@@ -248,13 +248,54 @@ def _stage2_thinking(family: str | None) -> bool:
     return _STAGE2_THINKING_BY_FAMILY.get(str(family), _STAGE2_THINKING)
 
 
+#: Per-family ceiling on the stage-2 REASONING trace, in tokens. Empty = send nothing, i.e. the
+#: model's own unlimited default, which is what every family does today.
+#:
+#: Per family rather than global for two reasons. F4's thinking-on configuration is Nish's
+#: MEASURED result (v5, 0.3781) with an uncapped trace; capping it is a change to that arm and
+#: has to be measured on F4's own cards before it applies there. And the right ceiling is a
+#: function of how long the ANSWER needs to be, which is a per-family quantity -- an F3 card can
+#: carry 10 assets, an F4 card usually one.
+#:
+#: Sizing, against the documented behaviour that the trace closes at the first newline after the
+#: budget and at worst at budget + 500:
+#:     worst-case reasoning = budget + 500
+#:     answer headroom      = _MAX_TOKENS_THINKING - that
+#: For F3, 2,200 would leave ~1,300 tokens for the JSON against the ~650 the widest shipped card
+#: needs (dollar-squeeze-2020, 10 assets at roughly 60 tokens each).
+#:
+#: F3 = 2,200 since 2026-09-28. Why: the House cap is 4,000 OUTPUT tokens covering reasoning AND
+#: answer, so a long trace eats the JSON. Measured on F3 with thinking on (tools/f3_arms.py):
+#: the no-thinking retry fired on 16 of 80 stage-2 calls (20%) because the reply was cut mid-JSON,
+#: 2 of those lost the card's signal entirely, and every retry spends a slot against the per-unit
+#: 25 on top of the ~6-16 an F3 card already uses.
+#:
+#: TURNED ON FOR THE RELIABILITY ARGUMENT, NOT A MEASURED SCORE. The `budget2200` arm in
+#: tools/f3_arms.py exists to check the thing this trades against and has not been run: thinking
+#: earned its place on F3 by IMPROVING directional accuracy (60.9% -> 66.9% of committed pairwise
+#: gaps), and that gain comes from the model reasoning through the cross-asset chain. A trace cut
+#: short could plausibly stop before the last assets on a 10-asset card, buying back truncations
+#: by degrading exactly what made thinking worth enabling. If a later F3 sweep shows gap-direction
+#: falling back toward 60%, suspect this line first -- setting it to {} restores the measured
+#: 0.9022 configuration exactly.
+#:
+#: F4 stays uncapped: its thinking-on configuration is Nish's measured v5 result (0.3781), and
+#: capping it is a change to that arm that has to be measured on F4's own cards first.
+_STAGE2_REASONING_BUDGET_BY_FAMILY: dict[str, int] = {"F3": 2200}
+
+
+def _stage2_reasoning_budget(family: str | None) -> int | None:
+    return _STAGE2_REASONING_BUDGET_BY_FAMILY.get(str(family))
+
+
 def _stage2_sample(system: str, user: str, family: str | None,
                    budget: "_Budget | None") -> tuple[dict[str, Any] | None, str]:
     """One stage-2 sample: (parsed reply, error). A thinking-on reply that does not parse --
     typically the reasoning ate the 4,000-token cap and the JSON was cut -- is retried once
     without thinking, budget permitting; the retry spends a slot like any other request."""
     thinking = _stage2_thinking(family)
-    content, err = call_model(system, user, thinking=thinking, budget=budget, reserved=True)
+    content, err = call_model(system, user, thinking=thinking, budget=budget, reserved=True,
+                              reasoning_budget=_stage2_reasoning_budget(family))
     if content is None:
         return None, err
     raw = _extract_json_object(content)
@@ -725,6 +766,7 @@ def summarize_corpus(text_dir: pathlib.Path, budget: _Budget | None = None) -> l
 def call_model(
     system: str, user: str, thinking: bool = False,
     budget: _Budget | None = None, reserved: bool = False,
+    reasoning_budget: int | None = None,
 ) -> tuple[str | None, str]:
     """(reply text, error). POST $MODEL_ENDPOINT/v1/chat/completions with stdlib urllib only.
 
@@ -736,6 +778,17 @@ def call_model(
     if not endpoint:
         return None, "MODEL_ENDPOINT is unset"
     model = os.environ.get("MODEL_NAME", "").strip() or "nvidia/nemotron-3-super-120b-a12b"
+    max_tokens = _MAX_TOKENS_THINKING if thinking else _MAX_TOKENS
+    template_kwargs: dict[str, Any] = {"enable_thinking": thinking}
+    # Caps the reasoning trace so the answer still fits under max_tokens (NVIDIA NIM parameter,
+    # inside chat_template_kwargs; the organizers pass it through unchanged but promise nothing
+    # about its effect -- docs/HOUSE-MODEL.md). Deliberately a per-call ARGUMENT, not a module
+    # constant: the right ceiling depends on how long the ANSWER is, which differs per caller --
+    # a stage-2 JSON is a few hundred tokens, a stage-1 summary runs to thousands. A global would
+    # size stage 1 by stage 2's needs and silently truncate it. Callers that pass nothing keep
+    # the model's own unlimited default, so stage 1 is unaffected by construction.
+    if thinking and reasoning_budget is not None and 0 < reasoning_budget < max_tokens:
+        template_kwargs["reasoning_budget"] = reasoning_budget
     body = json.dumps(
         {
             "model": model,
@@ -745,8 +798,8 @@ def call_model(
             ],
             "temperature": 0,
             "top_p": 1,
-            "max_tokens": _MAX_TOKENS_THINKING if thinking else _MAX_TOKENS,
-            "chat_template_kwargs": {"enable_thinking": thinking},
+            "max_tokens": max_tokens,
+            "chat_template_kwargs": template_kwargs,
         }
     ).encode("utf-8")
     base = endpoint.rstrip("/")

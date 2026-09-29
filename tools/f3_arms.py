@@ -89,9 +89,21 @@ def _arm_exampleonly() -> None:
     ts._DIFFERENTIATED_EXAMPLE_FAMILIES.add("F3")
 
 
+def _arm_budget2200() -> None:
+    """Shipped prompt + thinking, with the reasoning trace capped at 2,200 tokens.
+
+    Tests whether capping the trace buys back the truncations without costing answer quality:
+    thinking currently cuts the JSON on ~20% of calls because reasoning and answer share one
+    4,000-token cap. Cheaper if it works -- each truncation costs a retry slot against the 25.
+    """
+    ts._STAGE2_THINKING_BY_FAMILY["F3"] = True
+    ts._STAGE2_REASONING_BUDGET_BY_FAMILY["F3"] = 2200
+
+
 ARMS = {
     "textoff": _arm_textoff,
     "current": _arm_current,
+    "budget2200": _arm_budget2200,
     "v2": _arm_v2,
     "v2-nothink": _arm_v2_nothink,
     "think-only": _arm_thinkonly,
@@ -106,6 +118,7 @@ def _applied(arm: str):
         dict(ts._FAMILY_FOCUS),
         set(ts._DIFFERENTIATED_EXAMPLE_FAMILIES),
         dict(ts._STAGE2_THINKING_BY_FAMILY),
+        dict(ts._STAGE2_REASONING_BUDGET_BY_FAMILY),
     )
     try:
         ARMS[arm]()
@@ -116,6 +129,8 @@ def _applied(arm: str):
         ts._DIFFERENTIATED_EXAMPLE_FAMILIES.update(saved[1])
         ts._STAGE2_THINKING_BY_FAMILY.clear()
         ts._STAGE2_THINKING_BY_FAMILY.update(saved[2])
+        ts._STAGE2_REASONING_BUDGET_BY_FAMILY.clear()
+        ts._STAGE2_REASONING_BUDGET_BY_FAMILY.update(saved[3])
 
 
 # ------------------------------------------------------------------ units

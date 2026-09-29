@@ -379,6 +379,101 @@ all. `run_eval.py` initially misclassified these new healthy ledger lines as fai
 models (M2, the cumulative walk, the plain random walk) moved out of `forecast_agent.py` into
 `forecast_models.py` — is Dew's side of the branch; see that module's own docstrings, not this file.
 
+## Update 2026-09-28 — F3, `feat/f3-prompt`: a harness that can measure, an FX bug it found, thinking on
+
+Everything below is measured with **`tools/f3_arms.py`** (new), on dev's cumulative-walk model,
+20 F3 units. It exists because nothing before it could tell a real effect from this endpoint's
+noise — see the median-of-3 verdict at the end of this section for what that cost us.
+
+**The harness, and the metric that actually decides things.** Protocol borrowed wholesale from
+Nish's F4 work: stage-1 summaries cached (`TEXT_SIGNAL_CACHE_DIR`) so only the stage-2 prompt
+varies, N model runs × M draw seeds per arm, odd/even half split beside the mean. It reproduces:
+`textoff` repeats to 0.0000 and a fixed prompt to 0.0002 across independent rounds, so arm means
+are reliable to ~±0.001 and what limits significance is card-to-card spread at n=20, not run noise.
+
+The addition worth keeping is **gap-direction accuracy**: of the pairwise gaps a reply actually
+commits to, what share have the same sign as the realized move. The variogram scores
+|asset_i − asset_j|, so the sign of the GAP is what a joint answer really claims, and n is ~300
+pairs rather than 20 cards — enough power to separate arms the composite cannot. It is the metric
+that caught the false positive below.
+
+**F3 prompt "v2" — REJECTED, and it nearly shipped on its mean.** Bands for drift_sd, a
+differentiated JSON skeleton, thinking, "one document is enough": mean 0.8858 against 0.9112 for
+the shipped paragraph. But paired t −0.73, 7/20 wins, and dropping the two best cards turned the
+gain positive. Gap-direction said why: **52.4%, a coin flip.** It had done its mechanical job
+(zero rate 57.5% → 17.8%) and learned nothing — louder, not smarter. The bands, the skeleton and
+"one document is enough" are still in the file as `_F3_FOCUS_V2` /
+`_DIFFERENTIATED_EXAMPLE_FAMILIES`, unshipped, with the arms wired to measure them.
+
+**What v2 did find: the F3 FX rules were inverted against the data.** The paragraph argued
+direction in economic terms — "funding stress sends JPY and CHF UP", meaning the yen and franc
+appreciate — while the SERIES are quoted both ways. `JPY` is USD/JPY, so "up" in the data is the
+yen WEAKENING: the opposite instruction. Same inversion on NOK/SEK. Measured damage:
+`funding-flip-2024` got **15.4%** of its gaps right, answering JPY +0.33 into the 2024 carry
+unwind that took USD/JPY −10.98σ; `scandies-stress-2022` got 14.3%. Every FX rule now names **the
+sign to write for that series**, never "the currency strengthens" — after the fix `funding-flip`
+went from the worst card in the set to the best. Same class of fix on the curve:
+`term-premium-steepener-2023`, the card's own name, answered a *flattener* while the rule was
+merely described, so it is now two worked numeric shapes to choose between. Rules live in one
+`_F3_MARKET_RULES` shared by the shipped and experimental paragraphs. Also stopped telling F3 to
+"answer 0 if the convention makes you unsure" — F3's assets are quoted in both directions, so the
+hardest-convention cards are exactly the ones where the sign carries the score.
+
+**Stage-2 thinking ON for F3** (`_STAGE2_THINKING_BY_FAMILY`), 4 model runs × 3 seeds:
+
+| arm | mean | zero% | gap-dir |
+|---|---|---|---|
+| text off | 0.9299 | — | — |
+| thinking off | 0.9209 | 47.9% | 60.9% of 253 pairs |
+| **thinking ON** | **0.9022** | 13.0% | **66.9% of 372 pairs** |
+
+This passed where v2 failed for one reason: thinking improves **directional skill**, not just
+willingness to answer — 47% more committed gaps AND a higher share right (two-proportion z +1.56;
+66.9% over 372 pairs is z +6.53 against a coin flip). Not yet separable on the composite (paired
+t −0.58, 9/20 cards improve), but the 20% trimmed mean (−0.0190) matches the raw mean (−0.0187),
+so it is not one lucky card, and the biggest contributor (`divergence-2014`) is not a card any
+rule here was written from. Read it with the row above: **with thinking off, F3's text half is
+close to inert** (t −0.44, positive once one card is dropped). Cost: the no-thinking retry fires
+on ~20% of calls because thinking truncates the JSON at the 4,000-token cap.
+
+**`reasoning_budget` implemented, F3 = 2,200.** NVIDIA NIM parameter inside
+`chat_template_kwargs`; the organizers confirm the House route passes it through unchanged but
+promise nothing about its effect (docs/HOUSE-MODEL.md). Sized against the documented overshoot
+(the trace closes at the first newline after the budget, at worst budget + 500), leaving ~1,300
+tokens for JSON against the ~650 the widest card needs. **On for the reliability argument, not a
+measured score** — the `budget2200` arm has not been run, and the risk it trades against is real:
+thinking earned its place by improving directional accuracy, and a truncated trace could stop
+before the last assets on a 10-asset card. Per-family by design (`call_model` takes it as an
+argument): F4 stays uncapped because its thinking config is Nish's measured v5, and stage 1 never
+passes it at all, since a summary needs thousands of tokens where a stage-2 JSON needs hundreds.
+
+**Hypothesis tested and REFUTED: gate the text signal on regime breaks.** The idea was that text
+earns its keep by warning the historical relationship is about to break, so it should fire only
+there. Measured with **perfect hindsight** about which cards actually broke (realized co-moves
+contradicting the trailing 260-day correlation), that gate scores **0.8826 against 0.8757 for
+applying text everywhere** — it loses even knowing the answer. corr(break, text gain) = −0.206;
+a forecast-time proxy (60d vs 260d correlation drift) correlates with the gain at **−0.007**,
+i.e. nothing. The counterexample is decisive: `funding-flip-2024`, the biggest text win, had
+**0% of its pairs break** — every relationship held and only the DIRECTION was unknown. Text's
+value here is directional, not stability-related. Perfect per-card selection would be worth ~5.5%
+(0.8274), but none of break / move size / max move / asset count locates it. Do not rebuild this.
+
+**Median-of-3 — the verdict Open #3 was waiting for: no effect, on either axis.** Five live
+sweeps (2 single-call, 3 median-of-3): pooled mean **0.9038 vs 0.9045, +0.07%**. And it does not
+do the thing it was built for — per-unit run-to-run spread is 5.5% single-call against 5.8%
+median-of-3, tighter on 5 units, looser on 6, tied on 9. Two runs of median-of-3 on the *same*
+card swing up to 22%. The likely reason it cannot help: the noise is not small jitter around a
+stable number, it is closer to a binary flip between engaging with an asset and hedging to zero,
+and a median across three such draws does not stabilise that. **Left shipped** (explicit call,
+2026-09-28) despite costing 3× the stage-2 requests; `_STAGE2_SAMPLES = 1` reverts it.
+
+**Context for anyone tuning F3 further** (measured, not assumed): every F3 asset has full panel
+history on every card — ratios 1.00–1.01, all 20 cards get the full 260-row window — so text is
+never filling a data gap. The documents name only ~57% of the assets asked about (4 of 22 cards
+name all of them; `taper-steepener-2013` names none of its four), and the unnamed ones are
+overwhelmingly curve tenors. The job is carrying a scenario across to assets the text never
+mentions, which is why worked numeric shapes beat prose descriptions.
+
 ## Open
 
 1. **Highest priority: fix the silent rate-limit fallback and log raw model replies / derived
@@ -404,32 +499,37 @@ models (M2, the cumulative walk, the plain random walk) moved out of `forecast_a
    - Still open regardless: making the fallback loud (or at least counted) instead of silent, and
      the raw-reply logging itself. Everything below this item is still blocked on those in
      practice, even where not stated explicitly.
-2. **F3's interface gap** — **decided against a schema change, 2026-09-26** (see the Update section
-   above): a new correlation field was measured at ~0.993 oracle composite vs. **0.747 for the
-   `drift_sd` field that already exists**, so the fix is prompting the model to use the lever it
-   already has, not adding one. What's still open: whether the prompt work extracts all of that
-   0.747 ceiling — it clearly doesn't yet (37% of assets still get a real answer, not 100%).
-3. **Self-consistency — shipped, 2026-09-26, but not a confirmed win.** See the Update section
-   above: the first side-by-side measured it ~0.5% worse on raw composite, not better, with 3 units
-   losing more than the other 5 gained. More replicates were started to check if that's noise; if
-   it holds up, reverting `_STAGE2_SAMPLES` to 1 removes a real 3x Stage-2 cost for no benefit.
+2. **F3's interface gap** — **decided against a schema change, 2026-09-26**: a new correlation
+   field was measured at ~0.993 oracle composite vs. **0.747 for the `drift_sd` field that already
+   exists**, so the fix is prompting the model to use the lever it already has. Still open, and
+   now with a number on it: thinking-on gets the zero rate down to 13% and gap-direction to 66.9%,
+   against an oracle ceiling of 0.747 and a current 0.9022 — most of that gap is still unclaimed.
+   **One route now closed** (2026-09-28): gating the signal on regime breaks is refuted, including
+   with perfect hindsight. See the Update section.
+3. **Self-consistency — ANSWERED 2026-09-28: no effect, kept anyway.** Five live sweeps put
+   median-of-3 at 0.9045 against single-call's 0.9038 (+0.07%), and it does not reduce run-to-run
+   variance either (5.8% vs 5.5% mean per-unit spread). Left shipped by explicit decision despite
+   costing 3x the stage-2 requests; `_STAGE2_SAMPLES = 1` reverts it. Worth revisiting only if the
+   per-unit request budget ever becomes the binding constraint, which the 20% thinking-retry rate
+   now makes more plausible than it was.
 4. **`skew` was disabled, now re-enabled (2026-09-26)** — `_SKEW_ENABLED = True`, moved to
    `forecast_models.py` with the rest of the model code. See the Update section above for the
    (weak, n=3) replay evidence this was based on — still worth a real measurement once item 1's
    logging can isolate a text-signal-caused change from this endpoint's own noise.
-5. **Thinking: both stages now off.** `_THINKING` back to `False` (2026-09-23) after the real
-   full-sweep measurement above reconfirmed Nish's original finding at scale (4-5x slower, a
-   leaked-reasoning failure mode, worse composite scores especially in F2). `_STAGE2_THINKING`
-   turned `False` on 2026-09-25 — **decided, not measured**, and the distinction matters. What the
-   2026-09-22 thinking-on sweep does establish is that stage 2 thinking is not *breaking* anything:
-   3 stage-2 failures, all 503/429 transport errors, zero truncated or unparseable replies, so the
-   4,000-token cap fits the reasoning and the JSON together. What it cannot establish is whether
-   thinking helps or hurts the score, because run-to-run variance on this endpoint is the same
-   order as the effect. Deciding that needs replicated sweeps per arm (~3-4 h), and leaving it on
-   costs only ~20 s/unit against an 1,800 s budget, so it lost to the prompt A/B on value. It was
-   turned off rather than left on because the one measurement that exists on this model (stage 1,
-   at scale) says thinking underperforms, and because hedging is the opposite of what F3 rewards.
-   Flip it back and re-measure if a text A/B comes out strangely.
+5. **Thinking: stage 1 off, stage 2 ON for F3 and F4 — and both are now measured.** Stage 1's
+   `_THINKING` went back to `False` (2026-09-23) after the full-sweep measurement above reconfirmed
+   Nish's finding at scale (4-5x slower, leaked reasoning, worse composites, worst in F2). Stage 2
+   is the opposite story and was resolved family by family: F4 on 2026-09-26 (with it off the model
+   answers exact neutral on 24 of 29 cards, so nothing else in the prompt engages), F3 on
+   2026-09-28 (0.9209 -> 0.9022, and the reason it passed is gap-direction 60.9% -> 66.9%, i.e.
+   better answers rather than merely more of them). F1 and F2 remain off and **unmeasured at stage
+   2** — the F3 result does not transfer, since F1's own paragraph asks for small moves and F3's
+   gain came from committing to cross-asset gaps F1 does not have.
+   **Correction to what this item used to claim**: it said the 4,000-token cap "fits the reasoning
+   and the JSON together", inferred from a 2026-09-22 sweep with zero truncated replies. That is
+   wrong at F3's prompt length — the no-thinking retry fires on ~20% of F3 stage-2 calls because
+   the reasoning runs into the cap mid-JSON. `_STAGE2_REASONING_BUDGET_BY_FAMILY` now caps F3's
+   trace at 2,200 tokens for that reason (unmeasured on quality; see the Update section).
 6. **No sweep run so far is fully trustworthy.** Even the sweep-1-vs-sweep-2 comparison in
    "Measured 2026-09-22" above (previously the one considered clean) likely has some units
    silently flipped to neutral on one side or the other. Everything needs item 1's logging before
