@@ -58,15 +58,37 @@ WALK_SETTINGS = {
     "T2-F4": {"window": 260, "widen": 1.2, "nu": 5, "halflife": 63},
 }
 _PLAIN_WALK = {"window": _WINDOW, "widen": 1.0, "nu": None, "halflife": None}
-#: Per-family FALLBACK width for the walk models, used only when the text half gave this card
-#: nothing (every asset exactly neutral: model call failed, timed out, ran out of budget, or no
-#: usable summaries). F4 cards are built around a shock the calm history does not show, so a
-#: text-less F4 card should still not draw history's too-narrow width. Measured 2026-09-26 on the
-#: 29 realized F4 cards (3 draw seeds): random walk 0.4560 -> 0.4085 with 1.5 applied to every
-#: card. When stage 2 DOES answer it is not overridden: with the F4 v5 prompt an always-on floor
-#: scored 0.3715 vs 0.3781 overall but made the 18 calm cards worse (7 better / 11 worse vs the
-#: walk), so it only covers failure. See `text_signal._FAMILY_FOCUS["F4"]` for the prompt.
-_FAMILY_WIDEN_FLOOR = {"T2-F4": 1.5}
+
+#: Trend (drift) per family, as a multiple of the mean step over the trailing `trend_window`
+#: rows -- the official baseline's own centre rule (docs/M0-BASELINE.md 3.5 and 3.8: mean = anchor
+#: + steps * mean step, over its last 300 observations). A family absent here, or `trend` 0,
+#: centres on the last value as before. Settings are read through `_trend_cfg` so a family can
+#: opt in without touching WALK_SETTINGS.
+#:
+#: The trend fills in ONLY where the text gave that asset no centre view (shift == 0): a stated
+#: view from the documents replaces the historical drift, it does not add to it. Measured
+#: 2026-09-29 on F4 (29 cards, leaderboard metric vs rebuilt M0, recorded v5 answers, 3 seeds):
+#: trend added on top of every text view 0.840 vs 0.842 (helps one half, hurts the other);
+#: trend only where the text has no view 0.809 vs 0.816 (21 better / 8 worse); text-off F4
+#: 1.004 -> 0.956. LEVEL targets only: on the 11 F4 log_return cards the trend hurts (0.788 ->
+#: 0.832, 4 better / 7 worse; all 15 log_return cards 0.839 -> 0.877), which is Pun's earlier
+#: finding for the log-return centre, re-measured on the corrected realized values. Text-off on
+#: the other families with the same rule: F1 1.031 -> 0.960, F2 1.078 -> 1.059, F3 0.967 -> 0.994
+#: (worse) -- so it is on for F4 only; the other families are Pun's call.
+TREND_SETTINGS: dict[str, dict[str, float]] = {"T2-F4": {"trend": 1.0, "trend_window": 300}}
+_TREND_DEFAULT = {"trend": 0.0, "trend_window": 300}
+
+
+def _trend_cfg(family: str | None) -> dict[str, float]:
+    return {**_TREND_DEFAULT, **TREND_SETTINGS.get(family or "", {})}
+#: Per-family FALLBACK width, used only when the text half gave the card nothing (every asset
+#: exactly neutral: the model call failed, timed out, ran out of budget, or no usable summaries).
+#: F4 cards are built around a shock the calm history does not show, so a text-less F4 card
+#: should not draw history's width. Measured 2026-09-29 on the 29 realized F4 cards, leaderboard
+#: metric vs the rebuilt M0 (docs/M0-BASELINE.md), 3 draw seeds, text silent: 1.004 with nothing,
+#: 0.956 with the trend below alone, 0.918 with trend + 1.25 (1.5 was measured earlier as too wide
+#: once the text answers). It never overrides an answer.
+_FAMILY_WIDEN_FLOOR = {"T2-F4": 1.25}
 
 
 def _text_was_silent(adjustments: dict[str, dict[str, float]], assets: list[str]) -> bool:
@@ -152,6 +174,7 @@ class _WalkFit:
     """
     centre: np.ndarray          # last observed value (0 for a log-return card) + the text shift
     scale: np.ndarray           # per-asset daily sd, times the text's widen
+    drift: np.ndarray           # per-asset trend per panel step (zeros unless TREND_SETTINGS says)
     chol: np.ndarray            # lower-triangular factor of the cross-asset correlation
     skew: np.ndarray            # per-asset tail tilt, all zeros while SKEW_ENABLED is False
     steps: np.ndarray           # (n_assets, n_horizons): each horizon in the asset's own panel steps
@@ -185,10 +208,17 @@ def _fit_walk(r: _Request) -> _WalkFit:
     t2-F2-fragile-five-brl-2013) and the log-return centring carries 11 F4 units.
     """
     cfg = WALK_SETTINGS.get(r.family, _PLAIN_WALK)
+    tcfg = _trend_cfg(r.family)
     hist = {a: _series(r.panels, a, r.asof) for a in r.assets}
     hl = cfg["halflife"]
     steps = _step_frame(hist, r.assets, r.returns_target,
-                        rows=max(cfg["window"], int(8 * hl) if hl else 0))
+                        rows=max(cfg["window"], int(8 * hl) if hl else 0,
+                                 int(tcfg["trend_window"]) if tcfg["trend"] else 0))
+    drift = (tcfg["trend"] * steps.iloc[-int(tcfg["trend_window"]):].to_numpy().mean(axis=0)
+             if tcfg["trend"] and not r.returns_target else np.zeros(len(r.assets)))
+    # a text view on the centre replaces the historical drift for that asset
+    drift = np.where(np.array([r.adjustments.get(a, {}).get("shift", 0.0) for a in r.assets]) == 0.0,
+                     drift, 0.0)
     # The last `window` steps always give the correlation between assets. They give the sd only when
     # the family has no halflife; with one (F1, F4) the sd is the EWMA of the last 8 x halflife steps
     # and `window` matters only on cards with more than one asset.
@@ -220,14 +250,15 @@ def _fit_walk(r: _Request) -> _WalkFit:
     def per_asset(key: str, default: float) -> np.ndarray:
         return np.array([r.adjustments.get(a, {}).get(key, default) for a in r.assets])
 
-    # The family's widen times the text's -- the same rule on every card, whether or not the text
-    # answered. (A silent-text F4 floor of 1.5 was removed on 2026-09-27: the family settings were
-    # tuned and validated without it, model_baseline notebooks 02-05.)
+    # The family's widen times the text's, on every card the text answered.
     widen = cfg["widen"] * per_asset("widen", 1.0)
+    if _text_was_silent(r.adjustments, r.assets):   # the text half failed: see _FAMILY_WIDEN_FLOOR
+        widen = np.maximum(widen, cfg["widen"] * _FAMILY_WIDEN_FLOOR.get(r.family or "", 1.0))
 
     return _WalkFit(
         centre=last + per_asset("shift", 0.0),
         scale=sd * widen,
+        drift=np.asarray(drift, dtype=float),
         chol=np.linalg.cholesky(corr),
         skew=per_asset("skew", 0.0) if SKEW_ENABLED else np.zeros(n),
         steps=np.array([_panel_steps(hist[a], r.horizons, r.asof) for a in r.assets]),
@@ -305,7 +336,7 @@ def _cumulative_walk_model(r: _Request) -> np.ndarray:
         # maximum(..., 0) guards a duplicated or unsorted horizon against a silent NaN under sqrt.
         path = path + fit.shock(rng, r.n_draws, rng_t) * fit.scale * np.sqrt(np.maximum(steps - prev, 0))
         prev = steps
-        out[:, :, hi] = fit.centre + path        # write to the ORIGINAL index
+        out[:, :, hi] = fit.centre + fit.drift * steps + path   # write to the ORIGINAL index
     return out
 
 

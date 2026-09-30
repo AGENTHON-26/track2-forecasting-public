@@ -159,6 +159,11 @@ class _Budget:
 _DRIFT_SD_CLAMP = 1.5
 _WIDEN_CLAMP = (0.60, 2.00)
 _SKEW_CLAMP = (-1.0, 1.0)
+#: Families whose replies keep `drift_sd` and `vol_scale` but drop `skew`. F4 (2026-09-29): on the
+#: 29 realized F4 cards, leaderboard metric vs rebuilt M0, recorded v5 answers, skew off scored
+#: 0.838 vs 0.842 with 19 cards better / 5 worse -- a second directional bet on top of drift that
+#: only adds noise. The model is still asked for it (one schema for every family); it is zeroed here.
+_SKEW_OFF_FAMILIES = {"F4"}
 
 #: F3 pays 0.3 on the joint variogram, and that term is monotone increasing in the width of the
 #: draws above 1.0: measured on the 20 F3 units, a global vol multiplier of 1.0 / 1.25 / 1.50 /
@@ -1196,6 +1201,13 @@ _FAMILY_FOCUS: dict[str, str] = {
     #   - RELEVANCE: the warning must reach THIS asset through a stated channel; long-short
     #     factor portfolios are hedged against broad macro warnings. This is what stops calm
     #     cards being widened because a warning appears somewhere in the corpus.
+    #   - DRIFT SIZE (v6, 2026-09-29): meanings for drift_sd the way width got them -- 1.0 for a
+    #     warning not yet in the price, 1.5 (the cap) with the mechanism in motion, 0 otherwise.
+    #     The model's |drift| median went 0.3 -> 1.0. On the leaderboard metric with the trend +
+    #     fallback + skew-off model: 0.826 -> 0.798 (better on both halves, 19 better / 7 worse,
+    #     and 0.802 -> 0.764 on the 18 cards no rule was written from), but NOT visible on the 22
+    #     leaderboard units (0.880 -> 0.884) and bootstrap P(no gain) 33% -- the least certain
+    #     part of the F4 prompt; a x1.5 multiplier in code measured about the same (0.804).
     #   - DIRECTION from market structure, not tone: crowded positions unwind against the crowd,
     #     a defended peg is under strain, financial stress sends safe-haven yields down and
     #     safe-haven currencies up, withdrawn stimulus sends yields up; otherwise drift 0.
@@ -1247,7 +1259,14 @@ _FAMILY_FOCUS: dict[str, str] = {
         "way the market was pushing; financial stress sends safe-haven government bond "
         "yields DOWN and safe-haven currencies (USD, JPY, CHF) UP; a signal that stimulus "
         "will be withdrawn sends yields UP. If no mechanism clearly applies, keep drift_sd "
-        "and skew at 0 and let vol_scale carry the answer."
+        "and skew at 0 and let vol_scale carry the answer.\nHOW FAR TO MOVE THE CENTRE "
+        "(drift_sd), in the forecast's own sigma: the shocks this family is built around "
+        "move prices by several sigma, and a drift of 0.3 barely changes the forecast. When "
+        "a direction mechanism above clearly applies: 1.0 for a warning that has not yet "
+        "moved the price, 1.5 (the most allowed) when the mechanism is already in motion "
+        "(stress under way, a peg visibly under strain, a crowded position starting to "
+        "unwind). Keep 0 when no mechanism applies. A small drift is not a safer middle "
+        "ground; it is a smaller version of the same bet."
     ),
     "default": (
         "Treat this like a general macro forecasting card: weigh the summaries for anything "
@@ -1675,6 +1694,8 @@ def to_adjustments(
         if vol_c != vol:
             note = (note + "; " if note else "") + f"vol_scale {vol:.2f} clamped"
         skew_c = min(max(skew, _SKEW_CLAMP[0]), _SKEW_CLAMP[1])
+        if ctx.get("family") in _SKEW_OFF_FAMILIES:
+            skew_c = 0.0
 
         sigma = float(ctx["sigma"].get(a, 0.0))
         if not math.isfinite(sigma) or sigma <= 0:
