@@ -429,12 +429,6 @@ it**. There is no card you are better off skipping.
 
 Your entry reports the number of cards scored alongside the total, so coverage is visible.
 
-> **In force from the scoring-bundle refresh.** The scorer deployed as this is written still
-> drops a failed card from the average instead of charging it 4.0. Until the refresh lands, a
-> failed card simply does not count on the Development board. The rule above is what the signed
-> evaluation plan commits to and what decides the Final ranking; if you see the older behaviour
-> on the practice board, that is why. This note is removed when the refresh ships.
-
 ## 14 — Quick glossary of terms used in scoring output
 
 | Term | Plain meaning |
