@@ -1,0 +1,99 @@
+# Agenthon 2026 -- Track 2 (Time-Series Forecasting) -- Development phase
+# Submission 02, scored 2026-09-30.  DIAGNOSTIC BUILD -- not a performance attempt.
+#
+# This image deliberately fails a unit when the LLM fails, so that an LLM failure is visible
+# on the leaderboard instead of degrading silently to a neutral text signal:
+#     stage 1 (no document summarized) -> exit 0, no output      -> no_output
+#     stage 2 (no usable adjustment)   -> write output, exit 1    -> container_crashed
+# Read `container_crashed` here as OUR marker for 'stage 2 failed', not as a code defect.
+#
+# primary_score: 1.0388   (roster average; the 2 not-scored units are charged 4.0)
+# mean_of_scored_units: 0.9529   (comparable with submission 01's 0.9528)
+# scored: 69/71   not_scored_your_side: 2   not_scored_organizer_side: 0
+#
+# FINDING: stage 1 never failed anywhere (no no_output). Stage 2 failed on 2 of 71 units
+#   (2.8%): t2-F3-dollar-squeeze-2020, t2-F4-aud-gfc-2008.
+#   The LLM is reachable and works end to end on the other units.
+#
+# CONFIRMED HERE: failed units are now charged 4.0, not dropped. (sum(scored) + 2*4.0)/71
+#   reproduces the reported 1.0388 exactly. docs/CONCEPTS.md section 13 still carries the
+#   older note saying the deployed scorer drops them; that note is now out of date.
+#
+# family means over SCORED units only: F1 0.9918 (n=18)  F2 0.9702 (n=15)  F3 0.8936 (n=15)  F4 0.9496 (n=21)
+#
+#   git commit : 863804d   (tag: submission-02-dev-diagnostic)
+#   branch     : diag/llm-reachability
+#
+# Load with:  pd.read_csv(path, comment='#')
+unit,family,outcome,score
+t2-F1-pause-2006,F1,scored,0.4365
+t2-F1-conflicting-texts-2024,F1,scored,0.5760
+t2-F1-greater-confidence-2024,F1,scored,0.6632
+t2-F1-chf-highly-valued-2021,F1,scored,0.6966
+t2-F1-jpy-ycc-flex-2018,F1,scored,0.7474
+t2-F1-liftoff-telegraph-2015,F1,scored,0.7494
+t2-F1-qe3-end-2014,F1,scored,0.7938
+t2-F1-cad-boc-2017,F1,scored,0.8676
+t2-F1-considerable-period-2003,F1,scored,0.9730
+t2-F1-eur-range-2017,F1,scored,1.0054
+t2-F1-normalization-2017,F1,scored,1.0602
+t2-F1-ust-positioning-2018,F1,scored,1.0610
+t2-F1-fed-put-2019,F1,scored,1.2033
+t2-F1-dkk-peg-2019,F1,scored,1.3214
+t2-F1-patient-dropped-2015,F1,scored,1.3769
+t2-F1-measured-pace-2004,F1,scored,1.4045
+t2-F1-aud-on-hold-2016,F1,scored,1.4331
+t2-F1-ai-mom-2024,F1,scored,1.4834
+t2-F2-powell-pivot-2019,F2,scored,0.4262
+t2-F2-trichet-alertness-2008,F2,scored,0.5391
+t2-F2-taper-begins-2013,F2,scored,0.5919
+t2-F2-cnh-tradewar-2018,F2,scored,0.6628
+t2-F2-credit-crunch-2007,F2,scored,0.7863
+t2-F2-draghi-precommit-2014,F2,scored,0.8217
+t2-F2-trade-war-escalation-2019,F2,scored,0.8272
+t2-F2-fragile-five-inr-2013,F2,scored,0.9449
+t2-F2-qe2-jackson-hole-2010,F2,scored,0.9679
+t2-F2-considerable-removal-2004,F2,scored,0.9889
+t2-F2-act-as-appropriate-2019,F2,scored,1.1615
+t2-F2-some-pain-2022,F2,scored,1.3169
+t2-F2-fragile-five-brl-2013,F2,scored,1.3833
+t2-F2-aud-taper-2013,F2,scored,1.5385
+t2-F2-opec-cad-2014,F2,scored,1.5958
+t2-F3-scandies-stress-2022,F3,scored,0.5747
+t2-F3-funding-flip-2024,F3,scored,0.5814
+t2-F3-rates-into-factors-2022,F3,scored,0.6614
+t2-F3-dots-vs-oil-2014,F3,scored,0.6917
+t2-F3-hiking-year-curve-2018,F3,scored,0.7145
+t2-F3-dollar-vortex-2022,F3,scored,0.7602
+t2-F3-inversion-persistence-2019,F3,scored,0.7746
+t2-F3-vaccine-rotation-2020,F3,scored,0.8089
+t2-F3-cpi-shock-cross-2022,F3,scored,0.8933
+t2-F3-taper-steepener-2013,F3,scored,1.0070
+t2-F3-fragile-five-joint-2013,F3,scored,1.0907
+t2-F3-conundrum-joint-2005,F3,scored,1.1063
+t2-F3-oil-fx-split-2022,F3,scored,1.1074
+t2-F3-bear-flattener-2022,F3,scored,1.1194
+t2-F3-divergence-2014,F3,scored,1.5128
+t2-F3-dollar-squeeze-2020,F3,container_crashed,
+t2-F4-factor-stress-2008,F4,scored,0.5320
+t2-F4-mkt-selloff-2011,F4,scored,0.5540
+t2-F4-jpy-carry-2007,F4,scored,0.5627
+t2-F4-momentum-reversal-2009,F4,scored,0.5854
+t2-F4-powell-december-2018,F4,scored,0.6406
+t2-F4-china-stress-mkt-2015,F4,scored,0.6602
+t2-F4-china-panic-2016,F4,scored,0.7829
+t2-F4-quant-crowding-2007,F4,scored,0.8198
+t2-F4-ust-downgrade-watch-2011,F4,scored,0.8771
+t2-F4-nok-covid-2020,F4,scored,0.9157
+t2-F4-hike-cycle-2021Q4b,F4,scored,0.9559
+t2-F4-hml-covid-2020,F4,scored,1.0064
+t2-F4-vaccine-timeline-2020,F4,scored,1.0449
+t2-F4-funding-stress-10y-2008,F4,scored,1.0922
+t2-F4-cpi-friday-2022,F4,scored,1.0943
+t2-F4-taper-warning-2013,F4,scored,1.1429
+t2-F4-eur-warnings-2022,F4,scored,1.1710
+t2-F4-gbp-conference-2016,F4,scored,1.2896
+t2-F4-funding-stress-2y-2008,F4,scored,1.3315
+t2-F4-qe1-expansion-2009,F4,scored,1.3456
+t2-F4-ust10y-supply-2023,F4,scored,1.5368
+t2-F4-aud-gfc-2008,F4,container_crashed,
