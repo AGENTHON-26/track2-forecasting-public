@@ -107,6 +107,25 @@ def main(argv: list[str] | None = None) -> int:
 
     panels = _read_panels(a.panels)
     adjustments = read_text_signal(a.text, assets)          # NISH
+
+    # ---- DIAGNOSTIC BUILD ONLY (branch diag/llm-reachability). DO NOT MERGE TO dev. ----------
+    # Make an LLM failure visible on the leaderboard instead of silently degrading to neutral.
+    # Rationale, the two codes and why they cannot be confused: the block above `diag_stage()`
+    # in text_signal.py. Stage 1 exits HERE, before any file is written, so the unit reports
+    # `no_output`; stage 2 falls through, writes its output, and exits non-zero at the end of
+    # this function so the unit reports `container_crashed`.
+    _diag = None
+    try:
+        from text_signal import diag_stage as _diag_stage
+        _diag = _diag_stage()
+    except Exception:                       # a build without the flag behaves normally
+        pass
+    if _diag == "stage1":
+        print("[diag] stage 1 produced no usable summary; writing NO output so this unit "
+              "reports no_output", file=sys.stderr)
+        return 0                            # exit 0 with no file -> `no_output` (scoring phase)
+    # -----------------------------------------------------------------------------------------
+
     samples = build_draws(panels, assets, horizons, a.asof, adjustments, n_draws, a.seed,  # DEW
                           target_type=tgt.get("target_type"),
                           family=card.get("metadata", {}).get("category"))
@@ -163,6 +182,17 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(f"wrote forecast.parquet + sidecars to {out_dir} "
           f"({len(assets)} assets x {len(horizons)} horizons, {n_draws} draws)")
+
+    # ---- DIAGNOSTIC BUILD ONLY (branch diag/llm-reachability). DO NOT MERGE TO dev. ----------
+    # Stage 2 exits non-zero AFTER the three files are on disk. Writing first is deliberate and
+    # costs nothing: with an output file present, `no_output` is impossible for this unit, so
+    # even a harness that classified on "file missing" rather than on the exit code cannot
+    # report the same code as the stage-1 path. The two signals are disjoint by construction.
+    if _diag == "stage2":
+        print("[diag] stage 2 returned no usable adjustment after every retry; exiting non-zero "
+              "so this unit reports container_crashed", file=sys.stderr)
+        return 1                            # non-zero exit -> `container_crashed` (execution phase)
+    # -----------------------------------------------------------------------------------------
     return 0
 
 

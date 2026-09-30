@@ -288,6 +288,41 @@ def _stage2_reasoning_budget(family: str | None) -> int | None:
     return _STAGE2_REASONING_BUDGET_BY_FAMILY.get(str(family))
 
 
+# ============================================================================================
+#  DIAGNOSTIC BUILD ONLY -- branch diag/llm-reachability. DO NOT MERGE TO dev.
+#
+#  Submission 01 gave strong but indirect evidence that the House model really is reachable from
+#  inside the scoring container: 22 units reproduced a deterministic text-off local run to four
+#  decimals, and the rest did not. This build turns that inference into a direct observation by
+#  making an LLM failure VISIBLE on the leaderboard instead of silently degrading to neutral.
+#
+#  Normal behaviour: any failure returns exact neutral, the unit still scores ~1.0, and nothing
+#  distinguishes "the model answered" from "the model was unreachable". That is right for a real
+#  submission and useless for this question.
+#
+#  Here, each stage gets its own failure code from contract set 1.1.0, chosen so the two cannot
+#  be confused -- they resolve in different phases, and execution is evaluated before scoring:
+#
+#    stage 1 (no document summarized)  -> exit 0 writing NO output  -> `no_output`        (scoring)
+#    stage 2 (no usable adjustment)    -> write output, then exit 1 -> `container_crashed` (execution)
+#
+#  Stage 2 deliberately writes its output file BEFORE exiting non-zero. That costs nothing and
+#  makes the two codes provably disjoint: with a file present, `no_output` is impossible, so a
+#  harness that keyed on "file missing" rather than on the exit code still cannot conflate them.
+#
+#  Read the result as: units reported `no_output` had stage 1 fail, units reported
+#  `container_crashed` had stage 2 fail, and units that scored normally had a working LLM.
+#
+#  A flag, not an exception, because `read_text_signal` ends in a bare `except Exception` that
+#  returns neutral -- raising from inside it would be swallowed and the signal lost.
+_DIAG_STAGE: str | None = None
+
+
+def diag_stage() -> str | None:
+    """Which LLM stage failed on this unit: "stage1", "stage2", or None. Diagnostic build only."""
+    return _DIAG_STAGE
+
+
 def _stage2_sample(system: str, user: str, family: str | None,
                    budget: "_Budget | None") -> tuple[dict[str, Any] | None, str]:
     """One stage-2 sample: (parsed reply, error). A thinking-on reply that does not parse --
@@ -319,6 +354,8 @@ def read_text_signal(
     """Stage 1 (summarize) + stage 2 (adjust). Never raises -- see the module docstring."""
     text_dir = pathlib.Path(text_dir)
     neutral = {a: dict(NEUTRAL) for a in assets}
+    global _DIAG_STAGE
+    _DIAG_STAGE = None                      # diagnostic build: one verdict per unit, never carried over
     try:
         budget = _Budget()
         raw_docs = summarize_corpus(text_dir, budget)
@@ -329,6 +366,7 @@ def read_text_signal(
         summaries = [s for s in raw_docs if s.get("summary")]
         if not summaries:
             print("[text_signal] no usable summaries; neutral", file=sys.stderr)
+            _DIAG_STAGE = "stage1"          # diagnostic build -> no_output
             return neutral
 
         ctx = load_context(text_dir, assets)
@@ -349,6 +387,7 @@ def read_text_signal(
         if not replies:
             print(f"[text_signal] adjustment call failed: {'; '.join(sample_errs) or 'no reply'}; "
                   f"neutral", file=sys.stderr)
+            _DIAG_STAGE = "stage2"          # diagnostic build -> container_crashed
             return neutral
         if len(replies) < _STAGE2_SAMPLES:
             print(f"[text_signal] median-of-3 got {len(replies)}/{_STAGE2_SAMPLES} usable "
