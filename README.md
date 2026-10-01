@@ -368,6 +368,30 @@ for what reviewers do and do not treat as a signal.
 
 `units/t2-EXAMPLE-ust-curve-1m/run_example.sh` writes a worked example of all three files.
 
+### Output folder rules
+
+Everything your agent leaves in `/output` is checked, not only the three files above. After your
+process exits, the organizers' output checker reads the whole tree and refuses it if it has any
+of these:
+
+- more than 256 files, more than 4,096 files and folders together, or a folder nested 8 or more
+  levels deep, even an empty one (a file can sit at most seven folders down, as in
+  `/output/a/b/c/d/e/f/g/file.txt`);
+- a symbolic link (even one pointing inside the folder), a hard link, or a special file such as a
+  named pipe or socket;
+- a file with a setuid, setgid or sticky bit;
+- a file larger than 64 MiB, more than 64 MiB in total, or a file more than 64 times larger than
+  the disk space it occupies (a heavily sparse file);
+- two file paths that differ only in letter case or Unicode form (`Notes.txt` and `notes.txt`), a
+  name that is not valid UTF-8 or not in Unicode NFC form, a name with a backslash or a control
+  character, or a name directly in `/output` that starts with a letter and a colon (such as
+  `C:data`);
+- no files at all (empty folders do not count).
+
+In Development, a refused tree scores the unit `no_output` when your process exited 0. A non-zero
+exit is scored `container_crashed`, or `resource_timeout` / `resource_oom` if the run was stopped
+for time or memory, whatever the tree holds. The 64 MiB limits are the same in the Final.
+
 ---
 
 ## How the scoring works
