@@ -34,6 +34,12 @@ from forecast_models import build_draws  # re-exported: this is the documented c
 
 DEFAULT_DRAWS = 500
 
+#: OFF on the leaderboard branches feat/model_v3_m1_5, _m1_9 and _m2_0 (Dew, 2026-10-04): these images
+#: submit the time-series model alone, so the score measures the model. Every asset gets the neutral
+#: adjustment and no House model call is made, so pack the descriptor with
+#: `tools/make_descriptor.py --no-model` (models: []). Set True to put the text half back.
+TEXT_SIGNAL = False
+
 
 
 # ============================================================================
@@ -106,7 +112,8 @@ def main(argv: list[str] | None = None) -> int:
     n_draws = max(a.n_draws or DEFAULT_DRAWS, DEFAULT_DRAWS, floor)
 
     panels = _read_panels(a.panels)
-    adjustments = read_text_signal(a.text, assets)          # NISH
+    adjustments = (read_text_signal(a.text, assets) if TEXT_SIGNAL               # NISH
+                   else {x: {"shift": 0.0, "widen": 1.0, "skew": 0.0} for x in assets})
     samples = build_draws(panels, assets, horizons, a.asof, adjustments, n_draws, a.seed,  # DEW
                           target_type=tgt.get("target_type"),
                           family=card.get("metadata", {}).get("category"))
