@@ -17,7 +17,9 @@ volatility estimates and 2,000 draws (M2.0, 0.9155). Ideas that did not help are
 
 **Leaderboard branches:** `feat/model_v3_m1_5` (production M1.5, notebook 11), `feat/model_v3_m1_9` (production M1.9,
 notebook 16) and `feat/model_v3_m2_0` (production M2.0, notebook 17). Each differs from the one before only in
-`forecast_models.py`, its tests, and (for M2.0) the default of 2,000 draws in `forecast_agent.py`.
+`forecast_models.py`, its tests, and (for M2.0) the default of 2,000 draws in `forecast_agent.py`. All three run with the
+**text off** (`forecast_agent.TEXT_SIGNAL = False`): the score measures the model alone and no House model is called, so
+pack them with `tools/make_descriptor.py --no-model`.
 
 **The baseline to beat** was the production model when this folder started: the cumulative random walk + Cholesky +
 EWMA, with the per-family settings in `forecast_models.WALK_SETTINGS`:
