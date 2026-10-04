@@ -1,4 +1,4 @@
-"""build_draws() -- M1.9, the production model (forecast_models.py) -- and its skew tilt. Owner: Dew's section,
+"""build_draws() -- M2.0, the production model (forecast_models.py) -- and its skew tilt. Owner: Dew's section,
 addition: Pun.
 
 Plain unittest, no pytest, no network -- consistent with tests/test_text_signal.py.
@@ -39,10 +39,10 @@ def _panel(asset: str, n: int = 300, start: float = 100.0, seed: int = 0):
 
 NEUTRAL = {"shift": 0.0, "widen": 1.0, "skew": 0.0}
 
-#: M1.9's pieces switched off, which is M1.5 exactly. The tests of the core walk (text adjustments,
+#: M2.0's pieces switched off, which is M1.5 exactly. The tests of the core walk (text adjustments,
 #: joint structure, gaps, monthly steps, asset rules, Student-t) pin those mechanics on their own;
 #: `TestM19Pieces` tests each piece.
-M15_CORE = dict(RECENT_TREND=False, ZERO_FLOOR=False, VR_SHRINK=None, TREND_SHARE=0.0)
+M15_CORE = dict(RECENT_TREND=False, ZERO_FLOOR=False, VR_SHRINK=None, TREND_SHARE=0.0, VOL_POOL=None)
 
 
 class CoreTest(unittest.TestCase):
@@ -575,7 +575,7 @@ class TestM15Settings(CoreTest):
 
 
 class TestM19Pieces(unittest.TestCase):
-    """M1.9's pieces on top of M1.5, each on its own (model_experiment_v3 notebooks 12-14)."""
+    """M2.0's pieces on top of M1.5, each on its own (model_experiment_v3 notebooks 12-15)."""
 
     def test_recent_trend_is_shrunk_by_its_t_statistic(self):
         rates, cpi = fm.ASSET_TYPES["rates"], fm.ASSET_TYPES["cpi"]
@@ -635,8 +635,9 @@ class TestM19Pieces(unittest.TestCase):
         z x sqrt(h sd^2 + jitter) x sqrt(VR) x sqrt((nu - 2) / W); floored at 0."""
         table, asof, values = _typed_panel("UST_10Y", "rates_daily", df=5, seed=8, start=100.0, trend=0.4)
         n, h, seed = 1000, 63, 4
-        out = fa.build_draws({"p": table}, ["UST_10Y"], [h], asof, {"UST_10Y": dict(NEUTRAL)}, n, seed,
-                             target_type="level")[:, 0, 0]
+        with mock.patch.object(fm, "VOL_POOL", None):                            # M1.9: no ensemble
+            out = fa.build_draws({"p": table}, ["UST_10Y"], [h], asof, {"UST_10Y": dict(NEUTRAL)}, n, seed,
+                                 target_type="level")[:, 0, 0]
         steps = np.diff(values)
         win, last126 = steps[-fm.WINDOW:], steps[-126:]
         nu = fm._fit_nu(win[None, :])
@@ -654,6 +655,23 @@ class TestM19Pieces(unittest.TestCase):
         shock = z * np.sqrt(h * sd ** 2 + 1e-10 + 1e-9) * np.sqrt(vr) * np.sqrt((nu - 2) / w)
         centre = np.where(np.arange(n) < n - 250, values[-1] + h * drift, values[-1] + h * win.mean())
         np.testing.assert_allclose(out, np.maximum(centre + shock, 0.0), rtol=0, atol=1e-9)
+
+    def test_vol_ensemble_by_hand(self):
+        """M2.0 = M1.9 with draw i's shock scaled by sd(halflife VOL_POOL[i mod 3]) / sd(halflife 63)."""
+        table, asof, values = _typed_panel("UST_10Y", "rates_daily", df=5, seed=8, start=100.0, trend=0.4)
+        n, h, seed = 999, 63, 4
+        args = ({"p": table}, ["UST_10Y"], [h], asof, {"UST_10Y": dict(NEUTRAL)}, n, seed)
+        pooled = fa.build_draws(*args, target_type="level")[:, 0, 0]
+        with mock.patch.object(fm, "VOL_POOL", None):
+            single = fa.build_draws(*args, target_type="level")[:, 0, 0]
+        steps = np.diff(values)
+        sd63 = fm._ewma_sd(steps[-int(8 * 63):], 63)
+        ratio = np.array([fm._ewma_sd(steps[-int(8 * hl):], hl) / sd63 for hl in (21, 63, 252)])
+        f = fm._fit_model(fm._Request({"p": table}, ["UST_10Y"], [h], asof, {}, n, seed, "level", None))
+        centre = np.where(np.arange(n) < n - int(round(0.25 * n)), values[-1] + h * f.drift["UST_10Y"],
+                          values[-1] + h * f.mu[0])
+        np.testing.assert_allclose(pooled - centre, (single - centre) * ratio[np.arange(n) % 3], rtol=1e-9, atol=1e-9)
+        self.assertEqual(ratio[1], 1.0)
 
 
 if __name__ == "__main__":
