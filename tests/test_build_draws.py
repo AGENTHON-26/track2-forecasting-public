@@ -1,4 +1,5 @@
-"""build_draws()'s skew tilt (forecast_agent.py). Owner: Dew's section, addition: Pun.
+"""build_draws() -- M1.5, the production model (forecast_models.py) -- and its skew tilt. Owner: Dew's section,
+addition: Pun.
 
 Plain unittest, no pytest, no network -- consistent with tests/test_text_signal.py.
 
@@ -151,27 +152,25 @@ class TestBuildDrawsWithSkew(unittest.TestCase):
         self.assertEqual(out.shape, (1000, 1, 1))
 
 
-class TestWiden(unittest.TestCase):
-    """widen = family widen x text widen, on every card, whether or not the text answered.
-    (The silent-text F4 floor of 1.5 was removed on 2026-09-27.)"""
+class TestTextAdjustments(unittest.TestCase):
+    """widen multiplies the sd and shift moves every horizon in the asset's own units, on every card.
+    (M1.5's own widen is 1.0; the silent-text F4 floor of 1.5 was removed on 2026-09-27.)"""
 
-    def _scale(self, adj, family):
-        table, asof, _ = _panel("A")
-        return fm._fit_walk(fm._Request({"p": table}, ["A"], [21], asof, {"A": adj}, 10, 0,
-                                        "level", family)).scale
+    def test_widen_scales_every_deviation_from_the_centre(self):
+        table, asof, last = _panel("A")
+        args = ({"p": table}, ["A"], [21, 63], asof)
+        base = fa.build_draws(*args, {"A": dict(NEUTRAL)}, 2000, 0)
+        wide = fa.build_draws(*args, {"A": {"shift": 0.0, "widen": 1.5, "skew": 0.0}}, 2000, 0)
+        np.testing.assert_allclose(wide - last, 1.5 * (base - last), rtol=1e-12, atol=1e-12)
 
-    def test_silent_text_uses_the_family_widen_alone(self):
-        for fam in ("T2-F1", "T2-F2", "T2-F3", "T2-F4"):
-            silent = self._scale(dict(NEUTRAL), fam)
-            answered = self._scale({"shift": 0.0, "widen": 1.5, "skew": 0.0}, fam)
-            np.testing.assert_allclose(answered / silent, 1.5, rtol=1e-12, err_msg=fam)
-
-    def test_the_text_widen_multiplies_the_family_widen(self):
-        table, asof, _ = _panel("A")
-        steps = np.diff(np.array([r["value"] for r in table.to_pylist()]))
-        cfg = fm.WALK_SETTINGS["T2-F2"]
-        got = self._scale({"shift": 0.0, "widen": 2.0, "skew": 0.0}, "T2-F2")
-        np.testing.assert_allclose(got, steps[-cfg["window"]:].std() * cfg["widen"] * 2.0, rtol=1e-12)
+    def test_shift_is_added_in_native_units_also_on_log_stepped_fx(self):
+        for panel_id in ("p", "g10_fx_daily"):              # M0's change, and FX's log change
+            table, asof, _ = _panel("A")
+            table = table.append_column("panel_id", pa.array([panel_id] * table.num_rows))
+            args = ({"p": table}, ["A"], [21, 63], asof)
+            base = fa.build_draws(*args, {"A": dict(NEUTRAL)}, 2000, 0)
+            moved = fa.build_draws(*args, {"A": {"shift": 0.25, "widen": 1.0, "skew": 0.0}}, 2000, 0)
+            np.testing.assert_allclose(moved - base, 0.25, rtol=0, atol=1e-9, err_msg=panel_id)
 
 
 def _bdays(n: int, start: str = "2018-01-01") -> list[str]:
@@ -186,7 +185,8 @@ def _bdays(n: int, start: str = "2018-01-01") -> list[str]:
 
 
 def _panel_truth(table, assets, window=260):
-    """The sd and correlation build_draws will estimate from this panel's last `window` steps.
+    """The sd and correlation build_draws will estimate from this panel: each asset's EWMA sd
+    (halflife 63, over its last 8 x 63 steps) and the correlation of the last `window` steps.
 
     Tests assert against THIS, not against the generator's theoretical parameters: a 260-sample
     sd carries ~4% estimation error, so comparing to the theoretical 1.0 tests the fixture's luck
@@ -196,8 +196,9 @@ def _panel_truth(table, assets, window=260):
     d = table.to_pydict()
     frame = _pd.DataFrame({"date": d["date"], "asset": d["asset"], "value": d["value"]})
     wide = frame.pivot(index="date", columns="asset", values="value").sort_index()
-    steps = wide[list(assets)].diff().dropna().iloc[-window:]
-    return steps.to_numpy().std(axis=0), steps.corr().to_numpy()
+    steps = wide[list(assets)].diff().dropna()
+    sd = np.array([fm._ewma_sd(steps[a].to_numpy()[-int(8 * fm.EWMA_HALFLIFE):], fm.EWMA_HALFLIFE) for a in assets])
+    return sd, steps.iloc[-window:].corr().to_numpy()
 
 
 def _multi_panel(assets, n=400, seed=0, corr=0.0, start=100.0):
@@ -364,7 +365,7 @@ class TestAlignmentAndGaps(unittest.TestCase):
 
 
 class TestMonthlyHorizonSteps(unittest.TestCase):
-    """On a monthly panel one step is a month, but cards state horizons in business days. The walk
+    """On a monthly panel one step is a month, but cards state horizons in business days. The model
     must count months from the asset's last observation to asof + h business days (the official
     baseline's rule, docs/M0-BASELINE.md section 3.7) -- not walk h months."""
 
@@ -379,33 +380,54 @@ class TestMonthlyHorizonSteps(unittest.TestCase):
         # last observation 2019-12-01; the as-of lags it by two months, like published macro data
         req = fm._Request({"m": table}, ["X"], [21, 63], "2020-01-31", {"X": dict(NEUTRAL)}, 4000, 0,
                           "level", None)
-        fit = fm._fit_walk(req)
+        fit = fm._fit_m15(req)
         # 2020-01-31 + 21 BD = 2020-03-02 -> March, 3 months after Dec; + 63 BD = 2020-04-29 -> 4 months
-        np.testing.assert_array_equal(fit.steps, [[3.0, 4.0]])
-        out = fm._cumulative_walk_model(req)
+        self.assertEqual(fit.steps["X"], {21: 3.0, 63: 4.0})
+        out = fm._m15_model(req)
+        sd = np.sqrt(fit.sigma[0, 0])
         for hi, k in enumerate((3, 4)):
-            self.assertAlmostEqual(out[:, 0, hi].std() / (fit.scale[0] * np.sqrt(k)), 1.0, delta=0.05)
+            self.assertAlmostEqual(out[:, 0, hi].std() / (sd * np.sqrt(k)), 1.0, delta=0.05)
+
+    def test_m0s_four_monthly_cards_are_reproduced(self):
+        """The doc's table (m0_baseline._MONTHLY_STEPS) follows from the dates on all four cards."""
+        units = pathlib.Path(__file__).resolve().parent.parent / "units"
+        table = {"t2-F1-cpi-glidepath-2023": {140: 8, 160: 9}, "t2-F1-sahm-watch-2024": {145: 8, 165: 9},
+                 "t2-F4-covid-nfp-2020": {21: 2}, "t2-F4-cpi-vintage-2022": {21: 2}}
+        import tomllib
+        for unit, want in table.items():
+            if not (units / unit).is_dir():
+                self.skipTest("units/ not checked out")
+            card = tomllib.loads((units / unit / "card.toml").read_text())
+            asof, asset = card["provenance"]["data_cutoff"], card["targets"]["asset_ids"][0]
+            _, rows = fm._history(fa._read_panels(units / unit), asset, asof)
+            got = fm._horizon_steps([d for d, _ in rows], list(want), asof)
+            self.assertEqual(got, [float(v) for v in want.values()], unit)
+
+    def test_no_new_release_keeps_the_last_value(self):
+        table = self._monthly()            # last observation 2019-12-01
+        out = fa.build_draws({"m": table}, ["X"], [1], "2019-12-02", {"X": dict(NEUTRAL)}, 100, 0)
+        self.assertTrue(np.all(out[:, 0, 0] == table.column("value").to_pylist()[-1]))
 
     def test_daily_horizon_is_unchanged(self):
         table, asof = _multi_panel(["A"], n=400, seed=2)
         req = fm._Request({"p": table}, ["A"], [21, 63], asof, {"A": dict(NEUTRAL)}, 10, 0, "level", None)
-        np.testing.assert_array_equal(fm._fit_walk(req).steps, [[21.0, 63.0]])
+        self.assertEqual(fm._fit_m15(req).steps["A"], {21: 21.0, 63: 63.0})
 
 
 class TestLogReturnTarget(unittest.TestCase):
     def test_log_return_centres_on_zero_not_the_last_return(self):
         """A cumulative log-return target starts at 0, with no drift extrapolation.
 
-        The panel holds decimal simple returns, so the old behaviour -- anchor at the last row and
-        difference the rows -- was wrong twice over. Zero drift rather than `steps.mean()*h` is a
-        measured choice: 11/15 log_return units improve, mean ratio 0.8818.
+        Each row is the step (M0's rule, docs/M0-BASELINE.md 3.2): the cumulative target is the sum
+        of the next h rows. No drift: equity factors are centred on 0 (notebook 07: 0.978 vs M0).
         """
         rng = np.random.default_rng(10)
         n = 400
         dates = _bdays(n)
         rets = rng.normal(0.002, 0.01, n)          # a clear positive mean, to catch drift
         rets[-1] = 0.05                            # a large final return: the old anchor
-        table = pa.table({"date": dates, "asset": ["A"] * n, "value": rets.tolist()})
+        table = pa.table({"date": dates, "asset": ["A"] * n, "value": rets.tolist(),
+                          "panel_id": ["factors_daily"] * n})
         out = fa.build_draws({"p": table}, ["A"], [21], dates[-1], {"A": dict(NEUTRAL)},
                              20000, 0, target_type="log_return", family="T2-F4")
         centre = out[:, 0, 0].mean()
@@ -413,63 +435,99 @@ class TestLogReturnTarget(unittest.TestCase):
                                msg=f"log_return centre should be ~0, got {centre:.4f}")
 
 
-class TestOneModel(unittest.TestCase):
-    """Every card takes the cumulative walk -- no switch, no M2 (2026-09-27). The family only picks
-    the walk's settings, so the text's shift / widen / skew mean the same thing on every card."""
+def _typed_panel(asset: str, panel_id: str, n: int = 600, seed: int = 0, start: float = 100.0,
+                 trend: float = 0.0, df: float | None = None):
+    """A daily panel tagged with a real panel id; Student-t steps when `df` is given."""
+    rng = np.random.default_rng(seed)
+    steps = rng.standard_t(df, n) if df else rng.normal(0, 1.0, n)
+    values = start + trend * np.arange(n) + np.cumsum(steps)
+    dates = _bdays(n)
+    return pa.table({"date": dates, "asset": [asset] * n, "value": values.tolist(),
+                     "panel_id": [panel_id] * n}), dates[-1], values
 
-    def test_every_card_takes_the_cumulative_walk(self):
+
+class TestAssetRules(unittest.TestCase):
+    """The asset type comes from the unit folder: the panel that holds the asset (its `panel_id`,
+    which is also its file name and the card's [panels] id); macro assets by id."""
+
+    def test_every_panel_the_organisers_ship(self):
+        cases = {("UST_20Y", "rates_daily", "level"): ("diff", "student_t", False),
+                 ("NZD", "g10_fx_daily", "level"): ("log_diff", "student_t", False),
+                 ("INR", "em_transfer_early", "level"): ("log_diff", "student_t", False),
+                 ("BAB", "factors_daily", "log_return"): ("as_return", "student_t", False),
+                 ("CPI_ALL", "macro_monthly", "level"): ("log_diff", "normal", True),
+                 ("PCE_CORE", "macro_monthly", "level"): ("log_diff", "normal", True),
+                 ("NFP", "macro_monthly", "level"): ("diff", "normal", True),
+                 ("UNRATE", "macro_monthly", "level"): ("diff", "normal", False),
+                 ("UST_10Y", "rates_daily", "log_return"): ("as_return", "student_t", False),
+                 ("XYZ", "some_new_panel", "level"): ("diff", "normal", False)}
+        for (asset, panel, target), want in cases.items():
+            r = fm.asset_rule(asset, panel, target)
+            self.assertEqual((r["transform"], r["shock"], r["drift"]), want, f"{asset} in {panel}")
+
+    def test_the_tables_panel_id_wins_over_the_file_name(self):
+        table, asof, _ = _typed_panel("A", "g10_fx_daily")
+        self.assertEqual(fm._history({"whatever": table}, "A", asof)[0], "g10_fx_daily")
+        plain = table.drop_columns(["panel_id"])
+        self.assertEqual(fm._history({"rates_daily": plain}, "A", asof)[0], "rates_daily")
+
+    def test_drift_reaches_the_centre_only_where_the_rule_says(self):
+        table, asof, values = _typed_panel("NFP", "macro_monthly", trend=0.5, seed=4)
+        steps = np.diff(values)[-fm.WINDOW:]
+        out = fa.build_draws({"p": table}, ["NFP"], [21], asof, {"NFP": dict(NEUTRAL)}, 20000, 0)
+        self.assertAlmostEqual(out[:, 0, 0].mean(), values[-1] + 21 * steps.mean(), delta=0.15)
+        table, asof, values = _typed_panel("UNRATE", "macro_monthly", trend=0.5, seed=4)
+        out = fa.build_draws({"p": table}, ["UNRATE"], [21], asof, {"UNRATE": dict(NEUTRAL)}, 20000, 0)
+        self.assertAlmostEqual(out[:, 0, 0].mean(), values[-1], delta=0.15)
+
+    def test_fx_is_stepped_in_logs(self):
+        """A log-stepped asset stays positive and its median is the last value."""
+        table, asof, values = _typed_panel("EUR", "g10_fx_daily", start=60.0, seed=6)
+        out = fa.build_draws({"p": table}, ["EUR"], [252], asof, {"EUR": dict(NEUTRAL)}, 20000, 0)[:, 0, 0]
+        self.assertTrue(np.all(out > 0))
+        self.assertAlmostEqual(np.median(out) / values[-1], 1.0, delta=0.01)
+
+
+class TestOneModel(unittest.TestCase):
+    """Every card takes M1.5 -- no switch, no per-family settings (2026-10-04), so the text's
+    shift / widen / skew mean the same thing on every card."""
+
+    def test_every_card_takes_m15(self):
         daily, asof = _multi_panel(["A", "B"], n=400, seed=5, corr=0.3)
         n = 120
         monthly = pa.table({"date": [f"{2010 + i // 12}-{1 + i % 12:02d}-01" for i in range(n)],
                             "asset": ["X"] * n, "value": (100 + np.arange(n) * 0.1).tolist()})
         cases = [({"p": daily}, ["A", "B"], [21, 63], asof, "level", "T2-F3"),
                  ({"p": daily}, ["A"], [21], asof, "level", "T2-F2"),
-                 ({"p": daily}, ["A", "B"], [127], asof, "log_return", "T2-F1"),
                  ({"p": daily}, ["B"], [21], asof, "level", "T2-F4"),
-                 ({"m": monthly}, ["X"], [140, 160], "2020-01-31", "level", "T2-F1"),  # monthly: was M2
+                 ({"m": monthly}, ["X"], [140, 160], "2020-01-31", "level", "T2-F1"),
                  ({"p": daily}, ["A"], [21, 63], asof, None, None)]
         for panels, assets, horizons, when, target, family in cases:
             adj = {a: dict(NEUTRAL) for a in assets}
             got = fa.build_draws(panels, assets, horizons, when, adj, 500, 3,
                                  target_type=target, family=family)
-            want = fm._cumulative_walk_model(fm._Request(panels, assets, horizons, when, adj, 500, 3,
-                                                         target, family))
+            want = fm._m15_model(fm._Request(panels, assets, horizons, when, adj, 500, 3, target, None))
             np.testing.assert_array_equal(got, want, err_msg=f"{family} {assets} {horizons}")
 
-    def test_single_horizon_is_one_leg(self):
-        """By hand: value = last + z * sqrt((nu-2)/W) * sd * widen * sqrt(h), the walk explained
-        in the chat on t2-F2-higher-for-longer-2023 -- one asset, one horizon, F2 settings."""
-        table, asof = _multi_panel(["A"], n=400, seed=8)
-        cfg, n, h, seed = fm.WALK_SETTINGS["T2-F2"], 1000, 63, 4
-        out = fa.build_draws({"p": table}, ["A"], [h], asof, {"A": dict(NEUTRAL)}, n, seed,
-                             target_type="level", family="T2-F2")[:, 0, 0]
-        values = np.array([r["value"] for r in table.to_pylist()])
-        steps = np.diff(values)[-cfg["window"]:]
-        rng, rng_t = np.random.default_rng(seed), np.random.default_rng([seed, 7])
-        z = rng.standard_normal((n, 1))[:, 0]
-        rng.standard_normal((n, 1))                                  # the skew draw (skew = 0)
-        t = np.sqrt((cfg["nu"] - 2) / rng_t.chisquare(cfg["nu"], size=(n, 1)))[:, 0]
-        by_hand = values[-1] + z * t * steps.std() * cfg["widen"] * np.sqrt(h)
-        np.testing.assert_allclose(out, by_hand, rtol=0, atol=1e-12)
+    def test_single_horizon_by_hand(self):
+        """By hand: value = last + z * sqrt(h * sd^2 + jitter) * sqrt((nu - 2) / W) -- one rates asset,
+        one horizon, Student-t steps so that nu is fitted. No drift on rates."""
+        table, asof, values = _typed_panel("UST_10Y", "rates_daily", df=5, seed=8)
+        n, h, seed = 1000, 63, 4
+        out = fa.build_draws({"p": table}, ["UST_10Y"], [h], asof, {"UST_10Y": dict(NEUTRAL)}, n, seed,
+                             target_type="level")[:, 0, 0]
+        steps = np.diff(values)
+        nu = fm._fit_nu(steps[-fm.WINDOW:][None, :])
+        self.assertIsNotNone(nu)
+        sd = fm._ewma_sd(steps[-int(8 * fm.EWMA_HALFLIFE):], fm.EWMA_HALFLIFE)
+        z = np.random.default_rng(seed).standard_normal((n, 1))[:, 0]
+        w = np.random.default_rng([seed, 7]).chisquare(nu, size=(n, 1))[:, 0]
+        by_hand = values[-1] + z * np.sqrt(h * sd ** 2 + 1e-10 + 1e-9) * np.sqrt((nu - 2) / w)
+        np.testing.assert_allclose(out, by_hand, rtol=0, atol=1e-10)
 
 
-class TestWalkSettings(unittest.TestCase):
-    """The per-family settings of the main model (WALK_SETTINGS), and the Student-t shocks."""
-
-    def test_family_settings_reach_the_fit(self):
-        """window, widen and nu come from the family; F4 uses the EWMA sd."""
-        table, asof = _multi_panel(["A", "B"], n=900, seed=21, corr=0.3)
-        steps = np.diff(np.array([[r["value"] for r in table.to_pylist() if r["asset"] == a] for a in ("A", "B")]), axis=1)
-        for fam in ("T2-F1", "T2-F2", "T2-F3", "T2-F4"):
-            cfg = fm.WALK_SETTINGS[fam]
-            fit = fm._fit_walk(fm._Request({"p": table}, ["A", "B"], [21], asof,
-                                           {a: dict(NEUTRAL) for a in "AB"}, 10, 0, "level", fam))
-            self.assertEqual(fit.nu, cfg["nu"], fam)
-            if cfg["halflife"] is None:
-                want = steps[:, -cfg["window"]:].std(axis=1) * cfg["widen"]
-            else:
-                want = fm._ewma_sd(steps.T[-int(8 * cfg["halflife"]):], cfg["halflife"]) * cfg["widen"]
-            np.testing.assert_allclose(fit.scale, want, rtol=1e-12, err_msg=fam)
+class TestM15Settings(unittest.TestCase):
+    """The EWMA sd, and the Student-t shocks with nu fitted from the window."""
 
     def test_ewma_sd_matches_pandas(self):
         x = np.random.default_rng(3).normal(0, 1, (400, 2))
@@ -477,16 +535,32 @@ class TestWalkSettings(unittest.TestCase):
         ref = pd.DataFrame(x).ewm(halflife=63, adjust=True).std(bias=True).iloc[-1].to_numpy()
         np.testing.assert_allclose(fm._ewma_sd(x, 63), ref, rtol=1e-9)
 
+    def test_nu_is_fitted_from_kurtosis(self):
+        rng = np.random.default_rng(5)
+        self.assertIsNone(fm._fit_nu(rng.normal(0, 1, (1, 5000))))           # normal steps stay normal
+        nu = fm._fit_nu(rng.standard_t(6, (1, 20000)))                         # t(6): k = 3, nu = 6
+        self.assertTrue(5.0 < nu < 7.5, nu)
+
     def test_student_t_keeps_variance_and_correlation_and_fattens_tails(self):
-        """Same sd per cell, same correlation between assets, more mass beyond 3 sd."""
-        table, asof = _multi_panel(["A", "B"], n=900, seed=22, corr=0.6)
-        base = {"window": 130, "widen": 1.0, "halflife": None}
-        with mock.patch.dict(fm.WALK_SETTINGS, {"TN": {**base, "nu": None}, "TT": {**base, "nu": 4}}):
-            args = ({"p": table}, ["A", "B"], [21], asof, {a: dict(NEUTRAL) for a in "AB"}, 200_000, 0)
-            normal = fa.build_draws(*args, target_type="level", family="TN")[:, :, 0]
-            student = fa.build_draws(*args, target_type="level", family="TT")[:, :, 0]
+        """Same steps, typed as rates (Student-t) vs an unknown panel (normal): same sd per cell, same
+        correlation between assets, more mass beyond 3 sd."""
+        rng = np.random.default_rng(22)
+        n = 900
+        steps = rng.standard_t(5, (n, 2)) @ np.linalg.cholesky([[1.0, 0.6], [0.6, 1.0]]).T
+        dates = _bdays(n)
+        def panel(pid):
+            return pa.table({"date": dates * 2, "asset": ["A"] * n + ["B"] * n,
+                             "value": (100 + np.cumsum(steps, axis=0)).T.ravel().tolist(),
+                             "panel_id": [pid] * (2 * n)})
+        args = (["A", "B"], [21], dates[-1], {a: dict(NEUTRAL) for a in "AB"}, 200_000, 0)
+        normal = fa.build_draws({"p": panel("p")}, *args)[:, :, 0]
+        student = fa.build_draws({"p": panel("rates_daily")}, *args)[:, :, 0]
         zn, zt = normal - normal.mean(0), student - student.mean(0)
         np.testing.assert_allclose(zt.std(0) / zn.std(0), 1.0, atol=0.02)
         self.assertAlmostEqual(np.corrcoef(zt.T)[0, 1], np.corrcoef(zn.T)[0, 1], delta=0.02)
         beyond = lambda z: np.mean(np.abs(z / z.std(0)) > 3)
         self.assertGreater(beyond(zt), 2 * beyond(zn))
+
+
+if __name__ == "__main__":
+    unittest.main()

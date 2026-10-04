@@ -1,27 +1,53 @@
 """
-Track 2 — the forecast models: panels (+ the text adjustments) -> joint draws.
+Track 2 — the forecast model: panels (+ the text adjustments) -> joint draws.
 
-Split out of `forecast_agent.py`, which is now the contract and the CLI. Everything here is about
-turning numbers into a distribution; nothing here reads the text corpus or touches argv.
+## Executive summary (read this first)
+
+ONE MODEL for every card: **M1.5** (`model_experiment_v3/09_m1_5_ewma63.ipynb`), production since
+2026-10-04. It is M0, the organisers' baseline (docs/M0-BASELINE.md), with four changes:
+
+1. **The step depends on the asset type.** Rates, payrolls and unemployment step by their change.
+   FX and price indices step by their log change, so a level is `last x exp(sum of steps)`. On a
+   log_return card each row already is the step, summed over the horizon, as M0 does.
+2. **Drift only where there is a trend.** Price indices (CPI) and payrolls keep M0's drift:
+   `last + steps x mean step`. Everything else is centred on the last value.
+3. **Student-t shocks** on rates, FX and equity factors. nu is FITTED from the window's kurtosis,
+   with one chi-square per draw shared by every Student-t cell. Macro series stay normal.
+4. **EWMA sd** (halflife 63) for the width. The drift, the correlation between assets and nu
+   come from the last 260 steps.
+
+The asset type comes from the unit folder alone: the panel that holds the asset. That is the
+parquet's `panel_id` column, which is also its file name and the card's `[panels]` id:
+
+    rates_daily -> rates      g10_fx_daily, em_transfer_early -> fx      factors_daily -> equity factor
+    macro_monthly -> by asset id: CPI_* / PCE_* price index, NFP payrolls, UNRATE unemployment
+
+See `PANEL_TYPES`, `MACRO_TYPES` and `ASSET_TYPES`. An asset the tables do not know gets M0's rule:
+change, normal shocks, no drift.
+
+Backtest (model_experiment_v3; 23,635 dates over 103 units; competition score vs M0, below 1
+beats M0): **M1.5 0.9444**, the previous production walk with text off 0.9726. With the text
+neutral and `seed = crc32(unit id)`, `build_draws` returns notebook 09's draws exactly at every card's
+as-of (`model_experiment_v3/11_production_parity.ipynb`).
 
     build_draws(panels, assets, horizons, asof, adjustments, n_draws, seed,
                 *, target_type=..., family=...) -> (n_draws, n_assets, n_horizons)
 
-ONE MODEL for every card: the CUMULATIVE WALK. One correlated path per draw, from the last
-value, with Student-t shocks; each horizon is read off the path. Only its settings (window, widen,
-Student-t shocks, EWMA volatility) change by family, in `WALK_SETTINGS`. On a single-horizon card
-the path has one leg: centre + shock * scale * sqrt(steps).
+The text's adjustments mean what they meant before. `shift` is added at every horizon in the
+asset's own units. `widen` multiplies its sd. `skew` tilts each leg's shock. `family` is
+accepted but unused: every family has the same settings.
 
-One model on purpose (2026-09-27): the text's `shift`, `widen` and `skew` then mean the same thing
-on every card, which is what the LLM half is tuned against. M2 (f1_pipeline) stays a research
-model; it scored better on the 4 visible monthly cards (model_baseline notebook 06) but is not in
-production.
+Research notebooks written against the previous walk (model_baseline/, f1_pipeline/ 06-08 and
+backtest_m2.py, hyperparameter_tuning/01, model_experiment_v3/06) call names that are gone here:
+`WALK_SETTINGS`, `_fit_walk`, `_cumulative_walk_model`, `_panel_steps`, `_step_frame`. Run them at
+commit fc632cb, the last one with the walk.
 
 Runs offline with numpy + pandas + pyarrow.
 """
 
 from __future__ import annotations
 
+import datetime as dt
 from dataclasses import dataclass
 
 import numpy as np
@@ -30,34 +56,47 @@ import pyarrow as pa
 
 _ASSET_COLS = ("asset", "asset_id")
 
-#: Trailing rows used to estimate sd and the cross-asset correlation. PINNED, and not a free
-#: parameter: the window dominates the choice of method. Measured on the 20 F3 units with realized
-#: vectors (mean variogram, horizons drawn independently): 260 -> 2.47, 504 -> 2.58, 1260 -> 2.77,
-#: full history -> 3.02. Changing it at the same time as anything else makes the comparison
-#: uninterpretable, so change it alone or not at all.
-_WINDOW = 260
+#: M1.5's settings, the same for every family (model_experiment_v3 notebooks 07-09). None was tuned
+#: per family: window 260 and halflife 63 were set in advance, and nu is fitted on each card.
+WINDOW = 260                    # steps behind the drift, the correlation between assets and nu
+EWMA_HALFLIFE = 63              # the sd: a step's weight halves every 63 steps, over the last 8 x 63
+WIDEN = 1.0                     # multiplier on the sd, on top of the text's `widen`
+NU_MIN, NU_MAX = 4.2, 30.0      # the fitted nu is kept in this range
+NORMAL_BELOW_KURTOSIS = 0.2     # a window with less excess kurtosis than this keeps normal shocks
+_MIN_COMMON_STEPS = 30
 
-#: The walk's settings per family -- the main model since 2026-09-27, chosen in model_baseline
-#: notebooks 02-05: tuned on each card's train dates, kept only if better than the previous model
-#: on validation, then judged once on test.
-#:   window    steps the sd and the cross-asset correlation are measured on
-#:   widen     multiplier on the sd (on top of the text's `widen`)
-#:   nu        Student-t degrees of freedom for the shocks (unit variance; None = normal)
-#:   halflife  EWMA sd, weights halving every `halflife` steps (None = the plain sd of `window`)
-#: Test results against the previous step: Student-t 0.997x (78/103 cards better, 98% band 93.5% ->
-#: 96.1%); EWMA kept on F4 only, 0.994x there. A family not listed gets the plain production walk.
-#: F1 changed on 2026-09-28 to the family-global setting of the grid search in
-#: hyperparameter_tuning/01 (480 settings, 60/20/20 split, picked on validation): EWMA sd, halflife
-#: 21, widen 0.9. Against the old F1 setting (42 / 1.2 / nu 5 / window sd) it scored 0.974x on the
-#: grid's test block and 0.891x on the team eval's real outcomes (12 of 18 cards better); F2-F4 were
-#: kept, since their family globals did not beat production on either check.
-WALK_SETTINGS = {
-    "T2-F1": {"window": 130, "widen": 0.9, "nu": 5, "halflife": 21},
-    "T2-F2": {"window": 130, "widen": 1.1, "nu": 4, "halflife": None},
-    "T2-F3": {"window": 130, "widen": 1.2, "nu": 4, "halflife": None},
-    "T2-F4": {"window": 260, "widen": 1.2, "nu": 5, "halflife": 63},
+#: How each asset type is modelled (model_experiment_v3/transformations.toml):
+#:   transform  diff = x_t - x_{t-1};  log_diff = log(x_t / x_{t-1});  as_return = the row itself
+#:   shock      normal or student_t
+#:   drift      centre = last + steps x mean step (True) or the last value (False)
+#: Drift evidence (notebook 07): without drift, rates 0.939, FX 0.968, equity factors 0.978 and
+#: unemployment 0.985 vs M0; with it, CPI 0.873 and payrolls 1.000 (without: 1.189 and 1.538).
+ASSET_TYPES = {
+    "rates":         {"transform": "diff",      "shock": "student_t", "drift": False},
+    "fx":            {"transform": "log_diff",  "shock": "student_t", "drift": False},
+    "cpi":           {"transform": "log_diff",  "shock": "normal",    "drift": True},
+    "payrolls":      {"transform": "diff",      "shock": "normal",    "drift": True},
+    "unemployment":  {"transform": "diff",      "shock": "normal",    "drift": False},
+    "equity_factor": {"transform": "as_return", "shock": "student_t", "drift": False},
 }
-_PLAIN_WALK = {"window": _WINDOW, "widen": 1.0, "nu": None, "halflife": None}
+_DEFAULT_RULE = {"transform": "diff", "shock": "normal", "drift": False}     # M0's step, no drift
+
+#: Panel id -> asset type. Every panel the organisers ship is here; a panel id not listed falls
+#: back to a keyword (`rates`, `fx`, `factor`) and then to the default rule.
+PANEL_TYPES = {
+    "rates_daily": "rates",
+    "g10_fx_daily": "fx",
+    "em_transfer_early": "fx",
+    "factors_daily": "equity_factor",
+}
+#: macro_monthly holds several kinds of series, so its assets are typed by id. CPI_ALL, NFP and
+#: UNRATE are backtested; CPI_CORE and the PCE indices are price indices like CPI_ALL.
+MACRO_TYPES = {
+    "CPI_ALL": "cpi", "CPI_CORE": "cpi", "PCE_ALL": "cpi", "PCE_CORE": "cpi",
+    "NFP": "payrolls",
+    "UNRATE": "unemployment",
+}
+
 #: Per-family FALLBACK width for the walk models, used only when the text half gave this card
 #: nothing (every asset exactly neutral: model call failed, timed out, ran out of budget, or no
 #: usable summaries). F4 cards are built around a shock the calm history does not show, so a
@@ -100,6 +139,7 @@ def _text_was_silent(adjustments: dict[str, dict[str, float]], assets: list[str]
 #: really for.
 SKEW_ENABLED = True
 
+
 def build_draws(
     panels: dict[str, "pa.Table"],
     assets: list[str],
@@ -114,18 +154,18 @@ def build_draws(
 ) -> np.ndarray:
     """Joint draws with Nish's adjustments applied. Returns (n_draws, n_assets, n_horizons).
 
-    Every card takes the cumulative walk; `family` picks its settings (`WALK_SETTINGS`).
+    Every card takes M1.5. `family` is kept for the contract; the settings do not depend on it.
     """
-    return _cumulative_walk_model(_Request(panels, assets, horizons, asof, adjustments, n_draws,
-                                           seed, target_type, family))
+    return _m15_model(_Request(panels, assets, horizons, asof, adjustments, n_draws, seed,
+                               target_type, family))
 
 
 # ============================================================================
-#  The request, and the walk.
+#  The request, the asset rules, and M1.5.
 # ============================================================================
 @dataclass(frozen=True)
 class _Request:
-    """One card's forecast request: everything the walk needs, in one place."""
+    """One card's forecast request: everything the model needs, in one place."""
     panels: dict[str, "pa.Table"]
     assets: list[str]
     horizons: list[int]
@@ -136,108 +176,183 @@ class _Request:
     target_type: str | None
     family: str | None
 
-    @property
-    def returns_target(self) -> bool:
-        """A cumulative log-return card: the panel holds per-period returns, not levels."""
-        return self.target_type == "log_return"
+
+def asset_type(asset: str, panel_id: str) -> str | None:
+    """The asset's type, from the panel that holds it (None: not recognised, use the default)."""
+    if panel_id in PANEL_TYPES:
+        return PANEL_TYPES[panel_id]
+    if panel_id.startswith("macro") or asset in MACRO_TYPES:
+        return MACRO_TYPES.get(asset)
+    for key, kind in (("rates", "rates"), ("fx", "fx"), ("factor", "equity_factor")):
+        if key in panel_id:
+            return kind
+    return None
 
 
-# ------------------------------------------------------------------------ the walk
+def asset_rule(asset: str, panel_id: str, target_type: str | None) -> dict:
+    """{transform, shock, drift} for one asset of a card.
+
+    A log_return card's rows already are log returns, so its transform is `as_return` whatever the
+    asset. `as_return` on a level card means nothing, so it falls back to M0's change.
+    """
+    rule = dict(ASSET_TYPES.get(asset_type(asset, panel_id), _DEFAULT_RULE))
+    if target_type == "log_return":
+        rule["transform"] = "as_return"
+    elif rule["transform"] == "as_return":
+        rule["transform"] = "diff"
+    return rule
+
+
 @dataclass(frozen=True)
-class _WalkFit:
-    """What the walk is fitted from -- everything except how the path is drawn.
+class _Fit:
+    """What M1.5 draws from. Everything is indexed by `assets`, which is SORTED: M0's cell order
+    (doc 3.9) is assets by id, then horizons ascending, and the random numbers follow it."""
+    assets: list[str]
+    rules: dict[str, dict]
+    log_mode: dict[str, bool]      # stepped in logs: forecast = last x exp(centre + shock)
+    last: dict[str, float]         # the last observed value (0.0 on a log_return card)
+    final: dict[str, float]        # the last observed row, for the no-new-release rule
+    mu: np.ndarray                 # mean step over the window (used only where drift is on)
+    sigma: np.ndarray              # one step's covariance: window correlation x EWMA sd x EWMA sd
+    nu: float | None               # Student-t degrees of freedom (None: normal shocks)
+    steps: dict[str, dict[int, float]]   # per asset, each horizon in the asset's own panel steps
 
-    Fitting is where all the care is (date alignment, gap guarding, log-return handling, the
-    PSD-repaired correlation), so it lives apart from the five lines that draw the path.
+
+def _fit_m15(r: _Request) -> _Fit:
+    """Panels -> the drift, the covariance and nu, exactly as notebook 09 fits them.
+
+    Each asset takes its last WINDOW + 1 rows, steps them in its own transform (M0's gap rule
+    drops a step across a hole), then the assets are aligned on the dates they share. Aligning
+    by date, not by row, matters on cards that span two panels: on t2-F3-divergence-2014
+    UST_10Y/JPY correlates at 0.32 by row against 0.50 by date.
     """
-    centre: np.ndarray          # last observed value (0 for a log-return card) + the text shift
-    scale: np.ndarray           # per-asset daily sd, times the text's widen
-    chol: np.ndarray            # lower-triangular factor of the cross-asset correlation
-    skew: np.ndarray            # per-asset tail tilt, all zeros while SKEW_ENABLED is False
-    steps: np.ndarray           # (n_assets, n_horizons): each horizon in the asset's own panel steps
-    nu: float | None = None     # Student-t degrees of freedom of the shocks (None = normal)
+    hist, rules = {}, {}
+    for a in r.assets:
+        panel_id, rows = _history(r.panels, a, r.asof)
+        hist[a], rules[a] = rows, asset_rule(a, panel_id, r.target_type)
+    by_asset = sorted(r.assets)
+    steps, log_mode, last = {}, {}, {}
+    for a in by_asset:
+        steps[a], log_mode[a] = _asset_steps(hist[a][-(WINDOW + 1):], rules[a])
+        last[a] = 0.0 if rules[a]["transform"] == "as_return" else hist[a][-1][1]
+    common = sorted(set.intersection(*(set(steps[a]) for a in by_asset)))
+    if len(common) < _MIN_COMMON_STEPS:
+        raise SystemExit(
+            f"not enough overlapping history to estimate covariance ({len(common)} rows)")
+    x = np.array([[steps[a][d] for d in common] for a in by_asset])
+    mu, sigma = x.mean(axis=1), np.atleast_2d(np.cov(x))
 
-    def shock(self, rng: np.random.Generator, n_draws: int,
-              rng_t: np.random.Generator | None = None) -> np.ndarray:
-        """One correlated, optionally skew-tilted, optionally Student-t standard innovation per draw.
-
-        Every leg of the path is drawn here, so the cross-asset structure, the skew tilt and the
-        tail shape are defined once. The Student-t is multivariate: every asset of a draw shares one
-        chi-square, so assets have their extreme moves together and the correlation is unchanged;
-        (nu - 2) keeps the variance at 1, so `scale` means the same with or without it. The
-        chi-square comes from its own generator `rng_t`, so the normal part of each draw is the
-        same number as in the normal walk.
-        """
-        n = len(self.scale)
-        z = rng.standard_normal((n_draws, n)) @ self.chol.T   # correlated across assets
-        u = np.abs(rng.standard_normal((n_draws, n)))         # independent per asset -- skew only
-        z = _skew_tilt(z, u, self.skew)
-        if self.nu is not None:
-            z = z * np.sqrt((self.nu - 2.0) / rng_t.chisquare(self.nu, size=(n_draws, 1)))
-        return z
-
-
-def _fit_walk(r: _Request) -> _WalkFit:
-    """Panels -> the scale, correlation and centre the walk draws from.
-
-    Every correctness fix lives here rather than in either model, because none of them is about
-    F3: the gap guard's worst case is an F2 transfer card (measured 1.40x inflated sd on
-    t2-F2-fragile-five-brl-2013) and the log-return centring carries 11 F4 units.
-    """
-    cfg = WALK_SETTINGS.get(r.family, _PLAIN_WALK)
-    hist = {a: _series(r.panels, a, r.asof) for a in r.assets}
-    hl = cfg["halflife"]
-    steps = _step_frame(hist, r.assets, r.returns_target,
-                        rows=max(cfg["window"], int(8 * hl) if hl else 0))
-    # The last `window` steps always give the correlation between assets. They give the sd only when
-    # the family has no halflife; with one (F1, F4) the sd is the EWMA of the last 8 x halflife steps
-    # and `window` matters only on cards with more than one asset.
-    D = steps.iloc[-cfg["window"]:].to_numpy().T  # (n_assets, window)
-    n = len(r.assets)
-    sd = D.std(axis=1) if hl is None else _ewma_sd(steps.to_numpy()[-int(8 * hl):], hl)
-
-    # A cumulative log-return target starts at 0; a level target starts at its last observed
-    # value. Neither carries a drift term. For levels that is just the random walk. For log
-    # returns it is a deliberate departure from the reference CLI (`cli.py:278`), which centres
-    # them on `steps.mean() * h` -- a 260-day mean daily return extrapolated over the horizon.
-    # Measured on all 15 log_return units with realized vectors, 5 seeds, 4000 draws: zero drift
-    # wins 11/15, mean normalized composite ratio 0.8818. The extrapolation is a noisy momentum
-    # bet (t2-F4-short-vol-2018: 0.01573 -> 0.00587 without it); the martingale is both the
-    # standard choice for returns and, here, the measured one.
-    last = (np.zeros(n) if r.returns_target
-            else np.array([hist[a].iloc[-1] for a in r.assets], dtype=float))
-
-    # np.corrcoef on a single-row input (single-asset cards) returns a 0-d SCALAR, not a (1,1)
-    # matrix -- fill_diagonal then fails with "array must be at least 2-d". atleast_2d fixes the
-    # single-asset case (correlation of one variable with itself is trivially [[1.0]]) and is a
-    # no-op for multi-asset cards, where corrcoef already returns a proper 2-d matrix.
-    corr = np.atleast_2d(np.corrcoef(D))
-    corr = np.nan_to_num(corr, nan=0.0)
+    # The width: each asset's EWMA sd over its own last 8 x halflife steps. The correlation stays
+    # the window's.
+    sd_w = np.sqrt(np.diag(sigma))
+    with np.errstate(divide="ignore", invalid="ignore"):
+        corr = np.nan_to_num(sigma / np.outer(sd_w, sd_w), nan=0.0)
     np.fill_diagonal(corr, 1.0)
-    w, v = np.linalg.eigh(corr)                  # nearest-PSD nudge
-    corr = v @ np.diag(np.clip(w, 1e-8, None)) @ v.T
+    sd_e = np.array([_ewma_sd(_ordered_steps(hist[a][-(int(8 * EWMA_HALFLIFE) + 1):], rules[a]),
+                              EWMA_HALFLIFE) for a in by_asset])
+    sigma = corr * np.outer(sd_e, sd_e)
 
-    def per_asset(key: str, default: float) -> np.ndarray:
-        return np.array([r.adjustments.get(a, {}).get(key, default) for a in r.assets])
-
-    # The family's widen times the text's -- the same rule on every card, whether or not the text
-    # answered. (A silent-text F4 floor of 1.5 was removed on 2026-09-27: the family settings were
-    # tuned and validated without it, model_baseline notebooks 02-05.)
-    widen = cfg["widen"] * per_asset("widen", 1.0)
-
-    return _WalkFit(
-        centre=last + per_asset("shift", 0.0),
-        scale=sd * widen,
-        chol=np.linalg.cholesky(corr),
-        skew=per_asset("skew", 0.0) if SKEW_ENABLED else np.zeros(n),
-        steps=np.array([_panel_steps(hist[a], r.horizons, r.asof) for a in r.assets]),
-        nu=cfg["nu"],
+    t_rows = [i for i, a in enumerate(by_asset) if rules[a]["shock"] == "student_t"]
+    return _Fit(
+        assets=by_asset, rules=rules, log_mode=log_mode, last=last,
+        final={a: hist[a][-1][1] for a in by_asset}, mu=mu, sigma=sigma,
+        nu=_fit_nu(x[t_rows]) if t_rows else None,
+        steps={a: dict(zip(r.horizons, _horizon_steps([d for d, _ in hist[a]], r.horizons, r.asof)))
+               for a in by_asset},
     )
 
 
+def _m15_model(r: _Request) -> np.ndarray:
+    """Every card. M0's joint draw with M1.5's centre, covariance and shocks, then the text.
+
+    The cells are (asset, horizon) pairs. cov[(a1, h1), (a2, h2)] = min(steps) x sigma[a1, a2]: the
+    covariance of ONE accumulating path per draw, so horizons of one asset correlate at
+    sqrt(h1 / h2) and assets keep the window's correlation at every horizon. A Student-t cell is
+    scaled by sqrt((nu - 2) / W), with one W per draw for the whole path. Drawing a new W per leg
+    (production's previous walk) scored worse: 0.9448 vs 0.9444 (notebook 10).
+    """
+    f = _fit_m15(r)
+    ai = {a: i for i, a in enumerate(f.assets)}
+    hs = sorted(r.horizons)
+    cells = [(a, h) for a in f.assets for h in hs]
+    s = f.steps
+
+    def centre(a: str, h: int) -> float:
+        anchor = 0.0 if f.log_mode[a] else f.last[a]
+        return anchor + (s[a][h] * f.mu[ai[a]] if f.rules[a]["drift"] else 0.0)
+
+    mean = np.array([centre(a, h) for a, h in cells])
+    cov = np.array([[min(s[a1][h1], s[a2][h2]) * f.sigma[ai[a1], ai[a2]] for a2, h2 in cells]
+                    for a1, h1 in cells])
+    cov[np.diag_indices_from(cov)] += 1e-10                     # M0's jitter (doc 3.8)
+    jittered = cov + 1e-9 * np.eye(len(cells))
+    try:
+        chol = np.linalg.cholesky(jittered)
+    except np.linalg.LinAlgError:
+        chol = np.diag(np.sqrt(np.diag(jittered)))
+    dev = np.random.default_rng(r.seed).standard_normal((r.n_draws, len(cells))) @ chol.T
+
+    def adj(a: str, key: str, default: float) -> float:
+        return float(r.adjustments.get(a, {}).get(key, default))
+
+    skew = np.array([adj(a, "skew", 0.0) for a in f.assets])
+    if SKEW_ENABLED and np.any(skew != 0.0):
+        dev = _skew_legs(dev, f, hs, skew, r.seed)
+    dev = dev * np.array([WIDEN * adj(a, "widen", 1.0) for a, h in cells])
+    t_cells = np.array([f.rules[a]["shock"] == "student_t" for a, h in cells])
+    if f.nu is not None and t_cells.any():
+        w = np.random.default_rng([r.seed, 7]).chisquare(f.nu, size=(r.n_draws, 1))
+        dev = dev * np.where(t_cells, np.sqrt((f.nu - 2.0) / w), 1.0)
+
+    sm = mean + dev
+    out = np.empty((r.n_draws, len(r.assets), len(r.horizons)))
+    for ci, (a, h) in enumerate(cells):
+        if s[a][h] <= 0:            # no new monthly release by the target date: the last one stands
+            col = np.full(r.n_draws, f.final[a])
+        else:
+            col = (f.last[a] * np.exp(sm[:, ci]) if f.log_mode[a] else sm[:, ci]) + adj(a, "shift", 0.0)
+        out[:, r.assets.index(a), r.horizons.index(h)] = col
+    return out
+
+
+def _skew_legs(dev: np.ndarray, f: _Fit, hs: list[int], skew: np.ndarray, seed: int) -> np.ndarray:
+    """The text's skew, on each leg of the path, as the previous walk applied it.
+
+    The path is cut into legs (horizon 1, horizon 1 -> 2, ...). Each leg's move is divided by its sd
+    to give a standard shock, tilted per asset by `_skew_tilt` with its own |normal| term, scaled
+    back and added up again. At skew = 0 this is never called, so neutral cards draw exactly as
+    notebook 09.
+    """
+    n, k = dev.shape[0], len(hs)
+    legs = np.diff(dev.reshape(n, len(f.assets), k), axis=2, prepend=0.0)
+    ds = np.diff(np.array([[f.steps[a][h] for h in hs] for a in f.assets]), axis=1, prepend=0.0)
+    leg_sd = np.sqrt(np.diag(f.sigma))[:, None] * np.sqrt(np.clip(ds, 0.0, None))
+    rng_u = np.random.default_rng([seed, 11])
+    for j in range(k):
+        ok = leg_sd[:, j] > 0
+        z = legs[:, :, j] / np.where(ok, leg_sd[:, j], 1.0)
+        u = np.abs(rng_u.standard_normal((n, len(f.assets))))
+        legs[:, :, j] = np.where(ok, _skew_tilt(z, u, skew) * leg_sd[:, j], legs[:, :, j])
+    return np.cumsum(legs, axis=2).reshape(n, -1)
+
+
+def _fit_nu(x_t: np.ndarray) -> float | None:
+    """nu from the window's excess kurtosis k: a Student-t has k = 6 / (nu - 4), so nu = 4 + 6 / k.
+
+    k is the mean over the card's Student-t assets. Below NORMAL_BELOW_KURTOSIS the shocks stay
+    normal.
+    """
+    z = x_t - x_t.mean(axis=1, keepdims=True)
+    k = float(np.mean((z ** 4).mean(axis=1) / (z ** 2).mean(axis=1) ** 2 - 3))
+    if not np.isfinite(k) or k < NORMAL_BELOW_KURTOSIS:
+        return None
+    return float(np.clip(4 + 6 / k, NU_MIN, NU_MAX))
+
+
 def _ewma_sd(past: np.ndarray, halflife: float) -> np.ndarray:
-    """EWMA sd per column of `past` (rows oldest -> newest): a step's weight halves every
-    `halflife` steps back, around the weighted mean. Equals pandas' ewm(halflife).std(bias=True)."""
+    """EWMA sd of `past` (rows oldest -> newest; one column per asset, or a single 1-d series): a
+    step's weight halves every `halflife` steps back, around the weighted mean. Equals pandas'
+    ewm(halflife).std(bias=True)."""
     age = np.arange(len(past))[::-1]
     w = 0.5 ** (age / halflife)
     w = w / w.sum()
@@ -245,67 +360,93 @@ def _ewma_sd(past: np.ndarray, halflife: float) -> np.ndarray:
     return np.sqrt(w @ (past - mean) ** 2)
 
 
+# ------------------------------------------------------------------------ history and steps
+def _history(panels: dict[str, "pa.Table"], asset: str, asof: str) -> tuple[str, list[tuple[str, float]]]:
+    """(panel id, [(date, value), ...]) for one asset, at or before the as-of, sorted by date.
+
+    The first panel holding the asset wins, in the order the panels were read (sorted file names,
+    as M0 does). The panel id is the table's own `panel_id` column if it has one, else its key in
+    `panels` (the file name).
+    """
+    seen: set[str] = set()
+    for key, t in panels.items():
+        acol = next((c for c in _ASSET_COLS if c in t.column_names), None)
+        if acol is None:
+            continue
+        d = t.to_pydict()
+        seen.update(str(a) for a in d[acol])
+        idx = [i for i, a in enumerate(d[acol]) if str(a) == asset]
+        rows = sorted((str(d["date"][i])[:10], float(d["value"][i])) for i in idx
+                      if str(d["date"][i])[:10] <= asof and d["value"][i] is not None)
+        if rows:
+            panel_id = d["panel_id"][idx[0]] if d.get("panel_id") and d["panel_id"][idx[0]] else key
+            return str(panel_id), rows
+    raise SystemExit(
+        f"asset {asset!r} not found in any panel at/before {asof}; "
+        f"the panels carry {sorted(seen)}"
+    )
+
+
+def _series(panels: dict[str, "pa.Table"], asset: str, asof: str) -> "pd.Series":
+    """One asset's history as a date-indexed series (used by tools/f3_arms.py)."""
+    _, rows = _history(panels, asset, asof)
+    return pd.Series([v for _, v in rows], index=pd.to_datetime([d for d, _ in rows]), name=asset)
+
+
+def _steps(rows: list[tuple[str, float]], as_return: bool) -> dict:
+    """M0's steps (doc 3.2-3.3): {date: step}, a step carrying the date of the row it ends on.
+
+    The step is the row itself on a log_return card, the change otherwise. A step across a hole of
+    more than max(10 x median spacing, 5 days) is dropped. Transfer cards ship an early window plus
+    one row at the as-of: differenced naively, that hole is one "day" worth a decade of moves
+    (t2-F2-fragile-five-brl-2013: -0.875 against a typical 0.030, sd inflated 1.4x).
+    """
+    dates = [dt.date.fromisoformat(d) for d, _ in rows]
+    values = np.array([v for _, v in rows], dtype=float)
+    gaps = np.array([(dates[i] - dates[i - 1]).days for i in range(1, len(dates))], dtype=float)
+    hole = max(10.0 * float(np.median(gaps)), 5.0) if gaps.size else 5.0
+    return {dates[i]: (values[i] if as_return else values[i] - values[i - 1])
+            for i in range(1, len(dates)) if gaps[i - 1] <= hole}
+
+
+def _asset_steps(rows: list[tuple[str, float]], rule: dict) -> tuple[dict, bool]:
+    """({date: step}, log mode) for one asset in its own transform. log_diff needs every value in
+    `rows` above 0; otherwise the asset steps by its change."""
+    log_mode = rule["transform"] == "log_diff" and min(v for _, v in rows) > 0
+    if log_mode:
+        return _steps([(d, np.log(v)) for d, v in rows], False), True
+    return _steps(rows, rule["transform"] == "as_return"), False
+
+
+def _ordered_steps(rows: list[tuple[str, float]], rule: dict) -> np.ndarray:
+    """One asset's steps over `rows`, oldest first (the EWMA's input)."""
+    st, _ = _asset_steps(rows, rule)
+    return np.array([st[d] for d in sorted(st)])
+
+
 #: A panel whose rows are further apart than this (median, in calendar days) is a monthly panel.
 _MONTHLY_SPACING_DAYS = 20
 
 
-def _panel_steps(s: "pd.Series", horizons: list[int], asof: str) -> np.ndarray:
+def _horizon_steps(dates: list[str], horizons: list[int], asof: str) -> list[float]:
     """The card's horizons, counted in steps (rows) of this asset's own panel.
 
-    `scale` is the sd of ONE STEP of the panel, so the walk's width is scale * sqrt(steps). On a
-    daily panel a step is a business day and the card's horizon already counts them: returned
-    unchanged. On a monthly panel a step is a month, but the card still states its horizon in
-    business days, so sqrt(21) would walk 21 MONTHS for a 21-business-day card (3.2x too wide on
-    t2-F4-covid-nfp-2020, 4.2x on t2-F1-cpi-glidepath-2023). There the horizon becomes the number
-    of months from the asset's LAST observation -- not the as-of, which monthly data lags by its
-    publication delay -- to the month of `asof + h business days`. That is the official baseline's
-    rule (docs/M0-BASELINE.md, section 3.7, whose table lists these four cards) and M2's
-    (f1_pipeline/m2_unit.steps_ahead_for). Backtest on the 4 monthly F1/F4 cards: walk 0.64x.
-
-    Assumes monthly cards keep stating business days, as every shipped one does; M0-BASELINE.md
-    section 8 says a restatement in panel steps is in preparation, and would need this revisited.
+    On a daily panel a step is a business day and the horizon already counts them. On a monthly
+    panel a step is a month while the card still states business days, so walking h steps would
+    walk h MONTHS (3.2x too wide on t2-F4-covid-nfp-2020). There the horizon becomes the number of
+    months from the asset's LAST observation (monthly data lags the as-of by its publication delay)
+    to the month of `asof + h business days`: the official baseline's rule (docs/M0-BASELINE.md 3.7),
+    which reproduces its table for the four monthly cards. Zero months means no new release by the
+    target date; the forecast is then the last released value.
     """
-    h = np.array([float(x) for x in horizons])
-    when = pd.to_datetime(pd.Series(s.index), errors="coerce").dropna()
+    when = pd.to_datetime(pd.Series(dates), errors="coerce").dropna()
     if len(when) < 3 or not float(when.diff().dt.days.median()) > _MONTHLY_SPACING_DAYS:
-        return h
+        return [float(h) for h in horizons]
     last = when.iloc[-1]
-    months = []
-    for x in horizons:
-        target = pd.Timestamp(asof) + pd.offsets.BDay(int(x))
-        k = 12 * (target.year - last.year) + (target.month - last.month)
-        months.append(float(k) if k > 0 else float(x))
-    return np.array(months)
-
-
-def _cumulative_walk_model(r: _Request) -> np.ndarray:
-    """Every card. ONE accumulating path per draw: horizon h_k is reached by walking there through h_1.
-
-    A single-horizon card is one leg: centre + shock * scale * sqrt(steps).
-
-    Each leg adds an increment of sd*sqrt(h_k - h_k-1), so after the leg ending at h_k the path
-    has variance sd^2 * sum(h_j - h_j-1) = sd^2 * h_k -- identical to drawing that horizon on its
-    own, which is why this moves the joint term without touching the marginal or tail (measured:
-    marginal ratio 1.0006 on F3). What it adds is the covariance an independent draw throws away:
-    Cov(path_hj, path_hk) = sd^2 * h_j, i.e. rho = sqrt(h_j / h_k).
-
-    That value is the point, and it is NOT "as much correlation as possible". Measured on the 20
-    F3 units, forcing a flat cross-horizon rho: 0.0 -> 2.471, 0.577 -> 2.231, 0.707 -> 2.225,
-    1.0 -> 2.487. rho=1 scores as badly as rho=0. The variogram is a proper scoring rule, so the
-    calibrated gap variance is optimal in expectation -- this reaches 2.162, beating every flat
-    rho. Do not "improve" it by pushing the correlation up.
-    """
-    fit = _fit_walk(r)
-    rng, rng_t = np.random.default_rng(r.seed), np.random.default_rng([r.seed, 7])
-    out = np.empty((r.n_draws, len(r.assets), len(r.horizons)), dtype=float)
-    path = np.zeros((r.n_draws, len(r.assets)))
-    prev = np.zeros(len(r.assets))
-    for hi in np.argsort(r.horizons):            # cards ship ascending; don't rely on it
-        steps = fit.steps[:, hi]                 # per asset, in its own panel's steps
-        # maximum(..., 0) guards a duplicated or unsorted horizon against a silent NaN under sqrt.
-        path = path + fit.shock(rng, r.n_draws, rng_t) * fit.scale * np.sqrt(np.maximum(steps - prev, 0))
-        prev = steps
-        out[:, :, hi] = fit.centre + path        # write to the ORIGINAL index
+    out = []
+    for h in horizons:
+        target = pd.Timestamp(asof) + pd.offsets.BDay(int(h))
+        out.append(float(max(12 * (target.year - last.year) + (target.month - last.month), 0)))
     return out
 
 
@@ -338,98 +479,3 @@ def _skew_tilt(z: np.ndarray, u: np.ndarray, skew: np.ndarray) -> np.ndarray:
     mean_shift = delta * np.sqrt(2.0 / np.pi)
     var_scale = np.sqrt(np.clip(1.0 - delta**2 * (2.0 / np.pi), 1e-8, None))
     return (delta * u + np.sqrt(1.0 - delta**2) * z - mean_shift) / var_scale
-
-
-def _step_frame(hist: dict[str, "pd.Series"], assets: list[str],
-                returns_target: bool, rows: int = _WINDOW) -> "pd.DataFrame":
-    """Per-asset histories -> one date-aligned matrix of steps, trimmed to the trailing window.
-
-    Three things here are load-bearing and easy to undo by accident:
-
-    `[assets]` reselects explicitly. Every downstream vector (sd, shift, widen, skew) is built in
-    `assets` order, so if the frame's column order ever diverged the Cholesky would be applied to
-    the wrong assets -- silently, with no exception, just a wrong correlation structure.
-
-    `.dropna()` comes BEFORE the window, not after. The other way round a cross-panel card keeps
-    260 raw rows and then loses a fraction of them to the date intersection, so the effective
-    window would differ per card.
-
-    A log_return panel already holds per-period returns, so its steps are log1p(row) rather than
-    a difference of rows.
-    """
-    frame = pd.DataFrame(
-        {a: (pd.Series(_log_return_steps(s.to_numpy()), index=s.index) if returns_target
-             else _diff_without_gaps(s))
-         for a, s in hist.items()}
-    )[assets].dropna().iloc[-rows:]
-    if len(frame) < 30:
-        raise SystemExit(
-            f"not enough overlapping history to estimate covariance ({len(frame)} rows)")
-    return frame
-
-
-def _diff_without_gaps(s: "pd.Series") -> "pd.Series":
-    """First differences, dropping any difference that spans a hole in the data.
-
-    Ported from `qfbench2_track_forecasting/cli.py:_diff_without_gaps` (kept local rather than
-    imported: this file deliberately depends on nothing in the toolkit).
-
-    A transfer card ships its target as an early window plus a single row at the as-of date, with
-    the years between deliberately withheld. Differenced naively, that hole reads as one day in
-    which the asset moved a decade's worth. Measured on t2-F2-fragile-five-brl-2013: one
-    gap-spanning "day" of -0.875 against a typical daily move of 0.030, inflating the estimated
-    daily sd by 1.4x. t2-F3-fragile-five-joint-2013 has the same 3654-day hole inside its window.
-    The threshold adapts to the panel's own spacing, so a gapless daily panel is untouched.
-    """
-    d = s.diff()
-    when = pd.to_datetime(pd.Series(s.index, index=s.index), errors="coerce")
-    step = when.diff().dt.days
-    if step.notna().sum() == 0:
-        return d
-    return d.where(step <= max(float(step.median()) * 10.0, 5.0))
-
-
-def _log_return_steps(values: np.ndarray) -> np.ndarray:
-    """Simple returns -> additive log-return steps, for a cumulative log target.
-
-    Mirrors `qfbench2_track_forecasting/targets.py:log_return_steps`, guard included. Without
-    this a log_return card is anchored at its last simple return and its already-return data is
-    differenced again -- both wrong. Every row is already a step here, so unlike the level path
-    nothing is lost to a leading NaN; the reference does the same.
-    """
-    rows = np.asarray(values, dtype=np.float64)
-    if np.any(rows <= -1.0) or np.any(np.isinf(rows)):
-        raise ValueError("log_return history requires finite simple returns greater than -1")
-    return np.log1p(rows)
-
-
-def _series(panels: dict[str, "pa.Table"], asset: str, asof: str) -> "pd.Series":
-    """History of one asset up to and including the as-of, from whichever panel holds it.
-
-    Returns a DATE-INDEXED series, not a bare array. The index is what lets `build_draws` align
-    assets that live in different panel files by date instead of by row position -- six F3 units
-    span two panels whose calendars differ, and stacking those positionally silently mis-estimates
-    the cross-asset correlation (measured on t2-F3-divergence-2014: UST_10Y/JPY reads 0.32
-    positionally against 0.50 date-aligned).
-    """
-    seen: set[str] = set()
-    for t in panels.values():
-        cols = t.column_names
-        acol = next((c for c in _ASSET_COLS if c in cols), None)
-        if acol is None:
-            continue
-        d = t.to_pydict()
-        seen.update(str(a) for a in d[acol])
-        rows = [
-            (str(dt)[:10], float(v))
-            for dt, a, v in zip(d["date"], d[acol], d["value"])
-            if str(a) == asset and str(dt)[:10] <= asof
-        ]
-        if rows:
-            rows.sort()
-            idx = pd.to_datetime([r[0] for r in rows])
-            return pd.Series([r[1] for r in rows], index=idx, name=asset)
-    raise SystemExit(
-        f"asset {asset!r} not found in any panel at/before {asof}; "
-        f"the panels carry {sorted(seen)}"
-    )

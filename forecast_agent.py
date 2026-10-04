@@ -12,9 +12,9 @@ THE CONTRACT (do not change the shapes — this is what lets us integrate):
                                                      shape = (n_draws, n_assets, n_horizons)
 
 This file is the contract and the CLI: read the text signal, read the panels, call a model, write
-the three output files. The model lives in `forecast_models.py` -- the cumulative walk, one model for
-every card, with per-family settings. `build_draws` is re-exported here so the contract above stays
-true at this import path.
+the three output files. The model lives in `forecast_models.py` -- M1.5, one model for every card,
+with each asset's step, drift and shocks set by its type. `build_draws` is re-exported here so the
+contract above stays true at this import path.
 
 Runs offline with numpy + pandas + pyarrow.
 """
@@ -62,7 +62,7 @@ def read_text_signal(text_dir: pathlib.Path, assets: list[str]) -> dict[str, dic
 
 # ============================================================================
 #  OWNER: DEW  ·  the time-series / numbers part   branch: feat/model
-#  Lives in forecast_models.py: build_draws() and the cumulative walk behind it.
+#  Lives in forecast_models.py: build_draws() and M1.5 behind it.
 # ============================================================================
 
 # ============================================================================
@@ -156,9 +156,9 @@ def main(argv: list[str] | None = None) -> int:
     (out_dir / "forecast_rationale.md").write_text(
         f"# Forecast rationale — {unit_id}\n\n"
         f"Joint draws for {', '.join(assets)} at horizons {horizons}, as of {a.asof}.\n"
-        + "Base: cumulative walk from panel history -- one path per draw from the last value, "
-          "correlated across assets (Cholesky), Student-t shocks, and the family's window / widen "
-          "/ volatility settings (forecast_models.WALK_SETTINGS).\n"
+        + "Base: M1.5 from panel history (forecast_models.py) -- one correlated path per draw, "
+          "the step, drift and shocks set by each asset's type, Student-t shocks with nu fitted "
+          "from the last 260 steps, EWMA volatility (halflife 63).\n"
         + f"Text used: {'yes' if used_text else 'no (baseline stub)'}.\n"
     )
     print(f"wrote forecast.parquet + sidecars to {out_dir} "

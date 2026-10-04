@@ -2,6 +2,12 @@
 
 ## Executive summary (read this first)
 
+> **Superseded on 2026-10-04.** Production (`forecast_models.py`) is now **M1.5** from `model_experiment_v3/`
+> (notebooks 09 and 11): each asset's step, drift and Student-t shocks set by its type, EWMA sd for every family.
+> Backtest 0.9444 × M0 against this walk's 0.9726. This folder is the record of the walk it replaced; the names
+> below (`WALK_SETTINGS`, `_fit_walk`, `_cumulative_walk_model`, `_panel_steps`) no longer exist in the code:
+> re-run these notebooks at commit `fc632cb`, the last commit with the walk.
+
 This folder holds the work on the team's model: the **cumulative walk** in `forecast_models.py`, the one
 model production uses for **every card** (since 2026-09-27). Every new model (M2, or anything later) has to
 beat it on the same cards before it replaces it.
