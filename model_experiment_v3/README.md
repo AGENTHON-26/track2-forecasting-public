@@ -15,6 +15,10 @@ four steps from M1.5's 0.9444: the significant recent trend as drift (M1.7, 0.93
 variance ratio on the width (M1.8, 0.9266); 1 draw in 4 carrying the full trend (M1.9, 0.9194); an ensemble of three EWMA
 volatility estimates and 2,000 draws (M2.0, 0.9155). Ideas that did not help are listed at the end of this page.
 
+**Leaderboard branches:** `feat/model_v3_m1_5` (production M1.5, notebook 11), `feat/model_v3_m1_9` (production M1.9,
+notebook 16) and `feat/model_v3_m2_0` (production M2.0, notebook 17). Each differs from the one before only in
+`forecast_models.py`, its tests, and (for M2.0) the default of 2,000 draws in `forecast_agent.py`.
+
 **The baseline to beat** was the production model when this folder started: the cumulative random walk + Cholesky +
 EWMA, with the per-family settings in `forecast_models.WALK_SETTINGS`:
 
@@ -59,11 +63,12 @@ written into this folder (AGENTS.md firewall).
 | `08_m1_4_family_nu.ipynb` | notebook 8: **M1.4** = M1.3 with one Student-t ν per family, the best on the backtest (optimistic): F1 4, F2 6, F3 6, F4 5; the ν grid per family and every model side by side |
 | `09_m1_5_ewma63.ipynb` | notebook 9: **M1.5** = M1.3 with an EWMA sd (halflife 63, last 504 steps) instead of the plain 260-step sd; correlation, drift and ν still from the 260 steps; nothing tuned; every model side by side |
 | `10_m1_6_t_per_leg.ipynb` | notebook 10: **M1.6** = M1.5 drawn like production's joint (F3) design, with a new Student-t χ² for every leg instead of one for the whole path; 0.9448 vs M1.5's 0.9444, so M1.5 is kept |
-| `11_production_parity.ipynb` | notebook 11: **production (`forecast_models.py`) = M1.5**: each asset's rule read from the panel that holds it in the unit folder (equal to `transformations.toml` on all 165 assets), and production's draws identical to notebook 09's at all 103 as-ofs and on every backtest date of the 99 daily units; what the text's shift / widen / skew do |
+| `11_production_parity.ipynb` | notebook 11: **production (`forecast_models.py`) = M1.5**: each asset's rule read from the panel that holds it in the unit folder (equal to `transformations.toml` on all 165 assets), and production's draws identical to notebook 09's at all 103 as-ofs and on every backtest date of the 99 daily units; what the text's shift / widen / skew do; it re-runs on `feat/model_v3` and `feat/model_v3_m1_5`, where production is still M1.5 |
 | `12_m1_7_recent_trend.ipynb` | notebook 12: **M1.7** = M1.5 with the recent trend as drift: rates, FX, equity factors and unemployment take the mean of the last 126 steps shrunk by its t-statistic (James–Stein, × max(0, 1 − 4 / t²)), CPI and NFP the mean of the last 12 steps; 0.9312 |
 | `13_m1_8_floor_variance_ratio.ipynb` | notebook 13: **M1.8** = M1.7 + a zero floor on Treasury yields + the variance ratio on the width (sd × √VR, VR from the asset's whole history, shrunk toward 1 with n0 = 30); 0.9266 |
 | `14_m1_9_trend_scenario.ipynb` | notebook 14: **M1.9** = M1.8 + a trend scenario: 1 draw in 4 carries the 260-step window's full trend (forecast combination); with the M0-pool evidence that led to it; 0.9194 |
 | `15_m2_0_vol_ensemble.ipynb` | notebook 15: **M2.0** = M1.9 + an ensemble of EWMA volatility estimates (halflives 21, 63 and 252, a third of the draws each) + 2,000 draws; 0.9155; the path from M1.5 |
+| `16_production_parity_m1_9.ipynb` | notebook 16 (branch `feat/model_v3_m1_9`): **production = M1.9**: `forecast_models.build_draws` equals notebook 14's draws at all 103 as-ofs and on every backtest date of the 99 daily units; each production switch (`TREND_SHARE`, `VR_SHRINK`, `ZERO_FLOOR`, `RECENT_TREND`) gives back the previous model exactly |
 | `transformations.toml` | **the transformation rules** (M1.1): asset → type → transform (`diff`, `log_diff`, `as_return`), with the defaults; every notebook reads a unit's `card.toml` and applies it (`unit_rules`) |
 | `data/` | the backtest answers; every model's per-date scores (M0's are the denominators for every later notebook); per unit, per family and per asset type tables; `all_models_vs_m0.csv`, the ladder |
 

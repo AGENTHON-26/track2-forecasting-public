@@ -3,18 +3,22 @@ Track 2 — the forecast model: panels (+ the text adjustments) -> joint draws.
 
 ## Executive summary (read this first)
 
-ONE MODEL for every card: **M1.5** (`model_experiment_v3/09_m1_5_ewma63.ipynb`), production since
-2026-10-04. It is M0, the organisers' baseline (docs/M0-BASELINE.md), with four changes:
+ONE MODEL for every card: **M1.9** (`model_experiment_v3/14_m1_9_trend_scenario.ipynb`). It is M1.5
+(notebook 09) with three more pieces, each measured in its own notebook:
 
-1. **The step depends on the asset type.** Rates, payrolls and unemployment step by their change.
-   FX and price indices step by their log change, so a level is `last x exp(sum of steps)`. On a
-   log_return card each row already is the step, summed over the horizon, as M0 does.
-2. **Drift only where there is a trend.** Price indices (CPI) and payrolls keep M0's drift:
-   `last + steps x mean step`. Everything else is centred on the last value.
-3. **Student-t shocks** on rates, FX and equity factors. nu is FITTED from the window's kurtosis,
-   with one chi-square per draw shared by every Student-t cell. Macro series stay normal.
-4. **EWMA sd** (halflife 63) for the width. The drift, the correlation between assets and nu
-   come from the last 260 steps.
+- **M1.5, the base.** The step depends on the asset type: rates, payrolls and unemployment step by
+  their change; FX and price indices by their log change (level = `last x exp(sum of steps)`); on a
+  log_return card each row already is the step. Student-t shocks on rates, FX and equity factors,
+  nu fitted from the window's kurtosis, one chi-square per draw. EWMA sd (halflife 63); the
+  correlation between assets and nu come from the last 260 steps.
+- **M1.7, the recent trend as drift** (notebook 12). Rates, FX, equity factors and unemployment:
+  the mean m of the last 126 steps x max(0, 1 - 4 / t^2), t = m / (sd / sqrt(126)) (James-Stein:
+  no drift unless |t| > 2). CPI and payrolls: the mean of the last 12 monthly steps.
+- **M1.8, the width at long horizons** (notebook 13). Treasury yields are floored at 0 %. Each
+  asset's sd is multiplied, per horizon, by sqrt(VR): VR = mean(h-step move^2) / (h x mean(1-step
+  move^2)) over the asset's whole history, shrunk toward 1 with n / (n + 30), n = history / h.
+- **M1.9, a trend scenario** (notebook 14). The last quarter of the draws carry the 260-step
+  window's full trend instead of the shrunk one: a mixture of two scenarios in one forecast.
 
 The asset type comes from the unit folder alone: the panel that holds the asset. That is the
 parquet's `panel_id` column, which is also its file name and the card's `[panels]` id:
@@ -25,10 +29,12 @@ parquet's `panel_id` column, which is also its file name and the card's `[panels
 See `PANEL_TYPES`, `MACRO_TYPES` and `ASSET_TYPES`. An asset the tables do not know gets M0's rule:
 change, normal shocks, no drift.
 
-Backtest (model_experiment_v3; 23,635 dates over 103 units; competition score vs M0, below 1
-beats M0): **M1.5 0.9444**, the previous production walk with text off 0.9726. With the text
-neutral and `seed = crc32(unit id)`, `build_draws` returns notebook 09's draws exactly at every card's
-as-of (`model_experiment_v3/11_production_parity.ipynb`).
+Backtest (model_experiment_v3; 23,635 dates over 103 units; competition score vs M0, below 1 beats
+M0): **M1.9 0.9194**, M1.5 0.9444. On the 90 cards with real outcomes (text off): M1.9 0.9985,
+M1.5 1.032. With the text neutral and `seed = crc32(unit id)`, `build_draws` returns notebook 14's
+draws exactly at every card's as-of (`model_experiment_v3/16_production_parity_m1_9.ipynb`). The
+switches `RECENT_TREND`, `ZERO_FLOOR`, `VR_SHRINK` and `TREND_SHARE` turn the pieces off; all
+four off is M1.5 exactly.
 
     build_draws(panels, assets, horizons, asof, adjustments, n_draws, seed,
                 *, target_type=..., family=...) -> (n_draws, n_assets, n_horizons)
@@ -64,6 +70,19 @@ WIDEN = 1.0                     # multiplier on the sd, on top of the text's `wi
 NU_MIN, NU_MAX = 4.2, 30.0      # the fitted nu is kept in this range
 NORMAL_BELOW_KURTOSIS = 0.2     # a window with less excess kurtosis than this keeps normal shocks
 _MIN_COMMON_STEPS = 30
+
+#: M1.9's pieces on top of M1.5 (model_experiment_v3 notebooks 12-14). Chosen on the backtest: the
+#: James-Stein constant and the trend window (scratch tests of constants 2/4/9 and windows
+#: 63/126/252 gave 0.931-0.942 for M1.7), the variance ratio's shrinkage (30 over 10) and the trend
+#: share (15/25/35 % gave 0.9206/0.9194/0.9208). On the cards' real outcomes only the trend scenario
+#: is confirmed (-0.033, 95 % band -0.060 to -0.009); the drift and the width are neutral there.
+RECENT_TREND = True             # M1.7: drift = the recent trend (`_recent_trend`), not the type rule
+TREND_LOOKBACK = 126            #   steps behind the trend of rates, FX, equity factors, unemployment
+TREND_SHRINK = 4.0              #   James-Stein: the trend keeps max(0, 1 - TREND_SHRINK / t^2)
+MACRO_TREND_STEPS = 12          #   CPI and payrolls: the mean of the last 12 monthly steps
+ZERO_FLOOR = True               # M1.8: Treasury-yield draws below 0 % are set to 0 %
+VR_SHRINK = 30.0                # M1.8: variance ratio shrunk toward 1 by n / (n + 30); None = off
+TREND_SHARE = 0.25              # M1.9: the last quarter of the draws take the window's full trend
 
 #: How each asset type is modelled (model_experiment_v3/transformations.toml):
 #:   transform  diff = x_t - x_{t-1};  log_diff = log(x_t / x_{t-1});  as_return = the row itself
@@ -154,14 +173,14 @@ def build_draws(
 ) -> np.ndarray:
     """Joint draws with Nish's adjustments applied. Returns (n_draws, n_assets, n_horizons).
 
-    Every card takes M1.5. `family` is kept for the contract; the settings do not depend on it.
+    Every card takes M1.9. `family` is kept for the contract; the settings do not depend on it.
     """
-    return _m15_model(_Request(panels, assets, horizons, asof, adjustments, n_draws, seed,
-                               target_type, family))
+    return _model(_Request(panels, assets, horizons, asof, adjustments, n_draws, seed,
+                           target_type, family))
 
 
 # ============================================================================
-#  The request, the asset rules, and M1.5.
+#  The request, the asset rules, and M1.9.
 # ============================================================================
 @dataclass(frozen=True)
 class _Request:
@@ -205,31 +224,34 @@ def asset_rule(asset: str, panel_id: str, target_type: str | None) -> dict:
 
 @dataclass(frozen=True)
 class _Fit:
-    """What M1.5 draws from. Everything is indexed by `assets`, which is SORTED: M0's cell order
-    (doc 3.9) is assets by id, then horizons ascending, and the random numbers follow it."""
+    """What the model draws from. Everything is indexed by `assets`, which is SORTED: M0's cell
+    order (doc 3.9) is assets by id, then horizons ascending, and the random numbers follow it."""
     assets: list[str]
     rules: dict[str, dict]
+    types: dict[str, str | None]   # asset type from the panel ("rates" gets the zero floor)
     log_mode: dict[str, bool]      # stepped in logs: forecast = last x exp(centre + shock)
     last: dict[str, float]         # the last observed value (0.0 on a log_return card)
     final: dict[str, float]        # the last observed row, for the no-new-release rule
-    mu: np.ndarray                 # mean step over the window (used only where drift is on)
+    mu: np.ndarray                 # mean step over the window (the trend scenario's drift)
+    drift: dict[str, float]        # drift per step: the recent trend (M1.7) or the type rule (M1.5)
+    full: dict[str, np.ndarray]    # every step of the history, oldest first (trend, variance ratio)
     sigma: np.ndarray              # one step's covariance: window correlation x EWMA sd x EWMA sd
     nu: float | None               # Student-t degrees of freedom (None: normal shocks)
     steps: dict[str, dict[int, float]]   # per asset, each horizon in the asset's own panel steps
 
 
-def _fit_m15(r: _Request) -> _Fit:
-    """Panels -> the drift, the covariance and nu, exactly as notebook 09 fits them.
+def _fit_model(r: _Request) -> _Fit:
+    """Panels -> the drift, the covariance and nu, exactly as notebooks 09 and 12-14 fit them.
 
     Each asset takes its last WINDOW + 1 rows, steps them in its own transform (M0's gap rule
     drops a step across a hole), then the assets are aligned on the dates they share. Aligning
     by date, not by row, matters on cards that span two panels: on t2-F3-divergence-2014
     UST_10Y/JPY correlates at 0.32 by row against 0.50 by date.
     """
-    hist, rules = {}, {}
+    hist, rules, types = {}, {}, {}
     for a in r.assets:
         panel_id, rows = _history(r.panels, a, r.asof)
-        hist[a], rules[a] = rows, asset_rule(a, panel_id, r.target_type)
+        hist[a], rules[a], types[a] = rows, asset_rule(a, panel_id, r.target_type), asset_type(a, panel_id)
     by_asset = sorted(r.assets)
     steps, log_mode, last = {}, {}, {}
     for a in by_asset:
@@ -252,36 +274,41 @@ def _fit_m15(r: _Request) -> _Fit:
                               EWMA_HALFLIFE) for a in by_asset])
     sigma = corr * np.outer(sd_e, sd_e)
 
+    full = {a: _ordered_steps(hist[a], rules[a]) for a in by_asset}
+    drift = {a: (mu[i] if rules[a]["drift"] else 0.0) for i, a in enumerate(by_asset)}    # M1.5
+    if RECENT_TREND:                                                                     # M1.7
+        drift = {a: _recent_trend(full[a], rules[a], mu[i]) for i, a in enumerate(by_asset)}
+
     t_rows = [i for i, a in enumerate(by_asset) if rules[a]["shock"] == "student_t"]
     return _Fit(
-        assets=by_asset, rules=rules, log_mode=log_mode, last=last,
-        final={a: hist[a][-1][1] for a in by_asset}, mu=mu, sigma=sigma,
+        assets=by_asset, rules=rules, types=types, log_mode=log_mode, last=last,
+        final={a: hist[a][-1][1] for a in by_asset}, mu=mu, sigma=sigma, drift=drift, full=full,
         nu=_fit_nu(x[t_rows]) if t_rows else None,
         steps={a: dict(zip(r.horizons, _horizon_steps([d for d, _ in hist[a]], r.horizons, r.asof)))
                for a in by_asset},
     )
 
 
-def _m15_model(r: _Request) -> np.ndarray:
-    """Every card. M0's joint draw with M1.5's centre, covariance and shocks, then the text.
+def _model(r: _Request) -> np.ndarray:
+    """Every card. M0's joint draw with M1.9's centre, width, shocks and scenarios, then the text.
 
     The cells are (asset, horizon) pairs. cov[(a1, h1), (a2, h2)] = min(steps) x sigma[a1, a2]: the
     covariance of ONE accumulating path per draw, so horizons of one asset correlate at
-    sqrt(h1 / h2) and assets keep the window's correlation at every horizon. A Student-t cell is
-    scaled by sqrt((nu - 2) / W), with one W per draw for the whole path. Drawing a new W per leg
-    (production's previous walk) scored worse: 0.9448 vs 0.9444 (notebook 10).
+    sqrt(h1 / h2) and assets keep the window's correlation at every horizon. Each cell is then
+    scaled by sqrt(VR) (M1.8). A Student-t cell is scaled by sqrt((nu - 2) / W), with one W per draw
+    for the whole path; drawing a new W per leg scored worse (notebook 10). The last TREND_SHARE of
+    the draws are re-centred on the window's full trend (M1.9), and Treasury yields are floored at 0.
     """
-    f = _fit_m15(r)
+    f = _fit_model(r)
     ai = {a: i for i, a in enumerate(f.assets)}
     hs = sorted(r.horizons)
     cells = [(a, h) for a in f.assets for h in hs]
     s = f.steps
 
-    def centre(a: str, h: int) -> float:
-        anchor = 0.0 if f.log_mode[a] else f.last[a]
-        return anchor + (s[a][h] * f.mu[ai[a]] if f.rules[a]["drift"] else 0.0)
+    def centre(a: str, h: int, drift: dict[str, float]) -> float:
+        return (0.0 if f.log_mode[a] else f.last[a]) + s[a][h] * drift[a]
 
-    mean = np.array([centre(a, h) for a, h in cells])
+    mean = np.array([centre(a, h, f.drift) for a, h in cells])
     cov = np.array([[min(s[a1][h1], s[a2][h2]) * f.sigma[ai[a1], ai[a2]] for a2, h2 in cells]
                     for a1, h1 in cells])
     cov[np.diag_indices_from(cov)] += 1e-10                     # M0's jitter (doc 3.8)
@@ -298,6 +325,9 @@ def _m15_model(r: _Request) -> np.ndarray:
     skew = np.array([adj(a, "skew", 0.0) for a in f.assets])
     if SKEW_ENABLED and np.any(skew != 0.0):
         dev = _skew_legs(dev, f, hs, skew, r.seed)
+    if VR_SHRINK is not None:                                                          # M1.8
+        dev = dev * np.array([np.sqrt(_variance_ratio(f.full[a], s[a][h], f.rules[a]["drift"]))
+                              for a, h in cells])
     dev = dev * np.array([WIDEN * adj(a, "widen", 1.0) for a, h in cells])
     t_cells = np.array([f.rules[a]["shock"] == "student_t" for a, h in cells])
     if f.nu is not None and t_cells.any():
@@ -305,14 +335,53 @@ def _m15_model(r: _Request) -> np.ndarray:
         dev = dev * np.where(t_cells, np.sqrt((f.nu - 2.0) / w), 1.0)
 
     sm = mean + dev
+    k = int(round(TREND_SHARE * r.n_draws))
+    if k:                           # M1.9: the last k draws: the trend of the window, not shrunk
+        full_trend = {a: (f.drift[a] if f.rules[a]["drift"] else f.mu[ai[a]]) for a in f.assets}
+        sm[r.n_draws - k:] = np.array([centre(a, h, full_trend) for a, h in cells]) + dev[r.n_draws - k:]
     out = np.empty((r.n_draws, len(r.assets), len(r.horizons)))
     for ci, (a, h) in enumerate(cells):
         if s[a][h] <= 0:            # no new monthly release by the target date: the last one stands
             col = np.full(r.n_draws, f.final[a])
         else:
             col = (f.last[a] * np.exp(sm[:, ci]) if f.log_mode[a] else sm[:, ci]) + adj(a, "shift", 0.0)
+            if ZERO_FLOOR and f.types[a] == "rates":                                   # M1.8
+                col = np.maximum(col, 0.0)
         out[:, r.assets.index(a), r.horizons.index(h)] = col
     return out
+
+
+def _recent_trend(v: np.ndarray, rule: dict, mu_window: float) -> float:
+    """M1.7's drift per step from an asset's steps `v` (oldest first).
+
+    CPI and payrolls (drift by type): the mean of the last MACRO_TREND_STEPS steps, this year's
+    trend rather than the 21-year average. Everything else: the mean m of the last TREND_LOOKBACK
+    steps shrunk by its t-statistic t = m / (sd / sqrt(n)): m x max(0, 1 - TREND_SHRINK / t^2).
+    With the constant 4, |t| <= 2 gives no drift at all and |t| = 4 keeps 75 %.
+    """
+    if rule["drift"]:
+        return float(v[-MACRO_TREND_STEPS:].mean()) if len(v) >= MACRO_TREND_STEPS else float(mu_window)
+    v = v[-TREND_LOOKBACK:]
+    sd = v.std(ddof=1)
+    t = v.mean() / (sd / np.sqrt(len(v))) if sd > 0 else 0.0
+    return float(v.mean() * max(0.0, 1.0 - TREND_SHRINK / max(t * t, 1e-12)))
+
+
+def _variance_ratio(v: np.ndarray, h_steps: float, demean: bool) -> float:
+    """M1.8: VR = mean(h-step move^2) / (h x mean(1-step move^2)) over the steps `v`, shrunk toward 1.
+
+    VR > 1 when moves keep going (rates through policy cycles), < 1 when they cancel. Moves are not
+    demeaned unless the asset carries a drift: a trend the model does not forecast is width. The
+    estimate is shrunk by the number of independent windows n = len(v) / h: 1 + (VR - 1) x n / (n + 30).
+    """
+    h = int(h_steps)
+    if VR_SHRINK is None or h <= 1 or len(v) < 2 * h + 20:
+        return 1.0
+    m = v.mean() if demean else 0.0
+    c = np.concatenate([[0.0], np.cumsum(v - m)])
+    ratio = np.mean((c[h:] - c[:-h]) ** 2) / (h * np.mean((v - m) ** 2))
+    n_eff = len(v) / h
+    return 1.0 + (ratio - 1.0) * n_eff / (n_eff + VR_SHRINK)
 
 
 def _skew_legs(dev: np.ndarray, f: _Fit, hs: list[int], skew: np.ndarray, seed: int) -> np.ndarray:
@@ -321,7 +390,7 @@ def _skew_legs(dev: np.ndarray, f: _Fit, hs: list[int], skew: np.ndarray, seed: 
     The path is cut into legs (horizon 1, horizon 1 -> 2, ...). Each leg's move is divided by its sd
     to give a standard shock, tilted per asset by `_skew_tilt` with its own |normal| term, scaled
     back and added up again. At skew = 0 this is never called, so neutral cards draw exactly as
-    notebook 09.
+    notebook 14.
     """
     n, k = dev.shape[0], len(hs)
     legs = np.diff(dev.reshape(n, len(f.assets), k), axis=2, prepend=0.0)

@@ -1,4 +1,4 @@
-"""build_draws() -- M1.5, the production model (forecast_models.py) -- and its skew tilt. Owner: Dew's section,
+"""build_draws() -- M1.9, the production model (forecast_models.py) -- and its skew tilt. Owner: Dew's section,
 addition: Pun.
 
 Plain unittest, no pytest, no network -- consistent with tests/test_text_signal.py.
@@ -38,6 +38,18 @@ def _panel(asset: str, n: int = 300, start: float = 100.0, seed: int = 0):
 
 
 NEUTRAL = {"shift": 0.0, "widen": 1.0, "skew": 0.0}
+
+#: M1.9's pieces switched off, which is M1.5 exactly. The tests of the core walk (text adjustments,
+#: joint structure, gaps, monthly steps, asset rules, Student-t) pin those mechanics on their own;
+#: `TestM19Pieces` tests each piece.
+M15_CORE = dict(RECENT_TREND=False, ZERO_FLOOR=False, VR_SHRINK=None, TREND_SHARE=0.0)
+
+
+class CoreTest(unittest.TestCase):
+    def setUp(self):
+        patcher = mock.patch.multiple(fm, **M15_CORE)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
 
 class TestSkewTiltMath(unittest.TestCase):
@@ -92,7 +104,7 @@ class TestSkewTiltMath(unittest.TestCase):
         self.assertLess(skew_b, -0.5)
 
 
-class TestBuildDrawsWithSkew(unittest.TestCase):
+class TestBuildDrawsWithSkew(CoreTest):
     def test_neutral_matches_expected_center_and_scale(self):
         table, asof, last = _panel("A")
         out = fa.build_draws({"p": table}, ["A"], [21], asof,
@@ -152,7 +164,7 @@ class TestBuildDrawsWithSkew(unittest.TestCase):
         self.assertEqual(out.shape, (1000, 1, 1))
 
 
-class TestTextAdjustments(unittest.TestCase):
+class TestTextAdjustments(CoreTest):
     """widen multiplies the sd and shift moves every horizon in the asset's own units, on every card.
     (M1.5's own widen is 1.0; the silent-text F4 floor of 1.5 was removed on 2026-09-27.)"""
 
@@ -218,7 +230,7 @@ def _multi_panel(assets, n=400, seed=0, corr=0.0, start=100.0):
     return pa.table(cols), dates[-1]
 
 
-class TestJointStructure(unittest.TestCase):
+class TestJointStructure(CoreTest):
     """The cross-horizon and cross-asset structure the variogram actually scores.
 
     Nothing in this file before these tests called build_draws() with more than one asset or more
@@ -289,7 +301,7 @@ class TestJointStructure(unittest.TestCase):
             self.assertAlmostEqual(rho, corr_true[0, 1], delta=0.03)
 
 
-class TestAlignmentAndGaps(unittest.TestCase):
+class TestAlignmentAndGaps(CoreTest):
     def test_assets_in_different_panels_align_by_date(self):
         """Two panels with different calendars must correlate on the date intersection.
 
@@ -364,7 +376,7 @@ class TestAlignmentAndGaps(unittest.TestCase):
         self.assertGreater(sd_b, 10 * sd_a, "B (vol 5.0) must be the first output column")
 
 
-class TestMonthlyHorizonSteps(unittest.TestCase):
+class TestMonthlyHorizonSteps(CoreTest):
     """On a monthly panel one step is a month, but cards state horizons in business days. The model
     must count months from the asset's last observation to asof + h business days (the official
     baseline's rule, docs/M0-BASELINE.md section 3.7) -- not walk h months."""
@@ -380,10 +392,10 @@ class TestMonthlyHorizonSteps(unittest.TestCase):
         # last observation 2019-12-01; the as-of lags it by two months, like published macro data
         req = fm._Request({"m": table}, ["X"], [21, 63], "2020-01-31", {"X": dict(NEUTRAL)}, 4000, 0,
                           "level", None)
-        fit = fm._fit_m15(req)
+        fit = fm._fit_model(req)
         # 2020-01-31 + 21 BD = 2020-03-02 -> March, 3 months after Dec; + 63 BD = 2020-04-29 -> 4 months
         self.assertEqual(fit.steps["X"], {21: 3.0, 63: 4.0})
-        out = fm._m15_model(req)
+        out = fm._model(req)
         sd = np.sqrt(fit.sigma[0, 0])
         for hi, k in enumerate((3, 4)):
             self.assertAlmostEqual(out[:, 0, hi].std() / (sd * np.sqrt(k)), 1.0, delta=0.05)
@@ -411,10 +423,10 @@ class TestMonthlyHorizonSteps(unittest.TestCase):
     def test_daily_horizon_is_unchanged(self):
         table, asof = _multi_panel(["A"], n=400, seed=2)
         req = fm._Request({"p": table}, ["A"], [21, 63], asof, {"A": dict(NEUTRAL)}, 10, 0, "level", None)
-        self.assertEqual(fm._fit_m15(req).steps["A"], {21: 21.0, 63: 63.0})
+        self.assertEqual(fm._fit_model(req).steps["A"], {21: 21.0, 63: 63.0})
 
 
-class TestLogReturnTarget(unittest.TestCase):
+class TestLogReturnTarget(CoreTest):
     def test_log_return_centres_on_zero_not_the_last_return(self):
         """A cumulative log-return target starts at 0, with no drift extrapolation.
 
@@ -446,7 +458,7 @@ def _typed_panel(asset: str, panel_id: str, n: int = 600, seed: int = 0, start: 
                      "panel_id": [panel_id] * n}), dates[-1], values
 
 
-class TestAssetRules(unittest.TestCase):
+class TestAssetRules(CoreTest):
     """The asset type comes from the unit folder: the panel that holds the asset (its `panel_id`,
     which is also its file name and the card's [panels] id); macro assets by id."""
 
@@ -488,11 +500,11 @@ class TestAssetRules(unittest.TestCase):
         self.assertAlmostEqual(np.median(out) / values[-1], 1.0, delta=0.01)
 
 
-class TestOneModel(unittest.TestCase):
-    """Every card takes M1.5 -- no switch, no per-family settings (2026-10-04), so the text's
+class TestOneModel(CoreTest):
+    """Every card takes the one model -- no per-family settings (2026-10-04), so the text's
     shift / widen / skew mean the same thing on every card."""
 
-    def test_every_card_takes_m15(self):
+    def test_every_card_takes_the_model(self):
         daily, asof = _multi_panel(["A", "B"], n=400, seed=5, corr=0.3)
         n = 120
         monthly = pa.table({"date": [f"{2010 + i // 12}-{1 + i % 12:02d}-01" for i in range(n)],
@@ -506,7 +518,7 @@ class TestOneModel(unittest.TestCase):
             adj = {a: dict(NEUTRAL) for a in assets}
             got = fa.build_draws(panels, assets, horizons, when, adj, 500, 3,
                                  target_type=target, family=family)
-            want = fm._m15_model(fm._Request(panels, assets, horizons, when, adj, 500, 3, target, None))
+            want = fm._model(fm._Request(panels, assets, horizons, when, adj, 500, 3, target, None))
             np.testing.assert_array_equal(got, want, err_msg=f"{family} {assets} {horizons}")
 
     def test_single_horizon_by_hand(self):
@@ -526,7 +538,7 @@ class TestOneModel(unittest.TestCase):
         np.testing.assert_allclose(out, by_hand, rtol=0, atol=1e-10)
 
 
-class TestM15Settings(unittest.TestCase):
+class TestM15Settings(CoreTest):
     """The EWMA sd, and the Student-t shocks with nu fitted from the window."""
 
     def test_ewma_sd_matches_pandas(self):
@@ -560,6 +572,88 @@ class TestM15Settings(unittest.TestCase):
         self.assertAlmostEqual(np.corrcoef(zt.T)[0, 1], np.corrcoef(zn.T)[0, 1], delta=0.02)
         beyond = lambda z: np.mean(np.abs(z / z.std(0)) > 3)
         self.assertGreater(beyond(zt), 2 * beyond(zn))
+
+
+class TestM19Pieces(unittest.TestCase):
+    """M1.9's pieces on top of M1.5, each on its own (model_experiment_v3 notebooks 12-14)."""
+
+    def test_recent_trend_is_shrunk_by_its_t_statistic(self):
+        rates, cpi = fm.ASSET_TYPES["rates"], fm.ASSET_TYPES["cpi"]
+        rng = np.random.default_rng(1)
+        strong, noise = rng.normal(0.5, 1.0, 400), rng.normal(0.0, 1.0, 400)
+        for v in (strong, noise):
+            w = v[-126:]
+            t = w.mean() / (w.std(ddof=1) / np.sqrt(126))
+            self.assertAlmostEqual(fm._recent_trend(v, rates, 9.9), w.mean() * max(0.0, 1.0 - 4.0 / t ** 2), places=12)
+        self.assertGreater(fm._recent_trend(strong, rates, 0.0), 0.3)          # t ~ 5.6: most of it kept
+        # CPI and payrolls: the plain mean of the last 12 monthly steps, or the window's drift if too short
+        self.assertAlmostEqual(fm._recent_trend(strong, cpi, 9.9), strong[-12:].mean(), places=12)
+        self.assertEqual(fm._recent_trend(strong[:5], cpi, 9.9), 9.9)
+
+    def test_zero_floor_on_treasury_yields(self):
+        n, rng = 600, np.random.default_rng(11)
+        dates = _bdays(n)
+        vals = np.abs(rng.normal(0.25, 0.02, n))                                 # a yield just above 0 %
+        table = pa.table({"date": dates, "asset": ["UST_2Y"] * n, "value": vals.tolist(), "panel_id": ["rates_daily"] * n})
+        args = ({"p": table}, ["UST_2Y"], [126], dates[-1], {"UST_2Y": dict(NEUTRAL)}, 4000, 0)
+        on = fa.build_draws(*args)
+        with mock.patch.object(fm, "ZERO_FLOOR", False):
+            off = fa.build_draws(*args)
+        self.assertGreater((off < 0).mean(), 0.05)                              # the walk alone goes below 0
+        self.assertTrue(np.all(on >= 0.0))
+        np.testing.assert_array_equal(on, np.maximum(off, 0.0))
+
+    def test_variance_ratio(self):
+        rng, h = np.random.default_rng(5), 126
+        walk = rng.normal(0, 1, 5000)
+        trend = np.convolve(rng.normal(0, 1, 5100), np.ones(20) / 20, mode="valid")[:5000]   # moves keep going
+        revert = np.diff(rng.normal(0, 1, 5001))                                             # moves cancel
+        self.assertAlmostEqual(fm._variance_ratio(walk, h, False), 1.0, delta=0.15)
+        self.assertGreater(fm._variance_ratio(trend, h, False), 1.5)
+        self.assertLess(fm._variance_ratio(revert, h, False), 0.6)
+        c = np.concatenate([[0.0], np.cumsum(trend)])
+        raw = np.mean((c[h:] - c[:-h]) ** 2) / (h * np.mean(trend ** 2))
+        n = len(trend) / h
+        self.assertAlmostEqual(fm._variance_ratio(trend, h, False), 1 + (raw - 1) * n / (n + 30), places=12)
+        self.assertEqual(fm._variance_ratio(walk, 1, False), 1.0)                # one step: nothing to correct
+
+    def test_trend_scenario_moves_the_last_quarter(self):
+        table, asof, _ = _typed_panel("UST_10Y", "rates_daily", start=100.0, trend=0.05, seed=3)
+        n, h = 1000, 126
+        args = ({"p": table}, ["UST_10Y"], [h], asof, {"UST_10Y": dict(NEUTRAL)}, n, 0)
+        mix = fa.build_draws(*args)[:, 0, 0]
+        with mock.patch.object(fm, "TREND_SHARE", 0.0):
+            one = fa.build_draws(*args)[:, 0, 0]
+        k = int(round(0.25 * n))
+        np.testing.assert_array_equal(mix[: n - k], one[: n - k])
+        f = fm._fit_model(fm._Request({"p": table}, ["UST_10Y"], [h], asof, {}, n, 0, "level", None))
+        np.testing.assert_allclose(mix[n - k:] - one[n - k:], h * (f.mu[0] - f.drift["UST_10Y"]), rtol=0, atol=1e-9)
+
+    def test_single_horizon_by_hand(self):
+        """All of M1.9 on one rates asset, by hand: the first 3/4 of the draws centred on
+        last + h x shrunk trend, the last 1/4 on last + h x window trend; each shock is
+        z x sqrt(h sd^2 + jitter) x sqrt(VR) x sqrt((nu - 2) / W); floored at 0."""
+        table, asof, values = _typed_panel("UST_10Y", "rates_daily", df=5, seed=8, start=100.0, trend=0.4)
+        n, h, seed = 1000, 63, 4
+        out = fa.build_draws({"p": table}, ["UST_10Y"], [h], asof, {"UST_10Y": dict(NEUTRAL)}, n, seed,
+                             target_type="level")[:, 0, 0]
+        steps = np.diff(values)
+        win, last126 = steps[-fm.WINDOW:], steps[-126:]
+        nu = fm._fit_nu(win[None, :])
+        self.assertIsNotNone(nu)
+        sd = fm._ewma_sd(steps[-int(8 * fm.EWMA_HALFLIFE):], fm.EWMA_HALFLIFE)
+        t = last126.mean() / (last126.std(ddof=1) / np.sqrt(126))
+        drift = last126.mean() * max(0.0, 1.0 - 4.0 / t ** 2)
+        self.assertGreater(drift, 0.0)
+        c = np.concatenate([[0.0], np.cumsum(steps)])
+        raw = np.mean((c[h:] - c[:-h]) ** 2) / (h * np.mean(steps ** 2))
+        m = len(steps) / h
+        vr = 1 + (raw - 1) * m / (m + 30)
+        z = np.random.default_rng(seed).standard_normal((n, 1))[:, 0]
+        w = np.random.default_rng([seed, 7]).chisquare(nu, size=(n, 1))[:, 0]
+        shock = z * np.sqrt(h * sd ** 2 + 1e-10 + 1e-9) * np.sqrt(vr) * np.sqrt((nu - 2) / w)
+        centre = np.where(np.arange(n) < n - 250, values[-1] + h * drift, values[-1] + h * win.mean())
+        np.testing.assert_allclose(out, np.maximum(centre + shock, 0.0), rtol=0, atol=1e-9)
 
 
 if __name__ == "__main__":
