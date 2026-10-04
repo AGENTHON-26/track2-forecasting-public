@@ -10,6 +10,11 @@ idea here is measured against the **current production model**, and only an idea
 walk's 0.9726 (notebooks 06 and 09), and `forecast_models.py` now reproduces notebook 09 draw for draw (notebook 11).
 Notebook 06 measured the walk, which is gone from the code: re-run it at commit `fc632cb`.
 
+**Next (notebooks 12–15, not in production yet): M2.0, 0.9155 × M0 on the backtest**, better than M0 on 96 of 103 units, in
+four steps from M1.5's 0.9444: the significant recent trend as drift (M1.7, 0.9312); a zero floor on Treasury yields and the
+variance ratio on the width (M1.8, 0.9266); 1 draw in 4 carrying the full trend (M1.9, 0.9194); an ensemble of three EWMA
+volatility estimates and 2,000 draws (M2.0, 0.9155). Ideas that did not help are listed at the end of this page.
+
 **The baseline to beat** was the production model when this folder started: the cumulative random walk + Cholesky +
 EWMA, with the per-family settings in `forecast_models.WALK_SETTINGS`:
 
@@ -55,5 +60,26 @@ written into this folder (AGENTS.md firewall).
 | `09_m1_5_ewma63.ipynb` | notebook 9: **M1.5** = M1.3 with an EWMA sd (halflife 63, last 504 steps) instead of the plain 260-step sd; correlation, drift and ν still from the 260 steps; nothing tuned; every model side by side |
 | `10_m1_6_t_per_leg.ipynb` | notebook 10: **M1.6** = M1.5 drawn like production's joint (F3) design, with a new Student-t χ² for every leg instead of one for the whole path; 0.9448 vs M1.5's 0.9444, so M1.5 is kept |
 | `11_production_parity.ipynb` | notebook 11: **production (`forecast_models.py`) = M1.5**: each asset's rule read from the panel that holds it in the unit folder (equal to `transformations.toml` on all 165 assets), and production's draws identical to notebook 09's at all 103 as-ofs and on every backtest date of the 99 daily units; what the text's shift / widen / skew do |
+| `12_m1_7_recent_trend.ipynb` | notebook 12: **M1.7** = M1.5 with the recent trend as drift: rates, FX, equity factors and unemployment take the mean of the last 126 steps shrunk by its t-statistic (James–Stein, × max(0, 1 − 4 / t²)), CPI and NFP the mean of the last 12 steps; 0.9312 |
+| `13_m1_8_floor_variance_ratio.ipynb` | notebook 13: **M1.8** = M1.7 + a zero floor on Treasury yields + the variance ratio on the width (sd × √VR, VR from the asset's whole history, shrunk toward 1 with n0 = 30); 0.9266 |
+| `14_m1_9_trend_scenario.ipynb` | notebook 14: **M1.9** = M1.8 + a trend scenario: 1 draw in 4 carries the 260-step window's full trend (forecast combination); with the M0-pool evidence that led to it; 0.9194 |
+| `15_m2_0_vol_ensemble.ipynb` | notebook 15: **M2.0** = M1.9 + an ensemble of EWMA volatility estimates (halflives 21, 63 and 252, a third of the draws each) + 2,000 draws; 0.9155; the path from M1.5 |
 | `transformations.toml` | **the transformation rules** (M1.1): asset → type → transform (`diff`, `log_diff`, `as_return`), with the defaults; every notebook reads a unit's `card.toml` and applies it (`unit_rules`) |
 | `data/` | the backtest answers; every model's per-date scores (M0's are the denominators for every later notebook); per unit, per family and per asset type tables; `all_models_vs_m0.csv`, the ladder |
+
+## Tried and not kept (scratch tests on the same backtest, competition score × M0)
+
+| idea | tested on | result | why it is out |
+|---|---|---|---|
+| widen every forecast by 1.1 / 1.2 | M1.5 (0.9444) | 0.9475 / 0.9579 | the misses sit in a few regimes (cycle turns), not everywhere |
+| GARCH-style term structure: per-step variance reverts to the long-run one (halflife 63 / 126 / 252) | M1.5 | 0.9510 / 0.9462 / 0.9441 | the long-run variance of the high-rate years is far too wide for the zero-rate years |
+| self-calibration: scale by how well EWMA sd × √h sized the asset's own past moves | M1.5 | 0.9448–0.9541 | noisy, and it learns the last regime |
+| a significance switch instead of shrinkage: drift only if \|t\| > 2 / 3 / 4 | M1.5 | 0.9653 / 0.9437 / 0.9430 | all or nothing flips too often; James–Stein (M1.7) is smoother |
+| EWMA correlation (halflife 63 / 126) instead of the 260-step one | M1.8 + 25 % of M0's draws (0.9218) | 0.9219 / 0.9218 | no change |
+| EWMA sd halflife 42 / 126 instead of 63 | same | 0.9216 / 0.9224 | no change |
+| faster halflife for horizons up to 42 days (RiskMetrics: 21, 42) | M1.9 (0.9194) | 0.9199 | no gain on daily data |
+| Bayesian model averaging of the trend, BIC weight per asset | M1.9 + 2,000 draws (0.9188) | 0.9252 at best | trusts strong trends too much; they reverse |
+| the trend averaged over 63 / 126 / 252 steps; ν capped at 8; ν = 5; Student-t for macro too | same | 0.9178–0.9192 | within ±0.001 |
+| antithetic draws (z and −z) | M1.9 + 2,000 draws | no gain over plain draws | — |
+| a new Student-t χ² per leg (the old production walk's design) | M1.5 | 0.9448 | notebook 10 |
+
