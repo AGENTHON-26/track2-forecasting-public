@@ -1,0 +1,107 @@
+# ## Executive summary (read this first)
+#
+# The step each asset is modelled on, by asset type: the M1.1 rule (notebook 04), read by every notebook in
+# model_experiment_v3. A notebook reads a unit's card.toml (its asset_ids and target_type), looks each asset up here,
+# and applies the transform:
+#
+#   diff       step = x_t - x_{t-1};           forecast = last + sum of steps          (M0's own step)
+#   log_diff   step = log(x_t / x_{t-1});      forecast = last * exp(sum of steps)
+#   as_return  the row already is a log return; forecast = sum of the rows (cumulative), no level
+#
+# Rules, in order:
+#   1. target_type = "log_return"  -> as_return, whatever the asset (the panel holds one log return per row);
+#   2. a listed asset              -> its type's transform;
+#   3. an asset not listed         -> [default].level ("diff", which is M0);
+#   4. log_diff needs every value > 0 in the history window; otherwise that asset falls back to "diff".
+# Monthly series (CPI_ALL, NFP, UNRATE): if no new release falls before the target date (0 monthly steps ahead),
+# the forecast is the last released value.
+#
+# Shocks (M1.2, notebook 05): each type also names its shock, "normal" or "student_t". A student_t asset's draws are
+# scaled by sqrt((nu - 2) / W), W ~ chi2(nu), one W per draw shared by every student_t cell of the unit (same variance,
+# fatter tails), with nu fitted from the window (see [shocks]). Rates, FX and equity factors: student_t; CPI, payrolls,
+# unemployment: normal. An unlisted asset: normal.
+# On a log_return unit each row is already a log return (summed over the horizon, no log1p), as M0 does.
+#
+# Drift (M1.3, notebook 07; Dew's decision 2026-10-03, replacing "always keep M0's drift"): each type says whether the
+# centre carries M0's drift (last + steps x mean step) or sits on the last value. Backtest (notebook 06 + drift checks):
+# without drift, rates 0.939, FX 0.968, equity factors 0.978, unemployment 0.985 vs M0; with drift, CPI 0.873 and
+# payrolls 1.000 (without: 1.189 and 1.538). The fitted mean step is mostly noise on rates/FX (UST_2Y: 0.2 x its own
+# standard error) and a real trend on CPI (11 x). AR(1) mean reversion was tested and rejected (1.008: the fitted
+# reversion is the short-sample bias of phi). An unlisted asset: no drift.
+
+[default]
+level = "diff"
+log_return = "as_return"
+shock = "normal"
+drift = false
+
+[shocks]
+nu = "fit"        # Student-t nu is FITTED at every date from the window's daily steps (notebooks 05, 07), not fixed:
+                  # excess kurtosis k of the steps -> nu = 4 + 6 / k (a Student-t has kurtosis 6 / (nu - 4)),
+nu_min = 4.2      # kept in [nu_min, nu_max];
+nu_max = 30.0
+normal_below_kurtosis = 0.2   # a window with k below this stays normal
+
+[types.rates]
+transform = "diff"
+shock = "student_t"
+drift = false
+note = "Treasury yield, percent per annum: model the change in percentage points, not log returns"
+
+[types.fx]
+transform = "log_diff"
+shock = "student_t"
+drift = false
+note = "exchange rate: daily log return; level = S * exp(sum)"
+
+[types.cpi]
+transform = "log_diff"
+shock = "normal"
+drift = true
+note = "CPI index, monthly: log growth; level = CPI * exp(sum)"
+
+[types.payrolls]
+transform = "diff"
+shock = "normal"
+drift = true
+note = "total payroll employment (thousands, PAYEMS), monthly: the change in jobs; not differenced twice"
+
+[types.unemployment]
+transform = "diff"
+shock = "normal"
+drift = false
+note = "unemployment rate, monthly: percentage-point change; never log returns"
+
+[types.equity_factor]
+transform = "as_return"
+shock = "student_t"
+drift = false
+note = "factor return: the row is the daily log return; the target is their cumulative sum"
+
+[assets]
+UST_2Y = "rates"
+UST_5Y = "rates"
+UST_7Y = "rates"
+UST_10Y = "rates"
+UST_30Y = "rates"
+AUD = "fx"
+BRL = "fx"
+CAD = "fx"
+CHF = "fx"
+CNY = "fx"
+DKK = "fx"
+EUR = "fx"
+GBP = "fx"
+INR = "fx"
+JPY = "fx"
+NOK = "fx"
+NZD = "fx"
+SEK = "fx"
+CPI_ALL = "cpi"
+NFP = "payrolls"
+UNRATE = "unemployment"
+MKT = "equity_factor"
+HML = "equity_factor"
+MOM = "equity_factor"
+SMB = "equity_factor"
+QMJ = "equity_factor"
