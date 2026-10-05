@@ -79,9 +79,9 @@ unit above.
 | that it passes the admissibility gates (g0–g3) | your CRPS composite |
 | that the `baselines/` scaffolds run against the same panel (their forecast is a placeholder — see below) | anything about the scored baseline, or whether you beat it |
 
-Accuracy feedback comes from submitting: the Development leaderboard scores you on units you
-have not seen. Use the practice units to get *admissible*, and the leaderboard to find out how
-good you are.
+Accuracy feedback comes from submitting: the Development leaderboard scores you on this
+repository's `validation` units, against outcomes that are not shipped with them. Use the
+practice units to get *admissible*, and the leaderboard to find out how good you are.
 
 The held-out evaluation units are sealed in the private repository and are a different, later
 window — nothing in this practice data reaches them.
@@ -367,6 +367,30 @@ requirement and length is not evidence of anything: see [`docs/RATIONALE-REVIEW.
 for what reviewers do and do not treat as a signal.
 
 `units/t2-EXAMPLE-ust-curve-1m/run_example.sh` writes a worked example of all three files.
+
+### Output folder rules
+
+Everything your agent leaves in `/output` is checked, not only the three files above. After your
+process exits, the organizers' output checker reads the whole tree and refuses it if it has any
+of these:
+
+- more than 256 files, more than 4,096 files and folders together, or a folder nested 8 or more
+  levels deep, even an empty one (a file can sit at most seven folders down, as in
+  `/output/a/b/c/d/e/f/g/file.txt`);
+- a symbolic link (even one pointing inside the folder), a hard link, or a special file such as a
+  named pipe or socket;
+- a file with a setuid, setgid or sticky bit;
+- a file larger than 64 MiB, more than 64 MiB in total, or a file more than 64 times larger than
+  the disk space it occupies (a heavily sparse file);
+- two file paths that differ only in letter case or Unicode form (`Notes.txt` and `notes.txt`), a
+  name that is not valid UTF-8 or not in Unicode NFC form, a name with a backslash or a control
+  character, or a name directly in `/output` that starts with a letter and a colon (such as
+  `C:data`);
+- no files at all (empty folders do not count).
+
+In Development, a refused tree scores the unit `no_output` when your process exited 0. A non-zero
+exit is scored `container_crashed`, or `resource_timeout` / `resource_oom` if the run was stopped
+for time or memory, whatever the tree holds. The 64 MiB limits are the same in the Final.
 
 ---
 
@@ -734,8 +758,10 @@ writable workspace allowance from a card's memory or disk field.
 4. Build your agent image; verify it writes a valid `forecast.parquet`, `forecast_meta.json`
    and a non-blank `forecast_rationale.md`.
 5. Run the smoke scorer against the exemplar card.
-6. Score your model against the validation cards in `units/`.
-7. Optionally run the text-ablated variant and compare scores.
+6. Run your agent on the validation cards in `units/` and check that every output is admissible.
+   They carry no answers, so this checks form, not accuracy (see "They carry no answers" above).
+7. Optionally build a text-ablated variant too. How it compares with your agent shows only on
+   the Development leaderboard, after you submit both.
 8. Pack and upload: `qfbench2 submission pack --descriptor submission.json --team-number <N> --out submission.zip`,
    then upload `submission.zip` on the track's CodaBench competition page (see
    ["How an upload is made"](SUBMISSION_CLI.md#how-an-upload-is-made)).
