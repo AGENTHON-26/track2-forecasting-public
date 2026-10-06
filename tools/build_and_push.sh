@@ -82,11 +82,12 @@ cat <<EOF
 image    ${REPO}:${TAG}
 digest   ${DIGEST}
 
-next:
+next (this branch has TEXT_SIGNAL=False: no House call, so --no-model; drop it if you re-enable text):
   python3 tools/make_descriptor.py \\
       --team-id "\$(qfbench2 submission alias --team-number <N>)" \\
       --repository ${REPOSITORY} \\
       --digest ${DIGEST} \\
+      --no-model \\
       --out submission.json
   qfbench2 submission pack --descriptor submission.json --team-number <N> --out submission.zip
 ================================================================
