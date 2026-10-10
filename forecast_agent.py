@@ -34,11 +34,10 @@ from forecast_models import build_draws  # re-exported: this is the documented c
 
 DEFAULT_DRAWS = 500
 
-#: OFF on the leaderboard branches feat/model_v3_m1_5, _m1_9 and _m2_0 (Dew, 2026-10-04): these images
-#: submit the time-series model alone, so the score measures the model. Every asset gets the neutral
-#: adjustment and no House model call is made, so pack the descriptor with
-#: `tools/make_descriptor.py --no-model` (models: []). Set True to put the text half back.
-TEXT_SIGNAL = False
+#: ON on feat/model_v3_m1_9_text: M1.9 with the House-model text half, to compare against the
+#: text-off feat/model_v3_m1_9 image. The descriptor must then declare the House model, so pack WITHOUT
+#: `tools/make_descriptor.py --no-model`. False = every asset neutral, no House call (then use --no-model).
+TEXT_SIGNAL = True
 
 
 

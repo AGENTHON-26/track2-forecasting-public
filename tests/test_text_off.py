@@ -27,7 +27,8 @@ class TestTextOff(unittest.TestCase):
     def test_no_text_call_and_every_asset_neutral(self):
         if not UNIT.is_dir():
             self.skipTest("units/ not checked out")
-        self.assertFalse(fa.TEXT_SIGNAL, "these branches submit the model alone")
+        if fa.TEXT_SIGNAL:
+            self.skipTest("TEXT_SIGNAL is on in this branch (feat/model_v3_m1_9_text)")
         asof = tomllib.loads((UNIT / "card.toml").read_text())["provenance"]["data_cutoff"]
         seen, real = {}, fa.build_draws
 
