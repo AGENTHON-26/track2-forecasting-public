@@ -743,8 +743,10 @@ consume the unit clock; previously reported pull timings are historical observat
 current startup guarantee. See the
 [Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/DEVELOPMENT-RUNTIME.md)
 for process, temporary-space and output limits, and the
-[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.6.0/docs/IMAGE-SUBMISSIONS.md)
-for anonymous public pulls and organizer-confirmed private mirrors. The writable image layer,
+[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/IMAGE-SUBMISSIONS.md)
+for anonymous public pulls. There's no private-image route in Agenthon 2026: your image must be
+anonymously pullable. A public image can be pulled by anyone, including the files and model
+artifacts inside it; leave out anything you don't want to share. The writable image layer,
 temporary filesystem and output mount are separate; do not infer an image-size quota or a
 writable workspace allowance from a card's memory or disk field.
 
