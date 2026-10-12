@@ -168,9 +168,9 @@ _SKEW_CLAMP = (-1.0, 1.0)
 #: wider joint distribution has wider gaps between every pair of cells, and gaps are what is
 #: scored. Other families keep the wide clamp: F4 is single-cell (the joint weight is
 #: redistributed away entirely) and is scored on exactly the tail that widening helps.
-_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (1.5, 4.5)}
-#: F4 is 1.5-4.5 so the prompt's "shock in progress = 3.75-4.5" band is reachable, and a reply can
-#: never take an F4 card below the prompt's "nothing threatens it" width of 1.5. Why F4 is set up
+_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (2.0, 6.0)}
+#: EXPERIMENT (leaderboard only): v5's widths x2.0. F4 is 2.0-6.0 so the prompt's "shock in progress
+#: = 5.0-6.0" band is reachable, and a reply can never take an F4 card below 2.0. Why F4 is set up
 #: this way: the comment above `_FAMILY_FOCUS["F4"]`.
 
 #: Families whose reply may widen but not move the centre: `drift_sd` is still asked for and kept in
@@ -186,7 +186,7 @@ _SKEW_ON = False
 #: or the reply left the asset out): the bottom of the family's own scale rather than history's 1.0.
 #: On F4 that is the prompt's "nothing threatens this asset" width, so a silent or failed text half
 #: never leaves an F4 card at the width the prompt calls too narrow.
-_FAMILY_FALLBACK_WIDEN = {"F4": 1.5}
+_FAMILY_FALLBACK_WIDEN = {"F4": 2.0}
 
 
 def _widen_clamp(family: str | None) -> tuple[float, float]:
@@ -1259,9 +1259,9 @@ _FAMILY_FOCUS: dict[str, str] = {
         "the realized outcome falls outside the forecast's tails (pinball loss at the "
         "1st/5th/95th/99th percentiles, a DISTANCE): a forecast that is too narrow is "
         "charged in proportion to the miss, and a forecast wider than needed costs a little "
-        "on every calm card.\nWIDTH (vol_scale) is your main lever. 1.5 says nothing in the "
-        "summaries threatens THIS asset over the horizon; 2.25-3.0 says a real warning bears "
-        "on it; 3.75-4.5 says a shock that bears on it is already under way.\nWHAT COUNTS AS A "
+        "on every calm card.\nWIDTH (vol_scale) is your main lever. 2.0 says nothing in the "
+        "summaries threatens THIS asset over the horizon; 3.0-4.0 says a real warning bears "
+        "on it; 5.0-6.0 says a shock that bears on it is already under way.\nWHAT COUNTS AS A "
         "WARNING: judge by the single most relevant alarming item, not by the overall tone. "
         "A real warning often appears once, as one bullet, among routine commentary, and "
         "routine policy language does not cancel it. Shocks come in recurring kinds: "

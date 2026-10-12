@@ -428,23 +428,23 @@ class TestF4Prompt(unittest.TestCase):
 
     def test_f4_prompt_carries_the_width_scale_and_structure_rules(self):
         system, _ = ts.build_adjustment_prompt([], ["JPY"], self._CTX)
-        self.assertIn("3.75-4.5 says a shock that bears on it is already under way", system)
+        self.assertIn("5.0-6.0 says a shock that bears on it is already under way", system)
         self.assertIn("a crowded position unwinds AGAINST the crowd", system)
         self.assertIn("judge by the single most relevant alarming item", system)  # v5
         self.assertIn("RELEVANCE: the warning must plausibly move THIS asset", system)  # v5
-        self.assertIn("range [1.5, 4.5]", system)
+        self.assertIn("range [2.0, 6.0]", system)
 
     def test_f4_width_range_is_1_5_to_4_5(self):
         """The reply is held to the prompt's own scale: never below 1.5, never above 4.5."""
-        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 5.0, "skew": 0.0}}}
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 7.0, "skew": 0.0}}}
         adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
-        self.assertEqual(adj["JPY"]["widen"], 4.5)
+        self.assertEqual(adj["JPY"]["widen"], 6.0)
         raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 1.0, "skew": 0.0}}}
         adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
-        self.assertEqual(adj["JPY"]["widen"], 1.5)
-        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 2.5, "skew": 0.0}}}
+        self.assertEqual(adj["JPY"]["widen"], 2.0)
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 3.5, "skew": 0.0}}}
         adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
-        self.assertEqual(adj["JPY"]["widen"], 2.5)   # inside the range: passed on as given
+        self.assertEqual(adj["JPY"]["widen"], 3.5)   # inside the range: passed on as given
 
     def test_f4_asset_left_out_of_the_reply_gets_the_fallback_width(self):
         ctx = {**self._CTX, "sigma": {"JPY": 2.39, "CHF": 0.01}}
@@ -681,7 +681,7 @@ class TestF3CrossAssetPrompt(unittest.TestCase):
         ctx_f4 = {"sigma": {"EUR": 0.02}, "family": "F4"}
         adj4, _ = ts.to_adjustments({"assets": {"EUR": {"drift_sd": 0.0, "vol_scale": 1.9}}},
                                     ["EUR"], ctx_f4)
-        self.assertEqual(adj4["EUR"]["widen"], 1.9)
+        self.assertEqual(adj4["EUR"]["widen"], 2.0)   # F4's floor
 
     def test_prompt_states_the_clamp_it_actually_enforces(self):
         """The stated range and the enforced range come from one resolver, so they cannot drift."""
