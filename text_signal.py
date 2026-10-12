@@ -168,9 +168,25 @@ _SKEW_CLAMP = (-1.0, 1.0)
 #: wider joint distribution has wider gaps between every pair of cells, and gaps are what is
 #: scored. Other families keep the wide clamp: F4 is single-cell (the joint weight is
 #: redistributed away entirely) and is scored on exactly the tail that widening helps.
-_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (1.0, 3.0)}
-#: F4 is 1.0-3.0 so the prompt's "shock in progress = 2.5-3.0" band is reachable, and a reply
-#: can never NARROW an F4 card. Why F4 is set up this way: the comment above `_FAMILY_FOCUS["F4"]`.
+_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (1.5, 4.5)}
+#: F4 is 1.5-4.5 so the prompt's "shock in progress = 3.75-4.5" band is reachable, and a reply can
+#: never take an F4 card below the prompt's "nothing threatens it" width of 1.5. Why F4 is set up
+#: this way: the comment above `_FAMILY_FOCUS["F4"]`.
+
+#: Families whose reply may widen but not move the centre: `drift_sd` is still asked for and kept in
+#: the ledger, but `shift` is 0. On F2 the reply's direction landed on the right side of the model's
+#: centre on 3 of 11 assets in the M2.0 + text live run (2026-10-08), and both leaderboard rules
+#: score F2 better without it (new rule, 90 realized cards, same recorded answers: F2 2.18 with
+#: the move, 2.07 without; old rule 1.11 vs 1.02). Removing the move adds no setting to tune.
+_NO_SHIFT_FAMILIES = {"F2"}
+#: Skew is not passed on, for any family: forcing it to 0 on the same recorded answers was better
+#: on 23 cards and worse on 15, on both leaderboard rules (new 2.257 -> 2.251, old 0.959 -> 0.957).
+_SKEW_ON = False
+#: The width an asset gets when stage 2 gives it nothing (no usable summaries, every sample failed,
+#: or the reply left the asset out): the bottom of the family's own scale rather than history's 1.0.
+#: On F4 that is the prompt's "nothing threatens this asset" width, so a silent or failed text half
+#: never leaves an F4 card at the width the prompt calls too narrow.
+_FAMILY_FALLBACK_WIDEN = {"F4": 1.5}
 
 
 def _widen_clamp(family: str | None) -> tuple[float, float]:
@@ -318,7 +334,8 @@ def read_text_signal(
 ) -> dict[str, dict[str, float]]:
     """Stage 1 (summarize) + stage 2 (adjust). Never raises -- see the module docstring."""
     text_dir = pathlib.Path(text_dir)
-    neutral = {a: dict(NEUTRAL) for a in assets}
+    neutral = {a: {**NEUTRAL, "widen": _FAMILY_FALLBACK_WIDEN.get(_card_family(text_dir), 1.0)}
+               for a in assets}
     try:
         budget = _Budget()
         raw_docs = summarize_corpus(text_dir, budget)
@@ -373,6 +390,20 @@ def read_text_signal(
 
 
 # ----------------------------------------------------------------------------- the corpus
+def _card_family(text_dir: pathlib.Path) -> str | None:
+    """The card's family ("F1".."F4"), read the way `load_context` reads it, or None. Never raises."""
+    try:
+        unit = pathlib.Path(text_dir).parent
+        path = next((p for p in (unit / "card.toml", pathlib.Path(text_dir) / "card.toml") if p.is_file()), None)
+        if path is None:
+            return None
+        category = str(tomllib.loads(path.read_text(encoding="utf-8")).get("metadata", {}).get("category", ""))
+        fam = category.rsplit("-", 1)[-1]
+        return fam if fam in _FAMILY_FOCUS else None
+    except Exception:
+        return None
+
+
 def load_corpus(text_dir: pathlib.Path) -> tuple[str, list[dict[str, Any]]]:
     """(as-of, admissible documents newest first, full text).
 
@@ -1214,15 +1245,23 @@ _FAMILY_FOCUS: dict[str, str] = {
     # checklist (0.3677, but worse on one half and on calm cards). Thinking is ON for F4 only
     # (`_STAGE2_THINKING_BY_FAMILY`); with it off the model answers "no clear signal" on 24 of 29
     # F4 cards. Reproduce: NISH_TEXT_NOTES.md, "F4".
+    #
+    # 2026-10-12, for the new leaderboard rule (each card divided by M0's EXPECTED error, cap 8.0):
+    # the width numbers are v5's x1.5 (1.5 / 2.25-3.0 / 3.75-4.5, clamp 1.5-4.5); nothing else in
+    # the paragraph changed. With v5's numbers only 45 % of F4 outcomes fell inside the central
+    # 90 % band. Fresh live runs on the organizers' current cards, M2.0, 29 realized F4 cards, new
+    # rule: v5 3.76 (3.35 with v5's widths x1.5 in code) -> these numbers 3.12; 90 % band 82 %, 98 %
+    # band 90 %. Against the x1.5-in-code version: 16 cards better, 9 worse, the gap mostly from 3
+    # cards the model answered differently -- read it as "at least as good", not "+0.23".
     "F4": (
         "This is an F4 (tail/shock-from-text) card. The documents may foreshadow a shock "
         "that the recent numeric history does not show. The card is scored mostly on how far "
         "the realized outcome falls outside the forecast's tails (pinball loss at the "
         "1st/5th/95th/99th percentiles, a DISTANCE): a forecast that is too narrow is "
         "charged in proportion to the miss, and a forecast wider than needed costs a little "
-        "on every calm card.\nWIDTH (vol_scale) is your main lever. 1.0 says nothing in the "
-        "summaries threatens THIS asset over the horizon; 1.5-2.0 says a real warning bears "
-        "on it; 2.5-3.0 says a shock that bears on it is already under way.\nWHAT COUNTS AS A "
+        "on every calm card.\nWIDTH (vol_scale) is your main lever. 1.5 says nothing in the "
+        "summaries threatens THIS asset over the horizon; 2.25-3.0 says a real warning bears "
+        "on it; 3.75-4.5 says a shock that bears on it is already under way.\nWHAT COUNTS AS A "
         "WARNING: judge by the single most relevant alarming item, not by the overall tone. "
         "A real warning often appears once, as one bullet, among routine commentary, and "
         "routine policy language does not cancel it. Shocks come in recurring kinds: "
@@ -1651,8 +1690,8 @@ def to_adjustments(
         spec = per.get(a)
         note = ""
         if not isinstance(spec, dict):
-            adjustments[a] = dict(NEUTRAL)
-            ledger[a] = {**NEUTRAL, "note": "no entry for this asset; neutral"}
+            adjustments[a] = {**NEUTRAL, "widen": _FAMILY_FALLBACK_WIDEN.get(ctx.get("family"), 1.0)}
+            ledger[a] = {**adjustments[a], "note": "no entry for this asset; neutral"}
             continue
         try:
             drift_sd = float(spec.get("drift_sd", 0.0))
@@ -1674,12 +1713,16 @@ def to_adjustments(
         vol_c = min(max(vol, w_lo), w_hi)
         if vol_c != vol:
             note = (note + "; " if note else "") + f"vol_scale {vol:.2f} clamped"
-        skew_c = min(max(skew, _SKEW_CLAMP[0]), _SKEW_CLAMP[1])
+        skew_c = min(max(skew, _SKEW_CLAMP[0]), _SKEW_CLAMP[1]) if _SKEW_ON else 0.0
 
         sigma = float(ctx["sigma"].get(a, 0.0))
         if not math.isfinite(sigma) or sigma <= 0:
             shift = 0.0
             note = (note + "; " if note else "") + "no sigma for this asset; shift forced to 0"
+        elif ctx.get("family") in _NO_SHIFT_FAMILIES:
+            shift = 0.0
+            if clamped_drift:
+                note = (note + "; " if note else "") + f"{ctx.get('family')}: centre move off"
         else:
             shift = clamped_drift * sigma
 
