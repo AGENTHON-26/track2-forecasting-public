@@ -297,6 +297,7 @@ class TestExtractJsonObject(unittest.TestCase):
 class TestToAdjustments(unittest.TestCase):
     _CTX = {"sigma": {"UST_2Y": 0.20, "JPY": 0.0}}
 
+    @mock.patch.object(ts, "_SKEW_ON", True)
     def test_converts_drift_sd_to_shift_via_sigma(self):
         raw = {"assets": {"UST_2Y": {"drift_sd": 0.5, "vol_scale": 1.2, "skew": 0.1}}}
         out, ledger = ts.to_adjustments(raw, ["UST_2Y"], self._CTX)
@@ -304,6 +305,7 @@ class TestToAdjustments(unittest.TestCase):
         self.assertAlmostEqual(out["UST_2Y"]["widen"], 1.2)
         self.assertAlmostEqual(out["UST_2Y"]["skew"], 0.1)
 
+    @mock.patch.object(ts, "_SKEW_ON", True)
     def test_clamps_out_of_range_values(self):
         raw = {"assets": {"UST_2Y": {"drift_sd": 99.0, "vol_scale": 99.0, "skew": 99.0}}}
         out, ledger = ts.to_adjustments(raw, ["UST_2Y"], self._CTX)
@@ -311,6 +313,22 @@ class TestToAdjustments(unittest.TestCase):
         self.assertAlmostEqual(out["UST_2Y"]["widen"], ts._WIDEN_CLAMP[1])
         self.assertAlmostEqual(out["UST_2Y"]["skew"], ts._SKEW_CLAMP[1])
         self.assertIn("clamped", ledger["UST_2Y"]["note"])
+
+    def test_skew_is_not_passed_on(self):
+        raw = {"assets": {"UST_2Y": {"drift_sd": 0.5, "vol_scale": 1.2, "skew": 0.6}}}
+        out, _ = ts.to_adjustments(raw, ["UST_2Y"], self._CTX)
+        self.assertEqual(out["UST_2Y"]["skew"], 0.0)
+        self.assertAlmostEqual(out["UST_2Y"]["shift"], 0.5 * 0.20)
+
+    def test_f2_widens_but_does_not_move_the_centre(self):
+        raw = {"assets": {"UST_2Y": {"drift_sd": -0.8, "vol_scale": 1.3, "skew": 0.0}}}
+        out, ledger = ts.to_adjustments(raw, ["UST_2Y"], {**self._CTX, "family": "F2"})
+        self.assertEqual(out["UST_2Y"]["shift"], 0.0)
+        self.assertAlmostEqual(out["UST_2Y"]["widen"], 1.3)
+        self.assertAlmostEqual(ledger["UST_2Y"]["drift_sd"], -0.8)   # what the model said, kept
+        self.assertIn("centre move off", ledger["UST_2Y"]["note"])
+        out, _ = ts.to_adjustments(raw, ["UST_2Y"], {**self._CTX, "family": "F1"})
+        self.assertAlmostEqual(out["UST_2Y"]["shift"], -0.8 * 0.20)
 
     def test_missing_asset_gets_neutral_others_unaffected(self):
         raw = {"assets": {"UST_2Y": {"drift_sd": 0.4, "vol_scale": 1.0, "skew": 0.0}}}
@@ -410,19 +428,45 @@ class TestF4Prompt(unittest.TestCase):
 
     def test_f4_prompt_carries_the_width_scale_and_structure_rules(self):
         system, _ = ts.build_adjustment_prompt([], ["JPY"], self._CTX)
-        self.assertIn("2.5-3.0 says a shock that bears on it is already under way", system)
+        self.assertIn("3.75-4.5 says a shock that bears on it is already under way", system)
         self.assertIn("a crowded position unwinds AGAINST the crowd", system)
         self.assertIn("judge by the single most relevant alarming item", system)  # v5
         self.assertIn("RELEVANCE: the warning must plausibly move THIS asset", system)  # v5
-        self.assertIn("range [1.0, 3.0]", system)
+        self.assertIn("range [1.5, 4.5]", system)
 
-    def test_f4_width_range_is_1_to_3(self):
+    def test_f4_width_range_is_1_5_to_4_5(self):
+        """The reply is held to the prompt's own scale: never below 1.5, never above 4.5."""
         raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 5.0, "skew": 0.0}}}
         adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
-        self.assertEqual(adj["JPY"]["widen"], 3.0)
-        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 0.7, "skew": 0.0}}}
+        self.assertEqual(adj["JPY"]["widen"], 4.5)
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 1.0, "skew": 0.0}}}
         adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
-        self.assertEqual(adj["JPY"]["widen"], 1.0)
+        self.assertEqual(adj["JPY"]["widen"], 1.5)
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 2.5, "skew": 0.0}}}
+        adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
+        self.assertEqual(adj["JPY"]["widen"], 2.5)   # inside the range: passed on as given
+
+    def test_f4_asset_left_out_of_the_reply_gets_the_fallback_width(self):
+        ctx = {**self._CTX, "sigma": {"JPY": 2.39, "CHF": 0.01}}
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 2.0, "skew": 0.0}}}   # CHF omitted
+        adj, ledger = ts.to_adjustments(raw, ["JPY", "CHF"], ctx)
+        self.assertEqual(adj["CHF"], {**ts.NEUTRAL, "widen": ts._FAMILY_FALLBACK_WIDEN["F4"]})
+        self.assertEqual(ledger["CHF"]["widen"], ts._FAMILY_FALLBACK_WIDEN["F4"])
+        adj1, _ = ts.to_adjustments(raw, ["JPY", "CHF"], {**ctx, "family": "F1"})
+        self.assertEqual(adj1["CHF"], ts.NEUTRAL)
+
+    def test_f4_fallback_width_survives_a_silent_text_half(self):
+        """No usable summaries -> the neutral fallback, but an F4 card still gets its fallback width."""
+        with tempfile.TemporaryDirectory() as d:
+            text = _unit(pathlib.Path(d), [("x", "2024-01-01", "fomc_statement", "irrelevant")])
+            card = pathlib.Path(d) / "card.toml"
+            card.write_text(card.read_text() + '[metadata]\ncategory = "T2-F4"\n')
+            with mock.patch.object(ts, "summarize_corpus", return_value=[]):
+                out = ts.read_text_signal(text, ["JPY"])
+            self.assertEqual(out["JPY"], {**ts.NEUTRAL, "widen": ts._FAMILY_FALLBACK_WIDEN["F4"]})
+            card.write_text(card.read_text().replace("T2-F4", "T2-F1"))
+            with mock.patch.object(ts, "summarize_corpus", return_value=[]):
+                self.assertEqual(ts.read_text_signal(text, ["JPY"])["JPY"], ts.NEUTRAL)
 
 
 class TestStage1Cache(unittest.TestCase):
@@ -458,7 +502,7 @@ class TestReadTextSignalStage2(unittest.TestCase):
              "summary": "- the Committee signalled further tightening ahead", "error": ""},
         ]
         fake_ctx = {"asof": "2024-01-01", "horizons": [21], "value_unit": "percent_per_annum",
-                    "target_type": "level", "family": "F2", "level": {"UST_2Y": 4.5},
+                    "target_type": "level", "family": "F1", "level": {"UST_2Y": 4.5},
                     "sigma": {"UST_2Y": 0.2}, "sigma_horizon": 21}
         reply = json.dumps({"assets": {"UST_2Y": {"drift_sd": 0.6, "vol_scale": 1.4, "skew": 0.2,
                                                     "evidence": "further tightening ahead"}}})
@@ -470,7 +514,7 @@ class TestReadTextSignalStage2(unittest.TestCase):
                 out = ts.read_text_signal(text, ["UST_2Y"])
         self.assertAlmostEqual(out["UST_2Y"]["shift"], 0.6 * 0.2)
         self.assertAlmostEqual(out["UST_2Y"]["widen"], 1.4)
-        self.assertAlmostEqual(out["UST_2Y"]["skew"], 0.2)
+        self.assertEqual(out["UST_2Y"]["skew"], 0.0)   # asked for, not passed on (_SKEW_ON)
         # Checks it's wired to the named flag, not a hardcoded literal -- _STAGE2_THINKING is a
         # live experiment (see its own comment) and this test should stay meaningful either way.
         self.assertEqual(call.call_args.kwargs["thinking"], ts._STAGE2_THINKING)
@@ -705,7 +749,7 @@ class TestMedianOfThree(unittest.TestCase):
 
     def _ctx(self):
         return {"asof": "2024-01-01", "horizons": [21], "value_unit": "percent_per_annum",
-                "target_type": "level", "family": "F2", "level": {"A": 4.5, "B": 1.0},
+                "target_type": "level", "family": "F1", "level": {"A": 4.5, "B": 1.0},
                 "sigma": {"A": 0.2, "B": 0.1}, "sigma_horizon": 21}
 
     def _summaries(self):
