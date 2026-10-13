@@ -88,7 +88,12 @@ TREND_SHARE = 0.25              # M1.9: the last quarter of the draws take the w
 #: M2.0 (notebook 15): a third of the draws each take the EWMA sd of these halflives, by turns, in
 #: place of the halflife-63 one. Set in advance (a month, a quarter, a year). Backtest 0.9194 ->
 #: 0.9163 with 500 draws, 0.9155 with 2,000; neutral on the real outcomes (-0.001). None = off.
-VOL_POOL = (21, 63, 252)
+VOL_POOL = (10, 21, 63)
+#: EXPERIMENT exp/m2-short-horizon (2026-10-13): was (21, 63, 252). The Final's ranked cards are 1-4
+#: business days out, where the last few weeks' volatility predicts best (volatility clusters) and
+#: a one-year memory lags. tools/short_horizon_backtest.py, 27,900 pseudo-cells at h = 1-4, new
+#: rule: -0.006 vs (21, 63, 252), better on 17,698 cells and worse on 10,112 (t = -9; second sample
+#: t = -12), in each of 2003-07, 2008-15 and 2016-24. Not measured on the 21-128-day practice cards.
 
 #: How each asset type is modelled (model_experiment_v3/transformations.toml):
 #:   transform  diff = x_t - x_{t-1};  log_diff = log(x_t / x_{t-1});  as_return = the row itself
@@ -130,7 +135,9 @@ MACRO_TYPES = {
 #: card. When stage 2 DOES answer it is not overridden: with the F4 v5 prompt an always-on floor
 #: scored 0.3715 vs 0.3781 overall but made the 18 calm cards worse (7 better / 11 worse vs the
 #: walk), so it only covers failure. See `text_signal._FAMILY_FOCUS["F4"]` for the prompt.
-_FAMILY_WIDEN_FLOOR = {"T2-F4": 1.5}
+_FAMILY_WIDEN_FLOOR: dict[str, float] = {}
+#: EXPERIMENT exp/m2-short-horizon: was {"T2-F4": 1.5}. At 1-4 business days a blanket x1.5 cost
+#: +0.104 a cell on the short-horizon backtest; a silent text half now leaves F4 at the model's width.
 
 
 def _text_was_silent(adjustments: dict[str, dict[str, float]], assets: list[str]) -> bool:
@@ -180,9 +187,80 @@ def build_draws(
     """Joint draws with Nish's adjustments applied. Returns (n_draws, n_assets, n_horizons).
 
     Every card takes M2.0. `family` is kept for the contract; the settings do not depend on it.
+
+    If M2.0 cannot fit the card (too little overlapping history, say) or returns a non-finite draw,
+    the card falls back to `_fallback_walk`, a plain Gaussian random walk, instead of failing: an
+    unscored card counts 8.0, and the Final adds series the practice cards never showed
+    (tools/robustness_cards.py). An asset missing from every panel still fails -- there is nothing
+    to forecast it from.
     """
-    return _model(_Request(panels, assets, horizons, asof, adjustments, n_draws, seed,
-                           target_type, family))
+    r = _Request(panels, assets, horizons, asof, adjustments, n_draws, seed, target_type, family)
+    try:
+        out = _model(r)
+        if np.isfinite(out).all():
+            return out
+        reason = "non-finite draws"
+    except (Exception, SystemExit) as exc:   # SystemExit: _fit_model's refusals
+        reason = f"{type(exc).__name__}: {exc}"
+    import sys
+    print(f"[forecast_models] M2.0 could not forecast this card ({reason}); plain random walk instead",
+          file=sys.stderr)
+    return _fallback_walk(r)
+
+
+#: The fallback's trailing window, as M0's (docs/M0-BASELINE.md 3.1).
+_FALLBACK_WINDOW = 300
+
+
+def _fallback_walk(r: _Request) -> np.ndarray:
+    """A plain joint Gaussian random walk that fits anything with a value in it: each asset's sd
+    from its own last 300 steps (M0's gap rule; non-finite values dropped), the correlation from the
+    dates all assets share when there are at least 30 of them (else none), no drift, the text's
+    shift and widen applied as in the model. An asset with fewer than 2 usable steps gets 1 % of its
+    last value as a daily sd -- a guess, but a finite forecast scores, and a crash counts 8.0."""
+    hist, rules = {}, {}
+    for a in r.assets:
+        panel_id, rows = _history(r.panels, a, r.asof)
+        hist[a] = [(d, v) for d, v in rows if np.isfinite(v)]
+        rules[a] = asset_rule(a, panel_id, r.target_type)
+    steps, last, sd = {}, {}, {}
+    for a in r.assets:
+        rows = hist[a][-(_FALLBACK_WINDOW + 1):]
+        dates = [dt.date.fromisoformat(d) for d, _ in rows]
+        vals = np.array([v for _, v in rows], dtype=float)
+        as_return = rules[a]["transform"] == "as_return"
+        last[a] = 0.0 if as_return else (float(vals[-1]) if len(vals) else 0.0)
+        gaps = np.array([(dates[i] - dates[i - 1]).days for i in range(1, len(dates))], dtype=float)
+        hole = max(10.0 * float(np.median(gaps)), 5.0) if gaps.size else 5.0
+        steps[a] = {dates[i]: (vals[i] if as_return else vals[i] - vals[i - 1])
+                    for i in range(1, len(dates)) if gaps[i - 1] <= hole}
+        x = np.array(list(steps[a].values()))
+        sd[a] = float(np.std(x, ddof=1)) if len(x) >= 2 else 0.01 * abs(last[a]) or 0.01
+    common = sorted(set.intersection(*(set(steps[a]) for a in r.assets)))
+    corr = np.eye(len(r.assets))
+    if len(r.assets) > 1 and len(common) >= _MIN_COMMON_STEPS:
+        x = np.array([[steps[a][d] for d in common] for a in r.assets])
+        with np.errstate(divide="ignore", invalid="ignore"):
+            c = np.corrcoef(x)
+        corr = np.nan_to_num(c, nan=0.0)
+        np.fill_diagonal(corr, 1.0)
+    adj = lambda a, k, dflt: float(r.adjustments.get(a, {}).get(k, dflt))
+    cells = []
+    for ai, a in enumerate(r.assets):
+        n_steps = _horizon_steps([d for d, _ in hist[a]], r.horizons, r.asof)
+        for h, s in zip(r.horizons, n_steps):
+            cells.append((ai, a, max(float(s), 0.0)))
+    scale = np.array([sd[a] * WIDEN * adj(a, "widen", 1.0) for _, a, _ in cells])
+    cov = np.array([[min(s1, s2) * corr[i1, i2] for i2, _, s2 in cells] for i1, _, s1 in cells])
+    cov = cov * np.outer(scale, scale) + 1e-9 * np.eye(len(cells))
+    try:
+        factor = np.linalg.cholesky(cov)
+    except np.linalg.LinAlgError:
+        factor = np.diag(np.sqrt(np.diag(cov)))
+    mean = np.array([last[a] + adj(a, "shift", 0.0) for _, a, _ in cells])
+    z = np.random.default_rng([r.seed, 11]).standard_normal((r.n_draws, len(cells)))
+    flat = mean + z @ factor.T
+    return flat.reshape(r.n_draws, len(r.assets), len(r.horizons))
 
 
 # ============================================================================
@@ -395,7 +473,12 @@ def _variance_ratio(v: np.ndarray, h_steps: float, demean: bool) -> float:
         return 1.0
     m = v.mean() if demean else 0.0
     c = np.concatenate([[0.0], np.cumsum(v - m)])
-    ratio = np.mean((c[h:] - c[:-h]) ** 2) / (h * np.mean((v - m) ** 2))
+    denom = h * np.mean((v - m) ** 2)
+    if not np.isfinite(denom) or denom <= 0:     # a series that never moves (a peg): 0 / 0
+        return 1.0
+    ratio = np.mean((c[h:] - c[:-h]) ** 2) / denom
+    if not np.isfinite(ratio):
+        return 1.0
     n_eff = len(v) / h
     return 1.0 + (ratio - 1.0) * n_eff / (n_eff + VR_SHRINK)
 

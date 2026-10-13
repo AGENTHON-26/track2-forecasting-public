@@ -666,13 +666,53 @@ class TestM19Pieces(unittest.TestCase):
             single = fa.build_draws(*args, target_type="level")[:, 0, 0]
         steps = np.diff(values)
         sd63 = fm._ewma_sd(steps[-int(8 * 63):], 63)
-        ratio = np.array([fm._ewma_sd(steps[-int(8 * hl):], hl) / sd63 for hl in (21, 63, 252)])
+        ratio = np.array([fm._ewma_sd(steps[-int(8 * hl):], hl) / sd63 for hl in fm.VOL_POOL])
         f = fm._fit_model(fm._Request({"p": table}, ["UST_10Y"], [h], asof, {}, n, seed, "level", None))
         centre = np.where(np.arange(n) < n - int(round(0.25 * n)), values[-1] + h * f.drift["UST_10Y"],
                           values[-1] + h * f.mu[0])
         np.testing.assert_allclose(pooled - centre, (single - centre) * ratio[np.arange(n) % 3], rtol=1e-9, atol=1e-9)
-        self.assertEqual(ratio[1], 1.0)
+        self.assertEqual(ratio[fm.VOL_POOL.index(63)], 1.0)   # the single-sd model's own halflife
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestFallback(CoreTest):
+    """exp/m2-short-horizon: a card M2.0 cannot fit falls back to a plain random walk instead of
+    failing (an unscored card counts 8.0). tools/robustness_cards.py found both cases below."""
+
+    def test_short_history_falls_back_to_a_finite_walk(self):
+        table, asof, values = _typed_panel("MXN", "ecb_fx_daily", n=25, seed=3, start=18.0)
+        with mock.patch("sys.stderr"):
+            out = fa.build_draws({"p": table}, ["MXN"], [1, 4], asof, {"MXN": dict(NEUTRAL)}, 500, 0,
+                                 target_type="level")
+        self.assertEqual(out.shape, (500, 1, 2))
+        self.assertTrue(np.isfinite(out).all())
+        self.assertAlmostEqual(float(np.median(out[:, 0, 0])), values[-1], delta=1.0)
+        self.assertGreater(out[:, 0, 1].std(), out[:, 0, 0].std())    # h=4 wider than h=1
+
+    def test_fallback_applies_the_text_shift_and_widen(self):
+        table, asof, values = _typed_panel("MXN", "ecb_fx_daily", n=25, seed=3, start=18.0)
+        with mock.patch("sys.stderr"):
+            base = fa.build_draws({"p": table}, ["MXN"], [2], asof, {"MXN": dict(NEUTRAL)}, 4000, 0,
+                                  target_type="level")
+            moved = fa.build_draws({"p": table}, ["MXN"], [2], asof,
+                                   {"MXN": {"shift": 0.5, "widen": 2.0, "skew": 0.0}}, 4000, 0,
+                                   target_type="level")
+        self.assertAlmostEqual(moved.mean() - base.mean(), 0.5, delta=0.05)
+        self.assertAlmostEqual(moved.std() / base.std(), 2.0, delta=0.1)
+
+    def test_pegged_series_stays_finite_at_every_horizon(self):
+        """A series that never moves made the variance ratio 0 / 0 and its h > 1 draws NaN."""
+        n = 600
+        dates = _bdays(n)
+        rng = np.random.default_rng(1)
+        table = pa.table({"date": dates * 2, "asset": ["MXN"] * n + ["INR"] * n,
+                          "value": (18 + np.cumsum(rng.normal(0, 0.1, n))).tolist() + [84.0] * n,
+                          "panel_id": ["ecb_fx_daily"] * (2 * n)})
+        out = fa.build_draws({"p": table}, ["MXN", "INR"], [1, 4], dates[-1],
+                             {a: dict(NEUTRAL) for a in ("MXN", "INR")}, 500, 0, target_type="level")
+        self.assertTrue(np.isfinite(out).all())
+        self.assertAlmostEqual(float(np.median(out[:, 1, 1])), 84.0, places=3)
+        self.assertEqual(fm._variance_ratio(np.zeros(100), 4, False), 1.0)
