@@ -294,6 +294,9 @@ class TestExtractJsonObject(unittest.TestCase):
         self.assertEqual(out, {"assets": {"JPY": {"evidence": "unterminated"}}})
 
 
+#: These tests check how a reply's drift_sd becomes a shift, so they run with the shift ON; the
+#: exp/m2-short-horizon default (`_SHIFT_ON = False`) is covered by test_shift_off_moves_no_family.
+@mock.patch.object(ts, "_SHIFT_ON", True)
 class TestToAdjustments(unittest.TestCase):
     _CTX = {"sigma": {"UST_2Y": 0.20, "JPY": 0.0}}
 
@@ -428,24 +431,33 @@ class TestF4Prompt(unittest.TestCase):
 
     def test_f4_prompt_carries_the_width_scale_and_structure_rules(self):
         system, _ = ts.build_adjustment_prompt([], ["JPY"], self._CTX)
-        self.assertIn("3.75-4.5 says a shock that bears on it is already under way", system)
+        self.assertIn("2.5-3.0 says a shock that bears on it is already under way", system)
         self.assertIn("a crowded position unwinds AGAINST the crowd", system)
         self.assertIn("judge by the single most relevant alarming item", system)  # v5
         self.assertIn("RELEVANCE: the warning must plausibly move THIS asset", system)  # v5
-        self.assertIn("range [1.5, 4.5]", system)
+        self.assertIn("range [1.0, 3.0]", system)
 
-    def test_f4_width_range_is_1_5_to_4_5(self):
-        """The reply is held to the prompt's own scale: never below 1.5, never above 4.5."""
+    def test_f4_width_range_is_1_0_to_3_0(self):
+        """The reply is held to the prompt's own scale: never below 1.0, never above 3.0."""
         raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 5.0, "skew": 0.0}}}
         adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
-        self.assertEqual(adj["JPY"]["widen"], 4.5)
-        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 1.0, "skew": 0.0}}}
+        self.assertEqual(adj["JPY"]["widen"], 3.0)
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 0.7, "skew": 0.0}}}
         adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
-        self.assertEqual(adj["JPY"]["widen"], 1.5)
+        self.assertEqual(adj["JPY"]["widen"], 1.0)
         raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 2.5, "skew": 0.0}}}
         adj, _ = ts.to_adjustments(raw, ["JPY"], self._CTX)
         self.assertEqual(adj["JPY"]["widen"], 2.5)   # inside the range: passed on as given
 
+    def test_no_f4_fallback_width_by_default(self):
+        """exp/m2-short-horizon: an asset the reply left out, or a silent text half, stays neutral on F4."""
+        self.assertEqual(ts._FAMILY_FALLBACK_WIDEN, {})
+        ctx = {**self._CTX, "sigma": {"JPY": 2.39, "CHF": 0.01}}
+        raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 2.0, "skew": 0.0}}}   # CHF omitted
+        adj, _ = ts.to_adjustments(raw, ["JPY", "CHF"], ctx)
+        self.assertEqual(adj["CHF"], ts.NEUTRAL)
+
+    @mock.patch.dict(ts._FAMILY_FALLBACK_WIDEN, {"F4": 1.5})
     def test_f4_asset_left_out_of_the_reply_gets_the_fallback_width(self):
         ctx = {**self._CTX, "sigma": {"JPY": 2.39, "CHF": 0.01}}
         raw = {"assets": {"JPY": {"drift_sd": 0.0, "vol_scale": 2.0, "skew": 0.0}}}   # CHF omitted
@@ -455,6 +467,7 @@ class TestF4Prompt(unittest.TestCase):
         adj1, _ = ts.to_adjustments(raw, ["JPY", "CHF"], {**ctx, "family": "F1"})
         self.assertEqual(adj1["CHF"], ts.NEUTRAL)
 
+    @mock.patch.dict(ts._FAMILY_FALLBACK_WIDEN, {"F4": 1.5})
     def test_f4_fallback_width_survives_a_silent_text_half(self):
         """No usable summaries -> the neutral fallback, but an F4 card still gets its fallback width."""
         with tempfile.TemporaryDirectory() as d:
@@ -467,6 +480,19 @@ class TestF4Prompt(unittest.TestCase):
             card.write_text(card.read_text().replace("T2-F4", "T2-F1"))
             with mock.patch.object(ts, "summarize_corpus", return_value=[]):
                 self.assertEqual(ts.read_text_signal(text, ["JPY"])["JPY"], ts.NEUTRAL)
+
+
+class TestShiftOff(unittest.TestCase):
+    def test_shift_off_moves_no_family(self):
+        """exp/m2-short-horizon: `_SHIFT_ON = False` -- the reply's drift_sd is kept in the ledger, the
+        centre does not move, on every family; vol_scale still widens."""
+        self.assertFalse(ts._SHIFT_ON)
+        raw = {"assets": {"UST_2Y": {"drift_sd": 0.8, "vol_scale": 1.2, "skew": 0.0}}}
+        for fam in ("F1", "F2", "F3", "F4", "default"):
+            adj, ledger = ts.to_adjustments(raw, ["UST_2Y"], {"sigma": {"UST_2Y": 0.20}, "family": fam})
+            self.assertEqual(adj["UST_2Y"]["shift"], 0.0, fam)
+            self.assertAlmostEqual(adj["UST_2Y"]["widen"], 1.2)
+            self.assertAlmostEqual(ledger["UST_2Y"]["drift_sd"], 0.8)
 
 
 class TestStage1Cache(unittest.TestCase):
@@ -495,6 +521,9 @@ class TestStage1Cache(unittest.TestCase):
         self.assertEqual(call.call_count, 2)
 
 
+#: These tests check how a reply's drift_sd becomes a shift, so they run with the shift ON; the
+#: exp/m2-short-horizon default (`_SHIFT_ON = False`) is covered by test_shift_off_moves_no_family.
+@mock.patch.object(ts, "_SHIFT_ON", True)
 class TestReadTextSignalStage2(unittest.TestCase):
     def test_successful_adjustment_end_to_end(self):
         fake_summaries = [
@@ -739,6 +768,9 @@ class TestRetryableCodes(unittest.TestCase):
             self.assertTrue(self._gives_up(code), f"HTTP {code} should not be retried")
 
 
+#: These tests check how a reply's drift_sd becomes a shift, so they run with the shift ON; the
+#: exp/m2-short-horizon default (`_SHIFT_ON = False`) is covered by test_shift_off_moves_no_family.
+@mock.patch.object(ts, "_SHIFT_ON", True)
 class TestMedianOfThree(unittest.TestCase):
     """Stage 2 self-consistency: three samples of the same call, combined by median.
 

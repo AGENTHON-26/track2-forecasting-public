@@ -168,10 +168,14 @@ _SKEW_CLAMP = (-1.0, 1.0)
 #: wider joint distribution has wider gaps between every pair of cells, and gaps are what is
 #: scored. Other families keep the wide clamp: F4 is single-cell (the joint weight is
 #: redistributed away entirely) and is scored on exactly the tail that widening helps.
-_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (1.5, 4.5)}
-#: F4 is 1.5-4.5 so the prompt's "shock in progress = 3.75-4.5" band is reachable, and a reply can
-#: never take an F4 card below the prompt's "nothing threatens it" width of 1.5. Why F4 is set up
-#: this way: the comment above `_FAMILY_FOCUS["F4"]`.
+_WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (1.0, 3.0)}
+#: F4 is 1.0-3.0 so the prompt's "shock in progress = 2.5-3.0" band is reachable and a calm F4 card
+#: can stay at history's width. EXPERIMENT exp/m2-short-horizon (2026-10-13): the Final's ranked
+#: cards are 1-4 business days out, and on 27,900 pseudo-cells at those horizons
+#: (tools/short_horizon_backtest.py, new rule) a blanket x1.5 width cost +0.104 a cell and x2.0
+#: +0.291, because only 1.45 % of cells move more than 3 M0 sds. So the PR #24 floor of 1.5 (and its
+#: x1.5 bands) is back to v5's 1.0 floor and numbers. Why F4 is set up this way otherwise: the
+#: comment above `_FAMILY_FOCUS["F4"]`.
 
 #: Families whose reply may widen but not move the centre: `drift_sd` is still asked for and kept in
 #: the ledger, but `shift` is 0. On F2 the reply's direction landed on the right side of the model's
@@ -179,6 +183,11 @@ _WIDEN_CLAMP_BY_FAMILY = {"F3": (0.85, 1.25), "F4": (1.5, 4.5)}
 #: score F2 better without it (new rule, 90 realized cards, same recorded answers: F2 2.18 with
 #: the move, 2.07 without; old rule 1.11 vs 1.02). Removing the move adds no setting to tune.
 _NO_SHIFT_FAMILIES = {"F2"}
+#: EXPERIMENT exp/m2-short-horizon (2026-10-13): the reply moves no family's centre. At the Final's
+#: 1-4 business-day horizons `sigma` is sd_daily x sqrt(h), so a drift_sd of 0.5 moves the centre by
+#: half a sd on a horizon where the model's own drift is ~0. Unmeasured at those horizons; F3's
+#: gap-direction gain (65-70 %) was measured at 21-128 days. True puts the per-family rule back.
+_SHIFT_ON = False
 #: Skew is not passed on, for any family: forcing it to 0 on the same recorded answers was better
 #: on 23 cards and worse on 15, on both leaderboard rules (new 2.257 -> 2.251, old 0.959 -> 0.957).
 _SKEW_ON = False
@@ -186,7 +195,9 @@ _SKEW_ON = False
 #: or the reply left the asset out): the bottom of the family's own scale rather than history's 1.0.
 #: On F4 that is the prompt's "nothing threatens this asset" width, so a silent or failed text half
 #: never leaves an F4 card at the width the prompt calls too narrow.
-_FAMILY_FALLBACK_WIDEN = {"F4": 1.5}
+_FAMILY_FALLBACK_WIDEN: dict[str, float] = {}
+#: EXPERIMENT exp/m2-short-horizon: was {"F4": 1.5}. A silent text half now leaves F4 at
+#: history's width, for the same reason as the F4 clamp above.
 
 
 def _widen_clamp(family: str | None) -> tuple[float, float]:
@@ -1259,9 +1270,9 @@ _FAMILY_FOCUS: dict[str, str] = {
         "the realized outcome falls outside the forecast's tails (pinball loss at the "
         "1st/5th/95th/99th percentiles, a DISTANCE): a forecast that is too narrow is "
         "charged in proportion to the miss, and a forecast wider than needed costs a little "
-        "on every calm card.\nWIDTH (vol_scale) is your main lever. 1.5 says nothing in the "
-        "summaries threatens THIS asset over the horizon; 2.25-3.0 says a real warning bears "
-        "on it; 3.75-4.5 says a shock that bears on it is already under way.\nWHAT COUNTS AS A "
+        "on every calm card.\nWIDTH (vol_scale) is your main lever. 1.0 says nothing in the "
+        "summaries threatens THIS asset over the horizon; 1.5-2.0 says a real warning bears "
+        "on it; 2.5-3.0 says a shock that bears on it is already under way.\nWHAT COUNTS AS A "
         "WARNING: judge by the single most relevant alarming item, not by the overall tone. "
         "A real warning often appears once, as one bullet, among routine commentary, and "
         "routine policy language does not cancel it. Shocks come in recurring kinds: "
@@ -1719,7 +1730,7 @@ def to_adjustments(
         if not math.isfinite(sigma) or sigma <= 0:
             shift = 0.0
             note = (note + "; " if note else "") + "no sigma for this asset; shift forced to 0"
-        elif ctx.get("family") in _NO_SHIFT_FAMILIES:
+        elif not _SHIFT_ON or ctx.get("family") in _NO_SHIFT_FAMILIES:
             shift = 0.0
             if clamped_drift:
                 note = (note + "; " if note else "") + f"{ctx.get('family')}: centre move off"
