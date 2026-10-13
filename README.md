@@ -79,9 +79,9 @@ unit above.
 | that it passes the admissibility gates (g0–g3) | your CRPS composite |
 | that the `baselines/` scaffolds run against the same panel (their forecast is a placeholder — see below) | anything about the scored baseline, or whether you beat it |
 
-Accuracy feedback comes from submitting: the Development leaderboard scores you on units you
-have not seen. Use the practice units to get *admissible*, and the leaderboard to find out how
-good you are.
+Accuracy feedback comes from submitting: the Development leaderboard scores you on this
+repository's `validation` units, against outcomes that are not shipped with them. Use the
+practice units to get *admissible*, and the leaderboard to find out how good you are.
 
 The held-out evaluation units are sealed in the private repository and are a different, later
 window — nothing in this practice data reaches them.
@@ -123,13 +123,16 @@ agent and one of them as information uplift — the comparison would be against 
 for their interface and bring your own forecaster. Details and the scoring consequences are in
 [`baselines/README.md`](baselines/README.md).
 
-The baseline your score is normalized against is a different thing: it runs organizer-side, it is
-not any of these files, and you never see it directly — you see it only through the normalization,
-described next.
+The baseline your score is normalized against is a different thing: it runs organizer-side and it
+is not any of these files. You see it through the normalization, described next, and as a
+reference row on the leaderboard.
 
-**The organizer baseline's per-unit normalization values are not public.** The reference level
-is **1.0**; lower normalized scores are better. This comparison is against the organizer baseline,
-not the five named scaffolds, and it does not isolate how much of an improvement came from text.
+**The organizer baseline's per-unit normalization values are not shipped.** Each one is the error
+that baseline expects to make on that card, computed from the card's inputs before the outcome
+exists ([docs/M0-BASELINE.md](docs/M0-BASELINE.md), §5). A normalized score of **1.0** means your
+error equals that expected error; lower is better. The baseline's own score is shown on the
+leaderboard as a reference row. This comparison is against the organizer baseline, not the five
+named scaffolds, and it does not isolate how much of an improvement came from text.
 
 ---
 
@@ -204,22 +207,28 @@ Every entry is tagged with its category, the models it used (pinned versions), a
 training cutoffs.
 
 **There is one ranking: the equal-weight mean of your normalized scores across every card,
-lower is better.** Each card counts the same regardless of its shape. That is fair because of
-a fix one level down. Some cards ask for a single number (one asset at one horizon); others
-ask for several at once. The joint-variogram term measures relationships *between* the numbers
-you forecast, so on a single-number card it is 0 no matter how good your forecast is — its
-weight is redistributed over the terms that do exist (0.714 x CRPS + 0.286 x tail), which puts
-the text-blind baseline at 1.0 on both shapes. With both anchored in the same place, one
-average is averaging one quantity.
+lower is better.** On each card, each score component is divided by the error the text-blind
+baseline expects to make on that card, a value computed from the card's inputs before the outcome
+exists. A normalized score of 1.0 therefore means your error equals that expected error. Because
+the divisor does not depend on the outcome, the honest forecast is the best strategy. The
+baseline's own score is shown on the leaderboard as a reference row.
+
+Each card counts the same regardless of its shape. That is fair because of a fix one level down.
+Some cards ask for a single number (one asset at one horizon); others ask for several at once.
+The joint-variogram term measures relationships *between* the numbers you forecast, so on a
+single-number card it is 0 no matter how good your forecast is — its weight is redistributed over
+the terms that do exist (0.714 x CRPS + 0.286 x tail), so that 1.0 means the same thing on both
+shapes. With both on the same footing, one average is averaging one quantity.
 
 **Every card is in the denominator, and a card you do not score counts against you.** A card
 that is inadmissible, errors, or is never attempted takes a pre-committed worst-case value
-(**4.0** — four times as bad as ignoring the text entirely, since 1.0 is the text-blind
-baseline), and real scores are clipped at that same value. So failing a hard card can at best
-*tie* the worst possible attempt at it, never beat it: there is no card you are better off
-skipping. The value is not ours to pick — it is the worst end of the declared metric domain in
-the signed evaluation plan that governs ranking. See [CONCEPTS.md](docs/CONCEPTS.md) for the
-scoring detail.
+(**8.0** — eight times the error the text-blind baseline expects of itself), and real scores are
+clipped at that same value. So failing a hard card can at best *tie* the worst possible attempt at
+it, never beat it: there is no card you are better off skipping. The value is not ours to pick per
+card — it is the worst end of the declared metric domain in the signed evaluation plan that
+governs ranking. See [CONCEPTS.md](docs/CONCEPTS.md) for the scoring detail and
+[docs/M0-BASELINE.md](docs/M0-BASELINE.md) for how the baseline and its expected error are
+computed.
 
 ### Reproducibility rules
 
@@ -368,6 +377,30 @@ for what reviewers do and do not treat as a signal.
 
 `units/t2-EXAMPLE-ust-curve-1m/run_example.sh` writes a worked example of all three files.
 
+### Output folder rules
+
+Everything your agent leaves in `/output` is checked, not only the three files above. After your
+process exits, the organizers' output checker reads the whole tree and refuses it if it has any
+of these:
+
+- more than 256 files, more than 4,096 files and folders together, or a folder nested 8 or more
+  levels deep, even an empty one (a file can sit at most seven folders down, as in
+  `/output/a/b/c/d/e/f/g/file.txt`);
+- a symbolic link (even one pointing inside the folder), a hard link, or a special file such as a
+  named pipe or socket;
+- a file with a setuid, setgid or sticky bit;
+- a file larger than 64 MiB, more than 64 MiB in total, or a file more than 64 times larger than
+  the disk space it occupies (a heavily sparse file);
+- two file paths that differ only in letter case or Unicode form (`Notes.txt` and `notes.txt`), a
+  name that is not valid UTF-8 or not in Unicode NFC form, a name with a backslash or a control
+  character, or a name directly in `/output` that starts with a letter and a colon (such as
+  `C:data`);
+- no files at all (empty folders do not count).
+
+In Development, a refused tree scores the unit `no_output` when your process exited 0. A non-zero
+exit is scored `container_crashed`, or `resource_timeout` / `resource_oom` if the run was stopped
+for time or memory, whatever the tree holds. The 64 MiB limits are the same in the Final.
+
 ---
 
 ## How the scoring works
@@ -413,9 +446,9 @@ those inputs, local checks can establish admissibility and changes in prediction
 
 ```bash
 # 1. The shared toolkit, pinned.
-# Pin toolkit v2.4.4 for the current submission commands and model-free fixture.
-# The installed package reports version 2.4.4.
-pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.4#subdirectory=common"
+# Pin toolkit v2.6.0 for the current submission commands and model-free fixture.
+# The installed package reports version 2.6.0.
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.6.0#subdirectory=common"
 
 # 2. This track's package, from the repository root. Without it neither the reference CLI nor
 #    the smoke scorer can import `qfbench2_track_forecasting`, and both stop at an ImportError
@@ -558,24 +591,24 @@ Install the `qfbench2-common` package (schemas, scoring, leakage guard) from the
 repository that publishes it, `Agenthon-2026/Agenthon2026-public`:
 
 ```bash
-pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.4#subdirectory=common"
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.6.0#subdirectory=common"
 ```
 
 The toolkit is half of what you need. Running the scorer or the exemplar also requires this
 repository itself — `pip install .` from the repository root — which is what brings in pandas and
 the rest. See the Quick-start checklist, step 0.
 
-**Pin the tag, and pin this one.** `v2.4.4` is the tag whose descriptor contract matches what the
+**Pin the tag, and pin this one.** `v2.6.0` is the tag whose descriptor contract matches what the
 evaluation verifier accepts. Two earlier tags fail in opposite directions. `v2.3.1` carries
 `qfbench2_common.contracts` — earlier tags predate it entirely — but it **refuses a descriptor the
 verifier accepts**: it demands at least one `models` entry, while the current contract allows
 `"models": []`. Building against it means your own tools reject work that would have scored.
 `v2.4.2` has the quieter failure: its category enum still contains `byo-large` and `byo-small`, so
 it **packs a descriptor the 2026-09-18 ruling made invalid** — nothing warns you, the upload is
-held at intake, it never runs, and it still costs you one of your Development attempts. `v2.4.4`
-closes that enum to `api` and `simulator`. `v2.4.4` is also the tag `.github/workflows/ci.yml`
-installs and the tag the reference image in `Dockerfile` builds on, so what you verify locally is
-what CI verifies.
+held at intake, it never runs, and it still costs you one of your Development attempts. Tags from
+`v2.4.4` on close that enum to `api` and `simulator`, and `v2.6.0` validates a card without
+`[metadata].difficulty`. `v2.6.0` is also the tag `.github/workflows/ci.yml` installs and the tag
+the reference image in `Dockerfile` builds on, so what you verify locally is what CI verifies.
 
 Do not install from a branch. An unpinned toolkit is how a local result and a scored result come
 to disagree without either side noticing.
@@ -591,13 +624,13 @@ The following are NOT available to participants during the competition:
 
 - **Realized outcomes for the held-out evaluation window (H2 2025 – Q2 2026).** Scores are
   computed server-side. Results are released after the competition closes.
-- **The official baseline's per-card normalization scales** (`reference/ref_scale.json`, the
-  denominators that make 1.0 mean "no better than the text-blind baseline"). Each one is that
-  baseline's error measured against the sealed outcome, so a published scale plus a reproducible
-  baseline inverts to the answer — which makes these files answer-equivalent, not configuration.
-  No card released to participants carries one, and the scorer refuses to read a scale from
-  anywhere but a card's `reference/` directory. The **method** that produces them is published in
-  full: see [docs/M0-BASELINE.md](docs/M0-BASELINE.md).
+- **The official baseline's per-card normalization scale files** (`reference/ref_scale.json`).
+  Each one holds the error that the text-blind baseline expects to make on that card, computed
+  from the card's inputs before the outcome exists, so it says nothing about the outcome. No card
+  released to participants carries one, and the scorer refuses to read a scale from anywhere but a
+  card's `reference/` directory. The **method** that produces them is published in full, so on a
+  released card you can compute the values yourself: see [docs/M0-BASELINE.md](docs/M0-BASELINE.md).
+  A sealed card's inputs are sealed, so its scale is too.
 - **The exact card IDs, as-of dates, and asset combinations for the sealed evaluation set.**
   You know the four families and the four panels, but not which specific cards appear.
 - **The EM FX panel** used for F2 (Text-cued regime shift with transfer) cards. G10 FX is in
@@ -607,8 +640,9 @@ The following are NOT available to participants during the competition:
 
 Sealed means the *values*, not the *procedure*. Everything about how the baseline is built — the
 window, the differencing, the gap and alignment rules, the horizon conversion, the covariance
-structure, the draw count and the per-card seed — is specified in
-[docs/M0-BASELINE.md](docs/M0-BASELINE.md), so the denominator of your score is not a black box.
+structure, the draw count, the per-card seed and the exact formulas for its expected error — is
+specified in [docs/M0-BASELINE.md](docs/M0-BASELINE.md), so the denominator of your score is not a
+black box.
 
 ---
 
@@ -709,10 +743,16 @@ consume the unit clock; previously reported pull timings are historical observat
 current startup guarantee. See the
 [Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/DEVELOPMENT-RUNTIME.md)
 for process, temporary-space and output limits, and the
-[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/IMAGE-SUBMISSIONS.md)
-for anonymous public pulls and organizer-confirmed private mirrors. The writable image layer,
+[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/IMAGE-SUBMISSIONS.md)
+for anonymous public pulls. There's no private-image route in Agenthon 2026: your image must be
+anonymously pullable. A public image can be pulled by anyone, including the files and model
+artifacts inside it; leave out anything you don't want to share. The writable image layer,
 temporary filesystem and output mount are separate; do not infer an image-size quota or a
 writable workspace allowance from a card's memory or disk field.
+
+The Final cannot run an image that declares a Docker `VOLUME`, including one inherited from its base
+image. Such an upload is marked Failed when its run starts and does not use an attempt; remove the
+`VOLUME` (or choose another base image) and upload again.
 
 ---
 
@@ -722,7 +762,7 @@ writable workspace allowance from a card's memory or disk field.
    dependencies (pandas among them) come from `pip install .`, and without it step 3 fails with
    `ModuleNotFoundError: No module named 'pandas'`:
    ```bash
-   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.4.4#subdirectory=common"
+   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.6.0#subdirectory=common"
    pip install .
    ```
 1. Read `docs/CONCEPTS.md` — understand CRPS, variogram, tail penalty, text ablation, and leakage.
@@ -734,8 +774,10 @@ writable workspace allowance from a card's memory or disk field.
 4. Build your agent image; verify it writes a valid `forecast.parquet`, `forecast_meta.json`
    and a non-blank `forecast_rationale.md`.
 5. Run the smoke scorer against the exemplar card.
-6. Score your model against the validation cards in `units/`.
-7. Optionally run the text-ablated variant and compare scores.
+6. Run your agent on the validation cards in `units/` and check that every output is admissible.
+   They carry no answers, so this checks form, not accuracy (see "They carry no answers" above).
+7. Optionally build a text-ablated variant too. How it compares with your agent shows only on
+   the Development leaderboard, after you submit both.
 8. Pack and upload: `qfbench2 submission pack --descriptor submission.json --team-number <N> --out submission.zip`,
    then upload `submission.zip` on the track's CodaBench competition page (see
    ["How an upload is made"](SUBMISSION_CLI.md#how-an-upload-is-made)).

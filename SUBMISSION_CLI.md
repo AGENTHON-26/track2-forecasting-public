@@ -27,6 +27,10 @@ The harness logs `sha256(image)` (anti-cheat), applies the card's CPU, memory, G
 settings, and mounts only files whose `manifest.json` checksum matches.
 `LABEL qfbench2.interface_version="2.0"` is required on the image.
 
+The Final cannot run an image that declares a Docker `VOLUME`, including one inherited from its base
+image. Such an upload is marked Failed when its run starts and does not use an attempt; remove the
+`VOLUME` (or choose another base image) and upload again.
+
 For Development, Coding and Explainability take the per-unit timeout from `[agent].timeout_sec`;
 Forecasting and Simulation use the launcher's 1,800-second fallback where no timeout is supplied.
 The unit clock includes container creation and an image pull when needed. The ingestion stage
@@ -40,9 +44,12 @@ remain required before opening; this changes no compute allowance.
 See the [Development runtime guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/DEVELOPMENT-RUNTIME.md)
 for applied limits and pending access status. Development settings do not certify Final resources.
 
-Build a `linux/amd64` image identified by its immutable digest. Follow the
-[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/docs/IMAGE-SUBMISSIONS.md)
-for anonymous public pulls and the organizer confirmation required before using a private mirror.
+Build a `linux/amd64` image identified by its immutable digest. There's no private-image route in
+Agenthon 2026: your image must be anonymously pullable. A public image can be pulled by anyone,
+including the files and model artifacts inside it; leave out anything you don't want to share.
+Follow the
+[image submission guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/IMAGE-SUBMISSIONS.md)
+for anonymous public pulls.
 A descriptor category or image-access field does not itself make a service available.
 
 ## How an upload is made
@@ -50,7 +57,7 @@ A descriptor category or image-access field does not itself make a service avail
 An upload is a **zip, not an image reference**. Push your `linux/amd64` image to a registry that
 allows anonymous pulls by digest (the image submission guide above), write `submission.json`
 with that digest (the sealed descriptor, see the
-[descriptor guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/starter-packs/track2/SUBMISSION-DESCRIPTOR.md)),
+[descriptor guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.6.0/starter-packs/track2/SUBMISSION-DESCRIPTOR.md)),
 then let the toolkit seal and pack it:
 
 ```bash
@@ -59,7 +66,7 @@ qfbench2 submission pack --descriptor submission.json --team-number <your team n
 
 `pack` asks for your Team Key on a hidden prompt, derives your `team_id`, and writes
 `submission.zip` containing `submission.json` and `team-claim.json` -- the
-[team-claim guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.4.4/starter-packs/track2/TEAM-CLAIM.md)
+[team-claim guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.6.0/starter-packs/track2/TEAM-CLAIM.md)
 explains the claim and what happens when it is wrong. Upload `submission.zip` on this track's
 CodaBench competition page from your team's designated CodaBench account; the page link was
 issued to registered teams at the Development opening and is in the participant announcements.
@@ -92,7 +99,7 @@ internet** in official scoring.
 
 | Mode | Who | Meaning |
 |---|---|---|
-| `none` | **Simulation (T3)** | Fully offline (`--network=none`). Exactly the historical closed-resource behavior; any attempted outbound connection fails the run. |
+| `none` | **Simulation (T3)** | Fully offline (`--network=none`). Exactly the historical closed-resource behavior; the container has no network, so any outbound connection attempt fails. |
 | `restricted` | **Agent tracks (T1 coding, T2 forecasting, T4 Explainability)** | No open internet. Egress **only** through the organizer's audited proxy to the **organizer-hosted model endpoint** given by `MODEL_ENDPOINT` (open models, free to use, per-unit request budget). Every connection is logged (domain, bytes, timestamps); the log is the audit artifact for verification within the joint Final + Verification phase. |
 
 > ### ⚠️ Agent tracks: there is no third-party model-API access
@@ -167,8 +174,9 @@ server.
    See the [artifact policy](docs/ARTIFACT-POLICY.md) for local learned models, provenance and
    the narrow approved-base exception. Disclosure alone does not establish eligibility.
 4. **Pin temperature/seed** where the API supports it. Entries are verified *statistically*
-   (bootstrap-CI overlap on organizer rerun for T2/T3/T4; for T1, the single-pass per-unit
-   verdicts must agree exactly).
+   (bootstrap-CI overlap on organizer rerun for T2/T3/T4). For T1, what has to match on a rerun
+   is the submitted image and program, not the House model's answers: a per-unit verdict that
+   differs only because the House model answered differently is not a violation.
 5. **House API allocation — the budget is requests per unit.** The House allowance is
    **25 admitted requests per unit**, with **at most 4,000 output tokens per call**; both are
    counted and applied by the House route. Omitted output limits use 4,000; larger limits are
@@ -227,15 +235,19 @@ everything else to `simulate`. Six of the public dev units (`t3-gbatch-*`) are b
 
 **Contract invariants (enforced by gate `g0_integrity` / `g1_schema` / `g2_cutoff_resource`):**
 
-1. The image must honor the card's network mode: `none` (simulation) means fully offline — any
-   attempted outbound connection fails the run; `restricted` (agent tracks) means egress only
-   through the audited proxy to the house model endpoint — any connection outside that allowlist
-   fails the run, and no vendor model API is on it.
+1. The image must honor the card's network mode: `none` (simulation) means fully offline — the
+   container has no network, so any outbound connection attempt fails; `restricted` (agent tracks)
+   means egress only through the audited proxy to the house model endpoint — a connection to
+   anything outside that allowlist is refused, every connection is logged, and no vendor model API
+   is on the allowlist.
 2. Output must validate against the track output schema *before* any scoring (`g1_schema`).
 3. The image must not read any path outside `/input` and `/output`; the canary registry and held-out
    targets are never mounted.
 4. Determinism: the harness sets `QFBENCH_SEED`; organizer verification within the joint Final + Verification phase
    reruns on fresh seeds/resamples and compares against the final-submission result (reproducibility gate).
+   Because the rerun's `QFBENCH_SEED` is fresh, a seed meant to repeat must be a constant in your code.
+   Track 1: what has to match on the rerun is the submitted image and program, not the House model's answers,
+   so a per-unit verdict that differs only because the House model answered differently is not a violation.
 5. Wall-clock and resource caps are per-track (`card.environment`); exceeding them is a `g2` failure.
 6. **T2 text cutoff:** every document in `/input/text/` has a timestamp field ≤ `--asof`, enforced by the organizer's staging gates before a unit ships (gate g2 at scoring time binds your declaration to the trusted card; it does not rescan the corpus).
    The staging gates check text timestamps in addition to panel data timestamps; a unit with a
