@@ -88,6 +88,78 @@ def _steps(rows: list[tuple[str, float]], target_type: str) -> tuple[dict[dt.dat
     return steps, float(values[-1])
 
 
+def distribution(unit_dir: pathlib.Path) -> tuple[np.ndarray, np.ndarray]:
+    """M0's exact mean vector and covariance over the card's cells (doc 3.8, before the 1e-9 jitter),
+    cells in the card's own grid order: asset as listed, then horizon as listed (doc 3.9).
+
+    The expected-error divisors (doc 5) need nothing else, and they are sums and means over cells
+    and pairs, so the cell order does not change them."""
+    unit_dir = pathlib.Path(unit_dir)
+    card = tomllib.loads((unit_dir / "card.toml").read_text())
+    targets = card["targets"]
+    unit_id = card["task"]["id"]
+    asof = card["provenance"]["data_cutoff"]
+    target_type = targets.get("target_type", "level")
+    assets = list(targets["asset_ids"])
+    horizons = [int(h) for h in targets["horizons"]]
+    by_asset = sorted(assets)
+    steps, anchor = {}, {}
+    for a in by_asset:
+        steps[a], last = _steps(_history(unit_dir, a, asof), target_type)
+        anchor[a] = last if target_type == "level" else 0.0
+    common = sorted(set.intersection(*(set(steps[a]) for a in by_asset)))
+    x = np.array([[steps[a][d] for d in common] for a in by_asset])
+    mu = x.mean(axis=1)
+    sigma = np.atleast_2d(np.cov(x))
+    ai = {a: i for i, a in enumerate(by_asset)}
+    step_count = _MONTHLY_STEPS.get(unit_id, {})
+    s = {h: step_count.get(h, h) for h in horizons}
+    cells = [(a, h) for a in assets for h in horizons]
+    mean = np.array([anchor[a] + s[h] * mu[ai[a]] for a, h in cells])
+    cov = np.array([[min(s[h1], s[h2]) * sigma[ai[a1], ai[a2]] for a2, h2 in cells]
+                    for a1, h1 in cells])
+    cov[np.diag_indices_from(cov)] += 1e-10
+    return mean, cov
+
+
+#: The tail levels the scorer uses by default, and the mean of phi(z_tau) over them (doc 5).
+TAIL_LEVELS = (0.01, 0.05, 0.95, 0.99)
+_PHI_MEAN = 0.0648939
+#: Doc 5 / CHANGELOG 2026-10-06: real per-card scores are clipped at 8.0, and a card that is not
+#: scored counts 8.0.
+SCORE_CAP = 8.0
+
+
+def expected_error_divisors(mean: np.ndarray, cov: np.ndarray) -> tuple[float, float, float]:
+    """(marginal, joint, tail): the error M0 expects of itself on each component (doc 5), from its
+    exact distribution -- C = cov + 1e-9 I, the matrix its draws are sampled from. Exact formulas,
+    nothing sampled. A component that comes out 0 is stored as 1.0 (a one-cell card's joint)."""
+    import math
+    from scipy.special import gamma, hyp1f1
+    from scipy.stats import norm
+
+    c = cov + 1e-9 * np.eye(len(mean))
+    sd = np.sqrt(np.diag(c))
+    marginal = float(np.mean(sd)) / math.sqrt(math.pi)
+    tail = _PHI_MEAN * float(np.mean(sd))
+    k = 2 ** 0.25 * gamma(0.75) / math.sqrt(math.pi)
+    joint = 0.0
+    for i in range(len(mean)):
+        for j in range(len(mean)):
+            if i == j:
+                continue
+            delta = float(mean[i] - mean[j])
+            s2 = float(c[i, i] + c[j, j] - 2 * c[i, j])
+            if s2 <= 0:
+                continue
+            s = math.sqrt(s2)
+            e_abs = (s * math.sqrt(2 / math.pi) * math.exp(-delta ** 2 / (2 * s2))
+                     + delta * (1 - 2 * norm.cdf(-delta / s)))
+            e_sqrt = math.sqrt(s) * k * float(hyp1f1(-0.25, 0.5, -delta ** 2 / (2 * s2)))
+            joint += e_abs - e_sqrt ** 2
+    return (marginal or 1.0), (joint or 1.0), (tail or 1.0)
+
+
 def draws(unit_dir: pathlib.Path) -> np.ndarray:
     """M0's 500 joint draws, shaped (n_draws, n_assets, n_horizons) in the CARD's own order."""
     unit_dir = pathlib.Path(unit_dir)
@@ -167,8 +239,23 @@ def card_weights(card: dict, cell_count: int) -> tuple[float, float, float]:
     return wm, wj, wt
 
 
+def expected_error_score(ours: dict, divisors: tuple[float, float, float],
+                         weights: tuple[float, float, float]) -> float:
+    """The leaderboard's per-card score since 2026-10-06: each component divided by the error M0
+    EXPECTS on this card (`expected_error_divisors`), weighted, summed, clipped at 8.0."""
+    wm, wj, wt = weights
+    dm, dj, dt = divisors
+    score = wm * ours["marginal_crps"] / dm
+    if wj:
+        score += wj * ours["joint_variogram"] / dj
+    score += wt * ours["tail_penalty"] / dt
+    return min(score, SCORE_CAP)
+
+
 def normalized(ours: dict, m0: dict, weights: tuple[float, float, float]) -> float:
-    """The leaderboard's per-card score: each component divided by M0's, weighted and summed."""
+    """The leaderboard's per-card score BEFORE 2026-10-06 (each component divided by M0's on the
+    realized outcome, cap 4.0). Kept for comparing against old reports; `expected_error_score` is
+    the rule in force."""
     wm, wj, wt = weights
     score = wm * ours["marginal_crps"] / m0["marginal_crps"]
     if wj:

@@ -141,10 +141,11 @@ def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
         # composite_score directly to an admissible payload. Check for that key's presence,
         # not a "scored" boolean that only exists in the no-realized (gates-only) branch.
         if "composite_score" in payload:
-            lb_score, m0_composite, m0_error = _score_against_m0(unit_dir, card, payload,
-                                                                   realized_path, pathlib.Path(tmp))
+            lb_score, lb_old, m0_composite, m0_error = _score_against_m0(unit_dir, card, payload,
+                                                                           realized_path, pathlib.Path(tmp))
             return {"unit_id": unit_id, "status": "scored",
                     "lb_score": lb_score,
+                    "lb_score_old_rule": lb_old,
                     "composite": payload["composite_score"],
                     "m0_composite": m0_composite,
                     "m0_error": m0_error,
@@ -160,8 +161,12 @@ def _run_one(unit_dir: pathlib.Path, gates_only: bool) -> dict:
 
 
 def _score_against_m0(unit_dir: pathlib.Path, card: dict, ours: dict, realized_path: pathlib.Path,
-                      tmp: pathlib.Path) -> tuple[float | None, float | None, str]:
-    """The leaderboard's own per-card number: each score component divided by M0's on this card.
+                      tmp: pathlib.Path) -> tuple[float | None, float | None, float | None, str]:
+    """(score under the rule in force, score under the pre-2026-10-06 rule, M0's composite, error).
+
+    The rule in force (CHANGELOG 2026-10-06, docs/M0-BASELINE.md 5): each component divided by the
+    error M0 EXPECTS on this card, from M0's exact distribution, weighted, clipped at 8.0. The old
+    rule divided by M0's score on the realized outcome (cap 4.0); it is kept so old reports compare.
 
     M0 is rebuilt from docs/M0-BASELINE.md (`m0_baseline.py`) and scored by the same scorer
     subprocess as our forecast, so both sides go through identical code. The agent runs with
@@ -183,9 +188,13 @@ def _score_against_m0(unit_dir: pathlib.Path, card: dict, ours: dict, realized_p
         )
         m0 = json.loads(result.stdout)
         weights = m0_baseline.card_weights(card, int(ours.get("cell_count", 1)))
-        return m0_baseline.normalized(ours, m0, weights), m0["composite_score"], ""
+        if ours.get("tail_metric", "pinball") != "pinball":
+            raise ValueError(f"tail metric {ours.get('tail_metric')!r}: doc 5's tail divisor is for pinball")
+        divisors = m0_baseline.expected_error_divisors(*m0_baseline.distribution(unit_dir))
+        return (m0_baseline.expected_error_score(ours, divisors, weights),
+                m0_baseline.normalized(ours, m0, weights), m0["composite_score"], "")
     except Exception as exc:  # the raw composite is still reported; only the ratio is missing
-        return None, None, f"{type(exc).__name__}: {exc}"
+        return None, None, None, f"{type(exc).__name__}: {exc}"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -310,8 +319,9 @@ def main(argv: list[str] | None = None) -> int:
 
         if lb_by_category and not untrusted:
             all_lb = [v for vals in lb_by_category.values() for v in vals]
-            print("\nLEADERBOARD-STYLE score (lower is better; 1.0 = the organizers' M0 baseline, rebuilt "
-                  "from docs/M0-BASELINE.md; each unit counts equally, as on the leaderboard):")
+            print("\nLEADERBOARD-STYLE score, the rule in force since 2026-10-06 (lower is better; each "
+                  "component divided by the error M0 EXPECTS on the card, rebuilt from "
+                  "docs/M0-BASELINE.md 5; clipped at 8.0; each unit counts equally):")
             print(f"  primary: {sum(all_lb) / len(all_lb):.4f} over {len(all_lb)} scored unit(s), "
                   f"{sum(v < 1 for v in all_lb)} beating M0")
             for cat, vals in sorted(lb_by_category.items()):
