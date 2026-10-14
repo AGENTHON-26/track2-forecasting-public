@@ -446,9 +446,9 @@ those inputs, local checks can establish admissibility and changes in prediction
 
 ```bash
 # 1. The shared toolkit, pinned.
-# Pin toolkit v2.6.0 for the current submission commands and model-free fixture.
-# The installed package reports version 2.6.0.
-pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.6.0#subdirectory=common"
+# Pin toolkit v2.6.1 for the current submission commands and model-free fixture.
+# The installed package reports version 2.6.1.
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.6.1#subdirectory=common"
 
 # 2. This track's package, from the repository root. Without it neither the reference CLI nor
 #    the smoke scorer can import `qfbench2_track_forecasting`, and both stop at an ImportError
@@ -591,14 +591,14 @@ Install the `qfbench2-common` package (schemas, scoring, leakage guard) from the
 repository that publishes it, `Agenthon-2026/Agenthon2026-public`:
 
 ```bash
-pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.6.0#subdirectory=common"
+pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.6.1#subdirectory=common"
 ```
 
 The toolkit is half of what you need. Running the scorer or the exemplar also requires this
 repository itself — `pip install .` from the repository root — which is what brings in pandas and
 the rest. See the Quick-start checklist, step 0.
 
-**Pin the tag, and pin this one.** `v2.6.0` is the tag whose descriptor contract matches what the
+**Pin the tag, and pin this one.** `v2.6.1` is the tag whose descriptor contract matches what the
 evaluation verifier accepts. Two earlier tags fail in opposite directions. `v2.3.1` carries
 `qfbench2_common.contracts` — earlier tags predate it entirely — but it **refuses a descriptor the
 verifier accepts**: it demands at least one `models` entry, while the current contract allows
@@ -607,7 +607,7 @@ verifier accepts**: it demands at least one `models` entry, while the current co
 it **packs a descriptor the 2026-09-18 ruling made invalid** — nothing warns you, the upload is
 held at intake, it never runs, and it still costs you one of your Development attempts. Tags from
 `v2.4.4` on close that enum to `api` and `simulator`, and `v2.6.0` validates a card without
-`[metadata].difficulty`. `v2.6.0` is also the tag `.github/workflows/ci.yml` installs and the tag
+`[metadata].difficulty`. `v2.6.1` is also the tag `.github/workflows/ci.yml` installs and the tag
 the reference image in `Dockerfile` builds on, so what you verify locally is what CI verifies.
 
 Do not install from a branch. An unpinned toolkit is how a local result and a scored result come
@@ -762,7 +762,7 @@ image. Such an upload is marked Failed when its run starts and does not use an a
    dependencies (pandas among them) come from `pip install .`, and without it step 3 fails with
    `ModuleNotFoundError: No module named 'pandas'`:
    ```bash
-   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.6.0#subdirectory=common"
+   pip install "qfbench2-common[data] @ git+https://github.com/Agenthon-2026/Agenthon2026-public.git@v2.6.1#subdirectory=common"
    pip install .
    ```
 1. Read `docs/CONCEPTS.md` — understand CRPS, variogram, tail penalty, text ablation, and leakage.

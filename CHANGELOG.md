@@ -18,7 +18,7 @@ public issue #4.
 **Scores change: every card is divided by the baseline's expected error, and the cap and failure
 value are 8.0 (first entry below).** Track scorer code and evaluation cards are unchanged; that
 change is carried by the normalization scale files and the signed evaluation plan. Documentation and
-link corrections, the toolkit pin move and one unit document cleaned of later news change no scoring
+link corrections, the toolkit pin moves and one unit document cleaned of later news change no scoring
 path, gate, card or published number, and twenty practice units are renamed (ids only; entry below).
 Seven further entries change practice units, each stating its own scoring effect: the second entry
 below changes the card text of all 104 cards, and the third that of twenty-seven practice cards and
@@ -234,6 +234,14 @@ cards.
   paragraph, or the `t2c-` catalog name in `[metadata].tags` and `created_by` is reworded the same
   way. *Scoring:* none. The copies evaluated on CodaBench change at the next Track 2 evaluation
   update.
+
+- **Toolkit pin moved to `v2.6.1` everywhere.** `.github/workflows/ci.yml` (`TOOLKIT_TAG` and the
+  staging candidate), the README install commands and its paragraph on which tag to pin,
+  `Dockerfile`, the toolkit guide links in `SUBMISSION_CLI.md`, and
+  `docs/FORECAST-RESOLUTION-CANDIDATE.md` name `v2.6.1`. Toolkit `v2.6.1` makes
+  `qfbench2 submission pack --team-key-file` work on native Windows and changes nothing else; on
+  Windows, run the toolkit inside WSL (`SUBMISSION_CLI.md`). *Scoring:* none; scorer code, gates
+  and cards are unchanged.
 
 - **Toolkit pin moved to `v2.6.0` everywhere.** `.github/workflows/ci.yml`, the README install
   commands, `Dockerfile`, the hub guide links in `README.md` and `SUBMISSION_CLI.md`, and
