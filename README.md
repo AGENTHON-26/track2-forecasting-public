@@ -4,7 +4,7 @@
 
 Track 2 asks one question: **can an AI agent reason over text AND time-series data to forecast financial markets better than a model that looks only at numbers?**
 
-You submit a **Docker agent** — an LLM-powered reasoning system combined with a forecasting component — that reads two things: multivariate **time-series panels** (rates, FX, macro, factor returns) and a frozen, time-stamped **text corpus** (news headlines, FOMC statements, central-bank speeches, macro-release commentary) available up to the as-of date. It must output a full probability distribution over possible futures, expressed as Monte Carlo draws.
+You submit a **Docker agent** — an LLM-powered reasoning system combined with a forecasting component — that reads two things: multivariate **time-series panels** (rates, FX, macro, factor returns) and a frozen, time-stamped **text corpus** (official documents: FOMC statements and minutes, central-bank decisions and speeches, data releases) available up to the as-of date. It must output a full probability distribution over possible futures, expressed as Monte Carlo draws.
 
 We score your output against sealed realized market outcomes using a **CRPS composite**:
 
@@ -51,10 +51,11 @@ The corpus contains only documents with timestamps on or before the card's as-of
 Typical corpus contents:
 
 - FOMC statements and meeting minutes
-- Federal Reserve and ECB governor speeches (text form)
-- Macro-release headlines and survey commentary (e.g., NFP surprise wording)
-- COT (Commitment of Traders) analyst summaries
-- News headlines tagged to the release date
+- Central-bank policy decisions and official speeches (Federal Reserve, ECB and other central banks)
+- Official data releases (e.g., the Employment Situation and CPI releases)
+- CFTC Commitments of Traders positioning data
+
+The corpora hold official documents and, on a few practice cards, company filings with the SEC; they contain no news articles.
 
 The text corpus is what lets a reasoning agent beat a text-blind baseline. An agent that notices an FOMC statement shifting tone toward tightening can adjust its rate forecast accordingly, even before the numbers in the panel reflect the move.
 
@@ -83,8 +84,10 @@ Accuracy feedback comes from submitting: the Development leaderboard scores you 
 repository's `validation` units, against outcomes that are not shipped with them. Use the
 practice units to get *admissible*, and the leaderboard to find out how good you are.
 
-The held-out evaluation units are sealed in the private repository and are a different, later
-window — nothing in this practice data reaches them.
+The cards that rank the Final are completed after Final submissions close, from data up to Monday 26
+October 2026, and every value they forecast is first published between 27 and 30 October 2026, after
+the upload deadline — nothing in this practice data reaches them. The sealed cards prepared before
+the Final window are used only for the unranked check run that each Final upload gets.
 
 **These cards are practice, and the Development leaderboard is a practice board — not a
 ranking.** Because the cards share underlying series and each panel is cut at its own as-of
@@ -92,8 +95,8 @@ date, most of this set is readable from itself (see "Leakage rules", rule 5). We
 you this rather than letting the teams who work it out compete against the teams who don't.
 Use the board the way it is useful — to check that your agent runs, parses, and calibrates —
 and read your per-card scores rather than your position. **The ranking that decides the
-competition is the Final phase**, on the sealed set — a different, later window that nothing in
-this practice data reaches.
+competition is the Final phase**, on cards completed after Final submissions close (see "Competition
+schedule and submission limits") — a later window that nothing in this practice data reaches.
 
 ### Scoring code
 
@@ -158,7 +161,8 @@ modes you will encounter:
    part of this competition (ruling of 2026-09-18). See "Submission categories" below.
 
    Every connection is logged (domain, bytes, timestamps). These logs are the audit artifact
-   for verification within the joint Final + Verification phase. **Vendor-side tools — web search, code execution, retrieval —
+   for the verification of the top Final entries, which follows their ranked runs after the Final
+   window closes. **Vendor-side tools — web search, code execution, retrieval —
    must be disabled in all API calls.** This is enforced by rule and by audit.
 
 At scoring time your container receives this environment:
@@ -622,8 +626,13 @@ Everything in this repository that does not need the toolkit — `units/`, `base
 
 The following are NOT available to participants during the competition:
 
-- **Realized outcomes for the held-out evaluation window (H2 2025 – Q2 2026).** Scores are
-  computed server-side. Results are released after the competition closes.
+- **Realized outcomes for the ranked Final cards.** The ranked cards are completed after Final
+  submissions close, from data up to Monday 26 October 2026 (the last UST and FX values, that day's
+  Treasury close and ECB fixing, come after the upload deadline), and every value they forecast is
+  first published between 27 and 30 October 2026, so no outcome is published while you can still upload.
+  Scores are computed server-side, and results are published in early November, with no provisional
+  standings. The sealed cards prepared before the Final window are used only for the unranked check
+  run.
 - **The official baseline's per-card normalization scale files** (`reference/ref_scale.json`).
   Each one holds the error that the text-blind baseline expects to make on that card, computed
   from the card's inputs before the outcome exists, so it says nothing about the outcome. No card
@@ -631,12 +640,14 @@ The following are NOT available to participants during the competition:
   card's `reference/` directory. The **method** that produces them is published in full, so on a
   released card you can compute the values yourself: see [docs/M0-BASELINE.md](docs/M0-BASELINE.md).
   A sealed card's inputs are sealed, so its scale is too.
-- **The exact card IDs, as-of dates, and asset combinations for the sealed evaluation set.**
-  You know the four families and the four panels, but not which specific cards appear.
-- **The EM FX panel** used for F2 (Text-cued regime shift with transfer) cards. G10 FX is in
-  training; EM FX is the transfer target and is absent from all input panels.
-- **Regime event labels for F4 cards.** The harness knows which cards are tail/shock cards,
-  but specific event dates are not pre-announced.
+- **Which ranked cards there are.** You know their as-of date (Monday 26 October 2026), their series
+  (UST yields at the practice cards' 2- to 30-year tenors plus the 3-month, 6-month and 1-year
+  bills; the G10 and five emerging-market exchange rates against the US dollar; and, on a few cards,
+  a monthly official statistic first released between 27 and 30 October) and the horizons of the UST
+  and exchange-rate cards (1 to 4 business days after the as-of), but not the card IDs, the asset
+  combinations, the statistics chosen or the documents in each corpus.
+- **Which ranked cards fall in each family.** An F4 card is one whose text corpus carries a live
+  risk channel or a scheduled event inside the window; no card promises that a shock happens.
 
 Sealed means the *values*, not the *procedure*. Everything about how the baseline is built — the
 window, the differencing, the gap and alignment rules, the horizon conversion, the covariance
@@ -692,23 +703,19 @@ reachable from public data sources without touching the kit at all. That is the 
 practice score is a pipeline check rather than a skill signal.
 
 The consequence is under "Practice tasks" above: **the Development leaderboard is practice, not a
-ranking.** The sealed evaluation set is a different, later window. **No practice panel reaches any
-target in it.** That is a measurement, not an assurance: we run it at every strength — does a
-practice panel carry the asset far enough to touch the target date, does it hold a row at exactly
-that (asset, date), does that row's value equal the sealed one — and we re-run it as the sealed set
-is finalized, rather than treating one clean result as settled.
+ranking.** The cards that rank the Final are a later window: they are completed after Final
+submissions close, from data up to Monday 26 October 2026 (the last UST and FX values, that day's
+Treasury close and ECB fixing, come after the upload deadline), and every value they forecast is
+first published after the upload deadline. **No practice panel reaches any of their targets, and
+neither does anything published before the close.** That holds by construction, not by measurement:
+no outcome of a ranked card is published while you can still upload. So a lookup table built from the
+practice data, or from any data you can reach before you upload, cannot hold the answer to any of
+them.
 
-The current run: **0 exposed**, pooling all 148,680 `(asset, date, value)` rows from every
-published panel against every sealed answer that exists today. The honest scope of that number is
-that only a small fraction of the sealed units have a resolved outcome yet; the rest resolve in
-the
-future and cannot be checked until they do. The re-run before the Final bundle is the one that
-covers them, and it is the run that matters. So a lookup table built from the
-practice data is worth exactly zero on it, and the Final phase gives you one submission to discover
-that.
-Within the joint Final + Verification phase, organizers rerun the top of the Final board on
-fresh seeds and resamples with reproducibility and disclosure checks. This does not require
-a separate participant Verification submission.
+After the ranked run, organizers rerun the top Final entries on fresh seeds and resamples with
+reproducibility and disclosure checks. This does not require a separate participant Verification
+submission. Keep your image pullable until the final results are published: the ranked run and this
+verification both pull it after the close.
 
 ---
 
@@ -784,22 +791,37 @@ image. Such an upload is marked Failed when its run starts and does not use an a
 
 ## Competition schedule and submission limits
 
-Development runs through **October 12, 2026**. The joint **Final + Verification phase runs
-October 13–25, 2026**. Each team makes **one final submission per track**; organizers perform
-verification within that same phase, with no separate participant Verification submission.
+Development runs through **October 12, 2026**. The joint **Final + Verification phase** is the Final
+upload window, from **13 October 2026, 12:00 UTC** to **25 October 2026, 23:59 AoE** (26 October,
+11:59 UTC): each team makes **one final submission per track** in it. On Track 2, each Final upload
+gets one **unranked check run** on sealed cards during the window, to show that the image runs and
+writes valid forecasts; as with every Final run, you see its status, not its per-card details. The
+**ranked run** happens after the window closes, on cards built from data up to Monday 26 October
+2026. Their UST panels end with the Treasury close of Monday 26 October and their FX panels with
+that day's ECB fixing (around 13:10 UTC), both after the upload deadline. Their UST series come from
+the Treasury daily par yield curve: the 2- to 30-year tenors of the practice cards plus the 3-month,
+6-month and 1-year bills. Their exchange rates come from the **ECB's euro foreign exchange reference
+rates**, cross-calculated against the US dollar: the ten G10 rates are quoted as on the practice
+cards, and MXN, BRL, ZAR, KRW and INR in units of the currency per US dollar. Every UST and
+exchange-rate target date falls between 27 and 30 October 2026 (1 to 4 business days after the
+as-of). A few further cards each forecast the next figure of a monthly official statistic,
+first released between 27 and 30 October by its official publisher; a card whose release does not
+happen by 30 October is dropped before scoring. The ranked cards are to be scored by the end of
+October, and results are published in early November. There are no provisional standings: the Track
+2 Final board stays hidden until the results are published. Organizers verify the top entries after
+their ranked runs, that is, after this phase closes, with no separate participant Verification
+submission; keep your image pullable until the final results are published.
+
 If two Final submissions finish this track with the same ranking score, the tie is broken in
 favour of the one uploaded earlier.
-Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates and task/data cutoffs are unchanged.
+Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates are unchanged; on Track 2, the Final's cards, ranking and results follow the timeline above.
 
-**Last Development runs start by 20:00 UTC on Monday 12 October 2026.** A scheduled
-maintenance window on **Tuesday 13 October 2026, 08:00–12:00 UTC** stops the evaluation fleet,
-and new Development runs stop starting twelve hours before it so that every run started by
-then keeps its full 12-hour stage clock. The 23:59 AoE close on 12 October is 11:59 UTC on
-13 October, inside that window. An upload that has not started by 20:00 UTC on 12 October,
-whenever it was made, is not run; a run starts only when a worker is free, so upload well
-before that evening. An upload made during the window shows `Submitting` until 12:00 UTC and
-is not run. The window changes nothing about scoring, limits or the submission contract
-([issue #18](https://github.com/Agenthon-2026/track2-forecasting-public/issues/18)).
+**Development has one deadline: 12 October 2026 at 23:59 AoE (13 October, 11:59 UTC).** Every valid
+Development upload made before then is run, even if its run starts after the close; uploads still
+waiting at the close run after the Final opens, alongside the Final. The 20:00 UTC cutoff on 12
+October and the 08:00–12:00 UTC maintenance pause on 13 October, announced earlier, are cancelled
+([issue #18](https://github.com/Agenthon-2026/track2-forecasting-public/issues/18), updated 12
+October).
 
 At the participant Development opening, Track 2 allows **5 uploads per team per day**
 and **20 total uploads per team for this track during Development**. Use your team's single

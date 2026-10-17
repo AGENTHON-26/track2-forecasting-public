@@ -25,7 +25,14 @@ below changes the card text of all 104 cards, and the third that of twenty-seven
 the worked example; the fourth, the fifth and the practice-corpus entry, seventh below, change the
 text of the practice units; the monthly practice-panel entry, eighth below, changes the data and
 notes of four practice units; and the entry after it changes the card text of two monthly practice
-cards.
+cards. **The Track 2 Final is ranked after its upload window closes, on cards built from data up to
+Monday 26 October 2026: UST yields at the practice cards' 2- to 30-year tenors plus the 3-month,
+6-month and 1-year bills, and the G10 and five emerging-market exchange rates from the ECB's euro
+foreign exchange reference rates, with targets 1 to 4 business days later (27-30 October); and a few
+monthly official statistics first released between 27 and 30 October. The ranked cards are to be
+scored by the end of October and results are published in early November, with no provisional
+standings. Each Final upload's run in the window is an unranked check. The Final is scored with the
+same rule as Development (entry "Track 2 Final: how it is ranked").**
 
 - **Every card is now divided by the text-blind baseline's expected error, and the cap and the
   failure value move from 4.0 to 8.0.** *Scoring:* every Track 2 score changes. The scorer code is
@@ -254,12 +261,12 @@ cards.
   the as-of rule and the F4 example card describe each card's inputs and window; the example card
   ids are `t2-F2-gbp-boe-2022Q3` and `t2-F4-ust-fomc-2021Q4`. Documentation only.
 
-- **Last Development runs start by 20:00 UTC on Monday 12 October 2026.** A scheduled
-  maintenance window on Tuesday 13 October 2026, 08:00–12:00 UTC stops the evaluation fleet. An
-  upload that has not started by 20:00 UTC on 12 October, whenever it was made, is not run, and
-  one made during the window shows `Submitting` until 12:00 UTC and is not run. Announced in
-  public issue #18; now also in the README's schedule section and in `SUBMISSION_CLI.md`.
-  Scoring, limits and the submission contract: unchanged.
+- **Development has one deadline: 12 October 2026 at 23:59 AoE (13 October, 11:59 UTC).** Every
+  valid Development upload made before then is run, even if its run starts after the close; uploads
+  still waiting at the close run after the Final opens. The 20:00 UTC cutoff on 12 October and the
+  08:00–12:00 UTC maintenance pause on 13 October, first announced in public issue #18, are
+  cancelled (issue #18, updated 12 October); the README's schedule section and `SUBMISSION_CLI.md`
+  say so. Scoring, limits and the submission contract: unchanged.
 - **Final tie-break in `SUBMISSION_CLI.md`.** Its schedule paragraph now carries the sentence the
   README has carried since 2026-09-22: if two Final submissions finish this track with the same
   ranking score, the one uploaded earlier ranks ahead. No rule change.
@@ -271,6 +278,42 @@ cards.
   cannot run an image that declares a Docker `VOLUME`, including one inherited from its base
   image. Such an upload is marked Failed when its run starts and does not use an attempt; remove
   the `VOLUME` (or choose another base image) and upload again.
+- **Track 2 Final: how it is ranked.** `README.md` ("Executive summary", "Text corpus", "Practice
+  tasks", "The two network modes", "Firewall: what is sealed", "Leakage rules" and "Competition
+  schedule and submission limits"), `SUBMISSION_CLI.md` (the network-mode table, the T2 row of the
+  track table, the "Open Division" sentence, contract invariant 4 and the schedule paragraph),
+  `docs/CATEGORIES.md` ("Executive summary", "How to read each family section", the example card
+  under "F1 — Continuation-with-context", "F4 — Tail/shock-from-text", the opening note and the F4
+  list in "Quick reference: per-family checklist" and "How the composite score works across all four
+  families"), `docs/M0-BASELINE.md` §3.7, `docs/CONCEPTS.md` ("3 — The text corpus and the as-of
+  cutoff" and "4 — Agentic forecasting"), `docs/AUTHORING-GUIDE.md` ("Step 1 — Pick and assemble the
+  time-series panels", "Step 2 — Assemble the time-stamped text corpus" and "Step 5 — Assign the
+  card to a family"), `DATA-LICENSE.md` ("Rights basis by category") and `THIRD-PARTY-NOTICES.md`
+  ("Non-U.S. central banks — the issuing institution's terms govern" and a new section, "Official
+  statistics behind the ranked Final's data-release cards") now describe the Final as announced in
+  public issue #4 on 11 October 2026 and since corrected there. Each Final upload gets one unranked
+  check run on sealed cards during the window. The ranked run happens after the window closes, on
+  cards built from data up to Monday 26 October 2026, whose last UST and FX values (the Treasury
+  close and the ECB fixing of that day) come after the upload deadline; every UST and exchange-rate
+  target date falls between 27 and 30 October 2026, 1 to 4 business days after the as-of, in all
+  four families. UST series come from the Treasury daily par yield curve: the practice cards' 2- to
+  30-year tenors plus the 3-month, 6-month and 1-year bills. Exchange rates come from the ECB's euro
+  foreign exchange reference rates, cross-calculated against the US dollar: the ten G10 rates as on
+  the practice cards, and MXN, BRL, ZAR, KRW and INR in units of the currency per US dollar. A few
+  further cards each forecast the next figure of a monthly official statistic first released
+  between 27 and 30 October; a card whose release does not happen by 30 October is dropped before
+  scoring, and `docs/M0-BASELINE.md` §3.7 now covers these monthly cards. The ranked cards are to be
+  scored by the end of October and results are published in early November, with no provisional
+  standings; images must stay pullable until the results are published. The ECB is credited as the source of the Final's exchange rates (the G10 and the five
+  added currencies) in `DATA-LICENSE.md` and `THIRD-PARTY-NOTICES.md`, which also add an entry for
+  the official statistics (each publisher's terms govern, and each card's manifest names its
+  publisher, source and licence), and `docs/AUTHORING-GUIDE.md` now states the practice FX quote
+  conventions per currency. On every track, the top entries are verified after their runs, so
+  verification can end after 25 October. The Firewall list drops the "H2 2025 – Q2 2026" window and
+  the bullet about an EM FX transfer panel, and in the Final an F4 card is one whose corpus carries
+  a live risk channel or a scheduled event inside the window, with no promise that a shock happens.
+  The corpus descriptions now say the corpora hold official documents and, on a few practice cards, company filings with the SEC, with no news articles.
+  *Scoring:* the scoring rule is unchanged; documents only.
 - **Runtime guide links moved to `main`.** The Development runtime guide links in `README.md`
   and `SUBMISSION_CLI.md` pointed at the toolkit's `v2.4.4` copy, which still states the
   withdrawn allowance of 1,000,000 input tokens per unit and lacks the tie-break and

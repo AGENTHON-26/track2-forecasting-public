@@ -69,8 +69,8 @@ forecast (midpoint: 4 %) is not particularly precise.
 ## 3 — The text corpus and the as-of cutoff
 
 Every Track 2 card comes with two inputs: a **numeric panel** (time-series data) and a
-**text corpus** (a collection of dated documents: FOMC statements, central-bank speeches,
-macro-release headlines, COT commentary, news).
+**text corpus** (a collection of dated official documents, for example FOMC statements and minutes,
+central-bank decisions and speeches, data releases and CFTC positioning data).
 
 The text corpus is **frozen and time-stamped**. Every document in it has a date on or before
 the card's as-of date (the information cutoff). There are no documents dated after the as-of
@@ -84,7 +84,7 @@ not the November 2021 statement. The frozen corpus preserves this information bo
 
 **Why text at all?** Numeric time-series models can only extrapolate historical patterns.
 They cannot read an FOMC statement and understand that "expedient" signals urgency. They
-cannot notice that a CPI commentary says "highest in 40 years" and widen their right tail
+cannot notice that a CPI release reports the "highest in 40 years" and widen their right tail
 accordingly. A reasoning agent that reads text can beat a text-blind baseline on exactly
 these cases. The four card families (F1–F4) are designed to test different ways text adds
 signal — see `docs/CATEGORIES.md`.
@@ -109,8 +109,8 @@ An **agentic forecast** combines two components:
 2. **An LLM reasoning component** — a language model that reads the text corpus, extracts
    relevant signals (tone shifts, surprise magnitude, risk flags), and adjusts the forecast
    accordingly. The LLM might: widen the right tail after reading an "urgent" central bank
-   speech; shift the mean after a CPI surprise headline; adjust cross-asset correlations
-   after reading a multi-market commentary.
+   speech; shift the mean after a CPI release that surprises; adjust cross-asset correlations
+   after reading an official communication covering several markets.
 
 The two components interact: the LLM nudges or conditions the forecasting component's output.
 How exactly they interact is up to you — this is the design space of Track 2.

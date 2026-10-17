@@ -5,7 +5,7 @@
 Track 2 evaluation tasks are divided into **four card families** (F1 through F4). Every task belongs
 to exactly one family. The families are organized around the **role of the text corpus**: what
 kind of signal does the text provide, and how much should a reasoning agent beat a text-blind
-model? Read all four sections — the sealed evaluation set draws tasks from all of them, and the
+model? Read all four sections — the cards that rank the Final draw from all of them, and the
 best submissions score well across the board.
 
 **The governing distinction:** Track 2 = time-series data (panels indexed by time) → forecast
@@ -49,6 +49,14 @@ Each section below covers:
 - **An example card** — what the task specification looks like
 - **Common mistakes** — what to watch out for
 
+The as-of gaps, horizons, assets and examples in each section describe the practice cards. **The
+cards that rank the Final** share one as-of, Monday 26 October 2026. Their series are UST yields at
+the practice cards' 2- to 30-year tenors plus the 3-month, 6-month and 1-year bills, and the G10 and
+five emerging-market exchange rates (MXN, BRL, ZAR, KRW, INR) against the US dollar, taken from the
+ECB's euro foreign exchange reference rates, with targets 1 to 4 business days after the as-of, in
+every family; a few further cards each forecast the next figure of a monthly official
+statistic first released between 27 and 30 October. There are no factor series.
+
 ---
 
 ## F1 — Continuation-with-context
@@ -81,7 +89,7 @@ well. Examples of useful text signals:
 
 - An FOMC statement indicating a shift in language from "patient" to "expedient" hints at
   a faster rate path than historical momentum alone would suggest.
-- A macro-release commentary noting an upward surprise in CPI may cause an agent to shift
+- A statistical release noting an upward surprise in CPI may cause an agent to shift
   its rate forecast upward relative to what the numbers implied at month-end.
 - COT data showing a sharp build in short positioning may warn of a crowded trade that
   increases volatility.
@@ -125,7 +133,7 @@ the intended stress for F1.
 Card ID:   t2-F1-ust-10y-6m-2023Q3
 Family:    T2-F1
 Panel:     rates/ust-daily  (DGS10, 2000-01-03 to 2023-07-03)
-Text:      text/  (FOMC statements and rate-decision headlines, all dated <= 2023-07-03)
+Text:      text/  (FOMC statements and rate decisions, all dated <= 2023-07-03)
 As-of:     2023-07-03
 Target:    UST_10Y at horizon 126 business days (approx. 2024-01-03)
 Output:    forecast.parquet with columns [draw, asset, horizon, value]
@@ -328,7 +336,7 @@ Card ID:   t2-F3-ust-curve-joint-2024Q1
 Family:    T2-F3
 Panel:     rates/ust-daily (DGS2, DGS5, DGS10, DGS30, 2000-01-03 to 2024-01-02)
 Text:      text/  (FOMC January 2024 statement, December 2023 minutes,
-                   macro commentary, all dated <= 2024-01-02)
+                   macro releases, all dated <= 2024-01-02)
 As-of:     2024-01-02
 Targets:   UST_2Y, UST_5Y, UST_10Y, UST_30Y at horizons 21 BD and 63 BD
 Output:    forecast.parquet [draw, asset, horizon, value]
@@ -371,11 +379,12 @@ all tenors should produce draws where the tenors co-move realistically.
 
 ### What this family tests
 
-F4 is the stress test for extreme events driven by text signals. The text corpus contains
-documents that foreshadow a shock — a central bank communication warning of exceptional
-measures, an inflation release commentary noting the highest reading in 40 years, a political
-risk dispatch about an upcoming policy event. The as-of date is set before the shock. The
-target window spans the shock's impact.
+F4 is the stress test for extreme events driven by text signals. The text corpus carries a live risk
+channel or a scheduled event inside the window — for example a central bank communication warning of
+exceptional measures, or a scheduled policy decision or data release. The as-of date is set before
+the window. On the practice cards the window was chosen around a shock that then happened. **On the
+cards that rank the Final it is not:** they are built before their outcomes are published, so an F4 card
+does not promise that a shock happens.
 
 The agent must read the text, recognize the shock signal, and assign **meaningful probability
 to extreme outcomes** — even if the recent numeric history looks calm. This is where text
@@ -424,11 +433,13 @@ the draw distribution accordingly." Use at least 1,000 draws for F4 cards.
 
 ### As-of date and leakage rules
 
-- The as-of date must precede the shock event by at least the forecast horizon.
-  For a 63-BD (approximately 3-month) card whose window covers Q1 2022, the as-of date must be
-  no later than approximately 2021-10-01.
-- The text corpus contains only documents with timestamps <= as-of date. The shock-foreshadowing
-  text is in the pre-asof corpus. The staging gates reject any corpus document dated after the asof before the unit ships.
+- On the practice cards, the as-of date precedes the shock event by at least the forecast horizon:
+  for a 63-BD (approximately 3-month) card whose window covers Q1 2022, the as-of date is no later
+  than approximately 2021-10-01. On the cards that rank the Final, every value they forecast is
+  first published after the as-of (the UST and exchange-rate targets fall 1 to 4 business days after
+  it), and no shock is promised.
+- The text corpus contains only documents with timestamps <= as-of date. The risk-channel or
+  shock-foreshadowing text is in the pre-asof corpus. The staging gates reject any corpus document dated after the asof before the unit ships.
 - No post-event data may appear in the input panel. This includes Fed funds futures, swap
   rates, or any series that would reveal the event's timing or magnitude in advance.
 - **Critical**: participants must NOT engineer features that use look-ahead knowledge of the
@@ -493,7 +504,7 @@ the panel.
 
 ## How the composite score works across all four families
 
-The sealed evaluation set draws cards from all four families. Your position is the
+The cards that rank the Final draw from all four families. Your position is the
 equal-weight mean of your composite scores across every card, lower is better — single-cell
 and multi-cell alike, because the weight redistribution above gives a normalized 1.0 the same
 meaning on both shapes. Every card counts equally, and a card you do not score takes the
@@ -528,6 +539,11 @@ retrieval strategy.
 
 ## Quick reference: per-family checklist
 
+The as-of gaps below describe the practice cards. On the cards that rank the Final, every UST and
+exchange-rate target is 1 to 4 business days after the shared as-of, Monday 26 October 2026; a
+data-release card forecasts the next figure of a monthly official statistic, first released between
+27 and 30 October.
+
 ### F1
 - [ ] All target assets are present in the training panel through the as-of date
 - [ ] Text corpus has timestamps <= as-of date (`cutoff.scan_text_corpus_cutoff` checks this at staging)
@@ -559,6 +575,6 @@ retrieval strategy.
 - [ ] n_draws >= 200 (strongly recommend >= 1000 for tail accuracy)
 - [ ] Distribution has fat tails informed by text shock signals
 - [ ] Text-driven tail direction is correct (right-skewed for rate hikes, etc.)
-- [ ] As-of date precedes the regime event by at least the forecast horizon
+- [ ] Every value the card forecasts is first published after the as-of date (ranked UST and exchange-rate cards: the as-of precedes every target date; practice cards: it precedes the regime event by at least the forecast horizon)
 - [ ] Text corpus has timestamps <= as-of date; no post-event documents
 - [ ] No post-event information in model weights or input panels
