@@ -22,6 +22,7 @@ Runs offline with numpy + pandas + pyarrow.
 from __future__ import annotations
 
 import argparse
+import os
 import json
 import pathlib
 import sys
@@ -38,7 +39,7 @@ DEFAULT_DRAWS = 2000
 #: ON on feat/model_v3_m2_0_text: M2.0 with the House-model text half, to compare against the
 #: text-off feat/model_v3_m2_0 image. The descriptor must then declare the House model, so pack WITHOUT
 #: `tools/make_descriptor.py --no-model`. False = every asset neutral, no House call (then use --no-model).
-TEXT_SIGNAL = True
+TEXT_SIGNAL = False  # exp/m2-short-horizon: no evidence text helps at 1-4 days, so OFF (re-enable: True; _safe_text bounds widen to 1.0-1.3)
 
 
 
@@ -92,6 +93,107 @@ def _find_card(panels: pathlib.Path, explicit: pathlib.Path | None) -> pathlib.P
     raise SystemExit(f"card.toml not found near {panels}; pass --card")
 
 
+
+#: Wall-clock cap on the whole text half (the Final allows 1,800 s per unit; the model needs seconds).
+TEXT_TIME_CAP_S = 600
+#: Hard bounds on what the text may ask for. Anything else is clamped; shift is never used.
+WIDEN_BOUNDS = (1.0, 1.3)
+SKEW_BOUNDS = (-0.3, 0.3)
+
+
+class _TextTimeout(BaseException):
+    pass
+
+
+#: Wall-clock cap on the model itself (the Final allows 1,800 s per unit; the model takes about a second).
+MODEL_TIME_CAP_S = int(os.environ.get("T2_MODEL_CAP_S", "900"))
+
+
+def _safe_text(text_dir, assets):
+    """read_text_signal under a wall-clock cap, clamped; any failure -> exact neutral."""
+    import signal
+    neutral = {x: {"shift": 0.0, "widen": 1.0, "skew": 0.0} for x in assets}
+
+    def _alarm(*_):
+        raise _TextTimeout()
+    try:
+        old = signal.signal(signal.SIGALRM, _alarm)
+        signal.alarm(TEXT_TIME_CAP_S)
+    except (ValueError, AttributeError):              # not the main thread / no SIGALRM
+        old = None
+    try:
+        raw = read_text_signal(text_dir, assets)
+        out = {}
+        for x in assets:
+            v = raw.get(x, {}) if isinstance(raw, dict) else {}
+            w, k = float(v.get("widen", 1.0)), float(v.get("skew", 0.0))
+            w = min(max(w, WIDEN_BOUNDS[0]), WIDEN_BOUNDS[1]) if np.isfinite(w) else 1.0
+            k = min(max(k, SKEW_BOUNDS[0]), SKEW_BOUNDS[1]) if np.isfinite(k) else 0.0
+            out[x] = {"shift": 0.0, "widen": w, "skew": k}
+        return out
+    except BaseException as exc:
+        print(f"[forecast] text half failed ({type(exc).__name__}); model alone", file=sys.stderr)
+        return neutral
+    finally:
+        if old is not None:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, old)
+
+
+#: Scheduled central-bank event scaling (event_vol.py). Validated on tools/short_horizon_backtest.py
+#: (event cells -0.016 vs the unscaled model, out of sample in both 2015-19 and 2020-25).
+EVENT_VOL = True
+
+
+def _set_event_scale(panels, assets, horizons, asof):
+    """Fill forecast_models.EVENT_SCALE for daily rates / FX assets; any problem leaves it off (1.0)."""
+    import forecast_models as fm
+    fm.EVENT_SCALE = None
+    if not EVENT_VOL:
+        return
+    try:
+        import event_vol as ev
+        steps = ev.future_bdays(asof, max(horizons))
+        scale = {}
+        for a in assets:
+            pid, rows = fm._history(panels, a, asof)
+            cls = fm.asset_type(a, pid)
+            if cls not in ("rates", "fx") or fm._horizon_steps([d for d, _ in rows], horizons, asof) != [float(h) for h in horizons]:
+                continue
+            sc = ev.horizon_scale(cls, steps)
+            for h in horizons:
+                scale[(a, h)] = sc[h - 1]
+        fm.EVENT_SCALE = scale or None
+    except BaseException as exc:
+        print(f"[forecast] event scaling off ({type(exc).__name__}: {exc})", file=sys.stderr)
+        fm.EVENT_SCALE = None
+
+
+def _emergency_draws(panels, assets, horizons, asof, n_draws, seed):
+    """Last resort so a card never fails: independent random walks around the last value found for
+    each asset, sd 1 % of |last| per sqrt(h) (1.0 if nothing is known). Finite, admissible."""
+    rng = np.random.default_rng(seed)
+    out = np.zeros((n_draws, len(assets), len(horizons)))
+    for i, x in enumerate(assets):
+        last, sd = 0.0, 1.0
+        for t in panels.values():
+            try:
+                acol = "asset" if "asset" in t.column_names else "asset_id"
+                d = t.to_pydict()
+                v = [float(val) for dte, ast, val in zip(d["date"], d[acol], d["value"])
+                     if str(ast) == x and str(dte)[:10] <= asof and val is not None and np.isfinite(float(val))]
+                if len(v) >= 2:
+                    last = v[-1]
+                    sd = float(np.std(np.diff(v[-300:]))) or 0.01 * abs(last) or 1.0
+                    break
+            except Exception:
+                continue
+        z = rng.standard_normal((n_draws, 1)) 
+        for j, h in enumerate(horizons):
+            out[:, i, j] = last + sd * np.sqrt(max(h, 1)) * z[:, 0]
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="forecast")
     p.add_argument("--panels", type=pathlib.Path, required=True)
@@ -111,12 +213,41 @@ def main(argv: list[str] | None = None) -> int:
     floor = int(card.get("scoring", {}).get("params", {}).get("n_draws_min", 0) or 0)
     n_draws = max(a.n_draws or DEFAULT_DRAWS, DEFAULT_DRAWS, floor)
 
-    panels = _read_panels(a.panels)
-    adjustments = (read_text_signal(a.text, assets) if TEXT_SIGNAL               # NISH
-                   else {x: {"shift": 0.0, "widen": 1.0, "skew": 0.0} for x in assets})
-    samples = build_draws(panels, assets, horizons, a.asof, adjustments, n_draws, a.seed,  # DEW
-                          target_type=tgt.get("target_type"),
-                          family=card.get("metadata", {}).get("category"))
+    neutral = {x: {"shift": 0.0, "widen": 1.0, "skew": 0.0} for x in assets}
+    try:
+        panels = _read_panels(a.panels)
+    except BaseException as exc:                      # unreadable panels: emergency draws below
+        print(f"[forecast] panels unreadable ({exc}); emergency draws", file=sys.stderr)
+        panels = {}
+    # The text half is time-boxed and clamped; any failure leaves the model alone (neutral).
+    adjustments = _safe_text(a.text, assets) if TEXT_SIGNAL else neutral              # NISH
+    kw = dict(target_type=tgt.get("target_type"), family=card.get("metadata", {}).get("category"))
+    samples = None
+    _set_event_scale(panels, assets, horizons, a.asof)
+    import signal
+    try:
+        signal.signal(signal.SIGALRM, lambda *_: (_ for _ in ()).throw(_TextTimeout()))
+        signal.alarm(MODEL_TIME_CAP_S)
+    except (ValueError, AttributeError):
+        pass
+    for adj in (adjustments, neutral) if adjustments != neutral else (neutral,):
+        try:
+            samples = build_draws(panels, assets, horizons, a.asof, adj, n_draws, a.seed, **kw)  # DEW
+            if np.isfinite(samples).all() and samples.shape == (n_draws, len(assets), len(horizons)):
+                break
+        except BaseException as exc:                  # incl. SystemExit from the model's refusals
+            print(f"[forecast] build_draws failed ({type(exc).__name__}: {exc})", file=sys.stderr)
+            if isinstance(exc, _TextTimeout):         # model hit its wall-clock cap: go straight to emergency
+                samples = None
+                break
+        samples = None
+    try:
+        signal.alarm(0)
+    except (ValueError, AttributeError):
+        pass
+    if samples is None:
+        samples = _emergency_draws(panels, assets, horizons, a.asof, n_draws, a.seed)
+        adjustments = neutral
 
     # write the 3 required files
     out_dir = a.out.parent
