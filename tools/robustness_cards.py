@@ -45,6 +45,10 @@ START = "2012-01-02"
 SERIES = {
     "UST_3M": (4.0, 0.02, "yield"), "UST_6M": (3.9, 0.025, "yield"), "UST_1Y": (3.7, 0.03, "yield"),
     "UST_10Y": (4.1, 0.06, "yield"),
+    "UST_3M_Z": (0.05, 0.003, "yield"), "UST_6M_Z": (0.08, 0.004, "yield"), "UST_1Y_Z": (0.12, 0.005, "yield"),
+    "UST_2Y": (4.0, 0.02, "yield"), "UST_5Y": (4.0, 0.02, "yield"), "UST_30Y": (4.5, 0.02, "yield"),
+    "GBP": (0.85, 0.004, "fx"), "JPY": (160.0, 0.006, "fx"), "CHF": (0.95, 0.004, "fx"), "AUD": (1.6, 0.005, "fx"),
+    "CAD": (1.45, 0.004, "fx"), "NZD": (1.75, 0.005, "fx"), "SEK": (11.2, 0.004, "fx"), "NOK": (11.6, 0.005, "fx"),
     "MXN": (18.5, 0.008, "fx"), "BRL": (5.4, 0.010, "fx"), "ZAR": (18.0, 0.010, "fx"),
     "KRW": (1380.0, 0.005, "fx"), "INR": (84.0, 0.003, "fx"), "EUR": (1.08, 0.005, "fx"),
 }
@@ -197,6 +201,21 @@ def cases(root: pathlib.Path) -> list[tuple[str, pathlib.Path, str]]:
     rel_m = release_panel("macro_monthly")
     out.append(("release card CPI_YOY on a 'macro_monthly' panel",
                 write_unit(root, "syn-F1-cpiyoy-macro", "F1", [rel_m], ["CPI_YOY"], [2], frequency="monthly"), "runs"))
+    zirp = daily_panel("rates_daily", ["UST_3M_Z", "UST_6M_Z", "UST_1Y_Z"], "us", 11)
+    zirp["value"] = zirp["value"].clip(lower=0.0)          # CMT yields do not go below 0.00; many flat days
+    out.append(("ZIRP-style bills near 0 %, F3 h=[1,4]", write_unit(root, "syn-F3-zirp", "F3", [zirp], ["UST_3M_Z", "UST_6M_Z", "UST_1Y_Z"], [1, 4]), "runs"))
+    out.append(("ZIRP bill, one cell h=2", write_unit(root, "syn-F1-zirp1", "F1", [zirp], ["UST_3M_Z"], [2]), "runs"))
+    flat = daily_panel("rates_daily", ["UST_3M_Z", "UST_6M_Z"], "us", 14, constant="UST_3M_Z")
+    out.append(("flat bill (constant 0.05 for 14y), h=[1,4]", write_unit(root, "syn-F3-flatbill", "F3", [flat], ["UST_3M_Z", "UST_6M_Z"], [1, 4]), "runs"))
+    out.append(("panel id fx_rates_daily typed as FX", write_unit(root, "syn-F2-fxrates", "F2",
+                [daily_panel("fx_rates_daily", ["MXN", "EUR"], "ecb", 15)], ["MXN"], [2]), "runs"))
+    fx15 = ["EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD", "SEK", "NOK", "MXN", "BRL", "ZAR", "KRW", "INR"]
+    pfx = daily_panel("ecb_fx_daily", fx15, "ecb", 12)
+    out.append(("14-asset FX card h=[1,2,3,4] (56 cells)", write_unit(root, "syn-F3-fx14", "F3", [pfx], fx15, [1, 2, 3, 4]), "runs"))
+    curve = ["UST_3M", "UST_6M", "UST_1Y", "UST_2Y", "UST_5Y", "UST_10Y", "UST_30Y"]
+    pc = daily_panel("rates_daily", curve, "us", 13)
+    out.append(("7-tenor UST + 14 FX, F3 h=[1,4]", write_unit(root, "syn-F3-mix21", "F3", [pc, pfx], curve + fx15, [1, 4]), "runs"))
+    out.append(("weekend as-of? asof Sunday panel ends Fri", write_unit(root, "syn-F2-eur", "F2", [pfx], ["EUR"], [1, 2, 3, 4]), "runs"))
     short = daily_panel("ecb_fx_daily", ["MXN"], "ecb", 4, n_rows=25)
     out.append(("only 25 rows of history", write_unit(root, "syn-F2-short", "F2", [short], ["MXN"], [1]), "runs"))
     peg = daily_panel("ecb_fx_daily", ["MXN", "INR"], "ecb", 6, constant="INR")

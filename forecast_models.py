@@ -95,6 +95,22 @@ VOL_POOL = (10, 21, 63)
 #: rule: -0.006 vs (21, 63, 252), better on 17,698 cells and worse on 10,112 (t = -9; second sample
 #: t = -12), in each of 2003-07, 2008-15 and 2016-24. Not measured on the 21-128-day practice cards.
 
+#: exp/m2-short-horizon switches, each validated by tools/short_horizon_backtest.py (defaults = off).
+SHORT_H_MAX = 4                 # "short" card: every horizon <= this many steps
+ZERO_DRIFT_SHORT = False        # short cards: no drift and no trend scenario
+SD_MULT = {"rates": 1.0, "fx": 1.0, "equity_factor": 1.0}   # per-asset-class sd multiplier
+WINSOR = None                   # clip EWMA inputs at WINSOR x the series' sd (None = off)
+NU_STANDARDIZED = False         # fit nu on steps divided by their lagged EWMA sd
+CORR_PCA_K = 3                  # factors kept when shrinking the correlation toward its PCA fit
+CORR_SHRINK = 0.0               # weight on the PCA-reconstructed correlation (0 = off)
+EVENT_SCALE = None              # {(asset, horizon): sd multiplier} from event_vol.py, set by the caller
+CORR_EWMA_HL = None             # exponentially weighted correlation, half-life in steps (None = equal weights)
+CORR_LONG = False               # estimate on the whole shared history of the last 4*WINDOW rows instead of WINDOW
+SD_LONG_FLOOR = 0.0             # sd (every pool member) floored at this x the half-life-252 EWMA sd; 0 = off
+VOV_SD = 0.0                    # per-draw lognormal scale shared by all cells (vol-of-vol); 0 = off
+NU_FIXED = None                 # if set, replaces the fitted nu (for sensitivity tests)
+SD_FLOOR_RATES = 0.005          # floor on a rates step sd (0.5 bp; CMT quotes to 1 bp): inert on practice data, insurance for flat bills
+
 #: How each asset type is modelled (model_experiment_v3/transformations.toml):
 #:   transform  diff = x_t - x_{t-1};  log_diff = log(x_t / x_{t-1});  as_return = the row itself
 #:   shock      normal or student_t
@@ -280,15 +296,26 @@ class _Request:
     family: str | None
 
 
+_CCY = {"EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD", "SEK", "NOK", "DKK", "MXN", "BRL", "ZAR",
+        "KRW", "INR", "CNY", "CNH", "TRY", "PLN", "CZK", "HUF", "SGD", "HKD", "IDR", "THB", "TWD"}
+
+
 def asset_type(asset: str, panel_id: str) -> str | None:
     """The asset's type, from the panel that holds it (None: not recognised, use the default)."""
     if panel_id in PANEL_TYPES:
         return PANEL_TYPES[panel_id]
     if panel_id.startswith("macro") or asset in MACRO_TYPES:
         return MACRO_TYPES.get(asset)
-    for key, kind in (("rates", "rates"), ("fx", "fx"), ("factor", "equity_factor")):
-        if key in panel_id:
+    pid = panel_id.lower()
+    for key, kind in (("fx", "fx"), ("ecb", "fx"), ("currenc", "fx"), ("rates", "rates"), ("treasur", "rates"),
+                      ("bill", "rates"), ("yield", "rates"), ("factor", "equity_factor")):
+        if key in pid:                   # fx is tested before rates: fx_rates_daily is FX
             return kind
+    a = asset.upper()                    # last resort: the asset id itself
+    if a.startswith("UST") or a.startswith("TBILL"):
+        return "rates"
+    if a in _CCY:
+        return "fx"
     return None
 
 
@@ -352,10 +379,24 @@ def _fit_model(r: _Request) -> _Fit:
 
     # The width: each asset's EWMA sd over its own last 8 x halflife steps. The correlation stays
     # the window's.
+    if CORR_EWMA_HL and len(by_asset) > 1:
+        age = np.arange(x.shape[1])[::-1]
+        w_ = 0.5 ** (age / CORR_EWMA_HL); w_ = w_ / w_.sum()
+        m_ = x @ w_
+        xc = x - m_[:, None]
+        sigma = (xc * w_) @ xc.T
     sd_w = np.sqrt(np.diag(sigma))
     with np.errstate(divide="ignore", invalid="ignore"):
         corr = np.nan_to_num(sigma / np.outer(sd_w, sd_w), nan=0.0)
     np.fill_diagonal(corr, 1.0)
+    if CORR_SHRINK > 0 and len(by_asset) > CORR_PCA_K + 1:
+        w_, v_ = np.linalg.eigh(corr)
+        top = np.argsort(w_)[::-1][:CORR_PCA_K]
+        rec = (v_[:, top] * w_[top]) @ v_[:, top].T
+        d_ = np.sqrt(np.clip(np.diag(rec), 1e-9, None))
+        rec = rec / np.outer(d_, d_)
+        corr = (1 - CORR_SHRINK) * corr + CORR_SHRINK * rec
+        np.fill_diagonal(corr, 1.0)
     sd_e = np.array([_ewma_sd(_ordered_steps(hist[a][-(int(8 * EWMA_HALFLIFE) + 1):], rules[a]),
                               EWMA_HALFLIFE) for a in by_asset])
     sigma = corr * np.outer(sd_e, sd_e)
@@ -363,18 +404,38 @@ def _fit_model(r: _Request) -> _Fit:
     pool_sd = {a: [_ewma_sd(_ordered_steps(hist[a][-(int(8 * hl) + 1):], rules[a]), hl) for hl in (VOL_POOL or ())]
                for a in by_asset}
     full = {a: _ordered_steps(hist[a], rules[a]) for a in by_asset}
+    if SD_LONG_FLOOR:
+        lng = np.array([_ewma_sd(full[a][-int(8 * 252):], 252) if len(full[a]) > 60 else 0.0 for a in by_asset])
+        sd_e = np.maximum(sd_e, SD_LONG_FLOOR * lng)
+        pool_sd = {a: [max(v, SD_LONG_FLOOR * lng[i]) for v in pool_sd[a]] for i, a in enumerate(by_asset)}
+        sigma = corr * np.outer(sd_e, sd_e)
     drift = {a: (mu[i] if rules[a]["drift"] else 0.0) for i, a in enumerate(by_asset)}    # M1.5
     if RECENT_TREND:                                                                     # M1.7
         drift = {a: _recent_trend(full[a], rules[a], mu[i]) for i, a in enumerate(by_asset)}
 
+    mult = np.array([SD_MULT.get(types[a] or "", 1.0) for a in by_asset])
+    if np.any(mult != 1.0):
+        sigma = sigma * np.outer(mult, mult)
+        sd_e = sd_e * mult
+        pool_sd = {a: [v * mult[i] for v in pool_sd[a]] for i, a in enumerate(by_asset)}
+    if SD_FLOOR_RATES:       # rates only; applies when the EWMA sd is 0 too (a flat bill must not be a point mass)
+        fl = np.array([SD_FLOOR_RATES if types[a] == "rates" else 0.0 for a in by_asset])
+        if np.any(sd_e < fl) or any(v < fl[i] for i, a in enumerate(by_asset) for v in pool_sd[a]):
+            sd_e = np.maximum(sd_e, fl)
+            pool_sd = {a: [max(v, fl[i]) for v in pool_sd[a]] for i, a in enumerate(by_asset)}
+            sigma = corr * np.outer(sd_e, sd_e)
+    steps_h = {a: dict(zip(r.horizons, _horizon_steps([d for d, _ in hist[a]], r.horizons, r.asof)))
+               for a in by_asset}
+    if ZERO_DRIFT_SHORT and all(v <= SHORT_H_MAX for a in by_asset for v in steps_h[a].values()):
+        drift = {a: 0.0 for a in by_asset}
+        mu = np.zeros_like(mu)
     t_rows = [i for i, a in enumerate(by_asset) if rules[a]["shock"] == "student_t"]
     return _Fit(
         assets=by_asset, rules=rules, types=types, log_mode=log_mode, last=last,
         final={a: hist[a][-1][1] for a in by_asset}, mu=mu, sigma=sigma, sd=sd_e, pool_sd=pool_sd,
         drift=drift, full=full,
-        nu=_fit_nu(x[t_rows]) if t_rows else None,
-        steps={a: dict(zip(r.horizons, _horizon_steps([d for d, _ in hist[a]], r.horizons, r.asof)))
-               for a in by_asset},
+        nu=_fit_nu(_standardize(x[t_rows]) if NU_STANDARDIZED else x[t_rows]) if t_rows else None,
+        steps=steps_h,
     )
 
 
@@ -422,7 +483,12 @@ def _model(r: _Request) -> np.ndarray:
         ratio = np.array([[f.pool_sd[a][j] / f.sd[ai[a]] if f.sd[ai[a]] > 0 else 1.0 for a, h in cells]
                           for j in range(len(VOL_POOL))])
         dev = dev * ratio[np.arange(r.n_draws) % len(VOL_POOL)]
+    if EVENT_SCALE:
+        dev = dev * np.array([float(EVENT_SCALE.get((a, h), 1.0)) for a, h in cells])
     dev = dev * np.array([WIDEN * adj(a, "widen", 1.0) for a, h in cells])
+    if VOV_SD:
+        g = np.random.default_rng([r.seed, 13]).standard_normal((r.n_draws, 1))
+        dev = dev * np.exp(VOV_SD * g - 0.5 * VOV_SD ** 2)
     t_cells = np.array([f.rules[a]["shock"] == "student_t" for a, h in cells])
     if f.nu is not None and t_cells.any():
         w = np.random.default_rng([r.seed, 7]).chisquare(f.nu, size=(r.n_draws, 1))
@@ -504,6 +570,22 @@ def _skew_legs(dev: np.ndarray, f: _Fit, hs: list[int], skew: np.ndarray, seed: 
     return np.cumsum(legs, axis=2).reshape(n, -1)
 
 
+def _standardize(x: np.ndarray, halflife: float = 21.0) -> np.ndarray:
+    """Each row's steps divided by their lagged EWMA sd (recursive, seeded by the first 20 steps)."""
+    out = np.empty_like(x, dtype=float)
+    lam = 0.5 ** (1.0 / halflife)
+    for i, row in enumerate(x):
+        v = float(np.var(row[:20])) if len(row) >= 20 else float(np.var(row))
+        v = v or 1e-12
+        z = np.empty(len(row))
+        for t, val in enumerate(row):
+            z[t] = val / np.sqrt(v)
+            v = lam * v + (1 - lam) * val * val
+            v = max(v, 1e-12)
+        out[i] = z
+    return out[:, min(20, x.shape[1] - 5):]
+
+
 def _fit_nu(x_t: np.ndarray) -> float | None:
     """nu from the window's excess kurtosis k: a Student-t has k = 6 / (nu - 4), so nu = 4 + 6 / k.
 
@@ -514,13 +596,16 @@ def _fit_nu(x_t: np.ndarray) -> float | None:
     k = float(np.mean((z ** 4).mean(axis=1) / (z ** 2).mean(axis=1) ** 2 - 3))
     if not np.isfinite(k) or k < NORMAL_BELOW_KURTOSIS:
         return None
-    return float(np.clip(4 + 6 / k, NU_MIN, NU_MAX))
+    return float(NU_FIXED) if NU_FIXED else float(np.clip(4 + 6 / k, NU_MIN, NU_MAX))
 
 
 def _ewma_sd(past: np.ndarray, halflife: float) -> np.ndarray:
     """EWMA sd of `past` (rows oldest -> newest; one column per asset, or a single 1-d series): a
     step's weight halves every `halflife` steps back, around the weighted mean. Equals pandas'
     ewm(halflife).std(bias=True)."""
+    if WINSOR is not None and len(past) > 5:
+        lim = WINSOR * np.std(past, axis=0)
+        past = np.clip(past, -lim, lim) if np.ndim(lim) else np.clip(past, -lim, lim)
     age = np.arange(len(past))[::-1]
     w = 0.5 ** (age / halflife)
     w = w / w.sum()
