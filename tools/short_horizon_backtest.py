@@ -52,6 +52,7 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
 import forecast_models as fm  # noqa: E402
+import event_vol  # noqa: E402,F401
 from qfbench2_common.scoring.crps import crps_marginal, variogram_score  # noqa: E402
 from qfbench2_track_forecasting.tail import tail_pinball  # noqa: E402
 
@@ -77,6 +78,8 @@ JOINT_GROUPS = [
     ("g10-commodity", ["AUD", "CAD", "NOK", "NZD"]),
     ("rates-x-fx", ["UST_10Y", "EUR", "JPY"]),
     ("factors", ["MKT", "HML", "SMB", "MOM"]),
+    ("curve-full", ["UST_2Y", "UST_5Y", "UST_7Y", "UST_10Y", "UST_20Y", "UST_30Y"]),
+    ("fx-full", ["AUD", "CAD", "CHF", "DKK", "EUR", "GBP", "JPY", "NOK", "NZD", "SEK"]),
 ]
 JOINT_HORIZONS = [1, 4]
 
@@ -102,7 +105,71 @@ VARIANTS: dict[str, dict] = {
     "dev walk F3":    {"_dev_family": "T2-F3"},
     "dev walk F4":    {"_dev_family": "T2-F4"},
     "M2.0 short":     {"VOL_POOL": (10, 21, 63)},            # candidate: same as pool10-21-63
+    "zerodrift":      {"ZERO_DRIFT_SHORT": True},
+    "sd1.05":         {"SD_MULT": {"rates": 1.05, "fx": 1.05, "equity_factor": 1.05}},
+    "sd1.10":         {"SD_MULT": {"rates": 1.10, "fx": 1.10, "equity_factor": 1.10}},
+    "sd0.95":         {"SD_MULT": {"rates": 0.95, "fx": 0.95, "equity_factor": 0.95}},
+    "winsor4":        {"WINSOR": 4.0},
+    "winsor5":        {"WINSOR": 5.0},
+    "pca3s.3":        {"CORR_SHRINK": 0.3},
+    "pca3s.6":        {"CORR_SHRINK": 0.6},
+    "pca2s.5":        {"CORR_SHRINK": 0.5, "CORR_PCA_K": 2},
+    "nu6":            {"NU_FIXED": 6.0},
+    "nu10":           {"NU_FIXED": 10.0},
+    "floor":          {"SD_FLOOR_RATES": 0.005},
+    "ev":             {"_ev": "default"},                    # production: event_vol.DEFAULT_TABLE (half strength)
+    "ev_full":        {"_ev": {"rates": {"FOMC": 1.2, "FOMC_next": 1.2}, "fx": {"FOMC_next": 1.6, "ECB": 1.25, "BoJ": 1.1}}},
+    "ev15":           {"_ev": {"rates": {"FOMC": 1.27, "FOMC_next": 1.12}, "fx": {"FOMC_next": 1.71, "ECB": 1.20, "BoJ": 1.22}}},
+    "ev20":           {"_ev": {"rates": {"FOMC": 1.13, "FOMC_next": 1.25}, "fx": {"FOMC_next": 1.62, "ECB": 1.39, "BoJ": 1.06}}},
+    "ev_half":        {"_ev": {"rates": {"FOMC": 1.1, "FOMC_next": 1.1}, "fx": {"FOMC_next": 1.3, "ECB": 1.12, "BoJ": 1.05}}},
+    "draws8000":      {"_draws": 8000},
+    "nustd":          {"NU_STANDARDIZED": True},
 }
+#: Round-3 candidates: all carry the event scaling ("ev" is the current production model).
+_EV = {"_ev": "default"}
+for _name, _cfg in {
+    "p5-21-63":   {"VOL_POOL": (5, 21, 63)},
+    "p7-21-63":   {"VOL_POOL": (7, 21, 63)},
+    "p10-21":     {"VOL_POOL": (10, 21)},
+    "p10-30":     {"VOL_POOL": (10, 30)},
+    "p15-40":     {"VOL_POOL": (15, 40)},
+    "p10-21-63-126": {"VOL_POOL": (10, 21, 63, 126)},
+    "p10-21-42":  {"VOL_POOL": (10, 21, 42)},
+    "p14-28-63":  {"VOL_POOL": (14, 28, 63)},
+    "p10x4":      {"VOL_POOL": (10, 10, 21, 63)},
+    "p10-21-63x4": {"VOL_POOL": (10, 21, 63, 63)},
+    "p21":        {"VOL_POOL": (21,)},
+    "corr60":     {"CORR_EWMA_HL": 60},
+    "corr126":    {"CORR_EWMA_HL": 126},
+    "corr30":     {"CORR_EWMA_HL": 30},
+    "lf.5":       {"SD_LONG_FLOOR": 0.5},
+    "lf.7":       {"SD_LONG_FLOOR": 0.7},
+    "lf.85":      {"SD_LONG_FLOOR": 0.85},
+    "vr off":     {"VR_SHRINK": None},
+    "vr10":       {"VR_SHRINK": 10.0},
+    "vr100":      {"VR_SHRINK": 100.0},
+    "ev+zd":      {"ZERO_DRIFT_SHORT": True},
+    "dowR":       {"_ev": {"rates": {"FOMC": 1.2, "FOMC_next": 1.2, "dow": {4: 1.08}}, "fx": {"FOMC_next": 1.6, "ECB": 1.25, "BoJ": 1.1}}},
+    "dowF":       {"_ev": {"rates": {"FOMC": 1.2, "FOMC_next": 1.2}, "fx": {"FOMC_next": 1.6, "ECB": 1.25, "BoJ": 1.1, "dow": {0: 0.95, 3: 1.05, 4: 1.05}}}},
+    "dowRF":      {"_ev": {"rates": {"FOMC": 1.2, "FOMC_next": 1.2, "dow": {4: 1.08}}, "fx": {"FOMC_next": 1.6, "ECB": 1.25, "BoJ": 1.1, "dow": {0: 0.95, 3: 1.05, 4: 1.05}}}},
+    "nu5k0.9": {"NU_FIXED": 5.0, "SD_MULT": {"rates": 0.9, "fx": 0.9, "equity_factor": 0.9}},
+    "nu5k0.95": {"NU_FIXED": 5.0, "SD_MULT": {"rates": 0.95, "fx": 0.95, "equity_factor": 0.95}},
+    "nu5k1.0": {"NU_FIXED": 5.0, "SD_MULT": {"rates": 1.0, "fx": 1.0, "equity_factor": 1.0}},
+    "nu6k0.9": {"NU_FIXED": 6.0, "SD_MULT": {"rates": 0.9, "fx": 0.9, "equity_factor": 0.9}},
+    "nu6k0.95": {"NU_FIXED": 6.0, "SD_MULT": {"rates": 0.95, "fx": 0.95, "equity_factor": 0.95}},
+    "nu6k1.0": {"NU_FIXED": 6.0, "SD_MULT": {"rates": 1.0, "fx": 1.0, "equity_factor": 1.0}},
+    "nu8k0.9": {"NU_FIXED": 8.0, "SD_MULT": {"rates": 0.9, "fx": 0.9, "equity_factor": 0.9}},
+    "nu8k0.95": {"NU_FIXED": 8.0, "SD_MULT": {"rates": 0.95, "fx": 0.95, "equity_factor": 0.95}},
+    "nu8k1.0": {"NU_FIXED": 8.0, "SD_MULT": {"rates": 1.0, "fx": 1.0, "equity_factor": 1.0}},
+    "k0.9": {"SD_MULT": {"rates": 0.9, "fx": 0.9, "equity_factor": 0.9}},
+    "k0.95": {"SD_MULT": {"rates": 0.95, "fx": 0.95, "equity_factor": 0.95}},
+    "vov.10":     {"VOV_SD": 0.10},
+    "vov.20":     {"VOV_SD": 0.20},
+    "vov.10 nu10": {"VOV_SD": 0.10, "NU_FIXED": 10.0},
+    "vov.20 nu15": {"VOV_SD": 0.20, "NU_FIXED": 15.0},
+    "vov.20 nomix": {"VOV_SD": 0.20, "VOL_POOL": None},
+}.items():
+    VARIANTS["e " + _name] = {**_EV, **_cfg}
 _DEV_MODULE = REPO / ".cache" / "short_horizon" / "devmod" / "forecast_models_dev.py"
 _fm_dev = None
 
@@ -118,7 +185,8 @@ def _dev_model():
         spec.loader.exec_module(_fm_dev)
     return _fm_dev
 _DEFAULTS = {k: getattr(fm, k) for k in
-             ("RECENT_TREND", "ZERO_FLOOR", "VR_SHRINK", "TREND_SHARE", "VOL_POOL", "EWMA_HALFLIFE")}
+             ("RECENT_TREND", "ZERO_FLOOR", "VR_SHRINK", "TREND_SHARE", "VOL_POOL", "EWMA_HALFLIFE",
+              "ZERO_DRIFT_SHORT", "SD_MULT", "CORR_SHRINK", "CORR_PCA_K", "EVENT_SCALE", "NU_FIXED", "VOV_SD", "SD_LONG_FLOOR", "CORR_EWMA_HL", "WINSOR", "NU_STANDARDIZED", "SD_FLOOR_RATES")}
 
 
 # ----------------------------------------------------------------------------- data
@@ -266,6 +334,22 @@ def score(samples: np.ndarray, y: np.ndarray, div: tuple[float, float, float]) -
 
 
 # ----------------------------------------------------------------------------- one card
+def event_scale_for(card: dict, table) -> dict:
+    """{(asset, h): multiplier} from event_vol for this pseudo-card (dates = the panel's next rows)."""
+    import event_vol as ev
+    out = {}
+    for a in card["assets"]:
+        pid, t = next((p, t) for p, t in _PANELS.items() if a in set(t["asset"].unique()))
+        cls = {"rates_daily": "rates", "g10_fx_daily": "fx"}.get(pid)
+        if cls is None:
+            continue
+        fut = t[(t["asset"] == a) & (t["date"] > card["asof"])]["date"].tolist()[:max(card["horizons"])]
+        sc = ev.horizon_scale(cls, fut, table)
+        for h in card["horizons"]:
+            out[(a, h)] = sc[h - 1]
+    return out
+
+
 def model_draws(variant: str, tables, card: dict) -> np.ndarray:
     cfg = VARIANTS[variant]
     if "_dev_family" in cfg:
@@ -277,9 +361,14 @@ def model_draws(variant: str, tables, card: dict) -> np.ndarray:
     for k, v in _DEFAULTS.items():
         setattr(fm, k, cfg.get(k, v))
     widen = float(cfg.get("_widen", 1.0))
+    fm.EVENT_SCALE = None
+    if "_ev" in cfg:
+        import event_vol as ev
+        tbl = None if cfg["_ev"] == "default" else cfg["_ev"]
+        fm.EVENT_SCALE = event_scale_for(card, tbl)
     adj = {a: {"shift": 0.0, "widen": widen, "skew": 0.0} for a in card["assets"]}
     seed = zlib.crc32(card["id"].encode()) & 0x7FFFFFFF
-    out = fm.build_draws(tables, card["assets"], card["horizons"], card["asof"], adj, MODEL_DRAWS, seed,
+    out = fm.build_draws(tables, card["assets"], card["horizons"], card["asof"], adj, int(cfg.get("_draws", MODEL_DRAWS)), seed,
                          target_type=card["target_type"], family=None)
     return out.reshape(out.shape[0], -1)          # (draws, assets x horizons): asset-major, card order
 
@@ -303,6 +392,7 @@ def run_card(args) -> list[dict]:
                 sc, comp = score(s_all[:, k:k + 1], y[k:k + 1], divisors(cm, cc))
                 rows.append({"variant": v, "id": card["id"], "kind": "single", "group": card["group"],
                              "asset": card["assets"][0], "h": h, "asof": card["asof"], "score": sc,
+                             "evt": float(event_scale_for(card, None).get((card["assets"][0], h), 1.0)),
                              "z0": float(abs(y[k] - cm[0]) / math.sqrt(cc[0, 0])), **comp})
         else:
             s = m0_draws(mean, cov, seed) if v == "M0" else model_draws(v, tables, card)
@@ -424,10 +514,11 @@ def report(df: pd.DataFrame) -> None:
     line(shock, "outcome beyond 3 M0-sd")
 
     print("\n  paired vs M2.0 (same cells): mean diff, better/worse, t")
+    ref = "M2.0" if "M2.0" in variants else variants[min(1, len(variants) - 1)]
     for v in variants:
-        if v == "M2.0":
+        if v == ref:
             continue
-        d = piv[v] - piv["M2.0"]
+        d = piv[v] - piv[ref]
         t = d.mean() / (d.std(ddof=1) / math.sqrt(len(d))) if d.std() > 0 else 0.0
         print(f"    {v:20s} {d.mean():+.4f}   {int((d < -1e-12).sum()):5d}/{int((d > 1e-12).sum()):<5d}  t={t:+.2f}")
     print("\n  median, share of cells under 1.0, share clipped at 8:")
