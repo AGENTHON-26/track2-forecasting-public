@@ -57,7 +57,7 @@ A descriptor category or image-access field does not itself make a service avail
 An upload is a **zip, not an image reference**. Push your `linux/amd64` image to a registry that
 allows anonymous pulls by digest (the image submission guide above), write `submission.json`
 with that digest (the sealed descriptor, see the
-[descriptor guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.6.0/starter-packs/track2/SUBMISSION-DESCRIPTOR.md)),
+[descriptor guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.6.1/starter-packs/track2/SUBMISSION-DESCRIPTOR.md)),
 then let the toolkit seal and pack it:
 
 ```bash
@@ -66,11 +66,14 @@ qfbench2 submission pack --descriptor submission.json --team-number <your team n
 
 `pack` asks for your Team Key on a hidden prompt, derives your `team_id`, and writes
 `submission.zip` containing `submission.json` and `team-claim.json` -- the
-[team-claim guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.6.0/starter-packs/track2/TEAM-CLAIM.md)
+[team-claim guide](https://github.com/Agenthon-2026/Agenthon2026-public/blob/v2.6.1/starter-packs/track2/TEAM-CLAIM.md)
 explains the claim and what happens when it is wrong. Upload `submission.zip` on this track's
 CodaBench competition page from your team's designated CodaBench account; the page link was
 issued to registered teams at the Development opening and is in the participant announcements.
 The Team Key never goes into the zip and is never sent to anyone.
+
+**On Windows, run the toolkit inside WSL** (Windows Subsystem for Linux); it is not tested on
+native Windows.
 
 ## Development submission limits
 
@@ -81,14 +84,27 @@ receive no score; local validation and packaging use no attempts. An upload the 
 `Failed` does not consume an attempt — the platform's daily count excludes it. Track 1 has a 1-per-day limit;
 Tracks 2, 3 and 4 retain 5 per day.
 
-Development runs through **October 12, 2026**. The joint **Final + Verification phase runs
-October 13–25, 2026**. Each team makes **one final submission per track**; organizers perform
-verification within that same phase, with no separate participant Verification submission.
+Development runs through **October 12, 2026**. The joint **Final + Verification phase** is the Final
+upload window, from **13 October 2026, 12:00 UTC** to **25 October 2026, 23:59 AoE** (26 October,
+11:59 UTC): each team makes **one final submission per track** in it. On Track 2, each Final upload
+gets one **unranked check run** on sealed cards during the window, to show that the image runs and
+writes valid forecasts; as with every Final run, you see its status, not its per-card details. The
+**ranked run** happens after the window closes, on cards built from data up to Monday 26 October
+2026: UST and exchange-rate cards, with every target date between 27 and 30 October 2026 (1 to 4
+business days after the as-of) and exchange rates taken from the ECB's euro foreign exchange
+reference rates; and a few cards that forecast a monthly official statistic first released between
+27 and 30 October 2026. On Track 2, the ranked cards are to be scored by the end of October and
+results are published in early November, with no provisional standings; images must stay pullable
+until the results are published. On every track, organizers verify the top entries after their runs,
+so verification can end after 25 October; on Track 2 that is after the ranked runs. No track needs a
+separate participant Verification submission.
+
 If two Final submissions finish this track with the same ranking score, the tie is broken in
 favour of the one uploaded earlier.
-Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates and task/data cutoffs are unchanged.
-New Development runs stop starting at 20:00 UTC on Monday 12 October 2026, before a maintenance
-window on Tuesday 13 October, 08:00–12:00 UTC; an upload that has not started by then is not run
+Registration and Development close together on October 12, 2026 at **23:59 Anywhere on Earth (AoE, UTC−12)**. The joint Final + Verification phase closes on October 25, 2026 at **23:59 AoE**. Other competition dates are unchanged; on Track 2, the Final's cards, ranking and results follow the timeline above.
+Development has one deadline, 12 October 2026 at 23:59 AoE (13 October, 11:59 UTC): every valid
+Development upload made before then is run, even if its run starts after the close. The 20:00 UTC
+cutoff and the 13 October maintenance pause are cancelled
 ([issue #18](https://github.com/Agenthon-2026/track2-forecasting-public/issues/18)).
 See the [Development submission limits](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/DEVELOPMENT-RUNTIME.md#submission-limits-at-the-development-opening).
 
@@ -100,7 +116,7 @@ internet** in official scoring.
 | Mode | Who | Meaning |
 |---|---|---|
 | `none` | **Simulation (T3)** | Fully offline (`--network=none`). Exactly the historical closed-resource behavior; the container has no network, so any outbound connection attempt fails. |
-| `restricted` | **Agent tracks (T1 coding, T2 forecasting, T4 Explainability)** | No open internet. Egress **only** through the organizer's audited proxy to the **organizer-hosted model endpoint** given by `MODEL_ENDPOINT` (open models, free to use, per-unit request budget). Every connection is logged (domain, bytes, timestamps); the log is the audit artifact for verification within the joint Final + Verification phase. |
+| `restricted` | **Agent tracks (T1 coding, T2 forecasting, T4 Explainability)** | No open internet. Egress **only** through the organizer's audited proxy to the **organizer-hosted model endpoint** given by `MODEL_ENDPOINT` (open models, free to use, per-unit request budget). Every connection is logged (domain, bytes, timestamps); the log is the audit artifact for the organizers' verification of the top entries, which follows their runs (on Track 2, the ranked runs after the Final window). |
 
 > ### ⚠️ Agent tracks: there is no third-party model-API access
 >
@@ -195,7 +211,7 @@ category, the models used (pinned versions), and their training cutoffs.
 | Track | Verb | Inputs (under `/input`) | Required output (under `/output`) |
 |---|---|---|---|
 | **T1 Coding** | `solve --task-dir /input --out /app/output` | task spec + environment files | task-specified deliverables written to **`/app/output`** (QFBench/Harbor convention); the `checks/` step asserts correctness and writes **both** `reward.txt` and `reward.json` (see T1 note below) |
-| **T2 Time-Series Forecasting** | `forecast --panels /input/panels/ --text /input/text/ --asof <YYYY-MM-DD> --out /output/forecast.parquet` | `panels/` — multivariate time-series parquet files; `text/` — time-stamped text corpus (news, FOMC, macro releases); all timestamps must be ≤ `--asof` (enforced by the organizer's staging gates before the unit ships) | joint predictive distribution conforming to `forecast.schema.json`; sidecar `forecast_meta.json` required; **`forecast_rationale.md` required and never scored** (see T2 note below) |
+| **T2 Time-Series Forecasting** | `forecast --panels /input/panels/ --text /input/text/ --asof <YYYY-MM-DD> --out /output/forecast.parquet` | `panels/` — multivariate time-series parquet files; `text/` — time-stamped corpus of official documents (FOMC and other central-bank releases, data releases); all timestamps must be ≤ `--asof` (enforced by the organizer's staging gates before the unit ships) | joint predictive distribution conforming to `forecast.schema.json`; sidecar `forecast_meta.json` required; **`forecast_rationale.md` required and never scored** (see T2 note below) |
 | **T3 Simulation** (single scenario) | `simulate --config /input/scenario.json --out /output/trace.parquet` | scenario config + ABIDES environment | message-level trace conforming to `sim_scenario.schema.json` + `events.json` (counts/timing) |
 | **T3 Simulation** (batched, family GB) | `simulate-batch --batch-dir /input/scenarios --out-dir /output` | `batch.json` — the sub-scenario roster; `scenarios/` — one config per sub-scenario. These units have **no** top-level `scenario.json`. | one output subdir per sub-scenario, each with `trace.parquet` + `events.json`, plus `batch_events.json` at the root of `--out-dir` |
 | **T4 Tabular Prediction** | `analyze --task /input/task.json --corpus /input/corpus/ --out /output/answer.json` | `task.json` — tabular dataset (rows = entities) + target column spec + `target_type` (classification/regression/ranking); `corpus/` — frozen evidence corpus | prediction + interval + citations per row conforming to `analysis.schema.json`; `target_type` in output must match card |
@@ -243,8 +259,9 @@ everything else to `simulate`. Six of the public dev units (`t3-gbatch-*`) are b
 2. Output must validate against the track output schema *before* any scoring (`g1_schema`).
 3. The image must not read any path outside `/input` and `/output`; the canary registry and held-out
    targets are never mounted.
-4. Determinism: the harness sets `QFBENCH_SEED`; organizer verification within the joint Final + Verification phase
-   reruns on fresh seeds/resamples and compares against the final-submission result (reproducibility gate).
+4. Determinism: the harness sets `QFBENCH_SEED`; organizer verification of the top entries, after their runs
+   (on Track 2, after the ranked runs that follow the Final window), reruns on fresh seeds/resamples and
+   compares against the final-submission result (reproducibility gate).
    Because the rerun's `QFBENCH_SEED` is fresh, a seed meant to repeat must be a constant in your code.
    Track 1: what has to match on the rerun is the submitted image and program, not the House model's answers,
    so a per-unit verdict that differs only because the House model answered differently is not a violation.
@@ -276,7 +293,7 @@ everything else to `simulate`. Six of the public dev units (`t3-gbatch-*`) are b
 
 Do **not** add `house_endpoint_only` -- or any key the descriptor schema does not list -- to
 `submission.json`: the schema refuses unknown keys, so a submission carrying it is rejected
-before it runs. Whether every model call used the house endpoint exclusively is read from
-the audited egress-proxy logs during the joint Final + Verification phase; it drives an "Open Division"
-display filter of the single leaderboard (never a separate ranking) and needs nothing
-from you.
+before it runs. Whether every model call used the house endpoint exclusively is read, after the
+Final runs, from their audited egress-proxy logs (on Track 2, the ranked runs after the Final
+window); it drives an "Open Division" display filter of the single leaderboard (never a separate
+ranking) and needs nothing from you.

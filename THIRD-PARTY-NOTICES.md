@@ -10,8 +10,8 @@ came from.
 **Where no grant to the organizers is evidenced, this file says so rather than naming a licence.**
 "Issuer's terms govern" is not a grant and not a denial — it means the terms have not been
 established from any evidence in this repository, unless the entry quotes the issuer's published
-terms, as it does for the ECB files that print the ECB's permission, the SNB press release and the
-HM Treasury document below.
+terms, as it does for the ECB files that print the ECB's permission, the ECB euro reference rates,
+the SNB press release and the HM Treasury document below.
 
 ## Software
 
@@ -73,9 +73,10 @@ are original organizer work under this repository's `LICENSE` (MIT).
 ## Non-U.S. central banks — the issuing institution's terms govern
 
 None of the material below is a U.S. Government work, and **except for the ECB files that print the
-ECB's permission and the SNB press release, noted below, no grant to the organizers is evidenced
-anywhere in this repository.** It is neither MIT nor CC-BY-4.0. Those are the only ones whose reuse
-terms are established: the ECB files print them, and the SNB publishes them on its copyright page.
+ECB's permission, the ECB euro reference rates and the SNB press release, noted below, no grant to
+the organizers is evidenced anywhere in this repository.** It is neither MIT nor CC-BY-4.0. Those
+are the only ones whose reuse terms are established: the ECB files print them, the ECB publishes its
+terms for the reference rates, and the SNB publishes them on its copyright page.
 Most copies were obtained from the BIS *Central bankers' speeches* archive, which is a host and
 compiler — **BIS authored none of these documents**, and a thin typesetting or compilation layer may
 sit over the underlying text.
@@ -98,6 +99,13 @@ sit over the underlying text.
   file in the tree and appears in **those eight files and no others**. One further speech,
   `bis_elderson_2022-12-01.txt`, ends with "Copyright 2022, European Central Bank" and no
   permission; the ECB's terms govern it.
+- **European Central Bank, euro foreign exchange reference rates** (ecb.europa.eu) — source of the
+  FX panels and targets of the cards that rank the Final (not shipped in this repository); the G10
+  rates and the MXN, BRL, ZAR, KRW and INR rates against the US dollar are cross-calculated from the
+  ECB's euro rates. The ECB's published terms permit use provided the information is reproduced
+  accurately and the ECB is cited as the source, and require any modification to be stated
+  explicitly: <https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html>.
+  The US-dollar rates are a modification: the organizers compute them from the ECB's euro rates.
 - **Bank of Japan** (boj.or.jp) — statements on monetary policy and speeches (Kuroda, Ueda,
   Wakatabe, Shirakawa, Adachi, Nakaso, Noguchi, Masai, Shirai, Sato, Iwata, Uchida, Takata, Fukui).
 - **Bank of England** (bankofengland.co.uk) — Monetary Policy Committee statements and Monetary
@@ -186,6 +194,13 @@ organizer-derived series. Neither provider grants sublicensing or commercial reu
   `synthetic`, while the same unit's `panel_description.md` and `card.toml` document a real FRED
   H.15 download. **The repository contradicts itself**; one of the two records is wrong and the
   question is unresolved.
+
+## Official statistics behind the ranked Final's data-release cards
+
+The data-release cards of the ranked Final each forecast a monthly official statistic first released
+between 27 and 30 October 2026. Those cards are not shipped in this repository. Each statistic comes
+from its official publisher under that publisher's terms (U.S. federal statistics are public
+domain), and each card's manifest names its publisher, source and licence.
 
 ## Other datasets referenced by the Agenthon 2026 program
 

@@ -29,7 +29,7 @@ Four panels are available:
 | Panel ID | Source | Series | Native unit |
 |----------|--------|--------|-------------|
 | `rates/ust-daily` | FRED H.15 | DGS2, DGS5, DGS7, DGS10, DGS20, DGS30 | % per annum |
-| `fx/g10-daily` | Fed H.10 | 10 G10 currency spots | USD per foreign unit (spot mid) |
+| `fx/g10-daily` | Fed H.10 | 10 G10 currency spots | H.10 quotes: USD per unit for EUR, GBP, AUD and NZD; units per USD for JPY, CHF, CAD, SEK, NOK and DKK |
 | `macro/releases-quarterly` | FRED | CPI, PCE, NFP, GDP flash x G6 + selected EM | native units (varies) |
 | `factors/jkp-daily` | JKP | MKT, SMB, HML, MOM, BAB, QMJ | decimal daily return |
 
@@ -61,9 +61,10 @@ any submission where the corpus contains a post-asof document.
 | Central bank statements | FOMC meeting statements | Use the release date as the document timestamp |
 | Meeting minutes | FOMC minutes | Release date is typically ~3 weeks after the meeting |
 | Governor speeches | Fed chair Jackson Hole speech | Timestamp = date of delivery |
-| Macro-release commentary | BLS CPI release text, NFP press release | Timestamp = release date |
-| COT analyst summaries | Commitment of Traders commentary | Timestamp = publication date |
-| News headlines | Newswire snippets about market events | Timestamp = publication date |
+| Official data releases | BLS CPI release text, NFP press release | Timestamp = release date |
+| CFTC positioning data | Commitments of Traders report | Timestamp = publication date |
+
+Track 2 corpora hold official documents and, on a few practice cards, company filings with the SEC; news articles are not used.
 
 **Assembling the corpus — required layout:**
 
@@ -152,10 +153,10 @@ in the corpus.
 
 | Family | What text signals to include |
 |--------|----------------------------|
-| F1 | FOMC/MPC statements around the as-of date; macro-release commentary |
+| F1 | FOMC/MPC statements around the as-of date; official data releases |
 | F2 | Pre-shift central bank communications showing tone change; policy announcements |
-| F3 | Multi-market commentary; communications about one asset that imply another |
-| F4 | Shock-foreshadowing text: urgency language, record-level commentary, risk warnings |
+| F3 | Official communications covering several markets; communications about one asset that imply another |
+| F4 | Shock-foreshadowing text: urgency language, record-level readings in official releases, risk warnings |
 
 For F4, the corpus should include documents that explicitly foreshadow the shock, published
 before the shock, and available to an informed observer on the as-of date. Do not include
@@ -251,11 +252,11 @@ which breaks comparability with other cards in the same family.
 | F1 | Target assets are all present in the training panel through the as-of date; testing whether text adds incremental signal |
 | F2 | Text signals a regime change before the panel numbers move; or the target asset is absent from the panel |
 | F3 | Multiple target assets; cross-asset dependence (text about one implies moves in others) is the test |
-| F4 | The held-out window spans a shock that the text corpus foreshadows; tail calibration is the test |
+| F4 | On the practice cards, the window spans a shock that the text corpus foreshadows. On the cards that rank the Final, the corpus carries a live risk channel or a scheduled event inside the window, with no promise of a shock. Tail calibration is the test |
 
 A card can have characteristics of multiple families. Use these tie-breaking rules:
 - If the target series is absent from the panel → F2 (the exclusion rule dominates)
-- If the window spans a shock AND assets are multi-variate → F4 (tails dominate)
+- If the window spans a shock AND assets are multi-variate → F4 (tails dominate). This describes the practice cards; for the Final, see the F4 row above.
 - If multi-asset joint but no shock → F3
 - Otherwise → F1
 

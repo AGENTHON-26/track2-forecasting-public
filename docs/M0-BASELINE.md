@@ -190,11 +190,11 @@ those of the named month. The declared horizon and steps 1–5 below play no par
 month is not the month of the cell's sealed target date, the generator **refuses**, and the card
 is not scaled until an organizer resolves the disagreement.
 
-On the monthly cards of the Final phase, that count is one or two more than the number of months
-from the as-of month to the named month, because their target series end one or two months before
-the as-of month. Steps 1–5 would not always see that: step 5 keeps any declared horizon within 2x
-of the count (one counted from the as-of month, for example), and the walk would then stop one or
-two months short of the month being forecast. §4 works a synthetic case.
+On the monthly cards of the Final phase, including the ranked cards that forecast a monthly official
+statistic, that count is larger than the number of months from the as-of month to the named month,
+because their target series end before the as-of month. Steps 1–5 would not always see that: step 5
+keeps any declared horizon within 2x of the count (one counted from the as-of month, for example),
+and the walk would then stop short of the month being forecast. §4 works a synthetic case.
 
 **Every other cell** is converted in five steps:
 
