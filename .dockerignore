@@ -14,6 +14,7 @@
 !forecast_agent.py
 !text_signal.py
 !forecast_models.py
+!event_vol.py
 !f1_pipeline
 f1_pipeline/*
 !f1_pipeline/m2_unit.py

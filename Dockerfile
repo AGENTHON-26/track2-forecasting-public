@@ -73,7 +73,7 @@ WORKDIR /work
 # module out would turn flipping it into a silent degradation rather than a working feature. No
 # `__init__.py` is required: `f1_pipeline` resolves as an implicit namespace package under
 # `PYTHONPATH=/opt`, and it pulls in no dependency that is not already installed above.
-COPY forecast_agent.py forecast_models.py text_signal.py /opt/
+COPY forecast_agent.py forecast_models.py text_signal.py event_vol.py /opt/
 COPY f1_pipeline/m2_unit.py /opt/f1_pipeline/m2_unit.py
 ENV PYTHONPATH=/opt
 
